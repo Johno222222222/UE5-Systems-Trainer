@@ -92,7 +92,8 @@ def _assert_safe_email(subject: str, html: str) -> None:
 
 def app_url(request: Request) -> str:
     # The ingress host this request came in on, i.e. this app's own domain
-    return f"https://{request.headers.get('x-forwarded-host') or request.headers['host']}".split(",")[0].strip()
+    # Only the Host header: the ingress routes on it, so it is always this app's own domain
+    return f"https://{request.headers['host'].split(',')[0].strip()}"
 
 
 def template(heading: str, lines: list, button: str, link: str) -> str:
@@ -113,7 +114,11 @@ def template(heading: str, lines: list, button: str, link: str) -> str:
 
 async def send_email(*, to: str, subject: str, html: str) -> bool:
     """Returns True when the provider accepted it; failures are logged, never raised."""
-    _assert_safe_email(subject, html)
+    try:
+        _assert_safe_email(subject, html)
+    except ValueError as e:
+        logger.error("Email blocked by safety gate: %s", e)
+        return False
     payload = {"to": [to], "subject": subject, "html": html, "from_name": EMAIL_FROM_NAME}
     try:
         async with httpx.AsyncClient(timeout=30) as client:

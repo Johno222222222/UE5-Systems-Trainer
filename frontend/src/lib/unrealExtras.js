@@ -40,12 +40,12 @@ function mapNode(n, ctx) {
   return null;
 }
 
-export function blueprintClipboard(system) {
+export function blueprintClipboard(system, module = null) {
   const nodes = system?.node_graph_nodes || [];
   const header = system?.cpp_header || "";
   const cls = headerClasses(header).find((c) => /^[UA]/.test(c)) || `U${baseName(system)}`;
   const ctx = {
-    classPath: `/Script/${moduleName(system)}.${cls.slice(1)}`,
+    classPath: `/Script/${module || moduleName(system)}.${cls.slice(1)}`,
     funcs: new Set([...header.matchAll(/UFUNCTION\s*\([^)]*\)\s*(?:[\w<>,*&:]+[\s*&]+)*?(\w+)\s*\(/g)].map((m) => m[1])),
     props: new Set([...header.matchAll(/UPROPERTY\s*\((?:[^()]|\([^()]*\))*\)\s*(?:[\w<>,*&:]+[\s*&]+)+?(\w+)\s*[;={]/g)].map((m) => m[1])),
   };

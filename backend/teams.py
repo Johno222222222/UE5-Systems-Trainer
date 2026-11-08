@@ -128,8 +128,8 @@ async def add_team_member(team_id: str, body: TeamMemberIn, request: Request, us
         await db.teams.update_one({"team_id": team_id, "members.email": email}, {"$set": {"members.$.role": body.role}})
     else:
         token = secrets.token_urlsafe(24)
-        await db.teams.update_one({"team_id": team_id}, {"$push": {"members": {"email": email, "role": body.role, "user_id": None, "invite_token": token, "added_at": now()}}})
-        emailed = await send_invite(request, user, email, f'the team "{team["name"]}"', f"/team-invite/{token}")
+        res = await db.teams.update_one({"team_id": team_id, "members.email": {"$ne": email}}, {"$push": {"members": {"email": email, "role": body.role, "user_id": None, "invite_token": token, "added_at": now()}}})
+        emailed = None if not res.modified_count else await send_invite(request, user, email, f'the team "{team["name"]}"', f"/team-invite/{token}")
     return {**view(await load_team(team_id, user), user), "emailed": emailed}
 
 

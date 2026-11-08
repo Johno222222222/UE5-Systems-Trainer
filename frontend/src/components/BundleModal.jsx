@@ -96,6 +96,8 @@ export default function BundleModal({ ids, preset, onClose, onPresetsChanged, ai
 
   const acceptBatchFix = async () => {
     const b = batch;
+    if (b.fix.saving) return;
+    setBatch({ ...b, fix: { ...b.fix, saving: true } });
     const idx = b.queue[b.pos];
     const item = items[idx];
     const next = { ...item.system, cpp_header: b.fix.data.cpp_header, cpp_source: b.fix.data.cpp_source };

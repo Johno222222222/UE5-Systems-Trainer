@@ -10,7 +10,13 @@ function hunk(file, before, after) {
   while (p < a.length && p < b.length && a[p] === b[p]) p += 1;
   let s = 0;
   while (s < a.length - p && s < b.length - p && a[a.length - 1 - s] === b[b.length - 1 - s]) s += 1;
-  return { file, start: p + 1, removed: a.slice(p, a.length - s).slice(0, MAX), added: b.slice(p, b.length - s).slice(0, MAX) };
+  const removed = a.slice(p, a.length - s);
+  const added = b.slice(p, b.length - s);
+  return {
+    file, start: p + 1, removed: removed.slice(0, MAX), added: added.slice(0, MAX),
+    ctx_before: p > 0 ? a[p - 1] : null, ctx_after: s > 0 ? a[a.length - s] : null,
+    truncated: removed.length > MAX || added.length > MAX,
+  };
 }
 
 export function makeFixEntry(before, after, data) {
@@ -32,12 +38,16 @@ export function undoFixEntry(system, entry) {
   for (const h of entry.hunks) {
     const key = h.file === ".cpp" ? "cpp_source" : "cpp_header";
     const lines = (next[key] || "").split("\n");
-    const at = (i) => h.added.every((l, k) => lines[i + k] === l);
+    if (h.truncated) return null;
+    // Neighbouring lines must match too, so pure insertions/deletions land in the right spot
+    const at = (i) => h.added.every((l, k) => lines[i + k] === l)
+      && (h.ctx_before == null || lines[i - 1] === h.ctx_before)
+      && (h.ctx_after == null || lines[i + h.added.length] === h.ctx_after);
     let idx = h.start - 1;
     if (!(idx <= lines.length - h.added.length && at(idx))) {
       const hits = [];
       for (let i = 0; i <= lines.length - h.added.length; i += 1) if (at(i)) hits.push(i);
-      if (hits.length !== 1 || !h.added.length) return null;
+      if (hits.length !== 1) return null;
       [idx] = hits;
     }
     lines.splice(idx, h.added.length, ...h.removed);

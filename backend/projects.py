@@ -93,6 +93,9 @@ class FixHunk(BaseModel):
     start: int = Field(ge=1)
     removed: List[str] = Field(default_factory=list, max_length=400)
     added: List[str] = Field(default_factory=list, max_length=400)
+    ctx_before: Optional[str] = Field(default=None, max_length=2000)
+    ctx_after: Optional[str] = Field(default=None, max_length=2000)
+    truncated: bool = False
 
 
 class FixEntry(BaseModel):
@@ -415,8 +418,8 @@ async def add_member(project_id: str, body: MemberIn, request: Request, user: di
         await db.projects.update_one({"project_id": project_id, "members.email": email}, {"$set": {"members.$.role": body.role}})
     else:
         member = {"email": email, "role": body.role, "user_id": None, "invite_token": secrets.token_urlsafe(24), "added_at": now()}
-        await db.projects.update_one({"project_id": project_id}, {"$push": {"members": member}})
-        emailed = await teams.send_invite(request, user, email, f'the project "{project["name"]}"', f"/invite/{member['invite_token']}")
+        res = await db.projects.update_one({"project_id": project_id, "members.email": {"$ne": email}}, {"$push": {"members": member}})
+        emailed = None if not res.modified_count else await teams.send_invite(request, user, email, f'the project "{project["name"]}"', f"/invite/{member['invite_token']}")
     project, _ = await load_project(project_id, user, "owner")
     return {**detail(project, "owner"), "emailed": emailed}
 

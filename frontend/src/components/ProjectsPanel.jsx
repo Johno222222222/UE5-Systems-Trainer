@@ -106,7 +106,7 @@ export default function ProjectsPanel({ refreshKey, currentId, onOpen, onDeleted
           <button className="ue-btn !py-1 !px-2 !text-[11px]" onClick={() => setTeamModal(null)} data-testid="team-create-button">New team</button>
         </div>
       )}
-      {lists.mine.length + lists.shared.length >= 2 && (
+      {lists.mine.length + lists.shared.length + lists.team.length >= 2 && (
         <div className="flex gap-1.5 mb-2">
           <button className="ue-btn flex-1 justify-center !border-[var(--accent-purple)] !text-[var(--accent-purple)]" onClick={stack} disabled={busy || sel.length < 2 || sel.length > 4} title="Merge into one integrated system with AI" data-testid="stack-systems-button">
             <Combine size={13} /> {sel.length < 2 ? "Tick 2+ to stack" : sel.length > 4 ? "Stack up to 4" : `Stack ${sel.length}`}

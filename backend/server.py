@@ -625,7 +625,7 @@ async def generate_tests(
     try:
         data = extract_json(raw)
         code = data["code"]
-        if not isinstance(code, str) or "It(" not in code:
+        if not isinstance(code, str) or "It(" not in code or not re.search(r"BEGIN_DEFINE_SPEC|IMPLEMENT_\w*AUTOMATION_TEST", code):
             raise ValueError("no test cases")
     except Exception:
         raise HTTPException(status_code=502, detail="The model's tests couldn't be read. Please try again.")

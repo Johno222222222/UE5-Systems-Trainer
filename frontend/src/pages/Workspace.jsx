@@ -224,7 +224,8 @@ export default function Workspace() {
         return false;
       }
       if (result) setPreviousResult(result);
-      setResult({ ...data, context: { ...context, project_context: projectContext, references, notes: body.designer_notes || "" }, baseline_modules: data.modules });
+      // Keep generated tests across regenerations; the Tests tab marks them out of date
+      setResult({ ...data, ...(result?.tests && !body.stack_systems ? { tests: result.tests } : {}), context: { ...context, project_context: projectContext, references, notes: body.designer_notes || "" }, baseline_modules: data.modules });
       setNotes((n) => (n === (body.designer_notes || "") ? "" : n));
       setTab(result ? "compare" : "graph");
       toast.success(successLabel(data), { description: `${data.node_graph_nodes?.length || 0} nodes · ${data.applied_changes?.length || 0} changes applied` });
@@ -337,9 +338,11 @@ export default function Workspace() {
       }
       setProjRefresh((n) => n + 1);
       setSaveDialog(false);
-      setSaveNote("");
-      setFixNotes([]);
-      setFixLog([]);
+      if ((projectRef.current?.project_id || null) === savingFor || !savingFor) {
+        setSaveNote("");
+        setFixNotes([]);
+        setFixLog([]);
+      }
       toast.success(project ? `Saved v${data.version}` : "Saved as new project", { description: note ? `${data.name}: ${note}` : data.name });
     } catch (e) {
       setSaveDialog(false);
@@ -431,12 +434,13 @@ export default function Workspace() {
     const build = kind === "plugin" ? buildPluginZip : buildProjectZip;
     let built;
     try {
-      const checked = override ? checkSystem(override).filter((i) => !ignoreKeys.has(issueKey(i, override))) : exportIssues;
+      let checked = override ? checkSystem(override).filter((i) => !ignoreKeys.has(issueKey(i, override))) : exportIssues;
       const byKey = Object.fromEntries(ignores.map((i) => [i.key, i.by]));
       const sys = override || result;
       const sections = [reportSection(sys.system_name || "System", { issues: checked, ignored: ignoredIssues.map((i) => ({ ...i, by: byKey[i.key] })), fixes: fixLog })];
       if (sys.tests?.code) sections.push(reportSection("Automation tests", { issues: testIssues(sys) }));
       const report = compileReport(sections, aiReview?.status === "done" && !override ? aiReview.model : null);
+      if (sys.tests?.code) checked = [...checked, ...testIssues(sys).map((i) => ({ ...i, file: `tests ${i.file}` }))];
       built = await build(project?.name || result.system_name, system, { ...context, references: undefined }, checked, report);
     } catch (e) {
       toast.error("Couldn't build the zip", { description: e.message });
@@ -461,6 +465,9 @@ export default function Workspace() {
       const from = compareBase;
       setProject(meta);
       openSystem(system, context);
+      setFixLog([]);
+      setFixNotes([]);
+      setSaveNote("");
       setProjRefresh((n) => n + 1);
       toast.success(`Restored v${from} as v${meta.version}`, { description: "Nothing is lost: the version you replaced is still in history." });
     } catch (e) {
@@ -1172,7 +1179,7 @@ export default function Workspace() {
       {bundle && <BundleModal ids={bundle.ids} preset={bundle.preset} onClose={() => setBundle(null)} onPresetsChanged={() => setProjRefresh((n) => n + 1)}
         aiKey={aiKey} usage={usage} onNeedKey={() => setKeyModal("required")} onUsed={() => { setUsageTick((n) => n + 1); setProjRefresh((n) => n + 1); }} />}
       {fix && result && (
-        <FixReviewModal fix={fix} system={fix.target === "tests" ? { cpp_header: result.cpp_header, cpp_source: result.tests?.code || "" } : result} base={baseName(result)} onAccept={acceptFix} onRetry={() => runFix(fix.list, fix.thenExport)}
+        <FixReviewModal fix={fix} system={fix.target === "tests" ? { cpp_header: result.cpp_header, cpp_source: result.tests?.code || "" } : result} base={baseName(result)} onAccept={acceptFix} onRetry={() => runFix(fix.list, fix.thenExport, fix.target)} onCancel={() => setFix(null)}
           onRegenerate={() => fixRegenerate(fix.list)}
           onDiscard={() => { const { thenExport, status } = fix; setFix(null); if (thenExport && status !== "running") exportZip(thenExport, true); }} />
       )}

@@ -38,10 +38,10 @@ export function FileDiff({ label, before, after, testId }) {
 }
 
 // fix: {status: "running"|"review"|"error", count, data?, error?}
-export default function FixReviewModal({ fix, system, base, onAccept, onDiscard, onRetry, onRegenerate, progress, discardLabel, acceptLabel, footnote }) {
+export default function FixReviewModal({ fix, system, base, onAccept, onDiscard, onCancel, onRetry, onRegenerate, progress, discardLabel, acceptLabel, footnote }) {
   const exporting = !!fix.thenExport;
   return (
-    <Modal title={`${progress ? `${progress} · ` : ""}${fix.status === "running" ? "Writing a fix…" : fix.status === "error" ? "Fix not applied" : "Review the fix"}`} onClose={onDiscard} testId="fix-modal" width={980}>
+    <Modal title={`${progress ? `${progress} · ` : ""}${fix.status === "running" ? "Writing a fix…" : fix.status === "error" ? "Fix not applied" : "Review the fix"}`} onClose={onCancel || onDiscard} testId="fix-modal" width={980}>
       {fix.status === "running" && (
         <div className="flex items-center gap-2 text-[12.5px] font-mono text-[var(--text-secondary)]" data-testid="fix-running">
           <Loader2 size={14} className="animate-spin text-[var(--unreal-orange)]" /> Patching {fix.count} issue{fix.count === 1 ? "" : "s"} with your AI key. Only the lines that need changing are touched.
@@ -73,7 +73,7 @@ export default function FixReviewModal({ fix, system, base, onAccept, onDiscard,
           <div className="flex items-center gap-2 justify-end">
             <span className="text-[10.5px] font-mono text-[var(--text-muted)] mr-auto">{footnote || (exporting ? "Auto-fix before export: your zip downloads after you choose." : "Accepting changes the workspace only. Press Save to keep it.")}</span>
             <button className="ue-btn" onClick={onDiscard} data-testid="fix-discard"><X size={13} /> {discardLabel || (exporting ? "Discard and export" : "Discard")}</button>
-            <button className="ue-btn ue-btn-primary" onClick={onAccept} data-testid="fix-accept"><Check size={13} /> {acceptLabel || (exporting ? "Accept fix and export" : "Accept fix")}</button>
+            <button className="ue-btn ue-btn-primary" onClick={onAccept} disabled={fix.saving} data-testid="fix-accept"><Check size={13} /> {acceptLabel || (exporting ? "Accept fix and export" : "Accept fix")}</button>
           </div>
         </>
       )}

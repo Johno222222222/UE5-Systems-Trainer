@@ -181,7 +181,7 @@ function writeModule(root, module, system, extraDeps = []) {
     src.file(`Private/${tuning.base}TuningRow.cpp`, tuning.cpp);
     root.file(`Data/${tuning.base}_Tuning.csv`, tuning.csv);
   }
-  if ((system.node_graph_nodes || []).length) root.file(`Blueprints/${module}_EventGraph.txt`, blueprintClipboard(system).text);
+  if ((system.node_graph_nodes || []).length) root.file(`Blueprints/${module}_EventGraph.txt`, blueprintClipboard(system, module).text);
   const modules = [module];
   if (system.tests?.code) {
     const tm = `${module}Tests`;
