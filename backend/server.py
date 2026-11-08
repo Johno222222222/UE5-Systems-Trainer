@@ -59,6 +59,11 @@ class GenerateRequest(BaseModel):
     extra_modules: List[str] = Field(default_factory=list)
     removed_modules: List[str] = Field(default_factory=list)
     parameter_overrides: dict = Field(default_factory=dict)
+    project_context: str = Field(default="", max_length=300)
+    designer_notes: str = Field(default="", max_length=1000)
+    change_requests: List[str] = Field(default_factory=list, max_length=40)
+    previous_system: Optional[dict] = None
+    stack_systems: List[dict] = Field(default_factory=list, max_length=4)
 
 
 class NodeGraphNode(BaseModel):
@@ -91,6 +96,7 @@ class SetupStep(BaseModel):
     step: int
     title: str
     detail: str = ""
+    why: str = ""
 
 
 class ModuleItem(BaseModel):
@@ -112,6 +118,9 @@ class SystemOutput(BaseModel):
     node_graph_nodes: List[NodeGraphNode]
     node_graph_edges: List[NodeGraphEdge]
     network_notes: str
+    applied_changes: List[str] = Field(default_factory=list)
+    shared_attributes: List[str] = Field(default_factory=list)
+    stacked_from: List[str] = Field(default_factory=list)
     generated_at: str
 
 
@@ -125,13 +134,15 @@ Respond with ONLY a single raw JSON object (no markdown, no code fences, no pros
   "summary": "1-2 sentence description of what this system does",
   "tunable_parameters": [{"key":"max_health","label":"Max Health","value":100,"min":1,"max":1000,"step":1,"unit":"HP"}],
   "modules": [{"name":"StaminaDrain","included":true,"description":"short desc"}],
-  "blueprint_pseudocode": "Event BeginPlay\\n  -> Set Health = MaxHealth\\n  -> Bind OnTakeDamage -> HandleDamage",
+  "blueprint_pseudocode": "Event BeginPlay\\n  -> Set Health = MaxHealth\\n  WHY: Health is initialised on BeginPlay so designer-set MaxHealth defaults apply per instance\\n  -> Bind OnTakeDamage -> HandleDamage",
   "cpp_header": "// Name.h — compilable UE5 header with UCLASS, UPROPERTY, UFUNCTION",
   "cpp_source": "// Name.cpp — matching implementation",
-  "setup_guide": [{"step":1,"title":"Create Blueprint","detail":"short detail"}],
+  "setup_guide": [{"step":1,"title":"Create Blueprint","detail":"short detail","why":"short reason this step/approach was chosen"}],
   "node_graph_nodes": [{"id":"n1","label":"Event BeginPlay","node_type":"event","x":80,"y":120,"inputs":[],"outputs":["exec"]}],
   "node_graph_edges": [{"from_node":"n1","to_node":"n2","kind":"exec"}],
-  "network_notes": "Short replication notes."
+  "network_notes": "Short replication notes.",
+  "applied_changes": ["One line per REQUESTED CHANGE stating exactly how it was applied"],
+  "shared_attributes": ["Only when stacking: attributes/interfaces shared between the stacked systems"]
 }
 
 Rules:
@@ -140,6 +151,10 @@ Rules:
 - 3-5 tunable_parameters with sensible min/max/step/unit.
 - 3-5 modules. Include any user-added names (included:true) and any user-removed names (included:false).
 - C++: use #include "CoreMinimal.h", GENERATED_BODY(), UCLASS(), UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="X"), UFUNCTION(BlueprintCallable). Keep each file ~40-80 lines. Add UPROPERTY(Replicated) + GetLifetimeReplicatedProps ONLY if network_replicated is true.
+- LEARNING ANNOTATIONS: in blueprint_pseudocode, after 3-5 key decisions add an indented line starting with "WHY:" (e.g. "WHY: Replicated because state must match across all clients", "WHY: Data Asset used so designers can tweak without recompiling"). Every setup_guide step gets a "why" (<= 110 chars).
+- If PROJECT CONTEXT is given, every design decision must fit it.
+- If a PREVIOUS SYSTEM and REQUESTED CHANGES are given: this is a revision. Keep everything from the previous system that is not affected, apply EVERY requested change exactly (parameter values, module removals/additions, dial shifts, designer notes), and list one applied_changes entry per requested change in the same order. Otherwise applied_changes is [].
+- If STACKED SYSTEMS are given: merge them into ONE integrated system. Unify duplicated attributes into a single owner (e.g. one Health attribute used by both), route cross-system calls through interfaces or delegates, rename anything that collides, and list shared_attributes. Record each conflict resolved as an applied_changes entry starting with "Conflict resolved:". Otherwise shared_attributes is [].
 - Output raw JSON only, starting with { and ending with }."""
 
 
@@ -164,8 +179,36 @@ async def root():
     return {"message": "UE5 Modular System Architect API", "model": MODEL_NAME}
 
 
+def compact_system(sys: dict, header_chars: int) -> str:
+    keep = {
+        "system_name": sys.get("system_name"),
+        "summary": sys.get("summary"),
+        "modules": [{"name": m.get("name"), "included": m.get("included")} for m in sys.get("modules", [])],
+        "tunable_parameters": [
+            {k: p.get(k) for k in ("key", "label", "value", "unit")} for p in sys.get("tunable_parameters", [])
+        ],
+        "network_notes": sys.get("network_notes"),
+        "cpp_header_excerpt": (sys.get("cpp_header") or "")[:header_chars],
+    }
+    return json.dumps(keep, indent=1)
+
+
 def build_user_text(req: "GenerateRequest") -> str:
-    return f"""User request:
+    sections = []
+    if req.project_context.strip():
+        sections.append(f"PROJECT CONTEXT (steer every decision by this): {req.project_context.strip()}")
+    if req.stack_systems:
+        stacked = "\n\n".join(f"[System {i + 1}]\n{compact_system(s, 1800)}" for i, s in enumerate(req.stack_systems))
+        sections.append(f"STACKED SYSTEMS (merge into one integrated system):\n{stacked}")
+    if req.previous_system:
+        sections.append(f"PREVIOUS SYSTEM (revise this, do not start over):\n{compact_system(req.previous_system, 2500)}")
+    if req.change_requests:
+        numbered = "\n".join(f"{i + 1}. {c}" for i, c in enumerate(req.change_requests))
+        sections.append(f"REQUESTED CHANGES (apply every one, report each in applied_changes):\n{numbered}")
+    if req.designer_notes.strip():
+        sections.append(f"DESIGNER NOTES: {req.designer_notes.strip()}")
+    prefix = "\n\n".join(sections) + "\n\n" if sections else ""
+    return prefix + f"""User request:
 \"\"\"{req.prompt}\"\"\"
 
 Target UE5 Blueprint class: {req.blueprint_class}
@@ -201,7 +244,7 @@ async def run_job(job_id: str, req: GenerateRequest) -> None:
         api_key=EMERGENT_LLM_KEY,
         session_id=f"ue5-{job_id}",
         system_message=SYSTEM_PROMPT,
-    ).with_model(MODEL_PROVIDER, MODEL_NAME).with_params(max_tokens=8000)
+    ).with_model(MODEL_PROVIDER, MODEL_NAME).with_params(max_tokens=12000 if req.stack_systems else 8000)
     raw, last_report = "", 0
     try:
         async for ev in chat.stream_message(UserMessage(text=build_user_text(req))):
@@ -220,6 +263,7 @@ async def run_job(job_id: str, req: GenerateRequest) -> None:
         data = extract_json(raw)
         data["id"] = str(uuid.uuid4())
         data["generated_at"] = datetime.now(timezone.utc).isoformat()
+        data["stacked_from"] = [s.get("system_name", "") for s in req.stack_systems]
         result = SystemOutput(**data)
     except Exception as exc:
         logging.error("Bad LLM output (%s). Tail: %s", exc, raw[-300:])

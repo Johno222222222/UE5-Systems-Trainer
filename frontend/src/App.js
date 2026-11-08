@@ -5,13 +5,20 @@ import {
   Cpu, Code2, Layers, Sliders, Sparkles, Save, Download, Copy,
   Plus, Trash2, CheckCircle2, Terminal, PackageSearch, Settings,
   Boxes, ChevronDown, PlayCircle, Hammer, Wrench, GitBranch, Network, Zap,
-  Swords, Package, MessagesSquare, Shield, HardDrive, Car, Hand, Workflow
+  Swords, Package, MessagesSquare, Shield, HardDrive, Car, Hand, Workflow,
+  GitCompareArrows, Compass, StickyNote, Combine
 } from "lucide-react";
 import NodeGraph from "./components/NodeGraph";
+import AnnotatedPseudocode from "./components/AnnotatedPseudocode";
+import SetupGuide from "./components/SetupGuide";
+import CompareView from "./components/CompareView";
+import { PendingChanges, AppliedChanges } from "./components/ChangePanels";
+import { computeChanges, compactForApi } from "./lib/changes";
 import { highlightCpp, highlightBlueprint } from "./lib/highlight";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const LS_KEY = "ue5_architect_library_v1";
+const LS_CONTEXT = "ue5_architect_project_context";
 
 const ICON_MAP = {
   swords: Swords, package: Package, "messages-square": MessagesSquare,
@@ -149,36 +156,6 @@ function CodeBox({ title, code, lang = "cpp", testId }) {
   );
 }
 
-function SetupGuide({ steps }) {
-  const [done, setDone] = useState({});
-  if (!steps?.length) {
-    return <div className="text-sm text-slate-500 font-mono p-6">— no setup steps yet —</div>;
-  }
-  return (
-    <div className="space-y-2 p-4 overflow-y-auto h-full">
-      {steps.map((s) => {
-        const active = done[s.step];
-        return (
-          <button
-            key={s.step}
-            onClick={() => setDone((d) => ({ ...d, [s.step]: !d[s.step] }))}
-            className={`w-full text-left panel p-3 flex items-start gap-3 transition-all ${active ? "border-[var(--cpp-green)] bg-[rgba(0,230,118,0.05)]" : "hover:border-[var(--unreal-orange)]"}`}
-            data-testid={`setup-step-${s.step}`}
-          >
-            <div className={`h-6 w-6 shrink-0 rounded-full border-2 flex items-center justify-center font-mono text-[11px] font-bold ${active ? "border-[var(--cpp-green)] text-[var(--cpp-green)] bg-[rgba(0,230,118,0.1)]" : "border-[var(--border)] text-[var(--text-secondary)]"}`}>
-              {active ? <CheckCircle2 size={14} /> : s.step}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-sub font-semibold text-[13px] text-[var(--text-primary)]">{s.title}</div>
-              <div className="text-[12px] text-[var(--text-secondary)] leading-relaxed mt-0.5 font-mono">{s.detail}</div>
-            </div>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
 export default function App() {
   const [templates, setTemplates] = useState([]);
   const [prompt, setPrompt] = useState("A third-person melee combat system with combo chains, directional attacks, hit reactions, and hitstop.");
@@ -195,6 +172,11 @@ export default function App() {
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState(0);
   const [tab, setTab] = useState("graph");
+  const [previousResult, setPreviousResult] = useState(null);
+  const [notes, setNotes] = useState("");
+  const [projectContext, setProjectContext] = useState(() => localStorage.getItem(LS_CONTEXT) || "");
+  const [stackSel, setStackSel] = useState([]);
+  useEffect(() => { localStorage.setItem(LS_CONTEXT, projectContext); }, [projectContext]);
   const { items: library, update: updateLibrary } = useLibrary();
 
   useEffect(() => {
@@ -207,41 +189,66 @@ export default function App() {
     toast.message(`Loaded template: ${t.title}`);
   };
 
-  const generate = async () => {
-    if (prompt.trim().length < 5) {
-      toast.error("Describe your system in a bit more detail");
-      return;
-    }
+  const runSynthesis = async (body, context, successLabel) => {
     setLoading(true);
     setError(null);
-    const context = { prompt, blueprint_class: bpClass, complexity, modularity, performance_vs_flexibility: perfFlex, tick_rate: tickRate, network_replicated: replicated, extra_modules: extra };
+    setProgress(0);
     try {
-      const removed = result ? (result.modules || []).filter((m) => !m.included).map((m) => m.name) : [];
-      setProgress(0);
-      const data = await streamGenerate({
-        prompt,
-        blueprint_class: bpClass,
-        complexity,
-        modularity,
-        performance_vs_flexibility: perfFlex,
-        tick_rate: tickRate,
-        network_replicated: replicated,
-        extra_modules: extra,
-        removed_modules: removed,
-        parameter_overrides: result ? tunable : {},
-      }, setProgress);
-      setResult({ ...data, context });
-      setTab("graph");
-      toast.success(`${data.system_name} generated`, { description: `${data.node_graph_nodes?.length || 0} nodes · ${data.setup_guide?.length || 0} steps` });
+      const data = await streamGenerate({ ...body, project_context: projectContext }, setProgress);
+      if (result) setPreviousResult(result);
+      setResult({ ...data, context: { ...context, project_context: projectContext }, baseline_modules: data.modules });
+      setNotes("");
+      setTab(result ? "compare" : "graph");
+      toast.success(successLabel(data), { description: `${data.node_graph_nodes?.length || 0} nodes · ${data.applied_changes?.length || 0} changes applied` });
+      return true;
     } catch (e) {
       console.error(e);
       const detail = e.message || "Unknown error";
       setError(detail);
       toast.error("Generation failed", { description: detail, duration: 10000 });
+      return false;
     } finally {
       setLoading(false);
     }
   };
+
+  const currentInputs = { prompt, blueprint_class: bpClass, complexity, modularity, performance_vs_flexibility: perfFlex, tick_rate: tickRate, network_replicated: replicated };
+
+  const generate = async () => {
+    if (prompt.trim().length < 5) {
+      toast.error("Describe your system in a bit more detail");
+      return;
+    }
+    const removed = result ? (result.modules || []).filter((m) => !m.included).map((m) => m.name) : [];
+    await runSynthesis({
+      ...currentInputs,
+      extra_modules: extra,
+      removed_modules: removed,
+      parameter_overrides: result ? tunable : {},
+      designer_notes: notes,
+      change_requests: pendingChanges.map((c) => c.text),
+      previous_system: result ? compactForApi(result) : null,
+    }, { ...currentInputs, extra_modules: extra }, (d) => `${d.system_name} ${result ? "regenerated" : "generated"}`);
+  };
+
+  const stackSelected = async () => {
+    const systems = library.filter((x) => stackSel.includes(x.id));
+    if (systems.length < 2) return;
+    const stackPrompt = `Stack these systems into one integrated system: ${systems.map((x) => x.system_name).join(" + ")}`;
+    const ok = await runSynthesis({
+      ...currentInputs,
+      prompt: stackPrompt,
+      extra_modules: [],
+      designer_notes: notes,
+      stack_systems: systems.map(compactForApi),
+    }, { ...currentInputs, prompt: stackPrompt, extra_modules: [] }, (d) => `Stacked into ${d.system_name}`);
+    if (ok) {
+      setPrompt(stackPrompt);
+      setExtra([]);
+      setStackSel([]);
+    }
+  };
+  const toggleStack = (id) => setStackSel((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id].slice(-4)));
 
   const toggleModule = (name) => {
     if (!result) return;
@@ -276,12 +283,15 @@ export default function App() {
       setReplicated(c.network_replicated);
       setExtra(c.extra_modules || []);
     }
-    setResult(item);
+    setResult({ ...item, baseline_modules: item.baseline_modules || item.modules });
+    setPreviousResult(null);
+    setNotes("");
     setTab("graph");
     toast.message(`Loaded: ${item.system_name}`);
   };
   const removeFromLibrary = (id) => {
     updateLibrary((lib) => lib.filter((x) => x.id !== id));
+    setStackSel((s) => s.filter((x) => x !== id));
   };
   const exportAll = () => {
     if (!result) return;
@@ -301,11 +311,18 @@ export default function App() {
     setTunable(init);
   }, [result?.id]);
 
+  const pendingChanges = useMemo(
+    () => computeChanges(result, { ...currentInputs, params: tunable, extra, notes }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [result, prompt, bpClass, complexity, modularity, perfFlex, tickRate, replicated, tunable, extra, notes]
+  );
+
   const TABS = [
     { id: "graph", label: "Event Graph", icon: Workflow, test: "tab-node-graph" },
     { id: "blueprint", label: "Blueprint Pseudocode", icon: GitBranch, test: "tab-blueprint-code" },
     { id: "cpp", label: "C++ Snippets", icon: Code2, test: "tab-cpp-code" },
     { id: "setup", label: "Setup Guide", icon: Hammer, test: "tab-setup-guide" },
+    { id: "compare", label: "Compare", icon: GitCompareArrows, test: "tab-compare" },
   ];
 
   return (
@@ -368,6 +385,21 @@ export default function App() {
                 NET
               </label>
             </div>
+            <div className="mt-3">
+              <label htmlFor="project-context" className="eyebrow flex items-center gap-1.5 mb-1.5">
+                <Compass size={11} /> Project Context <span className="normal-case tracking-normal font-normal">(optional)</span>
+              </label>
+              <input
+                id="project-context"
+                value={projectContext}
+                onChange={(e) => setProjectContext(e.target.value)}
+                maxLength={300}
+                placeholder="e.g. realistic large-scale FPS"
+                data-testid="project-context-input"
+                className={`w-full bg-[var(--bg-main)] border rounded-md px-2.5 py-1.5 text-[11.5px] font-mono text-[var(--text-primary)] outline-none focus:border-[var(--unreal-orange)] ${projectContext.trim() ? "border-[rgba(0,240,255,0.45)]" : "border-[var(--border)]"}`}
+              />
+              <div className="text-[10px] font-mono text-[var(--text-muted)] mt-1">Steers every synthesis. Saved in this browser.</div>
+            </div>
             <button
               className="ue-btn ue-btn-primary w-full justify-center mt-3"
               onClick={generate}
@@ -375,7 +407,9 @@ export default function App() {
               data-testid="generate-system-button"
             >
               {loading ? (<><span className="inline-block h-3 w-3 rounded-full border-2 border-[#0b0e14] border-t-transparent animate-spin" /> Generating…</>)
-                       : (<><PlayCircle size={14} /> Synthesize System</>)}
+                       : result && pendingChanges.length
+                         ? (<><PlayCircle size={14} /> Regenerate with {pendingChanges.length} change{pendingChanges.length === 1 ? "" : "s"}</>)
+                         : (<><PlayCircle size={14} /> Synthesize System</>)}
             </button>
           </div>
 
@@ -400,9 +434,29 @@ export default function App() {
               <span className="font-mono text-[10px] text-[var(--text-muted)]">{library.length}</span>
             </div>
             {library.length === 0 && <div className="text-[11px] font-mono text-[var(--text-muted)] p-2">No saved systems yet.</div>}
+            {library.length >= 2 && (
+              <div className="mb-2">
+                <button
+                  className="ue-btn w-full justify-center !border-[var(--accent-purple)] !text-[var(--accent-purple)]"
+                  onClick={stackSelected}
+                  disabled={loading || stackSel.length < 2}
+                  data-testid="stack-systems-button"
+                >
+                  <Combine size={13} /> {stackSel.length < 2 ? "Tick 2+ systems to stack" : `Stack ${stackSel.length} systems`}
+                </button>
+              </div>
+            )}
             <div className="space-y-1.5">
               {library.map((it) => (
-                <div key={it.id} className="panel p-2 flex items-center gap-2" data-testid={`library-item-${it.id}`}>
+                <div key={it.id} className={`panel p-2 flex items-center gap-2 ${stackSel.includes(it.id) ? "!border-[var(--accent-purple)]" : ""}`} data-testid={`library-item-${it.id}`}>
+                  <input
+                    type="checkbox"
+                    checked={stackSel.includes(it.id)}
+                    onChange={() => toggleStack(it.id)}
+                    aria-label={`Select ${it.system_name} for stacking`}
+                    className="accent-[#a855f7]"
+                    data-testid={`stack-select-${it.id}`}
+                  />
                   <button onClick={() => loadFromLibrary(it)} className="flex-1 text-left min-w-0">
                     <div className="font-sub text-[12px] font-semibold truncate">{it.system_name}</div>
                     <div className="text-[10px] font-mono text-[var(--text-muted)]">{new Date(it.saved_at).toLocaleString()}</div>
@@ -422,6 +476,11 @@ export default function App() {
               <div className="font-display text-[20px] font-extrabold uppercase tracking-wider leading-none truncate">
                 {result?.system_name || <span className="text-[var(--text-muted)]">Awaiting Synthesis</span>}
               </div>
+              {result?.stacked_from?.length > 0 && (
+                <div className="flex gap-1 mt-1" data-testid="stacked-from">
+                  {result.stacked_from.map((n) => <span key={n} className="chip !py-0 !text-[10px] !cursor-default">{n}</span>)}
+                </div>
+              )}
               <div className="text-[11px] font-mono text-[var(--text-secondary)] truncate mt-1">
                 {result?.summary || "Describe a system on the left, tune the dials, press Synthesize."}
               </div>
@@ -488,7 +547,7 @@ export default function App() {
             {tab === "graph" && <NodeGraph nodes={result?.node_graph_nodes || []} edges={result?.node_graph_edges || []} />}
             {tab === "blueprint" && (
               <div className="p-5 h-full overflow-auto">
-                <CodeBox title="Blueprint Pseudocode" code={result?.blueprint_pseudocode} lang="bp" testId="blueprint-code" />
+                <AnnotatedPseudocode code={result?.blueprint_pseudocode} />
               </div>
             )}
             {tab === "cpp" && (
@@ -498,6 +557,7 @@ export default function App() {
               </div>
             )}
             {tab === "setup" && <SetupGuide steps={result?.setup_guide || []} />}
+            {tab === "compare" && <CompareView before={previousResult} after={result} />}
           </div>
 
           {/* Bottom diagnostic bar */}
@@ -513,6 +573,8 @@ export default function App() {
 
         {/* RIGHT TUNER PANEL */}
         <aside className="w-[340px] shrink-0 border-l border-[var(--border-soft)] bg-[var(--bg-secondary)] overflow-y-auto">
+          <PendingChanges changes={pendingChanges} />
+          {pendingChanges.length === 0 && <AppliedChanges result={result} />}
           <div className="p-4 border-b border-[var(--border-soft)]">
             <div className="flex items-center gap-2 mb-4">
               <Sliders size={14} className="text-[var(--unreal-orange)]" />
@@ -597,6 +659,23 @@ export default function App() {
               <button className="ue-btn" onClick={addExtra} data-testid="add-component-button"><Plus size={12} /></button>
             </div>
             <div className="mt-2 text-[10.5px] font-mono text-[var(--text-muted)]">Chips toggle include/exclude. Press Synthesize to regenerate with changes.</div>
+          </div>
+
+          <div className="p-4 border-b border-[var(--border-soft)]">
+            <label htmlFor="designer-notes" className="flex items-center gap-2 mb-2">
+              <StickyNote size={14} className="text-[var(--unreal-orange)]" />
+              <span className="eyebrow">Notes for next synthesis</span>
+            </label>
+            <textarea
+              id="designer-notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              maxLength={1000}
+              rows={3}
+              placeholder="e.g. Use a Gameplay Tag for stun instead of a bool"
+              data-testid="designer-notes-input"
+              className="w-full bg-[var(--bg-main)] border border-[var(--border)] rounded-md p-2 text-[11.5px] font-mono text-[var(--text-primary)] outline-none focus:border-[var(--unreal-orange)] resize-none"
+            />
           </div>
 
           {/* Network notes */}
