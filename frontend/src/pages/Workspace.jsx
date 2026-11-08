@@ -633,7 +633,11 @@ export default function Workspace() {
                     <div className="text-[12px] font-mono text-[var(--text-secondary)] mt-1 leading-relaxed">{error.text || error}</div>
                     {error.paid && (
                       <button className="ue-btn !py-1 !px-2 !text-[11px] mt-2" data-testid="banner-switch-free-model"
-                        onClick={() => { const k = { ...aiKey, provider: "gemini", model: DEFAULT_MODEL }; saveAiKey(k); setAiKey(k); setError(null); toast.success("Switched to Gemini 3.5 Flash-Lite"); }}>
+                        onClick={() => {
+                          setError(null);
+                          if (aiKey?.provider !== "gemini") { setKeyModal("required"); toast.message("Add a free Gemini key to switch"); return; }
+                          const k = { ...aiKey, model: DEFAULT_MODEL }; saveAiKey(k); setAiKey(k); toast.success("Switched to Gemini 3.5 Flash-Lite");
+                        }}>
                         Switch to Gemini 3.5 Flash-Lite
                       </button>
                     )}

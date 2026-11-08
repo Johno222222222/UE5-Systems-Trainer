@@ -175,6 +175,11 @@ async def save_project(project_id: str, body: ProjectUpdate, user: dict = Depend
             "message": f"{project['updated_by_name']} saved a newer version while you were editing.",
             "updated_by_name": project["updated_by_name"], "updated_at": project["updated_at"], "version": project["version"],
         })
+    if not await db.project_versions.find_one({"project_id": project_id, "version": project["version"]}, {"_id": 1}):
+        try:
+            await snapshot(project)
+        except Exception:
+            pass  # a concurrent save already recorded it
     expected = project["version"] if body.force else body.base_version
     res = await db.projects.find_one_and_update(
         {"project_id": project_id, "version": expected},
@@ -197,7 +202,7 @@ async def list_versions(project_id: str, user: dict = Depends(current_user)):
     await load_project(project_id, user)
     rows = await db.project_versions.find(
         {"project_id": project_id}, {"_id": 0, "version": 1, "saved_by_name": 1, "saved_at": 1, "system.system_name": 1}
-    ).sort("version", -1).to_list(200)
+    ).sort("version", -1).to_list(1000)
     return {"versions": [{"version": r["version"], "saved_by_name": r["saved_by_name"], "saved_at": r["saved_at"],
                           "system_name": (r.get("system") or {}).get("system_name")} for r in rows]}
 

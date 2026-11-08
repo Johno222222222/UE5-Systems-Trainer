@@ -227,7 +227,7 @@ def compact_system(sys: dict, header_chars: int, full: bool = False) -> str:
         "cpp_header_excerpt": (sys.get("cpp_header") or "")[:header_chars],
     }
     if full:
-        keep["cpp_source"] = (sys.get("cpp_source") or "")[:8000]
+        keep["cpp_source"] = (sys.get("cpp_source") or "")[:12000]
         keep["blueprint_pseudocode"] = (sys.get("blueprint_pseudocode") or "")[:6000]
         keep["setup_guide"] = sys.get("setup_guide", [])
         keep["node_graph"] = {"nodes": sys.get("node_graph_nodes", []), "edges": sys.get("node_graph_edges", [])}
@@ -245,7 +245,7 @@ def build_user_text(req: "GenerateRequest", refs: list) -> str:
     if req.project_context.strip():
         sections.append(f"PROJECT CONTEXT (steer every decision by this): {req.project_context.strip()}")
     if req.stack_systems:
-        stacked = "\n\n".join(f"[System {i + 1}]\n{compact_system(s, 1800)}" for i, s in enumerate(req.stack_systems))
+        stacked = "\n\n".join(f"[System {i + 1}]\n{compact_system(s, 4000)}" for i, s in enumerate(req.stack_systems))
         sections.append(f"STACKED SYSTEMS (merge into one integrated system):\n{stacked}")
     if req.previous_system:
         sections.append(f"PREVIOUS SYSTEM (revise this, do not start over):\n{compact_system(req.previous_system, 8000, full=True)}")
@@ -342,6 +342,9 @@ async def run_job(job_id: str, req: GenerateRequest, refs: list, provider: str, 
         data["generated_at"] = datetime.now(timezone.utc).isoformat()
         data["stacked_from"] = [s.get("system_name", "") for s in req.stack_systems]
         result = SystemOutput(**data)
+        missing = [f for f in ("system_name", "blueprint_pseudocode", "cpp_header", "cpp_source") if not getattr(result, f).strip()]
+        if missing or not result.node_graph_nodes or not result.setup_guide:
+            raise ValueError(f"empty fields: {missing or 'graph/setup'}")
     except Exception as exc:
         logging.error("Bad LLM output (%s). Tail: %s", exc, raw[-300:])
         await set_job(job_id, status="error", detail="The model's output was incomplete. Please try again, or lower Complexity.")
@@ -357,7 +360,7 @@ async def generate_system(
     x_llm_model: str = Header(None),
     x_llm_key: str = Header(None),
 ):
-    llm_key = check_llm_headers(x_llm_provider, x_llm_model, x_llm_key)
+    x_llm_provider, x_llm_model, llm_key = resolve_llm(x_llm_provider, x_llm_model, x_llm_key)
     refs = await projects.load_references(req.reference_file_ids, user)
     job_id = str(uuid.uuid4())
     await db.jobs.insert_one({
@@ -368,6 +371,15 @@ async def generate_system(
     RUNNING_JOBS.add(task)
     task.add_done_callback(RUNNING_JOBS.discard)
     return {"job_id": job_id}
+
+
+DEFAULT_PROVIDER, DEFAULT_MODEL = "gemini", "gemini-3.5-flash-lite"
+
+
+def resolve_llm(provider, model, key) -> tuple[str, str, str]:
+    provider = provider or DEFAULT_PROVIDER
+    model = model or (DEFAULT_MODEL if provider == "gemini" else ALLOWED_MODELS.get(provider, [""])[0])
+    return provider, model, check_llm_headers(provider, model, key)
 
 
 def check_llm_headers(provider, model, key) -> str:
@@ -387,7 +399,7 @@ async def test_key(
     x_llm_model: str = Header(None),
     x_llm_key: str = Header(None),
 ):
-    key = check_llm_headers(x_llm_provider, x_llm_model, x_llm_key)
+    x_llm_provider, x_llm_model, key = resolve_llm(x_llm_provider, x_llm_model, x_llm_key)
     chat = LlmChat(api_key=key, session_id=f"keytest-{uuid.uuid4()}", system_message="Reply with the single word OK.") \
         .with_model(x_llm_provider, x_llm_model).with_params(max_tokens=256)
     try:

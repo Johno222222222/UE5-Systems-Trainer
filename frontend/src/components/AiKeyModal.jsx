@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { toast } from "sonner";
 import { CheckCircle2, ExternalLink, KeyRound, Loader2, Trash2, XCircle, Zap } from "lucide-react";
 import Modal from "./Modal";
@@ -63,36 +63,40 @@ export default function AiKeyModal({ current, onSave, onClose, required }) {
   const [test, setTest] = useState(null); // null | "running" | {ok, message}
   const p = PROVIDERS[provider];
 
+  const testSeq = useRef(0);
   const runTest = async (m = model, prov = provider) => {
     const k = key.trim();
     if (!k) return null;
+    const seq = ++testSeq.current;
     setTest("running");
+    let r;
     try {
-      const { data } = await api.post("/ai/test-key", {}, { headers: aiHeaders({ provider: prov, model: m, key: k }) });
-      setTest(data);
-      return data;
+      r = (await api.post("/ai/test-key", {}, { headers: aiHeaders({ provider: prov, model: m, key: k }) })).data;
     } catch (e) {
-      const r = { ok: false, message: errorText(e) };
-      setTest(r);
-      return r;
+      r = { ok: false, message: errorText(e) };
     }
+    if (seq !== testSeq.current) return null; // inputs changed while this test ran
+    setTest(r);
+    return r;
   };
+  const resetTest = () => { testSeq.current += 1; setTest(null); };
   const chooseModel = (m) => {
     setModel(m);
-    setTest(null);
+    resetTest();
     if (isPaid(provider, m) && key.trim()) runTest(m);
   };
   const switchToFree = () => {
+    if (provider !== "gemini") setKey("");
     setProvider("gemini");
     setModel(DEFAULT_MODEL);
-    setTest(null);
+    resetTest();
   };
 
   const pickProvider = (id) => {
     setProvider(id);
     const m = id === "gemini" ? DEFAULT_MODEL : PROVIDERS[id].models[0][0];
     setModel(m);
-    setTest(null);
+    resetTest();
     if (isPaid(id, m) && key.trim()) runTest(m, id);
   };
   const save = async (e) => {
@@ -104,7 +108,7 @@ export default function AiKeyModal({ current, onSave, onClose, required }) {
     }
     if (isPaid(provider, model)) {
       const r = test && test !== "running" ? test : await runTest();
-      if (r?.code === "paid_model_required") return;
+      if (!r || r.code === "paid_model_required") return;
     }
     const value = { provider, model, key: k };
     saveAiKey(value);
@@ -140,7 +144,7 @@ export default function AiKeyModal({ current, onSave, onClose, required }) {
         </label>
         <label className="block">
           <span className="eyebrow">API key</span>
-          <input type="password" required autoComplete="off" value={key} onChange={(e) => { setKey(e.target.value); setTest(null); }}
+          <input type="password" required autoComplete="off" value={key} onChange={(e) => { setKey(e.target.value); resetTest(); }}
             placeholder={provider === "gemini" ? "AIza…" : "sk-…"} className={`${field} mt-1`} data-testid="ai-key-input" />
           <span className="block mt-1 text-[10.5px] font-mono text-[#e8c547]" data-testid="ai-key-free-note">Free Gemini keys work best. OpenAI free credits expire after 30 days.</span>
         </label>
@@ -169,7 +173,7 @@ export default function AiKeyModal({ current, onSave, onClose, required }) {
         </div>
         <div className="flex gap-2 justify-end pt-1">
           {current && <button type="button" className="ue-btn !text-[var(--accent-red)]" onClick={remove} data-testid="ai-key-remove"><Trash2 size={13} /> Remove</button>}
-          <button className="ue-btn ue-btn-primary" data-testid="ai-key-save"><KeyRound size={13} /> Save key</button>
+          <button className="ue-btn ue-btn-primary" disabled={test === "running"} data-testid="ai-key-save"><KeyRound size={13} /> Save key</button>
         </div>
       </form>
     </Modal>

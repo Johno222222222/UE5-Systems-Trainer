@@ -79,6 +79,6 @@ export function compactForApi(sys) {
     modules: (sys.modules || []).map((m) => ({ name: m.name, included: m.included })),
     tunable_parameters: sys.tunable_parameters || [],
     network_notes: sys.network_notes,
-    cpp_header: (sys.cpp_header || "").slice(0, 2500),
+    cpp_header: (sys.cpp_header || "").slice(0, 4000),
   };
 }
