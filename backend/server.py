@@ -489,6 +489,8 @@ async def review_cpp(
             "message": str(i.get("message", ""))[:400],
             "fix": str(i.get("fix", ""))[:400],
         } for i in issues if isinstance(i, dict) and i.get("message")][:12]
+        if issues and not out:
+            raise ValueError("no readable issues")
     except Exception:
         raise HTTPException(status_code=502, detail="The model's review couldn't be read. Please try again.")
     return {"issues": out, "model": model}

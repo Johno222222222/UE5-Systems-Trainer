@@ -43,7 +43,10 @@ export default function PublicView() {
         <button className="ue-btn" onClick={() => navigator.clipboard.writeText(payload()).then(() => toast.success("Project JSON copied"))} data-testid="public-copy-json"><Copy size={13} /> Copy JSON</button>
         <button className="ue-btn" onClick={() => downloadBlob(payload(), `${data.name.replace(/\s+/g, "_")}.json`)} data-testid="public-export-json"><Download size={13} /> Export JSON</button>
         <button className="ue-btn" data-testid="public-export-zip"
-          onClick={async () => { const { blob, filename } = await buildPluginZip(data.name, s, data.context); downloadBlob(blob, filename); }}>
+          onClick={async () => {
+            try { const { blob, filename } = await buildPluginZip(data.name, s, data.context); downloadBlob(blob, filename); }
+            catch (e) { toast.error("Couldn't build the zip", { description: e.message }); }
+          }}>
           <FileArchive size={13} /> Unreal plugin .zip
         </button>
         <a href="/" className="ue-btn ue-btn-primary" data-testid="public-open-app">Open the app</a>

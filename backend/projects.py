@@ -248,7 +248,7 @@ async def restore_version(project_id: str, version: int, user: dict = Depends(cu
     try:
         await snapshot(res, f"Restored from v{version}")
     except Exception:
-        pass
+        await db.project_versions.update_one({"project_id": project_id, "version": res["version"]}, {"$set": {"note": f"Restored from v{version}"}})
     return detail(res, role)
 
 

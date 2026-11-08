@@ -49,8 +49,14 @@ An app to build modular systems from description in Unreal Engine 5.
 
 ## Backlog
 - P1 (from test report): mobile/narrow layout; pagination beyond 500 projects/files; image-only PDF pages sent to the model; stricter import validation; idempotent migration; per-project version history for Compare
-- P1: Responsive layout for narrow/mobile screens (currently desktop IDE layout)
+- P1: Responsive layout for narrow/mobile screens (currently desktop IDE layout; flagged repeatedly by reviews)
+- P2: Click a compile-check issue to jump to its line; focus trapping in dialogs; version list pagination beyond 1000
 - P1: SSE streaming of code as it generates (tokens visible live)
 - P1: Export full C++ project folder as .zip
 - P2: Shareable URL for generated systems
 - P2: Diff view between two tunings of the same prompt
+
+- Iteration 9 (2026-06): 
+  - Version notes: Save opens a dialog with an optional "What changed and why?" note (≤200 chars, Enter saves). Notes are stored on each `project_versions` snapshot (POST/PUT /projects accept `note`); restores record "Restored from vN". Compare → History modal lists every version with label, note, saver and time, plus Compare buttons; the selected version's note shows beside the picker.
+  - Compile check (frontend/src/lib/compileCheck.js): instant pattern check of the .h/.cpp pair: generated.h include order, own-header include, CoreMinimal, GENERATED_BODY count, brace/paren balance, class-name mismatches, defined-but-undeclared methods, UFUNCTIONs never defined per class (incl. _Implementation/_Validate), replication (GetLifetimeReplicatedProps, RepNotify, DOREPLIFETIME names, SetIsReplicatedByDefault), undeclared delegate types, missing Super:: calls, tick never enabled, likely missing engine includes. Shown at the top of the C++ tab with a count badge on the tab. Optional "AI review" (POST /api/ai/review-cpp, user's own key, counts 1 request) adds deeper findings. Export shows a "Check before export" warning (static + AI findings) with Export anyway.
+  - Multi-system plugin: tick 2–6 projects (Mine and Shared) → "Bundle as plugin": one .uplugin with one Runtime module per system (Source/<Module>/Build.cs, module entry, Public/Private), Docs/<Module>/ per system, README module table. Sibling modules a system uses are added to its Build.cs; duplicate classes/headers and circular use are flagged. Extra Build.cs detection: NavigationSystem, PhysicsCore, InputCore, Slate/SlateCore.

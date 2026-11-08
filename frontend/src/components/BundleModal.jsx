@@ -21,7 +21,7 @@ export default function BundleModal({ ids, onClose }) {
         const valid = list.filter((p) => p.system?.cpp_header?.trim() && p.system?.cpp_source?.trim());
         setSkipped(list.filter((p) => !valid.includes(p)).map((p) => p.name));
         setItems(valid.map((p) => ({ name: p.name, system: p.system, context: { ...(p.context || {}), references: undefined } })));
-        setName(`${valid.map((p) => (p.system.system_name || "").split(/\s+/)[0].replace(/[^A-Za-z0-9]/g, "")).join("")}Pack`.slice(0, 40));
+        setName(`${[...new Set(valid.map((p) => (p.system.system_name || "").split(/\s+/)[0].replace(/[^A-Za-z0-9]/g, "")))].join("")}Pack`.slice(0, 40));
       })
       .catch((e) => { toast.error("Couldn't load projects", { description: errorText(e) }); onClose(); });
   }, [ids]); // eslint-disable-line react-hooks/exhaustive-deps

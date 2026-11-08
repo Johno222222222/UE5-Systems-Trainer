@@ -106,6 +106,10 @@ export function checkSystem(system) {
     .filter((m) => !m[1] || m[2].trim() || m[3] === m[4].replace(/^~/, ""))
     .map((m) => Object.assign([m[0], m[3], m[4]], { index: m.index }));
   const defined = new Set(defs.map((m) => m[2]));
+  const definedIn = new Set(defs.map((m) => `${m[1]}::${m[2]}`));
+  const classDecls = [...h.matchAll(/\b(?:class|struct)\s+(?:\w+_API\s+)?([UAFIE][A-Z]\w*)\s*(?:final\s*)?[:{]/g)];
+  const classAt = (idx) => classDecls.filter((d) => d.index < idx).pop()?.[1];
+  const has = (idx, fn) => (classAt(idx) ? definedIn.has(`${classAt(idx)}::${fn}`) : defined.has(fn));
 
   defs.forEach((m) => {
     const [, cls, fn] = m;
@@ -123,8 +127,8 @@ export function checkSystem(system) {
     if (end >= 0 && (after[end] === "{" || /=\s*0\s*$/.test(after.slice(0, end)))) continue;
     if (/BlueprintImplementableEvent/.test(spec)) continue;
     const needs = /BlueprintNativeEvent|\bServer\b|\bClient\b|NetMulticast/.test(spec) ? `${fn}_Implementation` : fn;
-    if (!defined.has(needs)) add("error", ".h", lineOf(h, m.index), `UFUNCTION ${fn} is declared but ${needs}() is never defined in the .cpp (linker error).`, `Implement ${needs}() in the .cpp${needs !== fn ? `, not ${fn}()` : ""}.`);
-    if (/WithValidation/.test(spec) && !defined.has(`${fn}_Validate`)) add("error", ".h", lineOf(h, m.index), `${fn} uses WithValidation but ${fn}_Validate() is missing.`, `Add bool ${fn}_Validate(...) to the .cpp.`);
+    if (!has(m.index, needs)) add("error", ".h", lineOf(h, m.index), `UFUNCTION ${classAt(m.index) ? `${classAt(m.index)}::` : ""}${fn} is declared but ${needs}() is never defined in the .cpp (linker error).`, `Implement ${needs}() in the .cpp${needs !== fn ? `, not ${fn}()` : ""}.`);
+    if (/WithValidation/.test(spec) && !has(m.index, `${fn}_Validate`)) add("error", ".h", lineOf(h, m.index), `${fn} uses WithValidation but ${fn}_Validate() is missing.`, `Add bool ${fn}_Validate(...) to the .cpp.`);
   }
 
   // Replication

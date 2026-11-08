@@ -23,7 +23,7 @@ export const moduleName = (system) => {
 // [code pattern, Build.cs module, engine plugin that must be enabled (if any)]
 const DEPS = [
   [/GameplayTag/, "GameplayTags", null],
-  [/UUserWidget|UMG|WidgetComponent/, "UMG", null],
+  [/UUserWidget|UMG|WidgetComponent|WidgetLayoutLibrary|WidgetBlueprintLibrary/, "UMG", null],
   [/EnhancedInput|UInputAction|UInputMappingContext/, "EnhancedInput", "EnhancedInput"],
   [/AAIController|UBlackboard|UBehaviorTree|AIPerception/, "AIModule", null],
   [/Niagara/, "Niagara", "Niagara"],
@@ -237,16 +237,16 @@ export function bundleIssues(plan) {
   const out = [];
   const seen = {};
   plan.forEach((p) => p.classes.forEach((c) => {
-    if (seen[c] && seen[c] !== p) out.push({ severity: "error", file: p.module, line: null, message: `${seen[c].name} (${seen[c].module}) and ${p.name} (${p.module}) both declare ${c}. Unreal can't load two classes with the same name.`, fix: "Rename the class in one project and regenerate it." });
+    if (seen[c] && seen[c] !== p) out.push({ severity: "error", file: "", line: null, message: `${seen[c].name} (${seen[c].module}) and ${p.name} (${p.module}) both declare ${c}. Unreal can't load two classes with the same name.`, fix: "Rename the class in one project and regenerate it." });
     seen[c] = seen[c] || p;
   }));
   plan.forEach((p, i) => plan.slice(i + 1).forEach((o) => {
-    if (p.uses.includes(o.module) && o.uses.includes(p.module)) out.push({ severity: "error", file: p.module, line: null, message: `${p.name} and ${o.name} use each other's classes, which makes a circular module dependency.`, fix: "Talk through an interface or delegate in one direction, or stack them into one system." });
+    if (p.uses.includes(o.module) && o.uses.includes(p.module)) out.push({ severity: "error", file: "", line: null, message: `${p.name} and ${o.name} use each other's classes, which makes a circular module dependency.`, fix: "Talk through an interface or delegate in one direction, or stack them into one system." });
   }));
   const files = {};
   plan.forEach((p) => {
     const h = `${baseName(p.system)}.h`;
-    if (files[h]) out.push({ severity: "warning", file: p.module, line: null, message: `${files[h].name} (${files[h].module}) and ${p.name} (${p.module}) both have a header named ${h}, so #include "${h}" becomes ambiguous.`, fix: "Rename one of the classes." });
+    if (files[h]) out.push({ severity: "warning", file: "", line: null, message: `${files[h].name} (${files[h].module}) and ${p.name} (${p.module}) both have a header named ${h}, so #include "${h}" becomes ambiguous.`, fix: "Rename one of the classes." });
     files[h] = files[h] || p;
   });
   return out;

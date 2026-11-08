@@ -27,29 +27,35 @@ const tally = (issues) => {
   return { e, w: issues.length - e };
 };
 
-export default function CompileCheck({ system, issues, aiKey, onNeedKey, onUsed, onAiIssues }) {
-  const [open, setOpen] = useState(true);
-  const [ai, setAi] = useState(null); // null | "running" | {issues, model} | {error}
+// Lives in Workspace so a running review survives tab switches; results are tied to the reviewed system id
+export function useAiReview(system, issues, aiKey, onNeedKey, onUsed) {
+  const [state, setState] = useState(null); // {id, status: "running"|"done"|"error", issues, model, error}
   const seq = useRef(0);
-  useEffect(() => { seq.current += 1; setAi(null); }, [system?.id]);
-  const { e, w } = tally(issues);
-
+  useEffect(() => { seq.current += 1; setState(null); }, [system?.id]);
   const review = async () => {
     if (!aiKey) { onNeedKey(); return; }
     const mine = ++seq.current;
-    setAi("running");
+    const id = system.id;
+    setState({ id, status: "running" });
     try {
       const { data } = await api.post("/ai/review-cpp", {
         file_base: baseName(system), cpp_header: system.cpp_header, cpp_source: system.cpp_source,
-        known_issues: issues.map(issueText),
+        known_issues: issues.slice(0, 40).map(issueText),
       }, { headers: aiHeaders(aiKey) });
-      if (mine === seq.current) { setAi(data); onAiIssues(system.id, data.issues); }
+      if (mine === seq.current) setState({ id, status: "done", issues: data.issues, model: data.model });
     } catch (err) {
-      if (mine === seq.current) setAi({ error: errorText(err) });
+      if (mine === seq.current) setState({ id, status: "error", error: errorText(err) });
     } finally {
       onUsed();
     }
   };
+  return [state && state.id === system?.id ? state : null, review];
+}
+
+export default function CompileCheck({ issues, ai, onReview, aiKey }) {
+  const [open, setOpen] = useState(true);
+  const { e, w } = tally(issues);
+  const running = ai?.status === "running";
 
   const color = e ? "var(--accent-red)" : w ? "#e8c547" : "var(--cpp-green)";
   return (
@@ -63,8 +69,8 @@ export default function CompileCheck({ system, issues, aiKey, onNeedKey, onUsed,
           </span>
           <ChevronDown size={13} className={`text-[var(--text-muted)] transition-transform ${open ? "rotate-180" : ""}`} />
         </button>
-        <button className="ue-btn !py-1 !px-2 !text-[11px]" onClick={review} disabled={ai === "running"} data-testid="ai-review-button">
-          {ai === "running" ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />} {ai === "running" ? "Reviewing…" : "AI review"}
+        <button className="ue-btn !py-1 !px-2 !text-[11px]" onClick={onReview} disabled={running} data-testid="ai-review-button">
+          {running ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />} {running ? "Reviewing…" : "AI review"}
         </button>
       </div>
       {open && (
@@ -73,7 +79,7 @@ export default function CompileCheck({ system, issues, aiKey, onNeedKey, onUsed,
           <div className="text-[10.5px] font-mono text-[var(--text-muted)]">
             Instant pattern check: catches common mistakes, not every compiler error. AI review reads both files with your key ({aiKey?.model || "no key yet"}) and counts as 1 request.
           </div>
-          {ai && ai !== "running" && (
+          {ai && !running && (
             <div className="border-t border-[var(--border-soft)] pt-3" data-testid="ai-review-result">
               <div className="eyebrow mb-2 flex items-center gap-1.5"><Sparkles size={11} /> AI review {ai.model && <span className="normal-case tracking-normal font-normal">· {ai.model}</span>}</div>
               {ai.error && <div className="text-[11.5px] font-mono text-[var(--accent-red)]" data-testid="ai-review-error">{ai.error}</div>}

@@ -24,7 +24,7 @@ import UsageChip, { modelUsage, useUsage } from "../components/UsageChip";
 import { buildPluginZip, buildProjectZip } from "../lib/zipExport";
 import AiKeyModal, { DEFAULT_MODEL, PROVIDERS, aiHeaders, loadAiKey, saveAiKey } from "../components/AiKeyModal";
 import { highlightCpp, highlightBlueprint } from "../lib/highlight";
-import CompileCheck, { IssueList } from "../components/CompileCheck";
+import CompileCheck, { IssueList, useAiReview } from "../components/CompileCheck";
 import BundleModal from "../components/BundleModal";
 import HistoryModal from "../components/HistoryModal";
 import { checkSystem } from "../lib/compileCheck";
@@ -188,7 +188,6 @@ export default function Workspace() {
   const [exportPrompt, setExportPrompt] = useState(null);
   const [bundleIds, setBundleIds] = useState(null);
   const [historyOpen, setHistoryOpen] = useState(false);
-  const [aiReview, setAiReview] = useState(null); // {id, issues} for the reviewed result
   const projectRef = useRef(null);
   projectRef.current = project;
   const aliveRef = useRef(true);
@@ -361,7 +360,8 @@ export default function Workspace() {
       toast.success(project ? `Saved v${data.version}` : "Saved as new project", { description: note ? `${data.name}: ${note}` : data.name });
     } catch (e) {
       setSaveDialog(false);
-      if (e.response?.status === 409) setConflict(e.response.data.detail);
+      if ((projectRef.current?.project_id || null) !== savingFor) toast.error("Couldn't save the project you switched away from", { description: errorText(e) });
+      else if (e.response?.status === 409) setConflict(e.response.data.detail);
       else toast.error("Couldn't save", { description: errorText(e) });
     } finally {
       setSaving(false);
@@ -568,7 +568,8 @@ export default function Workspace() {
 
   const checkIssues = useMemo(() => (result ? checkSystem(result) : []), [result?.cpp_header, result?.cpp_source]); // eslint-disable-line react-hooks/exhaustive-deps
   const checkErrors = checkIssues.filter((i) => i.severity === "error").length;
-  const exportIssues = aiReview && aiReview.id === result?.id ? [...checkIssues, ...aiReview.issues.map((i) => ({ ...i, message: `AI review: ${i.message}` }))] : checkIssues;
+  const [aiReview, runAiReview] = useAiReview(result, checkIssues, aiKey, () => setKeyModal("required"), () => setUsageTick((n) => n + 1));
+  const exportIssues = aiReview?.status === "done" ? [...checkIssues, ...aiReview.issues.map((i) => ({ ...i, message: `AI review: ${i.message}` }))] : checkIssues;
   const exportErrors = exportIssues.filter((i) => i.severity === "error").length;
 
   const TABS = [
@@ -816,7 +817,7 @@ export default function Workspace() {
             )}
             {tab === "cpp" && (
               <div className="p-5 h-full overflow-auto">
-                {result && <CompileCheck system={result} issues={checkIssues} aiKey={aiKey} onNeedKey={() => setKeyModal("required")} onUsed={() => setUsageTick((n) => n + 1)} onAiIssues={(id, issues) => setAiReview({ id, issues })} />}
+                {result && <CompileCheck issues={checkIssues} ai={aiReview} onReview={runAiReview} aiKey={aiKey} />}
                 <div className="grid md:grid-cols-2 gap-4">
                   <CodeBox title={`${result?.system_name || "System"}.h`} code={result?.cpp_header} lang="cpp" testId="cpp-header" />
                   <CodeBox title={`${result?.system_name || "System"}.cpp`} code={result?.cpp_source} lang="cpp" testId="cpp-source" />
