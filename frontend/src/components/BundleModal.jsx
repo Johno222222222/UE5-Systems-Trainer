@@ -10,6 +10,7 @@ import { api, errorText, downloadBlob } from "../lib/api";
 import { baseName, buildBundleZip, bundleIssues, planBundle } from "../lib/zipExport";
 import { checkSystem, issueKey, issueText } from "../lib/compileCheck";
 import { fixNote, makeFixEntry } from "../lib/fixLog";
+import { compileReport, reportSection } from "../lib/unrealExtras";
 
 const activeIssues = (item) => {
   const ignored = new Set((item.raw.ignored_issues || []).map((i) => i.key));
@@ -120,7 +121,8 @@ export default function BundleModal({ ids, preset, onClose, onPresetsChanged, ai
   const download = async () => {
     setBusy(true);
     try {
-      const { blob, filename } = await buildBundleZip(name, plan, checks);
+      const report = compileReport(plan.map((p, i) => reportSection(`${p.name} (module ${p.module})`, { issues: checks[i], ignored: p.raw.ignored_issues || [] })), null);
+      const { blob, filename } = await buildBundleZip(name, plan, checks, report);
       downloadBlob(blob, filename);
       toast.success(`Downloaded ${filename}`, { description: `${plan.length} modules in one plugin. Copy the folder into YourProject/Plugins and build.` });
       onClose();

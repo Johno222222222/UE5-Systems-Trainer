@@ -22,7 +22,7 @@ export default function ShareModal({ project, onUpdate, onClose }) {
     try {
       const { data } = await fn();
       onUpdate(data);
-      return true;
+      return data;
     } catch (e) {
       toast.error(errorText(e));
       return false;
@@ -32,8 +32,13 @@ export default function ShareModal({ project, onUpdate, onClose }) {
   };
   const add = async (e) => {
     e.preventDefault();
-    if (await call(() => api.post(`${base}/members`, { email, role }))) {
-      toast.success(`Invited ${email}`, { description: "They'll see it under Shared with me after signing in, or send them the invite link." });
+    const data = await call(() => api.post(`${base}/members`, { email, role }));
+    if (data) {
+      toast.success(`Invited ${email}`, {
+        description: data.emailed === false
+          ? "The invite email couldn't be sent. Copy their invite link below and send it yourself."
+          : data.emailed ? "We emailed them an invite link. They'll also see it under Shared with me after signing in." : "Role updated.",
+      });
       setEmail("");
     }
   };

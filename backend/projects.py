@@ -5,13 +5,14 @@ from urllib.parse import quote
 from datetime import datetime, timezone
 from typing import List, Literal, Optional
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import Response
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from auth import current_user
 from core import db
 from storage import get_object, put_object
+import teams
 
 router = APIRouter(prefix="/api")
 Role = Literal["editor", "viewer"]
@@ -40,6 +41,10 @@ def role_for(project: dict, user: dict) -> Optional[str]:
 async def load_project(project_id: str, user: dict, need: str = "viewer") -> tuple[dict, str]:
     project = await db.projects.find_one({"project_id": project_id, "is_deleted": False}, {"_id": 0})
     role = role_for(project, user) if project else None
+    if project and project.get("team_id"):
+        via = (await teams.project_roles_via_team(user)).get(project["team_id"])
+        if via and (not role or RANK[via] > RANK[role]):
+            role = via
     if not role:
         raise HTTPException(status_code=404, detail="Project not found")
     if RANK[role] < RANK[need]:
@@ -52,7 +57,7 @@ def summary(p: dict, role: str) -> dict:
         "project_id": p["project_id"], "name": p["name"], "system_name": (p.get("system") or {}).get("system_name"),
         "owner_name": p["owner_name"], "my_role": role, "version": p["version"],
         "updated_at": p["updated_at"], "updated_by_name": p["updated_by_name"],
-        "auto_fix_export": bool(p.get("auto_fix_export")),
+        "auto_fix_export": bool(p.get("auto_fix_export")), "team_id": p.get("team_id"),
     }
 
 
@@ -144,6 +149,7 @@ class IgnoredIssue(BaseModel):
     key: str = Field(min_length=1, max_length=300)
     file: str = Field(default="", max_length=10)
     message: str = Field(default="", max_length=400)
+    by: str = Field(default="", max_length=120)
 
 
 class IgnoresIn(BaseModel):
@@ -176,10 +182,19 @@ async def list_projects(user: dict = Depends(current_user)):
     member_q = [{"members.user_id": user["user_id"]}]
     if user.get("email_verified"):
         member_q.append({"members.email": user["email"]})
+    via = await teams.project_roles_via_team(user)
     shared = await db.projects.find({"is_deleted": False, "owner_id": {"$ne": user["user_id"]}, "$or": member_q}, proj).sort("updated_at", -1).to_list(500)
+    team_rows = await db.projects.find({"is_deleted": False, "team_id": {"$in": list(via)}}, proj).sort("updated_at", -1).to_list(1000) if via else []
+
+    def best(p):
+        direct = role_for(p, user)
+        team = via.get(p.get("team_id"))
+        return max([x for x in (direct, team) if x], key=lambda x: RANK[x], default=None)
+
     return {
         "mine": [summary(p, "owner") for p in mine],
-        "shared": [summary(p, r) for p in shared if (r := role_for(p, user))],
+        "shared": [summary(p, best(p)) for p in shared if role_for(p, user) and p.get("team_id") not in via],
+        "team": [summary(p, best(p)) for p in team_rows],
     }
 
 
@@ -282,8 +297,9 @@ async def list_presets(user: dict = Depends(current_user)):
     member_q = [{"members.user_id": user["user_id"]}]
     if user.get("email_verified"):
         member_q.append({"members.email": user["email"]})
-    rows = await db.projects.find({"is_deleted": False, "$or": [{"owner_id": user["user_id"]}, *member_q]}, {"_id": 0, "project_id": 1, "owner_id": 1, "members": 1}).to_list(2000)
-    accessible = [p["project_id"] for p in rows if role_for(p, user)]
+    via = await teams.project_roles_via_team(user)
+    rows = await db.projects.find({"is_deleted": False, "$or": [{"owner_id": user["user_id"]}, {"team_id": {"$in": list(via)}}, *member_q]}, {"_id": 0, "project_id": 1, "owner_id": 1, "members": 1, "team_id": 1}).to_list(2000)
+    accessible = [p["project_id"] for p in rows if role_for(p, user) or p.get("team_id") in via]
     shared = await db.bundle_presets.find(
         {"user_id": {"$ne": user["user_id"]}, "project_ids": {"$not": {"$elemMatch": {"$nin": accessible}}}},
         {"_id": 0, "user_id": 0},
@@ -389,8 +405,9 @@ async def delete_project(project_id: str, user: dict = Depends(current_user)):
 
 # ---------- Members & sharing ----------
 @router.post("/projects/{project_id}/members")
-async def add_member(project_id: str, body: MemberIn, user: dict = Depends(current_user)):
+async def add_member(project_id: str, body: MemberIn, request: Request, user: dict = Depends(current_user)):
     project, _ = await load_project(project_id, user, "owner")
+    emailed = None
     email = body.email.lower()
     if email == user["email"]:
         raise HTTPException(status_code=400, detail="You already own this project")
@@ -399,8 +416,9 @@ async def add_member(project_id: str, body: MemberIn, user: dict = Depends(curre
     else:
         member = {"email": email, "role": body.role, "user_id": None, "invite_token": secrets.token_urlsafe(24), "added_at": now()}
         await db.projects.update_one({"project_id": project_id}, {"$push": {"members": member}})
+        emailed = await teams.send_invite(request, user, email, f'the project "{project["name"]}"', f"/invite/{member['invite_token']}")
     project, _ = await load_project(project_id, user, "owner")
-    return detail(project, "owner")
+    return {**detail(project, "owner"), "emailed": emailed}
 
 
 @router.patch("/projects/{project_id}/members/{email}")

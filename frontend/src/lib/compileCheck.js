@@ -188,3 +188,26 @@ export function issueKey(issue, system) {
 }
 
 export const issuesToText = (issues) => issues.map((i) => `${issueText(i)}${i.fix ? `\n    Fix: ${i.fix}` : ""}`).join("\n");
+
+// Lighter check for the generated automation-test file
+export function checkTests(code, base) {
+  const issues = [];
+  const add = (severity, line, message, fix = "") => issues.push({ severity, file: ".cpp", line, message, fix });
+  const raw = code || "";
+  const c = strip(raw);
+  if (!raw.trim()) return [{ severity: "error", file: ".cpp", line: null, message: "The test file is empty.", fix: "Generate tests again." }];
+  if (!/WITH_DEV_AUTOMATION_TESTS/.test(raw)) add("warning", 1, "Tests aren't wrapped in #if WITH_DEV_AUTOMATION_TESTS, so they'd compile into shipping builds.", "Wrap the file in #if WITH_DEV_AUTOMATION_TESTS ... #endif.");
+  if (!/#include\s+"Misc\/AutomationTest\.h"/.test(raw)) add("error", 1, 'Missing #include "Misc/AutomationTest.h".', "Add it near the top.");
+  if (!new RegExp(`#include\\s+"(?:[\\w/]*/)?${base}\\.h"`).test(raw)) add("error", 1, `The tests don't include the component header "${base}.h".`, `Add #include "${base}.h".`);
+  if (!/BEGIN_DEFINE_SPEC|IMPLEMENT_SIMPLE_AUTOMATION_TEST|IMPLEMENT_COMPLEX_AUTOMATION_TEST/.test(c)) add("error", null, "No automation test or spec definition found.", "Use BEGIN_DEFINE_SPEC / END_DEFINE_SPEC.");
+  if (/BEGIN_DEFINE_SPEC/.test(c) && !/::Define\s*\(\s*\)/.test(c)) add("error", null, "The spec has no Define() function, so it has no test cases.", "Add void <Spec>::Define() with Describe/It blocks.");
+  [["{", "}", "braces"], ["(", ")", "parentheses"]].forEach(([o, cl, name]) => {
+    const n = count(c, new RegExp(`\\${o}`, "g")) - count(c, new RegExp(`\\${cl}`, "g"));
+    if (n) add("error", null, `Unbalanced ${name}: ${Math.abs(n)} ${n > 0 ? `unclosed '${o}'` : `extra '${cl}'`}.`);
+  });
+  INCLUDE_HINTS.forEach(([re, paths]) => {
+    const m = c.match(re);
+    if (m && !paths.some((p) => raw.includes(p))) add("warning", lineOf(c, m.index), `Uses ${m[0].match(/\w+/)[0]} but doesn't include ${paths[0]}.`, `Add #include "${paths[0]}".`);
+  });
+  return issues;
+}

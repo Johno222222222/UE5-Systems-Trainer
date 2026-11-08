@@ -19,6 +19,7 @@ from pymongo import ASCENDING, DESCENDING, IndexModel
 
 import auth
 import projects
+import teams
 from core import client, db
 from storage import init_storage
 from pydantic import BaseModel, ConfigDict, Field
@@ -582,6 +583,56 @@ async def fix_cpp(
     return {"cpp_header": files[".h"], "cpp_source": files[".cpp"], "changes": applied, "model": model}
 
 
+TESTS_PROMPT = """You write Unreal Engine 5.4 automation tests. Given a component's .h/.cpp, write ONE C++ file of Automation Spec tests (BEGIN_DEFINE_SPEC / END_DEFINE_SPEC / Describe / It) that check its core behaviour, e.g. damage lowers health, values clamp at 0 and at max, regen stops at max, events fire.
+Rules:
+- Wrap everything in #if WITH_DEV_AUTOMATION_TESTS ... #endif.
+- Include "Misc/AutomationTest.h", the component's header (exact file name given), and any engine headers you use.
+- Create objects with NewObject<...>() (no world needed). Call only functions and properties that exist in the header. If behaviour needs a world, timers or Tick, test the pure logic you can reach and say so in a comment.
+- Spec flags: EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter. Test name prefix: "SystemArchitect.<ClassName>".
+- 4 to 8 It() cases with clear names. Use TestEqual/TestTrue/TestFalse with readable messages.
+Respond with ONLY raw JSON: {"file_name":"<ClassName>Spec.cpp","code":"...","cases":["short name of each It case"]}"""
+
+
+class TestsRequest(BaseModel):
+    file_base: str = Field(default="System", max_length=120)
+    cpp_header: str = Field(..., max_length=40000)
+    cpp_source: str = Field(..., max_length=60000)
+    project_id: Optional[str] = None
+
+
+@api_router.post("/ai/tests")
+async def generate_tests(
+    req: TestsRequest,
+    user: dict = Depends(auth.current_user),
+    x_llm_provider: str = Header(None),
+    x_llm_model: str = Header(None),
+    x_llm_key: str = Header(None),
+):
+    provider, model, key = resolve_llm(x_llm_provider, x_llm_model, x_llm_key)
+    if req.project_id:
+        await projects.load_project(req.project_id, user, "editor")
+    chat = LlmChat(api_key=key, session_id=f"tests-{uuid.uuid4()}", system_message=TESTS_PROMPT) \
+        .with_model(provider, model).with_params(max_tokens=12000)
+    text = f"Header file name: {req.file_base}.h\n\n=== {req.file_base}.h ===\n{req.cpp_header}\n\n=== {req.file_base}.cpp ===\n{req.cpp_source}"
+    await record_usage(user["user_id"], key, provider, model, "tests")
+    try:
+        raw = await asyncio.wait_for(chat.send_message(UserMessage(text=text)), timeout=55)
+    except asyncio.TimeoutError:
+        raise HTTPException(status_code=504, detail="The model took too long to write tests. Try again.")
+    except Exception as exc:
+        logging.error("Tests failed: %s", str(exc).replace(key, "***")[:300])
+        raise HTTPException(status_code=502, detail=classify_error(exc, model)[1].replace(key, "***"))
+    try:
+        data = extract_json(raw)
+        code = data["code"]
+        if not isinstance(code, str) or "It(" not in code:
+            raise ValueError("no test cases")
+    except Exception:
+        raise HTTPException(status_code=502, detail="The model's tests couldn't be read. Please try again.")
+    name = re.sub(r"[^A-Za-z0-9_]", "", str(data.get("file_name", "")).removesuffix(".cpp")) or f"{req.file_base}Spec"
+    return {"file_name": f"{name}.cpp", "code": code, "cases": [str(c)[:120] for c in data.get("cases", [])][:12], "model": model}
+
+
 @api_router.get("/usage/today")
 async def usage_today(fp: str, user: dict = Depends(auth.current_user)):
     day = usage_day()
@@ -689,6 +740,7 @@ async def list_templates():
 app.include_router(api_router)
 app.include_router(auth.router)
 app.include_router(projects.router)
+app.include_router(teams.router)
 
 app.add_middleware(
     CORSMiddleware,

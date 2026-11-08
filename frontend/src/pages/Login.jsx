@@ -82,7 +82,7 @@ export default function Login() {
       </div>
       {showForgot && (
         <div className="mt-3 text-[11.5px] font-mono text-[var(--text-secondary)] panel p-3" data-testid="forgot-password-help">
-          Ask the app owner for a reset link. They can create one from their account menu, and it works for 1 hour. If you signed up with Google, just use Continue with Google.
+          <a href="/forgot" className="text-[var(--unreal-orange)] hover:underline" data-testid="forgot-password-open">Email me a reset link</a>. It works once for 1 hour. If you signed up with Google, just use Continue with Google.
         </div>
       )}
     </AuthShell>

@@ -6,7 +6,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import Login from "./pages/Login";
 import Workspace from "./pages/Workspace";
 import PublicView from "./pages/PublicView";
-import { AuthCallback, InviteAccept, ResetPassword } from "./pages/AuthPages";
+import { AuthCallback, ForgotPassword, InviteAccept, ResetPassword, TeamInviteAccept } from "./pages/AuthPages";
 
 function Gate({ children }) {
   const { user } = useAuth();
@@ -24,6 +24,8 @@ function AppRouter() {
       <Route path="/share/:token" element={<PublicView />} />
       <Route path="/reset/:token" element={<ResetPassword />} />
       <Route path="/invite/:token" element={<Gate><InviteAccept /></Gate>} />
+      <Route path="/team-invite/:token" element={<Gate><TeamInviteAccept /></Gate>} />
+      <Route path="/forgot" element={<ForgotPassword />} />
       <Route path="*" element={<Gate><Workspace /></Gate>} />
     </Routes>
   );
