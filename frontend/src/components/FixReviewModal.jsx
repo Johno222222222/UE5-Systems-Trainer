@@ -1,0 +1,79 @@
+import React, { useMemo } from "react";
+import { Check, Loader2, RotateCcw, Wand2, X } from "lucide-react";
+import Modal from "./Modal";
+import { sideBySideDiff } from "../lib/changes";
+
+function FileDiff({ label, before, after, testId }) {
+  // Show only changed lines with 2 lines of context to keep the review short
+  const rows = useMemo(() => {
+    const all = sideBySideDiff(before, after);
+    const keep = new Set();
+    all.forEach((r, i) => { if (r.type !== "same") for (let k = i - 2; k <= i + 2; k += 1) keep.add(k); });
+    const out = [];
+    all.forEach((r, i) => {
+      if (keep.has(i)) out.push(r);
+      else if (keep.has(i - 1)) out.push({ gap: true });
+    });
+    return out;
+  }, [before, after]);
+  if (before === after) return null;
+  return (
+    <div className="mb-4" data-testid={testId}>
+      <div className="eyebrow mb-1.5">{label}</div>
+      <div className="code-box !overflow-auto max-h-[300px] grid grid-cols-2 font-mono text-[11.5px] leading-[1.6]">
+        <div className="px-3 py-1 border-b border-r border-[var(--border-soft)] text-[10px] uppercase tracking-widest text-[var(--text-muted)]">Before</div>
+        <div className="px-3 py-1 border-b border-[var(--border-soft)] text-[10px] uppercase tracking-widest text-[var(--text-muted)]">After</div>
+        {rows.map((r, i) => r.gap ? (
+          <React.Fragment key={i}><div className="px-3 text-[var(--text-muted)] border-r border-[var(--border-soft)]">⋯</div><div className="px-3 text-[var(--text-muted)]">⋯</div></React.Fragment>
+        ) : (
+          <React.Fragment key={i}>
+            <div className={`px-3 whitespace-pre-wrap break-words border-r border-[var(--border-soft)] ${r.type === "del" || r.type === "change" ? "diff-del" : ""}`}>{r.left ?? ""}</div>
+            <div className={`px-3 whitespace-pre-wrap break-words ${r.type === "add" || r.type === "change" ? "diff-add" : ""}`}>{r.right ?? ""}</div>
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// fix: {status: "running"|"review"|"error", count, data?, error?}
+export default function FixReviewModal({ fix, system, base, onAccept, onDiscard, onRetry }) {
+  return (
+    <Modal title={fix.status === "running" ? "Writing a fix…" : fix.status === "error" ? "Fix not applied" : "Review the fix"} onClose={fix.status === "running" ? null : onDiscard} testId="fix-modal" width={980}>
+      {fix.status === "running" && (
+        <div className="flex items-center gap-2 text-[12.5px] font-mono text-[var(--text-secondary)]" data-testid="fix-running">
+          <Loader2 size={14} className="animate-spin text-[var(--unreal-orange)]" /> Patching {fix.count} issue{fix.count === 1 ? "" : "s"} with your AI key. Only the lines that need changing are touched.
+        </div>
+      )}
+      {fix.status === "error" && (
+        <>
+          <div className="text-[12.5px] font-mono text-[var(--accent-red)] mb-4" data-testid="fix-error">{fix.error}</div>
+          <div className="text-[12px] text-[var(--text-secondary)] mb-4">Nothing in your code was changed.</div>
+          <div className="flex gap-2 justify-end">
+            <button className="ue-btn" onClick={onDiscard} data-testid="fix-close"><X size={13} /> Close</button>
+            <button className="ue-btn ue-btn-primary" onClick={onRetry} data-testid="fix-retry"><RotateCcw size={13} /> Try again</button>
+          </div>
+        </>
+      )}
+      {fix.status === "review" && (
+        <>
+          <div className="panel p-3 mb-4" data-testid="fix-change-list">
+            <div className="eyebrow mb-1.5 flex items-center gap-1.5"><Wand2 size={11} /> {fix.data.changes.length} change{fix.data.changes.length === 1 ? "" : "s"} · {fix.data.model}</div>
+            <ul className="space-y-0.5">
+              {fix.data.changes.map((c, i) => (
+                <li key={i} className="text-[11.5px] font-mono text-[var(--text-primary)]"><span className="text-[var(--text-muted)] mr-1.5">{c.file}</span>{c.why || "Edit"}</li>
+              ))}
+            </ul>
+          </div>
+          <FileDiff label={`${base}.h`} before={system.cpp_header || ""} after={fix.data.cpp_header} testId="fix-diff-h" />
+          <FileDiff label={`${base}.cpp`} before={system.cpp_source || ""} after={fix.data.cpp_source} testId="fix-diff-cpp" />
+          <div className="flex items-center gap-2 justify-end">
+            <span className="text-[10.5px] font-mono text-[var(--text-muted)] mr-auto">Accepting changes the workspace only. Press Save to keep it.</span>
+            <button className="ue-btn" onClick={onDiscard} data-testid="fix-discard"><X size={13} /> Discard</button>
+            <button className="ue-btn ue-btn-primary" onClick={onAccept} data-testid="fix-accept"><Check size={13} /> Accept fix</button>
+          </div>
+        </>
+      )}
+    </Modal>
+  );
+}

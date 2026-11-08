@@ -3,7 +3,7 @@ import secrets
 import uuid
 from urllib.parse import quote
 from datetime import datetime, timezone
-from typing import Literal, Optional
+from typing import List, Literal, Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from fastapi.responses import Response
@@ -56,7 +56,7 @@ def summary(p: dict, role: str) -> dict:
 
 
 def detail(p: dict, role: str) -> dict:
-    out = {**summary(p, role), "system": p.get("system"), "context": p.get("context") or {}}
+    out = {**summary(p, role), "system": p.get("system"), "context": p.get("context") or {}, "ignored_issues": p.get("ignored_issues") or []}
     if role == "owner":
         out["members"] = [{"email": m["email"], "role": m["role"], "joined": bool(m.get("user_id")), "invite_token": m["invite_token"]} for m in p.get("members", [])]
         out["public_token"] = p.get("public_token")
@@ -119,6 +119,26 @@ class LabelIn(BaseModel):
 
 class ImportIn(BaseModel):
     data: dict
+
+
+class IgnoredIssue(BaseModel):
+    key: str = Field(min_length=1, max_length=300)
+    file: str = Field(default="", max_length=10)
+    message: str = Field(default="", max_length=400)
+
+
+class IgnoresIn(BaseModel):
+    ignores: List[IgnoredIssue] = Field(default_factory=list, max_length=200)
+
+
+class PresetIn(BaseModel):
+    name: str = Field(min_length=1, max_length=60)
+    plugin_name: str = Field(min_length=3, max_length=40, pattern=r"^[A-Za-z][A-Za-z0-9]*$")
+    project_ids: List[str] = Field(min_length=2, max_length=6)
+
+
+class PresetRename(BaseModel):
+    name: str = Field(min_length=1, max_length=60)
 
 
 # ---------- Projects ----------
@@ -206,6 +226,49 @@ async def save_project(project_id: str, body: ProjectUpdate, user: dict = Depend
         await db.project_versions.update_one({"project_id": project_id, "version": res["version"]}, {"$set": {"note": body.note.strip()[:200]}})
     await claim_references(body.context, user, project_id)
     return detail(res, role)
+
+
+@router.put("/projects/{project_id}/ignores")
+async def set_ignores(project_id: str, body: IgnoresIn, user: dict = Depends(current_user)):
+    await load_project(project_id, user, "editor")
+    ignores = [i.model_dump() for i in body.ignores]
+    await db.projects.update_one({"project_id": project_id}, {"$set": {"ignored_issues": ignores}})
+    return {"ignored_issues": ignores}
+
+
+# ---------- Bundle presets (private to their creator) ----------
+@router.get("/bundle-presets")
+async def list_presets(user: dict = Depends(current_user)):
+    rows = await db.bundle_presets.find({"user_id": user["user_id"]}, {"_id": 0, "user_id": 0}).sort("updated_at", -1).to_list(200)
+    return {"presets": rows}
+
+
+@router.post("/bundle-presets")
+async def create_preset(body: PresetIn, user: dict = Depends(current_user)):
+    row = {"preset_id": f"pre_{uuid.uuid4().hex[:12]}", "user_id": user["user_id"], "name": body.name.strip(),
+           "plugin_name": body.plugin_name, "project_ids": list(dict.fromkeys(body.project_ids)), "updated_at": now()}
+    await db.bundle_presets.insert_one(row)
+    row.pop("_id", None)
+    row.pop("user_id", None)
+    return row
+
+
+@router.patch("/bundle-presets/{preset_id}")
+async def rename_preset(preset_id: str, body: PresetRename, user: dict = Depends(current_user)):
+    res = await db.bundle_presets.find_one_and_update(
+        {"preset_id": preset_id, "user_id": user["user_id"]}, {"$set": {"name": body.name.strip(), "updated_at": now()}},
+        projection={"_id": 0, "user_id": 0}, return_document=True)
+    if not res:
+        raise HTTPException(status_code=404, detail="Preset not found")
+    return res
+
+
+@router.delete("/bundle-presets/{preset_id}")
+async def delete_preset(preset_id: str, user: dict = Depends(current_user)):
+    res = await db.bundle_presets.delete_one({"preset_id": preset_id, "user_id": user["user_id"]})
+    if not res.deleted_count:
+        raise HTTPException(status_code=404, detail="Preset not found")
+    return {"ok": True}
 
 
 @router.get("/projects/{project_id}/versions")

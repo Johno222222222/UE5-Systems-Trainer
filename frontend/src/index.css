@@ -286,3 +286,15 @@ html, body, #root {
 /* Compare diff rows */
 .diff-del { background: rgba(239, 68, 68, 0.12); box-shadow: inset 2px 0 0 var(--accent-red); }
 .diff-add { background: rgba(0, 230, 118, 0.10); box-shadow: inset 2px 0 0 var(--cpp-green); }
+
+.code-line-mark {
+  background: rgba(255, 107, 0, 0.14);
+  box-shadow: inset 3px 0 0 var(--unreal-orange);
+  animation: line-pulse 1.4s ease-out 1;
+}
+@keyframes line-pulse {
+  0% { background: rgba(255, 107, 0, 0.45); }
+  100% { background: rgba(255, 107, 0, 0.14); }
+}
+.issue-row { transition: background-color 0.15s ease; }
+.issue-row:hover { background: var(--surface-hover); }

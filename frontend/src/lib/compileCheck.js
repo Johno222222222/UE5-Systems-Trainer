@@ -160,3 +160,29 @@ export function checkSystem(system) {
 }
 
 export const issueText = (i) => `${i.file}${i.line ? `:${i.line}` : ""} ${i.message}`;
+
+const fileText = (system, file) => (file === ".cpp" ? system?.cpp_source : system?.cpp_header) || "";
+
+// Exact line if known, otherwise the first line mentioning the class/function the message names
+export function locateIssue(issue, system) {
+  const file = issue.file === ".cpp" ? ".cpp" : ".h";
+  const lines = fileText(system, file).split("\n");
+  if (issue.line && issue.line <= lines.length) return { file, line: issue.line };
+  const tokens = [...(issue.message || "").matchAll(/\b(?:[UAFIE][A-Z]\w*::~?\w+|[A-Za-z_]\w*\.h|[A-Z]\w*_\w+|[A-Z][a-z0-9]+[A-Z]\w*|[A-Z]{3,}\w*)\b/g)]
+    .map((m) => m[0]).sort((a, b) => b.includes("::") - a.includes("::"));
+  for (const t of tokens) {
+    const probe = file === ".h" && t.includes("::") ? t.split("::")[1] : t;
+    const idx = lines.findIndex((l) => l.includes(probe));
+    if (idx >= 0) return { file, line: idx + 1 };
+  }
+  return { file, line: 1 };
+}
+
+// Stable across regenerations unless the issue's own line text changes
+export function issueKey(issue, system) {
+  const { file, line } = locateIssue(issue, system);
+  const text = issue.line || line > 1 ? (fileText(system, file).split("\n")[line - 1] || "").trim() : "";
+  return `${file}|${issue.message}|${text}`.slice(0, 300);
+}
+
+export const issuesToText = (issues) => issues.map((i) => `${issueText(i)}${i.fix ? `\n    Fix: ${i.fix}` : ""}`).join("\n");

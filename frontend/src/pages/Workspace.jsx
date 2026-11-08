@@ -21,13 +21,14 @@ import AccountMenu from "../components/AccountMenu";
 import Modal from "../components/Modal";
 import { ReferencesBar, ProjectFiles } from "../components/Files";
 import UsageChip, { modelUsage, useUsage } from "../components/UsageChip";
-import { buildPluginZip, buildProjectZip } from "../lib/zipExport";
+import { baseName, buildPluginZip, buildProjectZip } from "../lib/zipExport";
 import AiKeyModal, { DEFAULT_MODEL, PROVIDERS, aiHeaders, loadAiKey, saveAiKey } from "../components/AiKeyModal";
-import { highlightCpp, highlightBlueprint } from "../lib/highlight";
+import { CodeBox } from "../components/CodeBox";
 import CompileCheck, { IssueList, useAiReview } from "../components/CompileCheck";
 import BundleModal from "../components/BundleModal";
 import HistoryModal from "../components/HistoryModal";
-import { checkSystem } from "../lib/compileCheck";
+import { checkSystem, issueKey, issueText, issuesToText, locateIssue } from "../lib/compileCheck";
+import FixReviewModal from "../components/FixReviewModal";
 
 const LS_KEY = "ue5_architect_library_v1";
 const LS_CONTEXT = "ue5_architect_project_context";
@@ -109,37 +110,6 @@ function TemplateCard({ tpl, onPick }) {
   );
 }
 
-export function CodeBox({ title, code, lang = "cpp", testId }) {
-  const html = useMemo(() => (lang === "cpp" ? highlightCpp(code) : highlightBlueprint(code)), [code, lang]);
-  const copy = async () => {
-    await navigator.clipboard.writeText(code || "");
-    toast.success(`${title} copied to clipboard`);
-  };
-  const download = () => {
-    const ext = lang === "cpp" ? (title.includes(".h") ? "h" : title.includes(".cpp") ? "cpp" : "txt") : "txt";
-    const blob = new Blob([code || ""], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = `${title.replace(/[^a-z0-9.-]/gi, "_")}.${ext}`;
-    a.click(); URL.revokeObjectURL(url);
-  };
-  return (
-    <div className="code-box">
-      <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border-soft)] bg-[var(--bg-secondary)]">
-        <div className="flex items-center gap-2">
-          <span className={`inline-block h-2 w-2 rounded-full ${lang === "cpp" ? "bg-[var(--cpp-green)]" : "bg-[var(--blueprint-blue)]"}`} />
-          <span className="font-mono text-[11px] uppercase tracking-widest text-[var(--text-secondary)]">{title}</span>
-        </div>
-        <div className="flex gap-1.5">
-          <button className="ue-btn !py-1 !px-2 !text-[11px]" onClick={copy} data-testid={`copy-${testId}`}><Copy size={12} /> Copy</button>
-          <button className="ue-btn !py-1 !px-2 !text-[11px]" onClick={download} data-testid={`download-${testId}`}><Download size={12} /> .{lang === "cpp" ? (title.includes(".h") ? "h" : "cpp") : "txt"}</button>
-        </div>
-      </div>
-      <pre dangerouslySetInnerHTML={{ __html: html || `<span class="tok-com">// awaiting generation…</span>` }} />
-    </div>
-  );
-}
-
 export default function Workspace() {
   const { user } = useAuth();
   const [templates, setTemplates] = useState([]);
@@ -186,7 +156,10 @@ export default function Workspace() {
   const [saveDialog, setSaveDialog] = useState(false);
   const [saveNote, setSaveNote] = useState("");
   const [exportPrompt, setExportPrompt] = useState(null);
-  const [bundleIds, setBundleIds] = useState(null);
+  const [bundle, setBundle] = useState(null); // {ids, preset}
+  const [ignores, setIgnores] = useState([]); // [{key, file, message}] saved per project
+  const [jump, setJump] = useState(null); // {file, line, nonce}
+  const [fix, setFix] = useState(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const projectRef = useRef(null);
   projectRef.current = project;
@@ -353,6 +326,7 @@ export default function Workspace() {
       if ((projectRef.current?.project_id || null) === savingFor) {
         setProject(meta);
         setConflict(null);
+        if (!savingFor && ignores.length) api.put(`/projects/${data.project_id}/ignores`, { ignores }).catch(() => {});
       }
       setProjRefresh((n) => n + 1);
       setSaveDialog(false);
@@ -393,6 +367,7 @@ export default function Workspace() {
       const { data } = await api.get(`/projects/${id}`);
       const { system, context, ...meta } = data;
       setProject(meta);
+      setIgnores(meta.ignored_issues || []);
       openSystem(system, context);
       toast.message(`Opened ${data.name}`, { description: meta.my_role === "viewer" ? "View only" : `Last saved by ${meta.updated_by_name}` });
     } catch (e) {
@@ -567,10 +542,76 @@ export default function Workspace() {
   );
 
   const checkIssues = useMemo(() => (result ? checkSystem(result) : []), [result?.cpp_header, result?.cpp_source]); // eslint-disable-line react-hooks/exhaustive-deps
-  const checkErrors = checkIssues.filter((i) => i.severity === "error").length;
-  const [aiReview, runAiReview] = useAiReview(result, checkIssues, aiKey, () => setKeyModal("required"), () => setUsageTick((n) => n + 1));
-  const exportIssues = aiReview?.status === "done" ? [...checkIssues, ...aiReview.issues.map((i) => ({ ...i, message: `AI review: ${i.message}` }))] : checkIssues;
+  const ignoreKeys = useMemo(() => new Set(ignores.map((i) => i.key)), [ignores]);
+  const keyedIssues = useMemo(() => checkIssues.map((i) => ({ ...i, key: issueKey(i, result) })), [checkIssues]); // eslint-disable-line react-hooks/exhaustive-deps
+  const activeIssues = keyedIssues.filter((i) => !ignoreKeys.has(i.key));
+  const ignoredIssues = keyedIssues.filter((i) => ignoreKeys.has(i.key));
+  const checkErrors = activeIssues.filter((i) => i.severity === "error").length;
+  const [aiReview, runAiReview] = useAiReview(result, activeIssues, aiKey, () => setKeyModal("required"), () => setUsageTick((n) => n + 1));
+  const exportIssues = aiReview?.status === "done" ? [...activeIssues, ...aiReview.issues.map((i) => ({ ...i, message: `AI review: ${i.message}` }))] : checkIssues;
   const exportErrors = exportIssues.filter((i) => i.severity === "error").length;
+
+  useEffect(() => { setJump(null); }, [result?.id]);
+  const jumpTo = (issue) => {
+    if (!result) return;
+    setExportPrompt(null);
+    setTab("cpp");
+    setJump({ ...locateIssue(issue, result), nonce: Date.now() });
+  };
+  const saveIgnores = (next) => {
+    setIgnores(next);
+    if (project && !readOnly) api.put(`/projects/${project.project_id}/ignores`, { ignores: next }).catch((e) => toast.error("Couldn't save ignored issues", { description: errorText(e) }));
+  };
+  const ignoreIssue = (i) => { saveIgnores([...ignores, { key: i.key, file: i.file, message: i.message.slice(0, 400) }]); toast.message("Issue ignored", { description: "Restore it from the Ignored list." }); };
+  const restoreIssue = (i) => saveIgnores(ignores.filter((x) => x.key !== i.key));
+  const copyIssues = async (list) => {
+    try {
+      await navigator.clipboard.writeText(issuesToText(list));
+      toast.success(`Copied ${list.length} issue${list.length === 1 ? "" : "s"}`);
+    } catch { toast.error("Your browser blocked the clipboard"); }
+  };
+  const runFix = async (list) => {
+    if (!aiKey) { setKeyModal("required"); toast.error("Add your AI key to fix issues"); return; }
+    const { used, limit } = modelUsage(usage, aiKey.provider, aiKey.model);
+    if (limit && used + 1 > limit * 0.85 && !window.confirm(`You've used about ${used} of ~${limit} free ${aiKey.model} requests today. Fix anyway?`)) return;
+    const before = { id: result.id, h: result.cpp_header || "", c: result.cpp_source || "" };
+    setFix({ status: "running", count: list.length, list, before });
+    try {
+      const { data } = await api.post("/ai/fix-cpp", {
+        file_base: baseName(result), cpp_header: before.h, cpp_source: before.c,
+        issues: list.slice(0, 40).map((i) => `${issueText(i)}${i.fix ? ` (suggested fix: ${i.fix})` : ""}`),
+      }, { headers: aiHeaders(aiKey) });
+      setFix((f) => (f?.list === list ? { ...f, status: "review", data } : f));
+    } catch (e) {
+      const d = e.response?.data?.detail;
+      setFix((f) => (f?.list === list ? { ...f, status: "error", error: d?.message || errorText(e) } : f));
+    } finally {
+      setUsageTick((n) => n + 1);
+    }
+  };
+  const acceptFix = () => {
+    const { data, list, before } = fix;
+    if (result?.id !== before.id || (result.cpp_header || "") !== before.h || (result.cpp_source || "") !== before.c) {
+      setFix({ ...fix, status: "error", error: "The code changed while the fix was being written, so it wasn't applied." });
+      return;
+    }
+    const next = { ...result, cpp_header: data.cpp_header, cpp_source: data.cpp_source };
+    setResult(next);
+    setFix(null);
+    const sig = (i) => `${i.file}|${i.message}`;
+    const after = checkSystem(next).filter((i) => !ignoreKeys.has(issueKey(i, next)));
+    const afterSigs = new Set(after.map(sig));
+    const beforeSigs = new Set(keyedIssues.map(sig));
+    const builtIn = list.filter((i) => i.key);
+    const cleared = builtIn.filter((i) => !afterSigs.has(sig(i))).length;
+    const fresh = after.filter((i) => !beforeSigs.has(sig(i))).length;
+    const aiCount = list.length - builtIn.length;
+    toast.success(builtIn.length ? `Cleared ${cleared} of ${builtIn.length} issue${builtIn.length === 1 ? "" : "s"}` : `Applied ${data.changes.length} change${data.changes.length === 1 ? "" : "s"}`, {
+      description: [after.length ? `${after.length} still listed${fresh ? ` (${fresh} new)` : ""}.` : "The compile check is clean.", aiCount ? "Run AI review again to confirm the AI findings." : "", "Press Save to keep it."].filter(Boolean).join(" "),
+      duration: 8000,
+    });
+    setTab("cpp");
+  };
 
   const TABS = [
     { id: "graph", label: "Event Graph", icon: Workflow, test: "tab-node-graph" },
@@ -717,7 +758,7 @@ export default function Workspace() {
           </div>
 
           <ProjectsPanel refreshKey={projRefresh} currentId={project?.project_id} onOpen={openProject}
-            onDeleted={(id) => { if (project?.project_id === id) setProject(null); }} onStack={stackSelected} onBundle={setBundleIds} busy={loading} />
+            onDeleted={(id) => { if (project?.project_id === id) setProject(null); }} onStack={stackSelected} onBundle={(ids, preset) => setBundle({ ids, preset })} busy={loading} />
         </aside>
 
         {/* CENTER STAGE */}
@@ -752,8 +793,8 @@ export default function Workspace() {
                     className={`ue-btn !py-1.5 ${active ? "!border-[var(--unreal-orange)] !text-[var(--unreal-orange)] !bg-[rgba(255,107,0,0.08)]" : ""}`}
                   >
                     <Icon size={13} /> <span className="hidden lg:inline">{t.label}</span>
-                    {t.id === "cpp" && checkIssues.length > 0 && (
-                      <span className={`ml-0.5 rounded-full px-1.5 text-[9.5px] font-mono leading-[15px] ${checkErrors ? "bg-[var(--accent-red)] text-white" : "bg-[#e8c547] text-[#0b0e14]"}`} data-testid="cpp-issue-badge">{checkIssues.length}</span>
+                    {t.id === "cpp" && activeIssues.length > 0 && (
+                      <span className={`ml-0.5 rounded-full px-1.5 text-[9.5px] font-mono leading-[15px] ${checkErrors ? "bg-[var(--accent-red)] text-white" : "bg-[#e8c547] text-[#0b0e14]"}`} data-testid="cpp-issue-badge">{activeIssues.length}</span>
                     )}
                   </button>
                 );
@@ -817,10 +858,11 @@ export default function Workspace() {
             )}
             {tab === "cpp" && (
               <div className="p-5 h-full overflow-auto">
-                {result && <CompileCheck issues={checkIssues} ai={aiReview} onReview={runAiReview} aiKey={aiKey} />}
+                {result && <CompileCheck issues={activeIssues} ignored={ignoredIssues} ai={aiReview} onReview={runAiReview} aiKey={aiKey} canEdit={!readOnly}
+                  fixing={fix?.status === "running"} onJump={jumpTo} onFix={runFix} onIgnore={ignoreIssue} onRestore={restoreIssue} onCopy={copyIssues} />}
                 <div className="grid md:grid-cols-2 gap-4">
-                  <CodeBox title={`${result?.system_name || "System"}.h`} code={result?.cpp_header} lang="cpp" testId="cpp-header" />
-                  <CodeBox title={`${result?.system_name || "System"}.cpp`} code={result?.cpp_source} lang="cpp" testId="cpp-source" />
+                  <CodeBox title={`${result?.system_name || "System"}.h`} code={result?.cpp_header} lang="cpp" testId="cpp-header" target={jump?.file === ".h" ? jump : null} />
+                  <CodeBox title={`${result?.system_name || "System"}.cpp`} code={result?.cpp_source} lang="cpp" testId="cpp-source" target={jump?.file === ".cpp" ? jump : null} />
                 </div>
               </div>
             )}
@@ -1006,16 +1048,19 @@ export default function Workspace() {
       {exportPrompt && (
         <Modal title="Check before export" onClose={() => setExportPrompt(null)} testId="export-check-modal" width={560}>
           <div className="text-[13px] text-[var(--text-secondary)] mb-3" data-testid="export-check-text">
-            The compile check found {exportErrors} likely error{exportErrors === 1 ? "" : "s"} and {exportIssues.length - exportErrors} warning{exportIssues.length - exportErrors === 1 ? "" : "s"}. Fix them by regenerating with a note, or export as it is.
+            The compile check found {exportErrors} likely error{exportErrors === 1 ? "" : "s"} and {exportIssues.length - exportErrors} warning{exportIssues.length - exportErrors === 1 ? "" : "s"}. Click one to see it in the code, use Fix these in the C++ tab, or export as it is.
           </div>
-          <div className="max-h-[300px] overflow-y-auto panel p-3 mb-4"><IssueList issues={exportIssues} testId="export-check-issues" /></div>
+          <div className="max-h-[300px] overflow-y-auto panel p-3 mb-4"><IssueList issues={exportIssues} testId="export-check-issues" onJump={jumpTo} /></div>
           <div className="flex flex-wrap gap-2 justify-end">
             <button className="ue-btn" onClick={() => { setExportPrompt(null); setTab("cpp"); }} data-testid="export-check-review">Review in C++ tab</button>
             <button className="ue-btn ue-btn-primary" onClick={() => exportZip(exportPrompt, true)} data-testid="export-check-anyway"><FileArchive size={13} /> Export anyway</button>
           </div>
         </Modal>
       )}
-      {bundleIds && <BundleModal ids={bundleIds} onClose={() => setBundleIds(null)} />}
+      {bundle && <BundleModal ids={bundle.ids} preset={bundle.preset} onClose={() => setBundle(null)} onPresetsChanged={() => setProjRefresh((n) => n + 1)} />}
+      {fix && result && (
+        <FixReviewModal fix={fix} system={result} base={baseName(result)} onAccept={acceptFix} onDiscard={() => setFix(null)} onRetry={() => runFix(fix.list)} />
+      )}
       {historyOpen && (
         <HistoryModal versions={versions} current={project?.version} onClose={() => setHistoryOpen(false)}
           onCompare={(v) => { setHistoryOpen(false); pickBase(String(v)); }} />

@@ -1,103 +1,48 @@
-# UE5 System Architect — Accounts, Cloud Projects, Files & Teamwork
+# UE5 System Architect: Jump to Line, One-Click Fix and Issue Tools
 
-UE5 System Architect turns a plain-language description into a modular Unreal Engine 5 system: an event graph, Blueprint pseudocode, C++ files and a setup guide, all tunable with sliders and module toggles.
-This update adds accounts, a cloud project library, file uploads the AI can read, and sharing, so teams can build on the same systems.
+New tools that link compile-check issues to the code that caused them and repair them with one button, showing a before/after review first.
+The release also adds re-checking, ignoring and copying issues, plus saved bundle presets for multi-system plugins.
 
 ## Who it's for
-- Solo UE5 developers who want their systems saved safely and available on any device.
-- Small game teams (designers and programmers) who want to share a generated system, comment through notes and regenerate together.
-- Leads who want to hand out read-only links to a system's code and setup guide.
+Unreal developers who generate systems in the app and want export-ready C++ without hand-searching for errors. That includes solo devs and teams who share projects (Editors and Viewers).
 
 ## Core features and experience
-
-**Sign-in**
-- Two ways to sign in: Google, or email and password. If both use the same email address, they reach the same account.
-- Email accounts include sign-up, sign-in, sign-out and password reset. Reset works by a link shown on screen, because email sending is not part of this phase.
-- A built-in admin account exists for the app owner.
-- The workspace requires sign-in. Visitors with a share link are the only exception.
-
-**Cloud projects (replaces the browser-only library)**
-- "My Library" becomes "Projects", saved to your account. There are two lists, "Mine" and "Shared with me".
-- A project holds:
-  - the latest generated system
-  - the inputs that produced it: description, dials, Project Context, modules and notes
-  - its files
-- Save, rename, delete and open work as they do today, but in the cloud.
-- **Export JSON** downloads the project. A new **Copy JSON** button copies it to the clipboard.
-- **Import project** loads an exported .json file back in as a new project.
-- **First sign-in:** if systems are saved in this browser, a prompt offers two choices. **Import them** copies them into the account. **Start fresh** keeps them in the browser only and stops asking.
-- Stack Systems and Compare keep working with cloud projects.
-
-**Reference files the AI reads**
-- A paperclip on the description box lets you attach up to 5 files to the next synthesis. Accepted types are screenshots and images, PDFs, and code or text files (.h, .cpp, .txt, .md, .json).
-- The AI uses them as source material, e.g. "extend this existing header" or "match this UI screenshot".
-- Attached references are listed under the description and stay with the project for later regenerations. Each can be removed individually.
-
-**Project files**
-- A "Files" tab on each project, for anything the team wants to keep with the system, such as concept art, specs or exported code.
-- Members can upload, download and delete files, according to their role.
-
-**Teamwork**
-- **Invite by email with roles.** The owner adds people by email as:
-  - **Editor:** can change inputs, regenerate, upload files and save.
-  - **Viewer:** can open, copy, export and download only.
-- An invite is sent to an email address. The person sees the project under "Shared with me" as soon as they sign in with that email. The owner can also copy an invite link to send themselves.
-- **View-only share links.** The owner can switch on a public link. Anyone with it can view, copy and export the system without signing in. The owner can switch the link off at any time.
-- Each project shows who last saved it and when.
-- If someone else saved while you were editing, you are warned before overwriting. You can then load their version or overwrite it.
+- **Jump to line**: clicking an issue in the compile check (or in the export warning) opens the C++ tab and scrolls to the matching file and line. That line is highlighted and the code viewers show line numbers. Issues with no exact line jump to the most likely spot, such as the class or function involved. If none is found, the file opens at the top.
+- **Fix these (patch only)**: one button sends the current issues (built-in and AI review) with both files to your own AI key. This costs 1 request and counts toward the daily usage counter. The AI returns only the lines that need changing, and the rest of the code stays as it is.
+- **Before/after review**: the proposed fix opens in a side-by-side diff of the .h and .cpp with changed lines marked. A short list explains what each change fixes. There are two choices: **Accept fix** replaces the code in the workspace (unsaved, like any edit), and **Discard** leaves everything unchanged. Nothing changes without approval.
+- **Re-check after fix**: on accept, the compile check runs again automatically. It shows a result such as "Cleared 4 of 5 issues", and any remaining or new issues stay listed.
+- **Fix a single issue**: each issue row also has a small "Fix" action that patches just that one problem, through the same before/after review.
+- **Ignore an issue**: any built-in warning or error can be marked "Ignore". It's hidden from the count, the tab badge and the export warning, and listed under a collapsible "Ignored (N)" section where it can be restored. Ignores are saved with the project, so teammates see them too. An ignore stops applying if that issue's line text changes.
+- **Copy issues**: a "Copy issues" button puts a plain-text list on the clipboard: file, line, message and suggested fix. Ignored items are excluded.
+- **Bundle presets**: from the bundle window, "Save as preset" stores the plugin name and chosen projects under a name such as "Survival Kit". A "Bundle presets" list in the Projects panel re-opens a preset with its projects already ticked, using their latest saved versions. Presets can be renamed and deleted. Missing or no-longer-accessible projects are listed as skipped.
 
 ## User flow
-1. Open the app and sign in with Google or with email and password.
-2. On first sign-in, choose to import browser-saved systems or start fresh.
-3. Describe a system, optionally attach reference files, then Synthesize.
-4. Tune, regenerate and compare. Save to a project.
-5. Open the project's Share panel. Invite teammates as Editor or Viewer, or turn on a view-only link.
-6. Teammates open it from "Shared with me", regenerate if they are Editors, and save. The project shows "last saved by".
-7. Anyone with access can use Export JSON, Copy JSON or file downloads. Import project brings a .json back in.
+1. Open a project, then the C++ tab. The compile check shows its issues and the tab badge shows the count.
+2. Click an issue. The code scrolls to the highlighted line.
+3. Press **Fix these** (or the single "Fix" on one row). A progress state shows while the AI works.
+4. Review the before/after diff and the change list, then Accept or Discard.
+5. On accept, the check re-runs and reports what was cleared. Remaining items can be fixed again, ignored or copied.
+6. Save with a version note (for example "Fixed missing includes").
+7. For multi-system plugins, tick projects, open Bundle, and Save as preset. Later, open the preset from the Projects panel and download the updated plugin.
 
 ## UI/UX feel
-- The current dark Unreal Editor look stays: slate panels, Unreal orange accents and monospace details.
-- The sign-in screen matches it, with a blueprint-grid background, the app mark, a Google button and an email form.
-- The top bar gains the project name (editable in place), a Share button, a role badge (Owner, Editor or Viewer) and an account menu.
-- Viewers see the same workspace, with editing controls disabled and a clear "View only" badge.
-- Share and invite use a single modal: a member list with role dropdowns, an "add by email" field and the public-link switch with a Copy button.
+- Same dark Unreal Editor look as today.
+- Issue rows become clickable, with a hover state and a small arrow.
+- The code viewers gain a line-number column and a short highlight pulse on the target line.
+- The fix review uses the existing Compare diff style: red for removed lines, green for added.
+- Buttons are compact chips in the compile-check header: Fix these, Copy issues, AI review.
 
 ## Implementation phases
-
-**Phase 1 — MVP (built now)**
-- Google and email/password sign-in, including password reset and the admin account.
-- Cloud projects: save, open, rename, delete, "Mine" and "Shared with me" lists, last-saved-by, and the overwrite warning.
-- Export JSON, Copy JSON and Import project from .json.
-- A one-time offer to import browser-saved systems, or start fresh.
-- Reference files the AI reads (images, PDFs, code and text), up to 5 per synthesis.
-- A project Files tab with upload, download and delete.
-- Invite by email with Editor and Viewer roles, plus view-only public share links.
-
-**Phase 2 — Team depth**
-- Team workspaces: create a team, and every member sees and edits all of the team's projects.
-- Version history per project, so Compare works against any earlier version, not just the last one.
-- Real invite and password-reset emails.
-- Per-user monthly generation limits, set by the owner.
-
-**Phase 3 — Integrations and polish**
-- An AI model picker: Claude, Gemini or ChatGPT.
-- Jev quick checks: flag vague descriptions before spending credits, and auto-tag projects by category with library filters.
-- Project zip export containing the .h, .cpp and setup guide with its Why notes.
-- Concept art per project from image generation.
-
-## Suggestions folded into this plan
-- **Overwrite warning and last-saved-by:** without these, two Editors would silently undo each other's work.
-- **Per-user generation limits (Phase 2):** every synthesis by any user is paid from the app owner's Universal Key balance.
-- **Version history (Phase 2):** this makes Compare much more useful for teams.
+- **Phase 1 (MVP, built now)**: Jump to line, Fix these (patch only, all issues), per-issue Fix, before/after review with Accept/Discard, re-check after fix, Ignore/restore issues saved per project, Copy issues, and Bundle presets (save, open, rename, delete).
+- **Phase 2**: "Fix and regenerate" as an alternative for structural problems. Fix history showing what each accepted fix changed in version notes. Ignoring AI-review findings. Inline editing of code lines.
+- **Phase 3**: Auto-fix before export as an optional setting. Presets shared across a team workspace. A deeper multi-pass check that compares the bundle's modules against each other for cross-module problems.
 
 ## Assumptions
-- All three sharing styles you chose are kept. Email invites and public links are built in Phase 1, and team workspaces in Phase 2, to keep the first release focused.
-- "Offer to import" and "Start fresh" are both kept, as the two choices of a single first-sign-in prompt.
-- Invites and password resets do not send real emails in Phase 1. Invites match on the email address at sign-in, and both can be shared as copyable links.
-- Every AI generation, by any signed-in user, is paid from the app owner's Emergent Universal Key.
-- Only the owner can delete a project, change roles or toggle the public link. Editors can regenerate, save and manage files. Viewers can read, copy and export.
-- Public share links are view-only and show the system and setup guide, but not project files.
-- File limits: 10 MB per reference file and 25 MB per project file. Deleted files disappear from the app but are not recoverable by users.
-- Browser-saved systems that are not imported remain in that browser only.
-- Claude Sonnet 4.5 stays the generation model in Phase 1.
-- Shared projects are not edited live together. Changes appear when a project is saved and reopened.
+- Fixes use the user's own AI key and current model, never the Universal Key. With no key saved, the key window opens.
+- An accepted fix changes only the workspace code. It isn't saved until the user presses Save, and it can be undone by discarding changes or from version history.
+- Accepting a fix doesn't count as a "change for next synthesis". It replaces the current code directly, so the regenerate button doesn't light up for it.
+- If the AI returns a patch that can't be applied cleanly (lines no longer match), the review shows an error and offers to try again. Nothing changes.
+- Viewers can jump to lines, copy issues and see ignored items. Only Owners and Editors can fix, accept or ignore.
+- Ignores apply to built-in check issues only in phase 1. AI review findings are refreshed each run.
+- Bundle presets belong to the user who made them, can include shared projects, and are not visible to teammates.
+- Before running, Fix these warns when the daily free limit is near, the same way synthesis does now.

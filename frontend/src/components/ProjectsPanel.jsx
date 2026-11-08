@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Combine, FileArchive, FileUp, FolderOpen, PackageSearch, Trash2, Users } from "lucide-react";
 import { api, errorText } from "../lib/api";
+import PresetsList from "./PresetsList";
 
 const ago = (iso) => {
   const s = (Date.now() - new Date(iso).getTime()) / 1000;
@@ -111,6 +112,7 @@ export default function ProjectsPanel({ refreshKey, currentId, onOpen, onDeleted
           </div>
         ))}
       </div>
+      <PresetsList refreshKey={refreshKey} onOpen={(pr) => { setSel(pr.project_ids.slice(0, 6)); onBundle(pr.project_ids, pr); }} />
     </div>
   );
 }

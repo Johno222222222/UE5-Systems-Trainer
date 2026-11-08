@@ -6,7 +6,7 @@ import { buildPluginZip } from "../lib/zipExport";
 import NodeGraph from "../components/NodeGraph";
 import AnnotatedPseudocode from "../components/AnnotatedPseudocode";
 import SetupGuide from "../components/SetupGuide";
-import { CodeBox } from "./Workspace";
+import { CodeBox } from "../components/CodeBox";
 import { api, downloadBlob, errorText, exportPayload } from "../lib/api";
 
 const TABS = [

@@ -229,7 +229,7 @@ def extract_json(raw: str) -> dict:
     end = text.rfind("}")
     if start == -1 or end == -1:
         raise ValueError("No JSON object found in model response")
-    return json.loads(text[start : end + 1])
+    return json.loads(text[start : end + 1], strict=False)
 
 
 # ---------- Routes ----------
@@ -494,6 +494,89 @@ async def review_cpp(
     except Exception:
         raise HTTPException(status_code=502, detail="The model's review couldn't be read. Please try again.")
     return {"issues": out, "model": model}
+
+
+FIX_PROMPT = """You are an Unreal Engine 5.4 C++ fixer. You get a .h/.cpp pair and a list of ISSUES. Fix exactly those issues with the smallest possible edits. Do not rewrite, reformat or rename anything else.
+Respond with ONLY raw JSON:
+{"edits":[{"file":".h","find":"exact text copied from the file","replace":"new text","why":"which issue this fixes, in a few words"}]}
+Rules:
+- "find" must be copied character-for-character from the CURRENT file (including indentation) and must appear exactly once in that file. Use one or more whole lines; include enough context to be unique.
+- To insert new lines (e.g. an #include or a new function), set "find" to an existing nearby line and "replace" to that same line plus the new lines.
+- To delete, set "replace" to "".
+- Never return the whole file. At most 15 edits. If an issue can't be fixed safely, skip it."""
+
+
+class FixRequest(BaseModel):
+    file_base: str = Field(default="System", max_length=120)
+    cpp_header: str = Field(..., max_length=40000)
+    cpp_source: str = Field(..., max_length=60000)
+    issues: List[str] = Field(..., min_length=1, max_length=40)
+
+
+def replace_lines_loose(text: str, find: str, repl: str) -> str:
+    # Models often change indentation (tabs vs spaces); match whole lines ignoring surrounding whitespace
+    lines = text.split("\n")
+    want = [w.strip() for w in find.strip("\n").split("\n")]
+    starts = [i for i in range(len(lines) - len(want) + 1) if [x.strip() for x in lines[i:i + len(want)]] == want]
+    if len(starts) != 1:
+        raise ValueError(f"text to change was found {len(starts)} times")
+    i = starts[0]
+    indent = lines[i][: len(lines[i]) - len(lines[i].lstrip())]
+    new = [indent + r.strip() if r.strip() and not r.startswith((" ", "\t")) else r for r in repl.split("\n")] if repl else []
+    return "\n".join(lines[:i] + new + lines[i + len(want):])
+
+
+def apply_edits(files: dict, edits: list) -> list:
+    applied = []
+    for e in edits:
+        if not isinstance(e, dict):
+            continue
+        name = ".cpp" if str(e.get("file", "")).endswith("cpp") else ".h"
+        find, repl = e.get("find"), e.get("replace", "")
+        if not isinstance(find, str) or not find.strip() or not isinstance(repl, str):
+            raise ValueError("edit without find text")
+        hits = files[name].count(find)
+        if hits == 1:
+            files[name] = files[name].replace(find, repl, 1)
+        else:
+            files[name] = replace_lines_loose(files[name], find, repl)
+        applied.append({"file": name, "why": str(e.get("why", ""))[:200]})
+    return applied
+
+
+@api_router.post("/ai/fix-cpp")
+async def fix_cpp(
+    req: FixRequest,
+    user: dict = Depends(auth.current_user),
+    x_llm_provider: str = Header(None),
+    x_llm_model: str = Header(None),
+    x_llm_key: str = Header(None),
+):
+    provider, model, key = resolve_llm(x_llm_provider, x_llm_model, x_llm_key)
+    chat = LlmChat(api_key=key, session_id=f"fix-{uuid.uuid4()}", system_message=FIX_PROMPT) \
+        .with_model(provider, model).with_params(max_tokens=12000)
+    issues = "\n".join(f"{i + 1}. {t[:300]}" for i, t in enumerate(req.issues))
+    text = f"ISSUES:\n{issues}\n\n=== {req.file_base}.h ===\n{req.cpp_header}\n\n=== {req.file_base}.cpp ===\n{req.cpp_source}"
+    await record_usage(user["user_id"], key, provider, model, "fix")
+    try:
+        raw = await asyncio.wait_for(chat.send_message(UserMessage(text=text)), timeout=55)
+    except asyncio.TimeoutError:
+        raise HTTPException(status_code=504, detail="The model took too long to write the fix. Try again, or fix fewer issues at once.")
+    except Exception as exc:
+        logging.error("Fix failed: %s", str(exc).replace(key, "***")[:300])
+        raise HTTPException(status_code=502, detail=classify_error(exc, model)[1].replace(key, "***"))
+    files = {".h": req.cpp_header, ".cpp": req.cpp_source}
+    try:
+        edits = extract_json(raw)["edits"]
+        if not isinstance(edits, list):
+            raise ValueError("edits is not a list")
+        applied = apply_edits(files, edits[:15])
+    except Exception as exc:
+        logging.warning("Unusable fix patch: %s", exc)
+        raise HTTPException(status_code=422, detail={"code": "patch_failed", "message": "The AI's patch didn't match the current code, so nothing was changed. Try again."})
+    if not applied:
+        raise HTTPException(status_code=422, detail={"code": "no_changes", "message": "The AI didn't propose any changes for these issues."})
+    return {"cpp_header": files[".h"], "cpp_source": files[".cpp"], "changes": applied, "model": model}
 
 
 @api_router.get("/usage/today")
