@@ -444,6 +444,54 @@ async def test_key(
     return {"ok": True, "message": f"Key works with {x_llm_model}."}
 
 
+REVIEW_PROMPT = """You are a strict Unreal Engine 5.4 C++ compile reviewer. Find problems in the given .h/.cpp pair that would make it fail to compile, fail Unreal Header Tool, or fail to link: missing #includes, names that don't match between files, wrong or missing signatures, functions declared but not defined, UCLASS/UPROPERTY/UFUNCTION macro mistakes, wrong Super:: calls, replication mistakes, wrong engine API usage.
+Only report real problems, never style. Do not repeat issues already listed under KNOWN ISSUES.
+Respond with ONLY raw JSON: {"issues":[{"severity":"error","file":".h","line":12,"message":"what is wrong","fix":"how to fix it"}]}
+severity is "error" (will not build) or "warning" (likely wrong at runtime). file is ".h" or ".cpp". line may be null. At most 12 issues. If the code looks fine, return {"issues":[]}."""
+
+
+class ReviewRequest(BaseModel):
+    file_base: str = Field(default="System", max_length=120)
+    cpp_header: str = Field(..., max_length=40000)
+    cpp_source: str = Field(..., max_length=60000)
+    known_issues: List[str] = Field(default_factory=list, max_length=40)
+
+
+@api_router.post("/ai/review-cpp")
+async def review_cpp(
+    req: ReviewRequest,
+    user: dict = Depends(auth.current_user),
+    x_llm_provider: str = Header(None),
+    x_llm_model: str = Header(None),
+    x_llm_key: str = Header(None),
+):
+    provider, model, key = resolve_llm(x_llm_provider, x_llm_model, x_llm_key)
+    chat = LlmChat(api_key=key, session_id=f"review-{uuid.uuid4()}", system_message=REVIEW_PROMPT) \
+        .with_model(provider, model).with_params(max_tokens=8000)
+    known = "\n".join(f"- {k[:200]}" for k in req.known_issues) or "(none)"
+    text = f"KNOWN ISSUES:\n{known}\n\n=== {req.file_base}.h ===\n{req.cpp_header}\n\n=== {req.file_base}.cpp ===\n{req.cpp_source}"
+    await record_usage(user["user_id"], key, provider, model, "review")
+    try:
+        raw = await asyncio.wait_for(chat.send_message(UserMessage(text=text)), timeout=50)
+    except asyncio.TimeoutError:
+        raise HTTPException(status_code=504, detail="The model took too long to review. Try again, or switch to Gemini 3.5 Flash-Lite.")
+    except Exception as exc:
+        logging.error("Review failed: %s", str(exc).replace(key, "***")[:300])
+        raise HTTPException(status_code=502, detail=classify_error(exc, model)[1].replace(key, "***"))
+    try:
+        issues = extract_json(raw).get("issues", [])
+        out = [{
+            "severity": "error" if i.get("severity") == "error" else "warning",
+            "file": ".cpp" if str(i.get("file", "")).endswith("cpp") else ".h",
+            "line": i.get("line") if isinstance(i.get("line"), int) else None,
+            "message": str(i.get("message", ""))[:400],
+            "fix": str(i.get("fix", ""))[:400],
+        } for i in issues if isinstance(i, dict) and i.get("message")][:12]
+    except Exception:
+        raise HTTPException(status_code=502, detail="The model's review couldn't be read. Please try again.")
+    return {"issues": out, "model": model}
+
+
 @api_router.get("/usage/today")
 async def usage_today(fp: str, user: dict = Depends(auth.current_user)):
     day = usage_day()

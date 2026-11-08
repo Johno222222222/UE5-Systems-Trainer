@@ -24,6 +24,10 @@ import UsageChip, { modelUsage, useUsage } from "../components/UsageChip";
 import { buildPluginZip, buildProjectZip } from "../lib/zipExport";
 import AiKeyModal, { DEFAULT_MODEL, PROVIDERS, aiHeaders, loadAiKey, saveAiKey } from "../components/AiKeyModal";
 import { highlightCpp, highlightBlueprint } from "../lib/highlight";
+import CompileCheck, { IssueList } from "../components/CompileCheck";
+import BundleModal from "../components/BundleModal";
+import HistoryModal from "../components/HistoryModal";
+import { checkSystem } from "../lib/compileCheck";
 
 const LS_KEY = "ue5_architect_library_v1";
 const LS_CONTEXT = "ue5_architect_project_context";
@@ -179,6 +183,11 @@ export default function Workspace() {
   const usage = useUsage(aiKey, usageTick);
   const [limitPrompt, setLimitPrompt] = useState(null);
   const [zipMenu, setZipMenu] = useState(false);
+  const [saveDialog, setSaveDialog] = useState(false);
+  const [saveNote, setSaveNote] = useState("");
+  const [exportPrompt, setExportPrompt] = useState(null);
+  const [bundleIds, setBundleIds] = useState(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const projectRef = useRef(null);
   projectRef.current = project;
   const aliveRef = useRef(true);
@@ -334,19 +343,23 @@ export default function Workspace() {
     if (!result || saving) return;
     const { system, context } = splitResult();
     const savingFor = project?.project_id || null;
+    const note = saveNote.trim().slice(0, 200);
     setSaving(true);
     try {
       const { data } = project && !readOnly
-        ? await api.put(`/projects/${project.project_id}`, { system, context, base_version: project.version, force })
-        : await api.post("/projects", { name: result.system_name, system, context });
+        ? await api.put(`/projects/${project.project_id}`, { system, context, note, base_version: project.version, force })
+        : await api.post("/projects", { name: result.system_name, system, context, note });
       const { system: _s, context: _c, ...meta } = data;
       if ((projectRef.current?.project_id || null) === savingFor) {
         setProject(meta);
         setConflict(null);
       }
       setProjRefresh((n) => n + 1);
-      toast.success(project ? "Project saved" : "Saved as new project", { description: data.name });
+      setSaveDialog(false);
+      setSaveNote("");
+      toast.success(project ? `Saved v${data.version}` : "Saved as new project", { description: note ? `${data.name}: ${note}` : data.name });
     } catch (e) {
+      setSaveDialog(false);
       if (e.response?.status === 409) setConflict(e.response.data.detail);
       else toast.error("Couldn't save", { description: errorText(e) });
     } finally {
@@ -420,9 +433,11 @@ export default function Workspace() {
     if (!result) return;
     downloadBlob(JSON.stringify(exportData(), null, 2), `${(project?.name || result.system_name).replace(/\s+/g, "_")}.json`);
   };
-  const exportZip = async (kind) => {
+  const exportZip = async (kind, force = false) => {
     if (!result) return;
     setZipMenu(false);
+    if (!force && checkIssues.length) { setExportPrompt(kind); return; }
+    setExportPrompt(null);
     const { system, context } = splitResult();
     const build = kind === "plugin" ? buildPluginZip : buildProjectZip;
     const { blob, filename } = await build(project?.name || result.system_name, system, { ...context, references: undefined });
@@ -494,10 +509,11 @@ export default function Workspace() {
   };
   const versionOption = (v) => (
     <option key={v.version} value={v.version}>
-      {v.label ? `★ ${v.label} · ` : ""}v{v.version}{v.version === project?.version ? " (latest)" : ""} · {v.saved_by_name} · {new Date(v.saved_at).toLocaleString()}
+      {v.label ? `★ ${v.label} · ` : ""}v{v.version}{v.version === project?.version ? " (latest)" : ""} · {v.saved_by_name} · {new Date(v.saved_at).toLocaleString()}{v.note ? ` · ${v.note.length > 40 ? `${v.note.slice(0, 40)}…` : v.note}` : ""}
     </option>
   );
   const labeled = versions.filter((v) => v.label);
+  const baseNote = typeof compareBase === "number" ? versions.find((v) => v.version === compareBase)?.note : "";
   const versionPicker = (versions.length > 0 || previousResult) ? (
     <>
     <select value={String(compareBase)} onChange={(e) => pickBase(e.target.value)} aria-label="Compare against"
@@ -510,6 +526,12 @@ export default function Workspace() {
       <button className="ue-btn !py-1 !px-2 !text-[11px]" onClick={labelVersion} data-testid="label-version-button">
         <Tag size={12} /> {versions.find((v) => v.version === compareBase)?.label ? "Rename" : "Name"} v{compareBase}
       </button>
+    )}
+    {versions.length > 0 && (
+      <button className="ue-btn !py-1 !px-2 !text-[11px]" onClick={() => setHistoryOpen(true)} data-testid="history-button"><History size={12} /> History</button>
+    )}
+    {baseNote && (
+      <span className="text-[11px] font-mono text-[var(--text-secondary)] truncate max-w-[320px]" title={baseNote} data-testid="compare-version-note">“{baseNote}”</span>
     )}
     {canRestore && (
       <button className="ue-btn !py-1 !px-2 !text-[11px] !border-[var(--cpp-green)] !text-[var(--cpp-green)]" onClick={restoreVersion} disabled={restoring} data-testid="restore-version-button">
@@ -533,6 +555,9 @@ export default function Workspace() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [result, prompt, bpClass, complexity, modularity, perfFlex, tickRate, replicated, tunable, extra, notes]
   );
+
+  const checkIssues = useMemo(() => (result ? checkSystem(result) : []), [result?.cpp_header, result?.cpp_source]); // eslint-disable-line react-hooks/exhaustive-deps
+  const checkErrors = checkIssues.filter((i) => i.severity === "error").length;
 
   const TABS = [
     { id: "graph", label: "Event Graph", icon: Workflow, test: "tab-node-graph" },
@@ -595,7 +620,7 @@ export default function Workspace() {
             </div>
           )}
         </div>
-        <button className="ue-btn ue-btn-primary" onClick={() => saveProject(false)} disabled={!result || readOnly || saving} data-testid="save-system-button"><Save size={13} /> {project ? "Save" : "Save project"}</button>
+        <button className="ue-btn ue-btn-primary" onClick={() => setSaveDialog(true)} disabled={!result || readOnly || saving} data-testid="save-system-button"><Save size={13} /> {project ? "Save" : "Save project"}</button>
         <UsageChip aiKey={aiKey} usage={usage} />
         <button className={`ue-btn ${aiKey ? "" : "!border-[var(--unreal-orange)] !text-[var(--unreal-orange)]"}`} onClick={() => setKeyModal("edit")} data-testid="ai-key-button">
           <KeyRound size={13} /> {aiKey ? PROVIDERS[aiKey.provider].label.split(" ").pop() : "Add AI key"}
@@ -679,7 +704,7 @@ export default function Workspace() {
           </div>
 
           <ProjectsPanel refreshKey={projRefresh} currentId={project?.project_id} onOpen={openProject}
-            onDeleted={(id) => { if (project?.project_id === id) setProject(null); }} onStack={stackSelected} busy={loading} />
+            onDeleted={(id) => { if (project?.project_id === id) setProject(null); }} onStack={stackSelected} onBundle={setBundleIds} busy={loading} />
         </aside>
 
         {/* CENTER STAGE */}
@@ -714,6 +739,9 @@ export default function Workspace() {
                     className={`ue-btn !py-1.5 ${active ? "!border-[var(--unreal-orange)] !text-[var(--unreal-orange)] !bg-[rgba(255,107,0,0.08)]" : ""}`}
                   >
                     <Icon size={13} /> <span className="hidden lg:inline">{t.label}</span>
+                    {t.id === "cpp" && checkIssues.length > 0 && (
+                      <span className={`ml-0.5 rounded-full px-1.5 text-[9.5px] font-mono leading-[15px] ${checkErrors ? "bg-[var(--accent-red)] text-white" : "bg-[#e8c547] text-[#0b0e14]"}`} data-testid="cpp-issue-badge">{checkIssues.length}</span>
+                    )}
                   </button>
                 );
               })}
@@ -775,9 +803,12 @@ export default function Workspace() {
               </div>
             )}
             {tab === "cpp" && (
-              <div className="p-5 h-full overflow-auto grid md:grid-cols-2 gap-4">
-                <CodeBox title={`${result?.system_name || "System"}.h`} code={result?.cpp_header} lang="cpp" testId="cpp-header" />
-                <CodeBox title={`${result?.system_name || "System"}.cpp`} code={result?.cpp_source} lang="cpp" testId="cpp-source" />
+              <div className="p-5 h-full overflow-auto">
+                {result && <CompileCheck system={result} issues={checkIssues} aiKey={aiKey} onNeedKey={() => setKeyModal("required")} onUsed={() => setUsageTick((n) => n + 1)} />}
+                <div className="grid md:grid-cols-2 gap-4">
+                  <CodeBox title={`${result?.system_name || "System"}.h`} code={result?.cpp_header} lang="cpp" testId="cpp-header" />
+                  <CodeBox title={`${result?.system_name || "System"}.cpp`} code={result?.cpp_source} lang="cpp" testId="cpp-source" />
+                </div>
               </div>
             )}
             {tab === "setup" && <SetupGuide steps={result?.setup_guide || []} />}
@@ -940,6 +971,41 @@ export default function Workspace() {
             )}
           </div>
         </Modal>
+      )}
+      {saveDialog && (
+        <Modal title={project && !readOnly ? `Save v${project.version + 1}` : "Save project"} onClose={() => setSaveDialog(false)} testId="save-modal" width={460}>
+          <form onSubmit={(e) => { e.preventDefault(); saveProject(false); }}>
+            <label htmlFor="save-note" className="eyebrow">What changed and why? <span className="normal-case tracking-normal font-normal">(optional)</span></label>
+            <textarea id="save-note" autoFocus value={saveNote} onChange={(e) => setSaveNote(e.target.value)} maxLength={200} rows={3}
+              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); saveProject(false); } }}
+              placeholder={result?.applied_changes?.[0] ? `e.g. ${result.applied_changes[0].slice(0, 90)}` : "e.g. Moved stamina into its own component so AI can reuse it"}
+              className="w-full mt-1 bg-[var(--bg-main)] border border-[var(--border)] rounded-md p-2.5 text-[12px] font-mono text-[var(--text-primary)] outline-none focus:border-[var(--unreal-orange)] resize-none" data-testid="save-note-input" />
+            <div className="flex items-center justify-between mt-1 mb-4 text-[10.5px] font-mono text-[var(--text-muted)]">
+              <span>Shown in version history. Enter saves.</span><span data-testid="save-note-count">{saveNote.length}/200</span>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button type="button" className="ue-btn" onClick={() => setSaveDialog(false)} data-testid="save-cancel">Cancel</button>
+              <button className="ue-btn ue-btn-primary" disabled={saving} data-testid="save-confirm"><Save size={13} /> {saving ? "Saving…" : "Save"}</button>
+            </div>
+          </form>
+        </Modal>
+      )}
+      {exportPrompt && (
+        <Modal title="Check before export" onClose={() => setExportPrompt(null)} testId="export-check-modal" width={560}>
+          <div className="text-[13px] text-[var(--text-secondary)] mb-3" data-testid="export-check-text">
+            The compile check found {checkErrors} likely error{checkErrors === 1 ? "" : "s"} and {checkIssues.length - checkErrors} warning{checkIssues.length - checkErrors === 1 ? "" : "s"}. Fix them by regenerating with a note, or export as it is.
+          </div>
+          <div className="max-h-[300px] overflow-y-auto panel p-3 mb-4"><IssueList issues={checkIssues} testId="export-check-issues" /></div>
+          <div className="flex flex-wrap gap-2 justify-end">
+            <button className="ue-btn" onClick={() => { setExportPrompt(null); setTab("cpp"); }} data-testid="export-check-review">Review in C++ tab</button>
+            <button className="ue-btn ue-btn-primary" onClick={() => exportZip(exportPrompt, true)} data-testid="export-check-anyway"><FileArchive size={13} /> Export anyway</button>
+          </div>
+        </Modal>
+      )}
+      {bundleIds && <BundleModal ids={bundleIds} onClose={() => setBundleIds(null)} />}
+      {historyOpen && (
+        <HistoryModal versions={versions} current={project?.version} onClose={() => setHistoryOpen(false)}
+          onCompare={(v) => { setHistoryOpen(false); pickBase(String(v)); }} />
       )}
       {shareOpen && project && (
         <ShareModal project={project} onClose={() => setShareOpen(false)}

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Combine, FileUp, FolderOpen, PackageSearch, Trash2, Users } from "lucide-react";
+import { Combine, FileArchive, FileUp, FolderOpen, PackageSearch, Trash2, Users } from "lucide-react";
 import { api, errorText } from "../lib/api";
 
 const ago = (iso) => {
@@ -11,7 +11,7 @@ const ago = (iso) => {
   return new Date(iso).toLocaleDateString();
 };
 
-export default function ProjectsPanel({ refreshKey, currentId, onOpen, onDeleted, onStack, busy }) {
+export default function ProjectsPanel({ refreshKey, currentId, onOpen, onDeleted, onStack, onBundle, busy }) {
   const [lists, setLists] = useState({ mine: [], shared: [] });
   const [tab, setTab] = useState("mine");
   const [sel, setSel] = useState([]);
@@ -48,7 +48,7 @@ export default function ProjectsPanel({ refreshKey, currentId, onOpen, onDeleted
     }
   };
 
-  const toggle = (id) => setSel((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id].slice(-4)));
+  const toggle = (id) => setSel((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id].slice(-6)));
   const stack = async () => {
     if (await onStack(sel)) setSel([]);
   };
@@ -72,10 +72,15 @@ export default function ProjectsPanel({ refreshKey, currentId, onOpen, onDeleted
           </button>
         ))}
       </div>
-      {items.length >= 2 && (
-        <button className="ue-btn w-full justify-center mb-2 !border-[var(--accent-purple)] !text-[var(--accent-purple)]" onClick={stack} disabled={busy || sel.length < 2} data-testid="stack-systems-button">
-          <Combine size={13} /> {sel.length < 2 ? "Tick 2+ projects to stack" : `Stack ${sel.length} systems`}
-        </button>
+      {lists.mine.length + lists.shared.length >= 2 && (
+        <div className="flex gap-1.5 mb-2">
+          <button className="ue-btn flex-1 justify-center !border-[var(--accent-purple)] !text-[var(--accent-purple)]" onClick={stack} disabled={busy || sel.length < 2 || sel.length > 4} title="Merge into one integrated system with AI" data-testid="stack-systems-button">
+            <Combine size={13} /> {sel.length < 2 ? "Tick 2+ to stack" : sel.length > 4 ? "Stack up to 4" : `Stack ${sel.length}`}
+          </button>
+          <button className="ue-btn flex-1 justify-center" onClick={() => onBundle(sel)} disabled={sel.length < 2} title="Export the ticked projects as one Unreal plugin, one module each" data-testid="bundle-plugin-button">
+            <FileArchive size={13} /> {sel.length < 2 ? "Tick 2+ to bundle" : `Bundle ${sel.length} as plugin`}
+          </button>
+        </div>
       )}
       {items.length === 0 && (
         <div className="text-[11px] font-mono text-[var(--text-muted)] p-2" data-testid="projects-empty">
@@ -86,7 +91,7 @@ export default function ProjectsPanel({ refreshKey, currentId, onOpen, onDeleted
         {items.map((p) => (
           <div key={p.project_id} data-testid={`project-item-${p.project_id}`}
             className={`panel p-2 flex items-center gap-2 ${currentId === p.project_id ? "!border-[var(--unreal-orange)]" : sel.includes(p.project_id) ? "!border-[var(--accent-purple)]" : ""}`}>
-            <input type="checkbox" checked={sel.includes(p.project_id)} onChange={() => toggle(p.project_id)} aria-label={`Select ${p.name} for stacking`} className="accent-[#a855f7]" data-testid={`stack-select-${p.project_id}`} />
+            <input type="checkbox" checked={sel.includes(p.project_id)} onChange={() => toggle(p.project_id)} aria-label={`Select ${p.name} for stacking or bundling`} className="accent-[#a855f7]" data-testid={`stack-select-${p.project_id}`} />
             <button onClick={() => onOpen(p.project_id)} className="flex-1 text-left min-w-0" data-testid={`project-open-${p.project_id}`}>
               <div className="font-sub text-[12px] font-semibold truncate flex items-center gap-1.5">
                 <FolderOpen size={11} className="shrink-0 text-[var(--text-muted)]" /> {p.name}

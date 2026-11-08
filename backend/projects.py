@@ -63,10 +63,11 @@ def detail(p: dict, role: str) -> dict:
     return out
 
 
-async def snapshot(p: dict) -> None:
+async def snapshot(p: dict, note: str = "") -> None:
     await db.project_versions.insert_one({
         "project_id": p["project_id"], "version": p["version"], "system": p.get("system"),
         "context": p.get("context") or {}, "saved_by_name": p["updated_by_name"], "saved_at": p["updated_at"],
+        "note": note.strip()[:200],
     })
 
 
@@ -84,11 +85,13 @@ class ProjectIn(BaseModel):
     name: str = Field(min_length=1, max_length=120)
     system: dict
     context: dict = Field(default_factory=dict)
+    note: str = Field(default="", max_length=200)
 
 
 class ProjectUpdate(BaseModel):
     system: dict
     context: dict = Field(default_factory=dict)
+    note: str = Field(default="", max_length=200)
     base_version: int
     force: bool = False
 
@@ -133,7 +136,7 @@ async def list_projects(user: dict = Depends(current_user)):
     }
 
 
-async def create(user: dict, name: str, system: dict, context: dict) -> dict:
+async def create(user: dict, name: str, system: dict, context: dict, note: str = "") -> dict:
     if not isinstance(system, dict) or not system.get("system_name"):
         raise HTTPException(status_code=400, detail="That doesn't look like a generated system")
     project = {
@@ -144,14 +147,14 @@ async def create(user: dict, name: str, system: dict, context: dict) -> dict:
     }
     await db.projects.insert_one(project)
     project.pop("_id", None)
-    await snapshot(project)
+    await snapshot(project, note)
     await claim_references(context, user, project["project_id"])
     return detail(project, "owner")
 
 
 @router.post("/projects")
 async def create_project(body: ProjectIn, user: dict = Depends(current_user)):
-    return await create(user, body.name, body.system, body.context)
+    return await create(user, body.name, body.system, body.context, body.note)
 
 
 @router.post("/projects/import")
@@ -197,7 +200,7 @@ async def save_project(project_id: str, body: ProjectUpdate, user: dict = Depend
             "updated_by_name": latest["updated_by_name"], "updated_at": latest["updated_at"], "version": latest["version"],
         })
     try:
-        await snapshot(res)
+        await snapshot(res, body.note)
     except Exception:
         pass  # version already recorded by a concurrent backfill
     await claim_references(body.context, user, project_id)
@@ -208,10 +211,10 @@ async def save_project(project_id: str, body: ProjectUpdate, user: dict = Depend
 async def list_versions(project_id: str, user: dict = Depends(current_user)):
     await load_project(project_id, user)
     rows = await db.project_versions.find(
-        {"project_id": project_id}, {"_id": 0, "version": 1, "saved_by_name": 1, "saved_at": 1, "label": 1, "labeled_by_name": 1, "system.system_name": 1}
+        {"project_id": project_id}, {"_id": 0, "version": 1, "saved_by_name": 1, "saved_at": 1, "label": 1, "labeled_by_name": 1, "note": 1, "system.system_name": 1}
     ).sort("version", -1).to_list(1000)
     return {"versions": [{"version": r["version"], "saved_by_name": r["saved_by_name"], "saved_at": r["saved_at"],
-                          "label": r.get("label") or "", "labeled_by_name": r.get("labeled_by_name"),
+                          "label": r.get("label") or "", "labeled_by_name": r.get("labeled_by_name"), "note": r.get("note") or "",
                           "system_name": (r.get("system") or {}).get("system_name")} for r in rows]}
 
 
@@ -242,7 +245,7 @@ async def restore_version(project_id: str, version: int, user: dict = Depends(cu
     if not res:
         raise HTTPException(status_code=409, detail="Someone saved this project just now. Reopen it and try again.")
     try:
-        await snapshot(res)
+        await snapshot(res, f"Restored from v{version}")
     except Exception:
         pass
     return detail(res, role)

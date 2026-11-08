@@ -3,12 +3,22 @@ import JSZip from "jszip";
 const WHY_RE = /^(\s*)(?:\/\/\s*)?WHY:\s*(.*)$/i;
 
 // UE requires the .h/.cpp names to match the "X.generated.h" include
-function baseName(system) {
+export function baseName(system) {
   const gen = (system.cpp_header || "").match(/#include\s+"([\w]+)\.generated\.h"/);
   if (gen) return gen[1];
   const cls = (system.cpp_header || "").match(/class\s+(?:\w+_API\s+)?[UAF]([A-Z]\w+)/);
   return cls ? cls[1] : (system.system_name || "System").replace(/[^A-Za-z0-9]/g, "");
 }
+
+export function headerClasses(header) {
+  const code = (header || "").replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+  return [...code.matchAll(/\b(?:class|struct)\s+(?:\w+_API\s+)?([UAFIE][A-Z]\w*)\s*(?:final\s*)?[:{]/g)].map((m) => m[1]);
+}
+
+export const moduleName = (system) => {
+  const base = baseName(system);
+  return `${base.replace(/Component$|System$|Subsystem$/, "") || base}Kit`;
+};
 
 // [code pattern, Build.cs module, engine plugin that must be enabled (if any)]
 const DEPS = [
@@ -112,21 +122,21 @@ function retargetApi(header, macro) {
   return out;
 }
 
-function upluginJson(module, system, enginePlugins) {
+function upluginJson(friendly, description, modules, enginePlugins) {
   return JSON.stringify({
     FileVersion: 3,
     Version: 1,
     VersionName: "1.0",
-    FriendlyName: system.system_name,
-    Description: (system.summary || "").slice(0, 300),
+    FriendlyName: friendly,
+    Description: (description || "").slice(0, 300),
     Category: "Gameplay",
     CreatedBy: "UE5 System Architect",
     CanContainContent: false,
     IsBetaVersion: false,
     Installed: false,
     EnabledByDefault: true,
-    Modules: [{ Name: module, Type: "Runtime", LoadingPhase: "Default" }],
-    ...(enginePlugins.length ? { Plugins: enginePlugins.map((p) => ({ Name: p, Enabled: true })) } : {}),
+    Modules: modules.map((m) => ({ Name: m, Type: "Runtime", LoadingPhase: "Default" })),
+    ...(enginePlugins.length ? { Plugins: [...new Set(enginePlugins)].map((p) => ({ Name: p, Enabled: true })) } : {}),
   }, null, 2);
 }
 
@@ -144,6 +154,24 @@ public class ${module} : ModuleRules
 }
 `;
 }
+
+// Writes Source/<module>/ (Build.cs, module entry, Public .h, Private .cpp); extraDeps are sibling modules it uses
+function writeModule(root, module, system, extraDeps = []) {
+  const base = baseName(system);
+  const files = { h: `${base}.h`, cpp: `${base}.cpp` };
+  const code = `${system.cpp_header || ""}\n${system.cpp_source || ""}`;
+  const matched = DEPS.filter(([re]) => re.test(code));
+  const deps = [...matched.map(([, d]) => d), ...extraDeps];
+  const enginePlugins = matched.map(([, , p]) => p).filter(Boolean);
+  const src = root.folder(`Source/${module}`);
+  src.file(`${module}.Build.cs`, buildCs(module, deps));
+  src.file(`Private/${module}Module.cpp`, `#include "Modules/ModuleManager.h"\n\nIMPLEMENT_MODULE(FDefaultModuleImpl, ${module})\n`);
+  src.file(`Public/${files.h}`, retargetApi(system.cpp_header || "", `${module.toUpperCase()}_API`));
+  src.file(`Private/${files.cpp}`, system.cpp_source || "");
+  return { files, deps, enginePlugins };
+}
+
+const systemJson = (name, system, context) => JSON.stringify({ format: "ue5-architect-project", version: 1, name, system, context }, null, 2);
 
 function pluginReadme(name, system, plugin, files, deps, enginePlugins) {
   const lines = [
@@ -171,25 +199,87 @@ function pluginReadme(name, system, plugin, files, deps, enginePlugins) {
 }
 
 export async function buildPluginZip(name, system, context) {
-  const base = baseName(system);
-  const plugin = `${base.replace(/Component$|System$|Subsystem$/, "") || base}Kit`;
-  const macro = `${plugin.toUpperCase()}_API`;
-  const files = { h: `${base}.h`, cpp: `${base}.cpp` };
-  const code = `${system.cpp_header || ""}\n${system.cpp_source || ""}`;
-  const matched = DEPS.filter(([re]) => re.test(code));
-  const deps = matched.map(([, d]) => d);
-  const enginePlugins = matched.map(([, , p]) => p).filter(Boolean);
+  const plugin = moduleName(system);
   const zip = new JSZip();
   const root = zip.folder(plugin);
-  const src = root.folder(`Source/${plugin}`);
-  root.file(`${plugin}.uplugin`, upluginJson(plugin, system, enginePlugins));
-  src.file(`${plugin}.Build.cs`, buildCs(plugin, deps));
-  src.file(`Private/${plugin}Module.cpp`, `#include "Modules/ModuleManager.h"\n\nIMPLEMENT_MODULE(FDefaultModuleImpl, ${plugin})\n`);
-  src.file(`Public/${files.h}`, retargetApi(system.cpp_header || "", macro));
-  src.file(`Private/${files.cpp}`, system.cpp_source || "");
+  const { files, deps, enginePlugins } = writeModule(root, plugin, system);
+  root.file(`${plugin}.uplugin`, upluginJson(system.system_name, system.summary, [plugin], enginePlugins));
   root.file("README.md", pluginReadme(name, system, plugin, files, deps, enginePlugins));
   root.file("SETUP.md", setupMd(system));
   root.file("BLUEPRINT_PSEUDOCODE.md", pseudoMd(system));
-  root.file("system.json", JSON.stringify({ format: "ue5-architect-project", version: 1, name, system, context }, null, 2));
+  root.file("system.json", systemJson(name, system, context));
+  return { blob: await zip.generateAsync({ type: "blob" }), filename: `${plugin}.zip` };
+}
+
+// items: [{name, system, context}] -> one module per system with unique names, plus sibling deps
+export function planBundle(items) {
+  const used = new Set();
+  const plan = items.map((it) => {
+    let mod = moduleName(it.system);
+    for (let n = 2; used.has(mod); n += 1) mod = `${moduleName(it.system)}${n}`;
+    used.add(mod);
+    return { ...it, module: mod, classes: headerClasses(it.system.cpp_header) };
+  });
+  return plan.map((p) => {
+    const code = `${p.system.cpp_header || ""}\n${p.system.cpp_source || ""}`;
+    const uses = plan.filter((o) => o !== p && o.classes.some((c) => new RegExp(`\\b${c}\\b`).test(code))).map((o) => o.module);
+    return { ...p, uses };
+  });
+}
+
+export function bundleIssues(plan) {
+  const out = [];
+  const seen = {};
+  plan.forEach((p) => p.classes.forEach((c) => {
+    if (seen[c] && seen[c] !== p.name) out.push({ severity: "error", file: p.module, line: null, message: `${seen[c]} and ${p.name} both declare ${c}. Unreal can't load two classes with the same name.`, fix: "Rename the class in one project and regenerate it." });
+    seen[c] = seen[c] || p.name;
+  }));
+  plan.forEach((p, i) => plan.slice(i + 1).forEach((o) => {
+    if (p.uses.includes(o.module) && o.uses.includes(p.module)) out.push({ severity: "error", file: p.module, line: null, message: `${p.name} and ${o.name} use each other's classes, which makes a circular module dependency.`, fix: "Talk through an interface or delegate in one direction, or stack them into one system." });
+  }));
+  const files = {};
+  plan.forEach((p) => {
+    const h = `${baseName(p.system)}.h`;
+    if (files[h]) out.push({ severity: "warning", file: p.module, line: null, message: `${files[h]} and ${p.name} both have a header named ${h}, so #include "${h}" becomes ambiguous.`, fix: "Rename one of the classes." });
+    files[h] = files[h] || p.name;
+  });
+  return out;
+}
+
+export async function buildBundleZip(plugin, plan) {
+  const zip = new JSZip();
+  const root = zip.folder(plugin);
+  const enginePlugins = [];
+  const rows = plan.map((p) => {
+    const { files, deps, enginePlugins: ep } = writeModule(root, p.module, p.system, p.uses);
+    enginePlugins.push(...ep);
+    const docs = root.folder(`Docs/${p.module}`);
+    docs.file("SETUP.md", setupMd(p.system));
+    docs.file("BLUEPRINT_PSEUDOCODE.md", pseudoMd(p.system));
+    docs.file("system.json", systemJson(p.name, p.system, p.context));
+    return `| ${p.system.system_name} | \`${p.module}\` | \`${files.h}\` | ${["Core", "CoreUObject", "Engine", ...deps].join(", ")} |`;
+  });
+  const names = plan.map((p) => p.system.system_name);
+  root.file(`${plugin}.uplugin`, upluginJson(plugin.replace(/([a-z0-9])([A-Z])/g, "$1 $2"), `Bundles ${names.join(", ")}.`, plan.map((p) => p.module), enginePlugins));
+  root.file("README.md", [
+    `# ${plugin} (Unreal plugin)`,
+    "",
+    `One install for ${plan.length} systems: ${names.join(" + ")}. Each system is its own runtime module, so you can read, extend or remove them separately.`,
+    "",
+    "## Install (no code edits)",
+    `1. Copy the \`${plugin}\` folder into \`YourProject/Plugins/\` (create the folder if needed).`,
+    "2. Right-click your .uproject → Generate Visual Studio project files, then build.",
+    "3. The plugin is enabled by default. Follow each system's SETUP.md in `Docs/<Module>/`.",
+    "",
+    "## Modules",
+    "| System | Module | Header | Build.cs dependencies |",
+    "|---|---|---|---|",
+    ...rows,
+    "",
+    "Modules that use another system's classes already list that module in their Build.cs.",
+    ...(enginePlugins.length ? ["", `Enables engine plugins: ${[...new Set(enginePlugins)].join(", ")}.`] : []),
+    "",
+    "_Exported from UE5 System Architect._",
+  ].join("\n"));
   return { blob: await zip.generateAsync({ type: "blob" }), filename: `${plugin}.zip` };
 }
