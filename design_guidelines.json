@@ -1,0 +1,107 @@
+{
+  "project_name": "Unreal Engine 5 Modular System Architect",
+  "archetype": "The Performance Pro & Slate IDE (Unreal Engine Editor Inspired)",
+  "context": "Developer Tool / AI System Generator for Game Developers",
+  "theme": "Dark Mode Default (Unreal Engine 5 Editor Dark Slate & Vibrant Accents)",
+  "typography": {
+    "heading_font": "Barlow Condensed, Outfit, sans-serif",
+    "body_font": "Inter, system-ui, sans-serif",
+    "code_font": "JetBrains Mono, Fira Code, monospace",
+    "font_pairings": {
+      "display": "Barlow Condensed (700/800 uppercase tracking-wide)",
+      "subheadings": "Outfit (600/700)",
+      "body": "Inter (400/500)",
+      "code_and_nodes": "JetBrains Mono (500/600)"
+    },
+    "hierarchy": {
+      "h1": "text-3xl md:text-4xl font-extrabold uppercase tracking-wider font-display",
+      "h2": "text-xl md:text-2xl font-bold font-display tracking-wide",
+      "h3": "text-lg font-semibold tracking-normal",
+      "h4": "text-sm font-semibold uppercase tracking-widest text-muted-foreground",
+      "body": "text-sm leading-relaxed",
+      "caption": "text-xs text-muted-foreground font-mono"
+    }
+  },
+  "colors": {
+    "background_main": "#0B0E14",
+    "background_secondary": "#0E121B",
+    "surface_panel": "#141923",
+    "surface_hover": "#1D2536",
+    "surface_border": "#283348",
+    "unreal_orange": "#FF6B00",
+    "unreal_orange_glow": "rgba(255, 107, 0, 0.25)",
+    "unreal_orange_hover": "#FF8533",
+    "blueprint_blue": "#0099FF",
+    "blueprint_blue_glow": "rgba(0, 153, 255, 0.25)",
+    "cpp_green": "#00E676",
+    "cpp_green_glow": "rgba(0, 230, 118, 0.2)",
+    "text_primary": "#F1F5F9",
+    "text_secondary": "#94A3B8",
+    "text_muted": "#64748B",
+    "accent_cyan": "#00F0FF",
+    "accent_purple": "#A855F7",
+    "accent_red": "#EF4444",
+    "slate_grid_lines": "#182030"
+  },
+  "layout_and_structure": {
+    "type": "IDE Workspace Layout with Modular Dock Panels & Tabbed Main View",
+    "structure_components": [
+      "Top Header Bar with UE5 Engine Version Badge, System Selector, Presets, Export All & Theme Info",
+      "Left Sidebar (Width ~320px / Collapsible): AI Prompt Synthesizer, Quick Modular Templates Library (Combat, Inventory, AI, Dialogue, Save System, Ability System, Vehicle), Local Saved Library Manager",
+      "Center Canvas / Main Stage: System Header with Tunable Slider Quick Bar, Tabbed View (Blueprint Visual Node Graph Canvas, Blueprint Pseudocode, C++ Header & Source Snippets, Step-by-Step Node-by-Node Setup Guide)",
+      "Right Inspector / Tuner Panel (Width ~340px / Collapsible): System Parameter Sliders (Complexity, Modularity, Performance vs Flexibility, Tick Rate, Network Replicated Toggle), Dynamic Add/Subtract Component Chips, Variable Matrix, Export & Copy Controls",
+      "Bottom Status & Diagnostics Bar: Replicated Status, Memory Overhead, Blueprint Class Type (Actor, Pawn, Character, ActorComponent), Generation Log Console"
+    ],
+    "spacing_scale": "Tailwind standard p-2 to p-6 for tight developer tool density without clutter."
+  },
+  "visual_enhancers": {
+    "grid_pattern": "Unreal Blueprint Canvas Dot/Cross Grid background using SVG repeating patterns (#182030 grid line on #0B0E14)",
+    "node_cards": "Dark rounded slate nodes (rounded-md border border-[#283348]) with distinct colored top header bars (Execution = Dark Gray, Event = Crimson Red, Function = Blueprint Blue, Pure Math = Green)",
+    "node_wires": "SVG Curved cubic bezier connecting cables with glowing animated particle pulses showing signal execution flow",
+    "code_highlighter": "Syntax highlighting with C++ keyword colors (class, public, UPROPERTY, UFUNCTION in Unreal Orange and Cyan) and Blueprint pin color indicators (Red = Boolean, Green = Float, Cyan = Integer, Blue = Object, Gold = Vector)",
+    "slider_style": "Industrial UE5 style sliders with numerical entry boxes, quick reset buttons, and instant preview recalculation"
+  },
+  "key_features_to_build": {
+    "1_describe_to_system_generator": "Natural language prompt bar ('e.g. Turn-based grid combat system with action points and UE5 Gameplay Ability System integration') + parameter presets. Simulates AI system synthesis with live streaming code & visual nodes generation.",
+    "2_multi_tab_outputs": [
+      "Visual Node Graph: Interactive SVG canvas with zoom/pan, dragging nodes, hovering pins, execution flow animations, and node detail tooltip",
+      "Blueprint Pseudocode: Formatted, highlighted UE5 Blueprint logic structure with node connection tree and pin specs",
+      "C++ Code Snippets: Clean Header (.h) and Implementation (.cpp) snippets with UPROPERTY(EditAnywhere, BlueprintReadWrite), UFUNCTION(BlueprintCallable), and UE5 macros",
+      "Step-by-Step Setup Guide: Interactive checklist showing required UE5 Asset Creation (e.g. Content Browser > New Blueprint Class > ActorComponent), Component Setup, Event Graph Wiring, and Testing Procedure"
+    ],
+    "3_tunable_sliders_and_modifiers": "Dynamic customization sliders (e.g. Max Inventory Slots, Attack Combo Stages, AI Sight Radius, Tick Frequency, Network Sync Level) that dynamically update generated code, pseudocode, and node graphs in real-time.",
+    "4_add_subtract_modular_components": "Interactive chip-based Modular Extension Manager allowing users to add modules (e.g. '+ Add Stamina Drain', '+ Add Sound FX Cues', '+ Add Save State Serialization', '- Remove Camera Shake') which updates the code/graph instantly.",
+    "5_prebuilt_template_library": "Filterable preset cards for core game systems: 1) Advanced Combo Combat, 2) Grid & Slot Inventory, 3) Branching Dialogue & Quest System, 4) Behavior Tree AI Guard, 5) Save/Load Game State, 6) Vehicle Physics Controller, 7) Gas Ability System.",
+    "6_personal_library_manager": "Save generated or customized systems to browser LocalStorage with custom naming, tags, export JSON, load preset, and delete options."
+  },
+  "testing_and_data_attributes": {
+    "guideline": "ALL interactive buttons, inputs, tabs, sliders, template cards, and copy triggers MUST include kebab-case data-testid attributes.",
+    "examples": [
+      "data-testid=\"prompt-input\"",
+      "data-testid=\"generate-system-button\"",
+      "data-testid=\"tab-node-graph\"",
+      "data-testid=\"tab-blueprint-code\"",
+      "data-testid=\"tab-cpp-code\"",
+      "data-testid=\"tab-setup-guide\"",
+      "data-testid=\"slider-complexity\"",
+      "data-testid=\"slider-modularity\"",
+      "data-testid=\"add-component-button\"",
+      "data-testid=\"template-card-combat\"",
+      "data-testid=\"save-system-button\"",
+      "data-testid=\"copy-code-button\"",
+      "data-testid=\"download-code-button\""
+    ]
+  },
+  "image_urls": {
+    "game_preview_1": "https://images.unsplash.com/photo-1634553691813-6740a28cfad9?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2ODh8MHwxfHNlYXJjaHwzfHwzZCUyMGdhbWUlMjBkZXZlbG9wbWVudCUyMHVucmVhbCUyMGVuZ2luZSUyMGNvbWJhdCUyMHByZXZpZXd8ZW58MHx8fHwxNzk0MTE4NzQyfDA&ixlib=rb-4.1.0&q=85",
+    "game_preview_2": "https://images.unsplash.com/photo-1762441112136-4dfc6edf58e8?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2ODh8MHwxfHNlYXJjaHwxfHwzZCUyMGdhbWUlMjBkZXZlbG9wbWVudCUyMHVucmVhbCUyMGVuZ2luZSUyMGNvbWJhdCUyMHByZXZpZXd8ZW58MHx8fHwxNzk0MTE4NzQyfDA&ixlib=rb-4.1.0&q=85"
+  },
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Do NOT use generic light/white theme by default. Maintain strict dark Slate / UE5 Editor styling (#0B0E14 background).",
+    "Ensure all code views have syntax highlighting styling, code block headers with language badges, and one-click copy/download actions.",
+    "Ensure the Node Graph canvas supports dragging/panning or zoom, node selecting, and clear execution wire rendering.",
+    "Use Lucide icons for high quality developer icons (Cpu, Code, Layers, Sliders, Play, Save, Download, Copy, Plus, Trash2, CheckCircle2, Terminal, Sparkles, Box).",
+    "Make sure every slider and modifier component seamlessly re-calculates or triggers state updates so the UI feels alive and responsive.",
+    "Add sonner toasts on copy, save, and system generation events."
+  ]
+}
