@@ -13,11 +13,13 @@ export default function BundleModal({ ids, onClose }) {
   const [items, setItems] = useState(null);
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
+  const [skipped, setSkipped] = useState([]);
 
   useEffect(() => {
     Promise.all(ids.map((id) => api.get(`/projects/${id}`).then((r) => r.data)))
       .then((list) => {
-        const valid = list.filter((p) => p.system?.cpp_header);
+        const valid = list.filter((p) => p.system?.cpp_header?.trim() && p.system?.cpp_source?.trim());
+        setSkipped(list.filter((p) => !valid.includes(p)).map((p) => p.name));
         setItems(valid.map((p) => ({ name: p.name, system: p.system, context: { ...(p.context || {}), references: undefined } })));
         setName(`${valid.map((p) => (p.system.system_name || "").split(/\s+/)[0].replace(/[^A-Za-z0-9]/g, "")).join("")}Pack`.slice(0, 40));
       })
@@ -37,6 +39,8 @@ export default function BundleModal({ ids, onClose }) {
       downloadBlob(blob, filename);
       toast.success(`Downloaded ${filename}`, { description: `${plan.length} modules in one plugin. Copy the folder into YourProject/Plugins and build.` });
       onClose();
+    } catch (e) {
+      toast.error("Couldn't build the plugin", { description: e.message });
     } finally { setBusy(false); }
   };
 
@@ -74,6 +78,12 @@ export default function BundleModal({ ids, onClose }) {
               })}
             </ul>
           </div>
+          {skipped.length > 0 && (
+            <div className="panel p-3 border-[#e8c547] text-[11.5px] font-mono text-[var(--text-secondary)]" data-testid="bundle-skipped">
+              Left out because they have no C++ yet: {skipped.join(", ")}. Regenerate them to include them.
+            </div>
+          )}
+          {plan.length < 2 && <div className="text-[11.5px] font-mono text-[var(--accent-red)]" data-testid="bundle-too-few">A bundle needs at least 2 projects with C++.</div>}
           {shared.length > 0 && (
             <div className="panel p-3 border-[var(--accent-red)]">
               <div className="eyebrow mb-2">Conflicts between systems</div>

@@ -27,7 +27,7 @@ const tally = (issues) => {
   return { e, w: issues.length - e };
 };
 
-export default function CompileCheck({ system, issues, aiKey, onNeedKey, onUsed }) {
+export default function CompileCheck({ system, issues, aiKey, onNeedKey, onUsed, onAiIssues }) {
   const [open, setOpen] = useState(true);
   const [ai, setAi] = useState(null); // null | "running" | {issues, model} | {error}
   const seq = useRef(0);
@@ -43,7 +43,7 @@ export default function CompileCheck({ system, issues, aiKey, onNeedKey, onUsed 
         file_base: baseName(system), cpp_header: system.cpp_header, cpp_source: system.cpp_source,
         known_issues: issues.map(issueText),
       }, { headers: aiHeaders(aiKey) });
-      if (mine === seq.current) setAi(data);
+      if (mine === seq.current) { setAi(data); onAiIssues(system.id, data.issues); }
     } catch (err) {
       if (mine === seq.current) setAi({ error: errorText(err) });
     } finally {

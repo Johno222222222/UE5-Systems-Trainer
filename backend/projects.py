@@ -202,7 +202,8 @@ async def save_project(project_id: str, body: ProjectUpdate, user: dict = Depend
     try:
         await snapshot(res, body.note)
     except Exception:
-        pass  # version already recorded by a concurrent backfill
+        # a concurrent backfill recorded this version first; keep the note
+        await db.project_versions.update_one({"project_id": project_id, "version": res["version"]}, {"$set": {"note": body.note.strip()[:200]}})
     await claim_references(body.context, user, project_id)
     return detail(res, role)
 

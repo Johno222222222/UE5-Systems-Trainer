@@ -188,6 +188,7 @@ export default function Workspace() {
   const [exportPrompt, setExportPrompt] = useState(null);
   const [bundleIds, setBundleIds] = useState(null);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [aiReview, setAiReview] = useState(null); // {id, issues} for the reviewed result
   const projectRef = useRef(null);
   projectRef.current = project;
   const aliveRef = useRef(true);
@@ -436,11 +437,18 @@ export default function Workspace() {
   const exportZip = async (kind, force = false) => {
     if (!result) return;
     setZipMenu(false);
-    if (!force && checkIssues.length) { setExportPrompt(kind); return; }
+    if (!force && exportIssues.length) { setExportPrompt(kind); return; }
     setExportPrompt(null);
     const { system, context } = splitResult();
     const build = kind === "plugin" ? buildPluginZip : buildProjectZip;
-    const { blob, filename } = await build(project?.name || result.system_name, system, { ...context, references: undefined });
+    let built;
+    try {
+      built = await build(project?.name || result.system_name, system, { ...context, references: undefined });
+    } catch (e) {
+      toast.error("Couldn't build the zip", { description: e.message });
+      return;
+    }
+    const { blob, filename } = built;
     downloadBlob(blob, filename);
     toast.success(`Downloaded ${filename}`, {
       description: kind === "plugin" ? "Copy the folder into YourProject/Plugins and build. No code edits needed." : "Public/.h, Private/.cpp, SETUP.md and README.md",
@@ -452,7 +460,9 @@ export default function Workspace() {
     if (pendingChanges.length && !window.confirm(`Restore v${compareBase}? Your ${pendingChanges.length} unsynthesized change(s) will be discarded.`)) return;
     setRestoring(true);
     try {
-      const { data } = await api.post(`/projects/${project.project_id}/versions/${compareBase}/restore`);
+      const pid = project.project_id;
+      const { data } = await api.post(`/projects/${pid}/versions/${compareBase}/restore`);
+      if (projectRef.current?.project_id !== pid) return;
       const { system, context, ...meta } = data;
       const from = compareBase;
       setProject(meta);
@@ -558,6 +568,8 @@ export default function Workspace() {
 
   const checkIssues = useMemo(() => (result ? checkSystem(result) : []), [result?.cpp_header, result?.cpp_source]); // eslint-disable-line react-hooks/exhaustive-deps
   const checkErrors = checkIssues.filter((i) => i.severity === "error").length;
+  const exportIssues = aiReview && aiReview.id === result?.id ? [...checkIssues, ...aiReview.issues.map((i) => ({ ...i, message: `AI review: ${i.message}` }))] : checkIssues;
+  const exportErrors = exportIssues.filter((i) => i.severity === "error").length;
 
   const TABS = [
     { id: "graph", label: "Event Graph", icon: Workflow, test: "tab-node-graph" },
@@ -804,7 +816,7 @@ export default function Workspace() {
             )}
             {tab === "cpp" && (
               <div className="p-5 h-full overflow-auto">
-                {result && <CompileCheck system={result} issues={checkIssues} aiKey={aiKey} onNeedKey={() => setKeyModal("required")} onUsed={() => setUsageTick((n) => n + 1)} />}
+                {result && <CompileCheck system={result} issues={checkIssues} aiKey={aiKey} onNeedKey={() => setKeyModal("required")} onUsed={() => setUsageTick((n) => n + 1)} onAiIssues={(id, issues) => setAiReview({ id, issues })} />}
                 <div className="grid md:grid-cols-2 gap-4">
                   <CodeBox title={`${result?.system_name || "System"}.h`} code={result?.cpp_header} lang="cpp" testId="cpp-header" />
                   <CodeBox title={`${result?.system_name || "System"}.cpp`} code={result?.cpp_source} lang="cpp" testId="cpp-source" />
@@ -993,9 +1005,9 @@ export default function Workspace() {
       {exportPrompt && (
         <Modal title="Check before export" onClose={() => setExportPrompt(null)} testId="export-check-modal" width={560}>
           <div className="text-[13px] text-[var(--text-secondary)] mb-3" data-testid="export-check-text">
-            The compile check found {checkErrors} likely error{checkErrors === 1 ? "" : "s"} and {checkIssues.length - checkErrors} warning{checkIssues.length - checkErrors === 1 ? "" : "s"}. Fix them by regenerating with a note, or export as it is.
+            The compile check found {exportErrors} likely error{exportErrors === 1 ? "" : "s"} and {exportIssues.length - exportErrors} warning{exportIssues.length - exportErrors === 1 ? "" : "s"}. Fix them by regenerating with a note, or export as it is.
           </div>
-          <div className="max-h-[300px] overflow-y-auto panel p-3 mb-4"><IssueList issues={checkIssues} testId="export-check-issues" /></div>
+          <div className="max-h-[300px] overflow-y-auto panel p-3 mb-4"><IssueList issues={exportIssues} testId="export-check-issues" /></div>
           <div className="flex flex-wrap gap-2 justify-end">
             <button className="ue-btn" onClick={() => { setExportPrompt(null); setTab("cpp"); }} data-testid="export-check-review">Review in C++ tab</button>
             <button className="ue-btn ue-btn-primary" onClick={() => exportZip(exportPrompt, true)} data-testid="export-check-anyway"><FileArchive size={13} /> Export anyway</button>

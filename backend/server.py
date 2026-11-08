@@ -479,7 +479,9 @@ async def review_cpp(
         logging.error("Review failed: %s", str(exc).replace(key, "***")[:300])
         raise HTTPException(status_code=502, detail=classify_error(exc, model)[1].replace(key, "***"))
     try:
-        issues = extract_json(raw).get("issues", [])
+        issues = extract_json(raw)["issues"]
+        if not isinstance(issues, list):
+            raise ValueError("issues is not a list")
         out = [{
             "severity": "error" if i.get("severity") == "error" else "warning",
             "file": ".cpp" if str(i.get("file", "")).endswith("cpp") else ".h",

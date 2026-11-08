@@ -48,7 +48,11 @@ export default function ProjectsPanel({ refreshKey, currentId, onOpen, onDeleted
     }
   };
 
-  const toggle = (id) => setSel((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id].slice(-6)));
+  const toggle = (id) => {
+    if (sel.includes(id)) setSel(sel.filter((x) => x !== id));
+    else if (sel.length >= 6) toast.message("You can tick up to 6 projects", { description: "Untick one first." });
+    else setSel([...sel, id]);
+  };
   const stack = async () => {
     if (await onStack(sel)) setSel([]);
   };

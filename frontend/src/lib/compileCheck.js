@@ -99,8 +99,12 @@ export function checkSystem(system) {
 
   const classes = new Set(headerClasses(rawH));
   const declared = new Set([...h.matchAll(/\b(\w+)\s*\(/g)].map((m) => m[1]));
-  const defs = [...c.matchAll(/^(?![ \t#])(?:[\w<>,*&:]+[\s*&]+)*?(\w+)::(~?\w+)\s*\(/gm)]
-    .filter((m) => !/;\s*$/.test(c.slice(m.index, c.indexOf("\n", m.index) >>> 0)));
+  // Definitions may be indented (namespaces); indented calls like Super::X( have no return type, so they're skipped
+  const defs = [...c.matchAll(/^([ \t]*)((?:[\w<>,*&:]+[ \t*&]+)*?)(\w+)::(~?\w+)\s*\(/gm)]
+    .filter((m) => !/;\s*$/.test(c.slice(m.index, c.indexOf("\n", m.index) >>> 0)))
+    .filter((m) => !/\b(?:return|else|case|new|delete|throw|co_return)\b/.test(m[2]))
+    .filter((m) => !m[1] || m[2].trim() || m[3] === m[4].replace(/^~/, ""))
+    .map((m) => Object.assign([m[0], m[3], m[4]], { index: m.index }));
   const defined = new Set(defs.map((m) => m[2]));
 
   defs.forEach((m) => {

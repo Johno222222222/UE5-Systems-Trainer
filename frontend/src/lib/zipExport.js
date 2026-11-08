@@ -30,6 +30,11 @@ const DEPS = [
   [/AbilitySystem|UGameplayAbility|UAttributeSet|GameplayEffect/, "GameplayAbilities", "GameplayAbilities"],
   [/ChaosVehicle|WheeledVehicle/, "ChaosVehicles", "ChaosVehiclesPlugin"],
   [/DOREPLIFETIME|Replicated|NetMulticast/, "NetCore", null],
+  [/UNavigationSystemV1|UNavigationPath|NavigationSystem\.h/, "NavigationSystem", null],
+  [/UPhysicalMaterial|EPhysicalSurface|PhysicsCore/, "PhysicsCore", null],
+  [/\bEKeys::|FKey\b|InputCore/, "InputCore", null],
+  [/UUserWidget|UMG|WidgetComponent|SNew\(|Slate/, "SlateCore", null],
+  [/SNew\(|SWidget|Slate\//, "Slate", null],
 ];
 
 function readme(name, system, files, apiMacro, deps) {
@@ -222,7 +227,8 @@ export function planBundle(items) {
   });
   return plan.map((p) => {
     const code = `${p.system.cpp_header || ""}\n${p.system.cpp_source || ""}`;
-    const uses = plan.filter((o) => o !== p && o.classes.some((c) => new RegExp(`\\b${c}\\b`).test(code))).map((o) => o.module);
+    const uses = plan.filter((o) => o !== p && !o.classes.some((c) => p.classes.includes(c)) && (o.classes.some((c) => new RegExp(`\\b${c}\\b`).test(code))
+      || code.includes(`"${baseName(o.system)}.h"`))).map((o) => o.module);
     return { ...p, uses };
   });
 }
@@ -231,8 +237,8 @@ export function bundleIssues(plan) {
   const out = [];
   const seen = {};
   plan.forEach((p) => p.classes.forEach((c) => {
-    if (seen[c] && seen[c] !== p.name) out.push({ severity: "error", file: p.module, line: null, message: `${seen[c]} and ${p.name} both declare ${c}. Unreal can't load two classes with the same name.`, fix: "Rename the class in one project and regenerate it." });
-    seen[c] = seen[c] || p.name;
+    if (seen[c] && seen[c] !== p) out.push({ severity: "error", file: p.module, line: null, message: `${seen[c].name} (${seen[c].module}) and ${p.name} (${p.module}) both declare ${c}. Unreal can't load two classes with the same name.`, fix: "Rename the class in one project and regenerate it." });
+    seen[c] = seen[c] || p;
   }));
   plan.forEach((p, i) => plan.slice(i + 1).forEach((o) => {
     if (p.uses.includes(o.module) && o.uses.includes(p.module)) out.push({ severity: "error", file: p.module, line: null, message: `${p.name} and ${o.name} use each other's classes, which makes a circular module dependency.`, fix: "Talk through an interface or delegate in one direction, or stack them into one system." });
@@ -240,8 +246,8 @@ export function bundleIssues(plan) {
   const files = {};
   plan.forEach((p) => {
     const h = `${baseName(p.system)}.h`;
-    if (files[h]) out.push({ severity: "warning", file: p.module, line: null, message: `${files[h]} and ${p.name} both have a header named ${h}, so #include "${h}" becomes ambiguous.`, fix: "Rename one of the classes." });
-    files[h] = files[h] || p.name;
+    if (files[h]) out.push({ severity: "warning", file: p.module, line: null, message: `${files[h].name} (${files[h].module}) and ${p.name} (${p.module}) both have a header named ${h}, so #include "${h}" becomes ambiguous.`, fix: "Rename one of the classes." });
+    files[h] = files[h] || p;
   });
   return out;
 }
