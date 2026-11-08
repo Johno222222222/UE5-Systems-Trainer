@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Check, Loader2, RotateCcw, Wand2, X } from "lucide-react";
+import { Check, Loader2, RefreshCw, RotateCcw, Wand2, X } from "lucide-react";
 import Modal from "./Modal";
 import { sideBySideDiff } from "../lib/changes";
 
@@ -38,7 +38,8 @@ function FileDiff({ label, before, after, testId }) {
 }
 
 // fix: {status: "running"|"review"|"error", count, data?, error?}
-export default function FixReviewModal({ fix, system, base, onAccept, onDiscard, onRetry }) {
+export default function FixReviewModal({ fix, system, base, onAccept, onDiscard, onRetry, onRegenerate }) {
+  const exporting = !!fix.thenExport;
   return (
     <Modal title={fix.status === "running" ? "Writing a fix…" : fix.status === "error" ? "Fix not applied" : "Review the fix"} onClose={onDiscard} testId="fix-modal" width={980}>
       {fix.status === "running" && (
@@ -49,9 +50,10 @@ export default function FixReviewModal({ fix, system, base, onAccept, onDiscard,
       {fix.status === "error" && (
         <>
           <div className="text-[12.5px] font-mono text-[var(--accent-red)] mb-4" data-testid="fix-error">{fix.error}</div>
-          <div className="text-[12px] text-[var(--text-secondary)] mb-4">Nothing in your code was changed.</div>
+          <div className="text-[12px] text-[var(--text-secondary)] mb-4">Nothing in your code was changed. For structural problems, regenerating the system with these issues as change requests often works better (1 synthesis).</div>
           <div className="flex gap-2 justify-end">
-            <button className="ue-btn" onClick={onDiscard} data-testid="fix-close"><X size={13} /> Close</button>
+            <button className="ue-btn" onClick={onDiscard} data-testid="fix-close"><X size={13} /> {exporting ? "Export without fixing" : "Close"}</button>
+            <button className="ue-btn" onClick={onRegenerate} data-testid="fix-error-regenerate"><RefreshCw size={13} /> Fix &amp; regenerate</button>
             <button className="ue-btn ue-btn-primary" onClick={onRetry} data-testid="fix-retry"><RotateCcw size={13} /> Try again</button>
           </div>
         </>
@@ -69,9 +71,9 @@ export default function FixReviewModal({ fix, system, base, onAccept, onDiscard,
           <FileDiff label={`${base}.h`} before={system.cpp_header || ""} after={fix.data.cpp_header} testId="fix-diff-h" />
           <FileDiff label={`${base}.cpp`} before={system.cpp_source || ""} after={fix.data.cpp_source} testId="fix-diff-cpp" />
           <div className="flex items-center gap-2 justify-end">
-            <span className="text-[10.5px] font-mono text-[var(--text-muted)] mr-auto">Accepting changes the workspace only. Press Save to keep it.</span>
-            <button className="ue-btn" onClick={onDiscard} data-testid="fix-discard"><X size={13} /> Discard</button>
-            <button className="ue-btn ue-btn-primary" onClick={onAccept} data-testid="fix-accept"><Check size={13} /> Accept fix</button>
+            <span className="text-[10.5px] font-mono text-[var(--text-muted)] mr-auto">{exporting ? "Auto-fix before export: your zip downloads after you choose." : "Accepting changes the workspace only. Press Save to keep it."}</span>
+            <button className="ue-btn" onClick={onDiscard} data-testid="fix-discard"><X size={13} /> {exporting ? "Discard and export" : "Discard"}</button>
+            <button className="ue-btn ue-btn-primary" onClick={onAccept} data-testid="fix-accept"><Check size={13} /> {exporting ? "Accept fix and export" : "Accept fix"}</button>
           </div>
         </>
       )}

@@ -67,3 +67,9 @@ An app to build modular systems from description in Unreal Engine 5.
   - Ignore/Restore built-in issues: key = file + hash(message + offending line text); stored on the project (PUT /api/projects/{id}/ignores, returned as ignored_issues); excluded from the count, tab badge and export warning; "Ignored (N)" section. Viewers can see but not change them.
   - Copy issues (plain text with fixes).
   - Bundle presets (private per user): GET/POST /api/bundle-presets, PATCH/DELETE /api/bundle-presets/{id}; "Save as preset" in the bundle window; "Bundle presets" list in the Projects panel opens a preset with the latest saved versions; missing projects are shown as skipped.
+
+- Iteration 11 (2026-06):
+  - Fix & regenerate: a button in the compile check (and in the fix error window) sends the listed issues as numbered change requests into a normal regenerate (1 synthesis, then Compare opens).
+  - Fix history notes: each accepted fix (and each fix-regenerate) is queued; opening Save pre-fills the note ("Fixed: …"), editable. Undo fix removes its note; the queue clears after a save or when another project opens.
+  - Auto-fix before export: a per-project setting (`auto_fix_export`, PATCH /api/projects/{id}/settings, editor+) shown as a checkbox in the UE5 .zip menu. When it's on and issues exist, export runs Fix these first and shows the review: "Accept fix and export" / "Discard and export"; on error "Export without fixing". It falls back to the normal warning when there's no key or the user is a viewer.
+  - Shared bundle presets: GET /api/bundle-presets also returns teammates' presets (mine:false, owner_name) when the user can open every project in them; only the creator can rename or delete.

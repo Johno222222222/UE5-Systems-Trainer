@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { AlertTriangle, ArrowRight, CheckCircle2, ChevronDown, ClipboardCopy, EyeOff, Loader2, Sparkles, Undo2, Wand2, XCircle } from "lucide-react";
+import { AlertTriangle, ArrowRight, CheckCircle2, ChevronDown, ClipboardCopy, EyeOff, Loader2, RefreshCw, Sparkles, Undo2, Wand2, XCircle } from "lucide-react";
 import { api, errorText } from "../lib/api";
 import { aiHeaders } from "./AiKeyModal";
 import { baseName } from "../lib/zipExport";
@@ -63,7 +63,7 @@ export function useAiReview(system, issues, aiKey, onNeedKey, onUsed) {
   return [state && state.id === system?.id ? state : null, review];
 }
 
-export default function CompileCheck({ issues, ignored, ai, onReview, aiKey, canEdit, fixing, onJump, onFix, onIgnore, onRestore, onCopy }) {
+export default function CompileCheck({ issues, ignored, ai, onReview, aiKey, canEdit, fixing, onJump, onFix, onRegenerate, onIgnore, onRestore, onCopy }) {
   const [open, setOpen] = useState(true);
   const [showIgnored, setShowIgnored] = useState(false);
   const { e, w } = tally(issues);
@@ -87,6 +87,12 @@ export default function CompileCheck({ issues, ignored, ai, onReview, aiKey, can
         {canEdit && (
           <button className="ue-btn ue-btn-primary !py-1 !px-2 !text-[11px]" onClick={() => onFix([...issues, ...aiIssues])} disabled={!fixable || fixing} data-testid="fix-all-button">
             {fixing ? <Loader2 size={12} className="animate-spin" /> : <Wand2 size={12} />} {fixing ? "Fixing…" : `Fix these${fixable ? ` (${fixable})` : ""}`}
+          </button>
+        )}
+        {canEdit && (
+          <button className="ue-btn !py-1 !px-2 !text-[11px]" onClick={() => onRegenerate([...issues, ...aiIssues])} disabled={!fixable || fixing}
+            title="For structural problems: regenerate the whole system with these issues as change requests (1 synthesis)" data-testid="fix-regenerate-button">
+            <RefreshCw size={12} /> Fix &amp; regenerate
           </button>
         )}
         <button className="ue-btn !py-1 !px-2 !text-[11px]" onClick={() => onCopy([...issues, ...aiIssues])} disabled={!fixable} data-testid="copy-issues-button"><ClipboardCopy size={12} /> Copy issues</button>

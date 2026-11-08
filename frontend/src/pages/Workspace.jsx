@@ -160,6 +160,7 @@ export default function Workspace() {
   const [ignores, setIgnores] = useState([]); // [{key, file, message}] saved per project
   const [jump, setJump] = useState(null); // {file, line, nonce}
   const [fix, setFix] = useState(null);
+  const [fixNotes, setFixNotes] = useState([]); // pre-fill the next save note
   const [historyOpen, setHistoryOpen] = useState(false);
   const projectRef = useRef(null);
   projectRef.current = project;
@@ -251,19 +252,19 @@ export default function Workspace() {
 
   const currentInputs = { prompt, blueprint_class: bpClass, complexity, modularity, performance_vs_flexibility: perfFlex, tick_rate: tickRate, network_replicated: replicated };
 
-  const generate = async () => {
+  const generate = async (extraRequests = []) => {
     if (prompt.trim().length < 5) {
       toast.error("Describe your system in a bit more detail");
-      return;
+      return false;
     }
     const removed = result ? (result.modules || []).filter((m) => !m.included).map((m) => m.name) : [];
-    await runSynthesis({
+    return runSynthesis({
       ...currentInputs,
       extra_modules: extra,
       removed_modules: removed,
       parameter_overrides: result ? tunable : {},
       designer_notes: notes,
-      change_requests: pendingChanges.map((c) => c.text),
+      change_requests: [...pendingChanges.map((c) => c.text), ...extraRequests].slice(0, 40),
       previous_system: result ? (({ context: _c, baseline_modules: _b, ...rest }) => rest)(result) : null,
     }, { ...currentInputs, extra_modules: extra }, (d) => `${d.system_name} ${result ? "regenerated" : "generated"}`);
   };
@@ -332,6 +333,7 @@ export default function Workspace() {
       setProjRefresh((n) => n + 1);
       setSaveDialog(false);
       setSaveNote("");
+      setFixNotes([]);
       toast.success(project ? `Saved v${data.version}` : "Saved as new project", { description: note ? `${data.name}: ${note}` : data.name });
     } catch (e) {
       setSaveDialog(false);
@@ -369,6 +371,7 @@ export default function Workspace() {
       const { system, context, ...meta } = data;
       setProject(meta);
       setIgnores(meta.ignored_issues || []);
+      setFixNotes([]);
       openSystem(system, context);
       toast.message(`Opened ${data.name}`, { description: meta.my_role === "viewer" ? "View only" : `Last saved by ${meta.updated_by_name}` });
     } catch (e) {
@@ -410,12 +413,14 @@ export default function Workspace() {
     if (!result) return;
     downloadBlob(JSON.stringify(exportData(), null, 2), `${(project?.name || result.system_name).replace(/\s+/g, "_")}.json`);
   };
-  const exportZip = async (kind, force = false) => {
+  const exportZip = async (kind, force = false, override = null) => {
     if (!result) return;
     setZipMenu(false);
+    if (!force && exportIssues.length && project?.auto_fix_export && !readOnly && aiKey) { runFix(exportIssues, kind); return; }
     if (!force && exportIssues.length) { setExportPrompt(kind); return; }
     setExportPrompt(null);
-    const { system, context } = splitResult();
+    const { context: ctx, ...system } = override || result;
+    const context = { ...(ctx || {}), references };
     const build = kind === "plugin" ? buildPluginZip : buildProjectZip;
     let built;
     try {
@@ -576,12 +581,24 @@ export default function Workspace() {
       toast.success(`Copied ${list.length} issue${list.length === 1 ? "" : "s"}`);
     } catch { toast.error("Your browser blocked the clipboard"); }
   };
-  const runFix = async (list) => {
+  const toggleAutoFix = async (on) => {
+    try {
+      await api.patch(`/projects/${project.project_id}/settings`, { auto_fix_export: on });
+      setProject((p) => ({ ...p, auto_fix_export: on }));
+      toast.success(on ? "Auto-fix before export is on" : "Auto-fix before export is off", { description: "Saved for everyone on this project." });
+    } catch (e) { toast.error(errorText(e)); }
+  };
+  const fixRegenerate = async (list) => {
+    setFix(null);
+    const ok = await generate(list.map((i) => `Fix compile issue: ${issueText(i)}${i.fix ? ` (suggested: ${i.fix})` : ""}`));
+    if (ok) setFixNotes((n) => [...n, `Regenerated to fix ${list.length} compile issue${list.length === 1 ? "" : "s"}`]);
+  };
+  const runFix = async (list, thenExport = null) => {
     if (!aiKey) { setKeyModal("required"); toast.error("Add your AI key to fix issues"); return; }
     const { used, limit } = modelUsage(usage, aiKey.provider, aiKey.model);
     if (limit && used + 1 > limit * 0.85 && !window.confirm(`You've used about ${used} of ~${limit} free ${aiKey.model} requests today. Fix anyway?`)) return;
     const before = { id: result.id, h: result.cpp_header || "", c: result.cpp_source || "" };
-    setFix({ status: "running", count: list.length, list, before });
+    setFix({ status: "running", count: list.length, list, before, thenExport });
     try {
       const { data } = await api.post("/ai/fix-cpp", {
         file_base: baseName(result), cpp_header: before.h, cpp_source: before.c, project_id: project?.project_id || null,
@@ -604,6 +621,9 @@ export default function Workspace() {
     const next = { ...result, cpp_header: data.cpp_header, cpp_source: data.cpp_source };
     setResult(next);
     setFix(null);
+    const note = `Fixed: ${data.changes.map((c) => c.why).filter(Boolean).join("; ") || `${data.changes.length} compile issue(s)`}`;
+    setFixNotes((n) => [...n, note]);
+    if (fix.thenExport) exportZip(fix.thenExport, true, next);
     const sig = (i) => `${i.file}|${i.message}`;
     const after = checkSystem(next).filter((i) => !ignoreKeys.has(issueKey(i, next)));
     const afterSigs = new Set(after.map(sig));
@@ -617,7 +637,10 @@ export default function Workspace() {
       duration: 10000,
       action: {
         label: "Undo fix",
-        onClick: () => setResult((r) => (r?.id === before.id && r.cpp_header === data.cpp_header && r.cpp_source === data.cpp_source ? { ...r, cpp_header: before.h, cpp_source: before.c } : r)),
+        onClick: () => {
+          setResult((r) => (r?.id === before.id && r.cpp_header === data.cpp_header && r.cpp_source === data.cpp_source ? { ...r, cpp_header: before.h, cpp_source: before.c } : r));
+          setFixNotes((n) => n.filter((x) => x !== note));
+        },
       },
     });
     setTab("cpp");
@@ -681,10 +704,20 @@ export default function Workspace() {
                 <div className="font-sub text-[13px] font-semibold">Source files only</div>
                 <div className="text-[10.5px] font-mono text-[var(--text-muted)]">.h/.cpp to add to your own game module</div>
               </button>
+              <label className={`flex items-start gap-2 px-2.5 py-2 mt-1 border-t border-[var(--border-soft)] ${project && !readOnly ? "cursor-pointer" : "opacity-60"}`} data-testid="auto-fix-toggle-label">
+                <input type="checkbox" className="accent-[#ff6b00] mt-0.5" checked={!!project?.auto_fix_export} disabled={!project || readOnly}
+                  onChange={(e) => toggleAutoFix(e.target.checked)} data-testid="auto-fix-toggle" />
+                <span>
+                  <span className="block font-sub text-[12.5px] font-semibold">Auto-fix before export</span>
+                  <span className="block text-[10.5px] font-mono text-[var(--text-muted)]">
+                    {!project ? "Save the project to turn this on." : readOnly ? "Editors can change this." : "Runs Fix these with your key and shows the review first. Saved for the whole team."}
+                  </span>
+                </span>
+              </label>
             </div>
           )}
         </div>
-        <button className="ue-btn ue-btn-primary" onClick={() => setSaveDialog(true)} disabled={!result || readOnly || saving} data-testid="save-system-button"><Save size={13} /> {project ? "Save" : "Save project"}</button>
+        <button className="ue-btn ue-btn-primary" onClick={() => { if (!saveNote.trim() && fixNotes.length) setSaveNote(fixNotes.join(" · ").slice(0, 200)); setSaveDialog(true); }} disabled={!result || readOnly || saving} data-testid="save-system-button"><Save size={13} /> {project ? "Save" : "Save project"}</button>
         <UsageChip aiKey={aiKey} usage={usage} />
         <button className={`ue-btn ${aiKey ? "" : "!border-[var(--unreal-orange)] !text-[var(--unreal-orange)]"}`} onClick={() => setKeyModal("edit")} data-testid="ai-key-button">
           <KeyRound size={13} /> {aiKey ? PROVIDERS[aiKey.provider].label.split(" ").pop() : "Add AI key"}
@@ -745,7 +778,7 @@ export default function Workspace() {
             </div>
             <button
               className="ue-btn ue-btn-primary w-full justify-center mt-3"
-              onClick={generate}
+              onClick={() => generate()}
               disabled={loading}
               data-testid="generate-system-button"
             >
@@ -869,7 +902,7 @@ export default function Workspace() {
             {tab === "cpp" && (
               <div className="p-5 h-full overflow-auto">
                 {result && <CompileCheck issues={activeIssues} ignored={ignoredIssues} ai={aiReview} onReview={runAiReview} aiKey={aiKey} canEdit={!readOnly}
-                  fixing={fix?.status === "running"} onJump={jumpTo} onFix={runFix} onIgnore={ignoreIssue} onRestore={restoreIssue} onCopy={copyIssues} />}
+                  fixing={fix?.status === "running" || loading} onJump={jumpTo} onFix={(l) => runFix(l)} onRegenerate={fixRegenerate} onIgnore={ignoreIssue} onRestore={restoreIssue} onCopy={copyIssues} />}
                 <div className="grid md:grid-cols-2 gap-4">
                   <CodeBox title={`${result ? baseName(result) : "System"}.h`} code={result?.cpp_header} lang="cpp" testId="cpp-header" target={jump?.file === ".h" ? jump : null} />
                   <CodeBox title={`${result ? baseName(result) : "System"}.cpp`} code={result?.cpp_source} lang="cpp" testId="cpp-source" target={jump?.file === ".cpp" ? jump : null} />
@@ -1069,7 +1102,9 @@ export default function Workspace() {
       )}
       {bundle && <BundleModal ids={bundle.ids} preset={bundle.preset} onClose={() => setBundle(null)} onPresetsChanged={() => setProjRefresh((n) => n + 1)} />}
       {fix && result && (
-        <FixReviewModal fix={fix} system={result} base={baseName(result)} onAccept={acceptFix} onDiscard={() => setFix(null)} onRetry={() => runFix(fix.list)} />
+        <FixReviewModal fix={fix} system={result} base={baseName(result)} onAccept={acceptFix} onRetry={() => runFix(fix.list, fix.thenExport)}
+          onRegenerate={() => fixRegenerate(fix.list)}
+          onDiscard={() => { const { thenExport, status } = fix; setFix(null); if (thenExport && status !== "running") exportZip(thenExport, true); }} />
       )}
       {historyOpen && (
         <HistoryModal versions={versions} current={project?.version} onClose={() => setHistoryOpen(false)}

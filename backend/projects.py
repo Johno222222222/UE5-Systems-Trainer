@@ -52,6 +52,7 @@ def summary(p: dict, role: str) -> dict:
         "project_id": p["project_id"], "name": p["name"], "system_name": (p.get("system") or {}).get("system_name"),
         "owner_name": p["owner_name"], "my_role": role, "version": p["version"],
         "updated_at": p["updated_at"], "updated_by_name": p["updated_by_name"],
+        "auto_fix_export": bool(p.get("auto_fix_export")),
     }
 
 
@@ -236,6 +237,17 @@ async def save_project(project_id: str, body: ProjectUpdate, user: dict = Depend
     return detail(res, role)
 
 
+class SettingsIn(BaseModel):
+    auto_fix_export: bool
+
+
+@router.patch("/projects/{project_id}/settings")
+async def project_settings(project_id: str, body: SettingsIn, user: dict = Depends(current_user)):
+    await load_project(project_id, user, "editor")
+    await db.projects.update_one({"project_id": project_id}, {"$set": {"auto_fix_export": body.auto_fix_export}})
+    return {"auto_fix_export": body.auto_fix_export}
+
+
 @router.put("/projects/{project_id}/ignores")
 async def set_ignores(project_id: str, body: IgnoresIn, user: dict = Depends(current_user)):
     await load_project(project_id, user, "editor")
@@ -247,14 +259,25 @@ async def set_ignores(project_id: str, body: IgnoresIn, user: dict = Depends(cur
 # ---------- Bundle presets (private to their creator) ----------
 @router.get("/bundle-presets")
 async def list_presets(user: dict = Depends(current_user)):
-    rows = await db.bundle_presets.find({"user_id": user["user_id"]}, {"_id": 0, "user_id": 0}).sort("updated_at", -1).to_list(200)
-    return {"presets": rows}
+    mine = await db.bundle_presets.find({"user_id": user["user_id"]}, {"_id": 0, "user_id": 0}).sort("updated_at", -1).to_list(200)
+    # Teammates' presets show up when every project in them is one this user can open
+    member_q = [{"members.user_id": user["user_id"]}]
+    if user.get("email_verified"):
+        member_q.append({"members.email": user["email"]})
+    rows = await db.projects.find({"is_deleted": False, "$or": [{"owner_id": user["user_id"]}, *member_q]}, {"_id": 0, "project_id": 1, "owner_id": 1, "members": 1}).to_list(2000)
+    accessible = [p["project_id"] for p in rows if role_for(p, user)]
+    shared = await db.bundle_presets.find(
+        {"user_id": {"$ne": user["user_id"]}, "project_ids": {"$not": {"$elemMatch": {"$nin": accessible}}}},
+        {"_id": 0, "user_id": 0},
+    ).sort("updated_at", -1).to_list(200)
+    return {"presets": [{**r, "mine": True} for r in mine] + [{**r, "mine": False, "owner_name": r.get("owner_name") or "A teammate"} for r in shared]}
 
 
 @router.post("/bundle-presets")
 async def create_preset(body: PresetIn, user: dict = Depends(current_user)):
     row = {"preset_id": f"pre_{uuid.uuid4().hex[:12]}", "user_id": user["user_id"], "name": body.name.strip(),
-           "plugin_name": body.plugin_name, "project_ids": list(dict.fromkeys(body.project_ids)), "updated_at": now()}
+           "plugin_name": body.plugin_name, "project_ids": list(dict.fromkeys(body.project_ids)), "updated_at": now(),
+           "owner_name": user["name"]}
     await db.bundle_presets.insert_one(row)
     row.pop("_id", None)
     row.pop("user_id", None)
