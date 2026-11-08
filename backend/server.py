@@ -10,6 +10,8 @@ from typing import List, Optional
 
 from dotenv import load_dotenv
 import base64
+import hashlib
+from zoneinfo import ZoneInfo
 
 from emergentintegrations.llm.chat import ImageContent, LlmChat, StreamDone, TextDelta, UserMessage
 from fastapi import APIRouter, Depends, FastAPI, Header, HTTPException
@@ -30,6 +32,26 @@ ALLOWED_MODELS = {
     "gemini": ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.8-flash", "gemini-3.1-pro-preview"],
     "openai": ["gpt-4.1-mini", "gpt-4.1", "gpt-5-mini"],
 }
+# Approximate free-tier requests per day (Google resets at midnight Pacific)
+FREE_DAILY = {"gemini-3.5-flash-lite": 500, "gemini-3.1-flash-lite": 500, "gemini-3.8-flash": 250, "gemini-3.1-pro-preview": 0}
+PACIFIC = ZoneInfo("America/Los_Angeles")
+
+
+def usage_day() -> str:
+    return datetime.now(PACIFIC).strftime("%Y-%m-%d")
+
+
+def key_fingerprint(key: str) -> str:
+    return hashlib.sha256(key.encode()).hexdigest()[:16]
+
+
+async def record_usage(user_id: str, key: str, provider: str, model: str, kind: str) -> None:
+    await db.llm_usage.insert_one({
+        "user_id": user_id, "key_fp": key_fingerprint(key), "provider": provider, "model": model,
+        "kind": kind, "day": usage_day(), "at": datetime.now(timezone.utc).isoformat(),
+    })
+
+
 PAID_MODEL_MSG = "{model} needs a paid API key, and this key is on the free tier. Switch back to Gemini 3.5 Flash-Lite, which works free."
 
 RUNNING_JOBS: set = set()
@@ -51,6 +73,7 @@ INDEXES = {
         IndexModel([("members.invite_token", ASCENDING)], name="invite_token"),
         IndexModel([("public_token", ASCENDING)], name="public_token"),
     ],
+    "llm_usage": [IndexModel([("user_id", ASCENDING), ("key_fp", ASCENDING), ("day", ASCENDING)], name="user_key_day")],
     "project_versions": [IndexModel([("project_id", ASCENDING), ("version", DESCENDING)], name="project_version", unique=True)],
     "files": [IndexModel([("file_id", ASCENDING)], name="file_id", unique=True), IndexModel([("project_id", ASCENDING), ("kind", ASCENDING)], name="project_kind")],
 }
@@ -305,7 +328,7 @@ async def set_job(job_id: str, **fields) -> None:
     await db.jobs.update_one({"job_id": job_id}, {"$set": fields})
 
 
-async def run_job(job_id: str, req: GenerateRequest, refs: list, provider: str, model: str, key: str) -> None:
+async def run_job(job_id: str, req: GenerateRequest, refs: list, provider: str, model: str, key: str, user_id: str) -> None:
     chat = LlmChat(
         api_key=key,
         session_id=f"ue5-{job_id}",
@@ -320,6 +343,7 @@ async def run_job(job_id: str, req: GenerateRequest, refs: list, provider: str, 
             # Free-tier Gemini returns brief 503s under load; retry those twice before giving up.
             for attempt in range(3):
                 try:
+                    await record_usage(user_id, key, provider, model, "synthesis")
                     raw = await chat.send_message(message)
                     break
                 except Exception as exc:
@@ -328,6 +352,7 @@ async def run_job(job_id: str, req: GenerateRequest, refs: list, provider: str, 
                     await set_job(job_id, detail=f"Model busy, retrying ({attempt + 1}/2)…")
                     await asyncio.sleep(4 * (attempt + 1))
         else:
+            await record_usage(user_id, key, provider, model, "synthesis")
             async for ev in chat.stream_message(message):
                 if isinstance(ev, TextDelta):
                     raw += ev.content
@@ -372,7 +397,7 @@ async def generate_system(
         "job_id": job_id, "status": "running", "chars": 0, "user_id": user["user_id"],
         "created_at": datetime.now(timezone.utc).isoformat(),
     })
-    task = asyncio.create_task(run_job(job_id, req, refs, x_llm_provider, x_llm_model, llm_key))
+    task = asyncio.create_task(run_job(job_id, req, refs, x_llm_provider, x_llm_model, llm_key, user["user_id"]))
     RUNNING_JOBS.add(task)
     task.add_done_callback(RUNNING_JOBS.discard)
     return {"job_id": job_id}
@@ -399,7 +424,7 @@ def check_llm_headers(provider, model, key) -> str:
 
 @api_router.post("/ai/test-key")
 async def test_key(
-    _: dict = Depends(auth.current_user),
+    user: dict = Depends(auth.current_user),
     x_llm_provider: str = Header(None),
     x_llm_model: str = Header(None),
     x_llm_key: str = Header(None),
@@ -407,6 +432,7 @@ async def test_key(
     x_llm_provider, x_llm_model, key = resolve_llm(x_llm_provider, x_llm_model, x_llm_key)
     chat = LlmChat(api_key=key, session_id=f"keytest-{uuid.uuid4()}", system_message="Reply with the single word OK.") \
         .with_model(x_llm_provider, x_llm_model).with_params(max_tokens=256)
+    await record_usage(user["user_id"], key, x_llm_provider, x_llm_model, "key_test")
     try:
         await asyncio.wait_for(chat.send_message(UserMessage(text="Say OK")), timeout=30)
     except asyncio.TimeoutError:
@@ -416,6 +442,20 @@ async def test_key(
         code, detail = classify_error(exc, x_llm_model)
         return {"ok": False, "code": code, "message": detail.replace(key, "***")}
     return {"ok": True, "message": f"Key works with {x_llm_model}."}
+
+
+@api_router.get("/usage/today")
+async def usage_today(fp: str, user: dict = Depends(auth.current_user)):
+    day = usage_day()
+    rows = await db.llm_usage.aggregate([
+        {"$match": {"user_id": user["user_id"], "key_fp": fp[:16], "day": day}},
+        {"$group": {"_id": "$model", "count": {"$sum": 1}}},
+    ]).to_list(50)
+    return {
+        "day": day, "resets": "midnight Pacific time",
+        "models": {r["_id"]: {"used": r["count"], "free_limit": FREE_DAILY.get(r["_id"])} for r in rows},
+        "free_limits": FREE_DAILY,
+    }
 
 
 @api_router.get("/generate/{job_id}")

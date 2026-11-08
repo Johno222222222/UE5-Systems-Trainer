@@ -210,6 +210,26 @@ async def list_versions(project_id: str, user: dict = Depends(current_user)):
                           "system_name": (r.get("system") or {}).get("system_name")} for r in rows]}
 
 
+@router.post("/projects/{project_id}/versions/{version}/restore")
+async def restore_version(project_id: str, version: int, user: dict = Depends(current_user)):
+    project, role = await load_project(project_id, user, "editor")
+    row = await db.project_versions.find_one({"project_id": project_id, "version": version}, {"_id": 0})
+    if not row:
+        raise HTTPException(status_code=404, detail="Version not found")
+    res = await db.projects.find_one_and_update(
+        {"project_id": project_id, "version": project["version"]},
+        {"$set": {"system": row["system"], "context": row["context"], "updated_at": now(), "updated_by_name": user["name"]}, "$inc": {"version": 1}},
+        projection={"_id": 0}, return_document=True,
+    )
+    if not res:
+        raise HTTPException(status_code=409, detail="Someone saved this project just now. Reopen it and try again.")
+    try:
+        await snapshot(res)
+    except Exception:
+        pass
+    return detail(res, role)
+
+
 @router.get("/projects/{project_id}/versions/{version}")
 async def get_version(project_id: str, version: int, user: dict = Depends(current_user)):
     await load_project(project_id, user)

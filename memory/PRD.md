@@ -43,6 +43,8 @@ An app to build modular systems from description in Unreal Engine 5.
   - Live check with a real free Gemini key: generate 9s, regenerate applied 5/5 edits, stack merged with shared attributes. Script: /app/tests/live_check.py
   - Security: logout revokes via the refresh token too; Google callback bound to a ?gs= nonce; 72-byte password cap; late save responses can't retarget projects.
 
+- Iteration 7: UE5 .zip export in the workspace and on public links (client-side JSZip): `<Name>/Public/<Name>.h`, `Private/<Name>.cpp` (names taken from the .generated.h include), README.md with drop-in steps (API macro to replace, detected Build.cs modules), SETUP.md with Why notes, parameters and modules, BLUEPRINT_PSEUDOCODE.md with a Why summary, and system.json. Generation counter: `llm_usage` records every LLM request (synthesis attempts including retries, plus key tests) per user and key fingerprint (SHA-256 prefix, never the key) per Pacific day; GET /api/usage/today?fp=; header chip "N / ~500 today" that turns yellow at 70% and red at 90%. Approximate free limits: 3.5/3.1 Flash-Lite 500, 3.8 Flash 250, Pro 0. Restore version: POST /projects/{id}/versions/{n}/restore (editor+, atomic) makes the old version the newest one, so history is never lost; the Compare picker shows a "Restore vN" button.
+
 ## Backlog
 - P1 (from test report): mobile/narrow layout; pagination beyond 500 projects/files; image-only PDF pages sent to the model; stricter import validation; idempotent migration; per-project version history for Compare
 - P1: Responsive layout for narrow/mobile screens (currently desktop IDE layout)
