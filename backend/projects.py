@@ -63,6 +63,13 @@ def detail(p: dict, role: str) -> dict:
     return out
 
 
+async def snapshot(p: dict) -> None:
+    await db.project_versions.insert_one({
+        "project_id": p["project_id"], "version": p["version"], "system": p.get("system"),
+        "context": p.get("context") or {}, "saved_by_name": p["updated_by_name"], "saved_at": p["updated_at"],
+    })
+
+
 async def claim_references(context: dict, user: dict, project_id: str) -> None:
     ids = [r["file_id"] for r in context.get("references", []) if r.get("file_id")]
     if ids:
@@ -133,6 +140,7 @@ async def create(user: dict, name: str, system: dict, context: dict) -> dict:
     }
     await db.projects.insert_one(project)
     project.pop("_id", None)
+    await snapshot(project)
     await claim_references(context, user, project["project_id"])
     return detail(project, "owner")
 
@@ -179,8 +187,28 @@ async def save_project(project_id: str, body: ProjectUpdate, user: dict = Depend
             "message": f"{latest['updated_by_name']} saved a newer version while you were editing.",
             "updated_by_name": latest["updated_by_name"], "updated_at": latest["updated_at"], "version": latest["version"],
         })
+    await snapshot(res)
     await claim_references(body.context, user, project_id)
     return detail(res, role)
+
+
+@router.get("/projects/{project_id}/versions")
+async def list_versions(project_id: str, user: dict = Depends(current_user)):
+    await load_project(project_id, user)
+    rows = await db.project_versions.find(
+        {"project_id": project_id}, {"_id": 0, "version": 1, "saved_by_name": 1, "saved_at": 1, "system.system_name": 1}
+    ).sort("version", -1).to_list(200)
+    return {"versions": [{"version": r["version"], "saved_by_name": r["saved_by_name"], "saved_at": r["saved_at"],
+                          "system_name": (r.get("system") or {}).get("system_name")} for r in rows]}
+
+
+@router.get("/projects/{project_id}/versions/{version}")
+async def get_version(project_id: str, version: int, user: dict = Depends(current_user)):
+    await load_project(project_id, user)
+    row = await db.project_versions.find_one({"project_id": project_id, "version": version}, {"_id": 0})
+    if not row:
+        raise HTTPException(status_code=404, detail="Version not found")
+    return row
 
 
 @router.patch("/projects/{project_id}")

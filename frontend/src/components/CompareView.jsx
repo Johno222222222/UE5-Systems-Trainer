@@ -36,7 +36,7 @@ function inputDiff(before, after) {
 }
 
 
-export default function CompareView({ before, after }) {
+export default function CompareView({ before, after, picker = null }) {
   const [view, setView] = useState("blueprint");
   const rows = useMemo(() => sideBySideDiff(textFor(before, view), textFor(after, view)), [before, after, view]);
   const changed = rows.filter((r) => r.type !== "same").length;
@@ -45,7 +45,8 @@ export default function CompareView({ before, after }) {
     return (
       <div className="h-full flex flex-col items-center justify-center gap-2 text-slate-500 font-mono text-sm" data-testid="compare-empty">
         <GitCompareArrows size={22} className="text-[var(--text-muted)]" />
-        Synthesize twice (e.g. change a dial and regenerate) to compare before and after.
+        {picker ? "Pick a saved version to compare against, or regenerate to compare with the previous synthesis." : "Synthesize twice (e.g. change a dial and regenerate) to compare before and after."}
+        {picker}
       </div>
     );
   }
@@ -55,10 +56,11 @@ export default function CompareView({ before, after }) {
     <div className="h-full flex flex-col min-h-0" data-testid="compare-view">
       <div className="px-5 py-3 border-b border-[var(--border-soft)] flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2 text-[12px] font-sub min-w-0">
-          <span className="chip danger !cursor-default" data-testid="compare-before-name">Before · {before.system_name}</span>
+          <span className="chip danger !cursor-default" data-testid="compare-before-name">Before · {before.version_label || before.system_name}</span>
           <ArrowRight size={13} className="text-[var(--text-muted)]" />
           <span className="chip active !cursor-default" data-testid="compare-after-name">After · {after.system_name}</span>
         </div>
+        {picker}
         <div className="flex-1" />
         <div className="flex gap-1">
           {VIEWS.map(([id, label]) => (

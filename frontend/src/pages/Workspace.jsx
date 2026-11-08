@@ -20,7 +20,7 @@ import ShareModal from "../components/ShareModal";
 import AccountMenu from "../components/AccountMenu";
 import Modal from "../components/Modal";
 import { ReferencesBar, ProjectFiles } from "../components/Files";
-import AiKeyModal, { PROVIDERS, aiHeaders, loadAiKey } from "../components/AiKeyModal";
+import AiKeyModal, { DEFAULT_MODEL, PROVIDERS, aiHeaders, loadAiKey, saveAiKey } from "../components/AiKeyModal";
 import { highlightCpp, highlightBlueprint } from "../lib/highlight";
 
 const LS_KEY = "ue5_architect_library_v1";
@@ -52,7 +52,7 @@ async function streamGenerate(body, onProgress, aiKey, isAlive) {
     }
     onProgress(job.chars || 0);
     if (job.status === "done") return job.result;
-    if (job.status === "error") throw new Error(job.detail);
+    if (job.status === "error") throw Object.assign(new Error(job.detail), { code: job.error_code });
   }
   throw new Error("Generation took longer than 5 minutes. Please try again.");
 }
@@ -164,6 +164,9 @@ export default function Workspace() {
   const [aiKey, setAiKey] = useState(loadAiKey);
   const [keyModal, setKeyModal] = useState(null); // null | "edit" | "required"
   const [saving, setSaving] = useState(false);
+  const [versions, setVersions] = useState([]);
+  const [compareBase, setCompareBase] = useState("previous"); // "previous" | version number
+  const [baseSystem, setBaseSystem] = useState(null);
   const projectRef = useRef(null);
   projectRef.current = project;
   const aliveRef = useRef(true);
@@ -216,7 +219,7 @@ export default function Workspace() {
     } catch (e) {
       if (e.message === "cancelled") return false;
       const detail = e.message || "Unknown error";
-      setError(detail);
+      setError(e.code === "paid_model_required" ? { text: detail, paid: true } : detail);
       toast.error("Generation failed", { description: detail, duration: 10000 });
       return false;
     } finally {
@@ -379,6 +382,36 @@ export default function Workspace() {
     await navigator.clipboard.writeText(JSON.stringify(exportData(), null, 2));
     toast.success("Project JSON copied");
   };
+
+  useEffect(() => {
+    if (tab !== "compare" || !project) { setVersions([]); return; }
+    api.get(`/projects/${project.project_id}/versions`).then((r) => setVersions(r.data.versions)).catch(() => setVersions([]));
+  }, [tab, project?.project_id, project?.version]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => { setCompareBase("previous"); setBaseSystem(null); }, [project?.project_id]);
+
+  const pickBase = async (value) => {
+    if (value === "previous") { setCompareBase("previous"); setBaseSystem(null); return; }
+    const v = Number(value);
+    try {
+      const { data } = await api.get(`/projects/${project.project_id}/versions/${v}`);
+      setCompareBase(v);
+      setBaseSystem({ ...data.system, context: data.context, version_label: `v${v} · ${data.saved_by_name}` });
+    } catch (e) { toast.error(errorText(e)); }
+  };
+
+  const compareBefore = compareBase === "previous" ? previousResult : baseSystem;
+  const versionPicker = (versions.length > 0 || previousResult) ? (
+    <select value={String(compareBase)} onChange={(e) => pickBase(e.target.value)} aria-label="Compare against"
+      className="bg-[var(--bg-main)] border border-[var(--border)] rounded-md px-2 py-1 text-[11px] font-mono text-[var(--text-primary)] outline-none focus:border-[var(--unreal-orange)]" data-testid="compare-base-select">
+      <option value="previous" disabled={!previousResult}>Previous synthesis{previousResult ? "" : " (none yet)"}</option>
+      {versions.map((v) => (
+        <option key={v.version} value={v.version}>
+          Saved v{v.version}{v.version === project?.version ? " (latest)" : ""} · {v.saved_by_name} · {new Date(v.saved_at).toLocaleString()}
+        </option>
+      ))}
+    </select>
+  ) : null;
 
   // Dynamic tunable params from generated output
   const [tunable, setTunable] = useState({});
@@ -583,7 +616,7 @@ export default function Workspace() {
                     <div className="h-full bg-[var(--unreal-orange)] transition-[width] duration-300" style={{ width: `${Math.min(97, (progress / 14000) * 100)}%` }} />
                   </div>
                   <div className="mt-2 text-[11px] font-mono text-[var(--text-muted)]" data-testid="generation-progress">
-                    {progress ? `${progress.toLocaleString()} chars streamed…` : `${aiKey?.model || "The model"} is laying out blueprint nodes + C++ scaffolding.`}
+                    {progress ? `${progress.toLocaleString()} chars streamed…` : `${aiKey?.model || "The model"} is laying out blueprint nodes + C++ scaffolding. This usually takes 20–90 seconds.`}
                   </div>
                 </div>
               </div>
@@ -597,7 +630,13 @@ export default function Workspace() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-display uppercase tracking-wider text-[13px] text-[var(--accent-red)]">Synthesis Failed</div>
-                    <div className="text-[12px] font-mono text-[var(--text-secondary)] mt-1 leading-relaxed">{error}</div>
+                    <div className="text-[12px] font-mono text-[var(--text-secondary)] mt-1 leading-relaxed">{error.text || error}</div>
+                    {error.paid && (
+                      <button className="ue-btn !py-1 !px-2 !text-[11px] mt-2" data-testid="banner-switch-free-model"
+                        onClick={() => { const k = { ...aiKey, provider: "gemini", model: DEFAULT_MODEL }; saveAiKey(k); setAiKey(k); setError(null); toast.success("Switched to Gemini 3.5 Flash-Lite"); }}>
+                        Switch to Gemini 3.5 Flash-Lite
+                      </button>
+                    )}
                   </div>
                   <button onClick={() => setError(null)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm" data-testid="dismiss-error">×</button>
                 </div>
@@ -616,7 +655,7 @@ export default function Workspace() {
               </div>
             )}
             {tab === "setup" && <SetupGuide steps={result?.setup_guide || []} />}
-            {tab === "compare" && <CompareView before={previousResult} after={result} />}
+            {tab === "compare" && <CompareView before={compareBefore} after={result} picker={versionPicker} />}
             {tab === "files" && <ProjectFiles project={project} />}
           </div>
 

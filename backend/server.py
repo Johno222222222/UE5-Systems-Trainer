@@ -27,9 +27,10 @@ load_dotenv(ROOT_DIR / ".env")
 
 # Synthesis runs on the user's own key (sent per request, never stored)
 ALLOWED_MODELS = {
-    "gemini": ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.5-pro"],
+    "gemini": ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.8-flash", "gemini-3.1-pro-preview"],
     "openai": ["gpt-4.1-mini", "gpt-4.1", "gpt-5-mini"],
 }
+PAID_MODEL_MSG = "{model} needs a paid API key, and this key is on the free tier. Switch back to Gemini 3.5 Flash-Lite, which works free."
 
 RUNNING_JOBS: set = set()
 
@@ -50,6 +51,7 @@ INDEXES = {
         IndexModel([("members.invite_token", ASCENDING)], name="invite_token"),
         IndexModel([("public_token", ASCENDING)], name="public_token"),
     ],
+    "project_versions": [IndexModel([("project_id", ASCENDING), ("version", DESCENDING)], name="project_version", unique=True)],
     "files": [IndexModel([("file_id", ASCENDING)], name="file_id", unique=True), IndexModel([("project_id", ASCENDING), ("kind", ASCENDING)], name="project_kind")],
 }
 
@@ -166,7 +168,7 @@ Respond with ONLY a single raw JSON object (no markdown, no code fences, no pros
   "summary": "1-2 sentence description of what this system does",
   "tunable_parameters": [{"key":"max_health","label":"Max Health","value":100,"min":1,"max":1000,"step":1,"unit":"HP"}],
   "modules": [{"name":"StaminaDrain","included":true,"description":"short desc"}],
-  "blueprint_pseudocode": "Event BeginPlay\\n  -> Set Health = MaxHealth\\n  WHY: Health is initialised on BeginPlay so designer-set MaxHealth defaults apply per instance\\n  -> Bind OnTakeDamage -> HandleDamage",
+  "blueprint_pseudocode": "Event BeginPlay\\n  -> Set Health = MaxHealth\\n  WHY: <reason for this specific decision>\\n  -> Bind OnTakeDamage -> HandleDamage",
   "cpp_header": "// Name.h — compilable UE5 header with UCLASS, UPROPERTY, UFUNCTION",
   "cpp_source": "// Name.cpp — matching implementation",
   "setup_guide": [{"step":1,"title":"Create Blueprint","detail":"short detail","why":"short reason this step/approach was chosen"}],
@@ -182,7 +184,9 @@ Rules:
 - 4-6 setup_guide steps (keep detail <= 140 chars).
 - 3-5 tunable_parameters with sensible min/max/step/unit.
 - 3-5 modules. Include any user-added names (included:true) and any user-removed names (included:false).
-- C++: use #include "CoreMinimal.h", GENERATED_BODY(), UCLASS(), UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="X"), UFUNCTION(BlueprintCallable). Keep each file ~40-80 lines. Add UPROPERTY(Replicated) + GetLifetimeReplicatedProps ONLY if network_replicated is true.
+- Never copy example text from this schema (e.g. the sample WHY line); every WHY must explain a decision specific to this system.
+- system_name is human-readable Title Case with spaces (e.g. "Health And Damage Component").
+- C++: use #include "CoreMinimal.h", GENERATED_BODY(), UCLASS(), UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="X"), UFUNCTION(BlueprintCallable). Each file must be 50-120 real lines (not counting blank lines): declare every tunable parameter as a UPROPERTY, every module's functions, delegates and events, and implement them fully in the .cpp. Add UPROPERTY(Replicated) + GetLifetimeReplicatedProps ONLY if network_replicated is true.
 - LEARNING ANNOTATIONS: in blueprint_pseudocode, after 3-5 key decisions add an indented line starting with "WHY:" (e.g. "WHY: Replicated because state must match across all clients", "WHY: Data Asset used so designers can tweak without recompiling"). Every setup_guide step gets a "why" (<= 110 chars).
 - If PROJECT CONTEXT is given, every design decision must fit it.
 - If a PREVIOUS SYSTEM and REQUESTED CHANGES are given: this is a revision. Keep everything from the previous system that is not affected, apply EVERY requested change exactly (parameter values, module removals/additions, dial shifts, designer notes), and list one applied_changes entry per requested change in the same order. Otherwise applied_changes is [].
@@ -271,6 +275,15 @@ User-tuned parameter values (keep these keys and use these exact values in code 
 Generate the full modular UE5 system now. Respond with raw JSON only."""
 
 
+def classify_error(exc: Exception, model: str = "") -> tuple[str, str]:
+    low = str(exc).lower()
+    if ("free_tier" in low and "limit: 0" in low) or "insufficient_quota" in low:
+        return "paid_model_required", PAID_MODEL_MSG.format(model=model or "This model")
+    if "serviceunavailable" in low or "high demand" in low or "overloaded" in low or '"code": 503' in low:
+        return "busy", "That model is overloaded right now. Try again in a minute, or switch to Gemini 3.5 Flash-Lite."
+    return "error", friendly_error(exc)
+
+
 def friendly_error(exc: Exception) -> str:
     msg = str(exc)
     low = msg.lower()
@@ -296,17 +309,32 @@ async def run_job(job_id: str, req: GenerateRequest, refs: list, provider: str, 
     raw, last_report = "", 0
     try:
         images = [ImageContent(base64.b64encode(r["image_bytes"]).decode()) for r in refs if r.get("image_bytes")]
-        async for ev in chat.stream_message(UserMessage(text=build_user_text(req, refs), file_contents=images)):
-            if isinstance(ev, TextDelta):
-                raw += ev.content
-                if len(raw) - last_report > 400:
-                    last_report = len(raw)
-                    await set_job(job_id, chars=len(raw))
-            elif isinstance(ev, StreamDone):
-                break
+        message = UserMessage(text=build_user_text(req, refs), file_contents=images)
+        if provider == "gemini":
+            # litellm can't parse newer Gemini stream chunks, so ask for the whole answer at once.
+            # Free-tier Gemini returns brief 503s under load; retry those twice before giving up.
+            for attempt in range(3):
+                try:
+                    raw = await chat.send_message(message)
+                    break
+                except Exception as exc:
+                    if attempt == 2 or classify_error(exc, model)[0] != "busy":
+                        raise
+                    await set_job(job_id, detail=f"Model busy, retrying ({attempt + 1}/2)…")
+                    await asyncio.sleep(4 * (attempt + 1))
+        else:
+            async for ev in chat.stream_message(message):
+                if isinstance(ev, TextDelta):
+                    raw += ev.content
+                    if len(raw) - last_report > 400:
+                        last_report = len(raw)
+                        await set_job(job_id, chars=len(raw))
+                elif isinstance(ev, StreamDone):
+                    break
     except Exception as exc:
         logging.error("LLM stream failed: %s", str(exc).replace(key, "***")[:500])
-        await set_job(job_id, status="error", detail=friendly_error(exc).replace(key, "***"))
+        code, detail = classify_error(exc, model)
+        await set_job(job_id, status="error", error_code=code, detail=detail.replace(key, "***"))
         return
     try:
         data = extract_json(raw)
@@ -329,22 +357,48 @@ async def generate_system(
     x_llm_model: str = Header(None),
     x_llm_key: str = Header(None),
 ):
-    if not x_llm_key or not x_llm_key.strip():
-        raise HTTPException(status_code=400, detail="Add your Gemini or OpenAI API key in AI Key settings before synthesizing.")
-    if x_llm_key.startswith("sk-emergent-"):
-        raise HTTPException(status_code=400, detail="Use your own Gemini or OpenAI key, not an Emergent key.")
-    if x_llm_model not in ALLOWED_MODELS.get(x_llm_provider or "", []):
-        raise HTTPException(status_code=400, detail="Pick a supported provider and model in AI Key settings.")
+    llm_key = check_llm_headers(x_llm_provider, x_llm_model, x_llm_key)
     refs = await projects.load_references(req.reference_file_ids, user)
     job_id = str(uuid.uuid4())
     await db.jobs.insert_one({
         "job_id": job_id, "status": "running", "chars": 0, "user_id": user["user_id"],
         "created_at": datetime.now(timezone.utc).isoformat(),
     })
-    task = asyncio.create_task(run_job(job_id, req, refs, x_llm_provider, x_llm_model, x_llm_key.strip()))
+    task = asyncio.create_task(run_job(job_id, req, refs, x_llm_provider, x_llm_model, llm_key))
     RUNNING_JOBS.add(task)
     task.add_done_callback(RUNNING_JOBS.discard)
     return {"job_id": job_id}
+
+
+def check_llm_headers(provider, model, key) -> str:
+    if not key or not key.strip():
+        raise HTTPException(status_code=400, detail="Add your Gemini or OpenAI API key in AI Key settings before synthesizing.")
+    if key.startswith("sk-emergent-"):
+        raise HTTPException(status_code=400, detail="Use your own Gemini or OpenAI key, not an Emergent key.")
+    if model not in ALLOWED_MODELS.get(provider or "", []):
+        raise HTTPException(status_code=400, detail="Pick a supported provider and model in AI Key settings.")
+    return key.strip()
+
+
+@api_router.post("/ai/test-key")
+async def test_key(
+    _: dict = Depends(auth.current_user),
+    x_llm_provider: str = Header(None),
+    x_llm_model: str = Header(None),
+    x_llm_key: str = Header(None),
+):
+    key = check_llm_headers(x_llm_provider, x_llm_model, x_llm_key)
+    chat = LlmChat(api_key=key, session_id=f"keytest-{uuid.uuid4()}", system_message="Reply with the single word OK.") \
+        .with_model(x_llm_provider, x_llm_model).with_params(max_tokens=256)
+    try:
+        await asyncio.wait_for(chat.send_message(UserMessage(text="Say OK")), timeout=30)
+    except asyncio.TimeoutError:
+        return {"ok": False, "code": "busy", "message": "The model didn't answer within 30 seconds. It may be overloaded; try Gemini 3.5 Flash-Lite."}
+    except Exception as exc:
+        logging.error("Key test failed: %s", str(exc).replace(key, "***")[:300])
+        code, detail = classify_error(exc, x_llm_model)
+        return {"ok": False, "code": code, "message": detail.replace(key, "***")}
+    return {"ok": True, "message": f"Key works with {x_llm_model}."}
 
 
 @api_router.get("/generate/{job_id}")
