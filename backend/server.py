@@ -9,33 +9,61 @@ from pathlib import Path
 from typing import List, Optional
 
 from dotenv import load_dotenv
-from emergentintegrations.llm.chat import LlmChat, StreamDone, TextDelta, UserMessage
-from fastapi import APIRouter, FastAPI, HTTPException
-from motor.motor_asyncio import AsyncIOMotorClient
-from pymongo import ASCENDING, IndexModel
+import base64
+
+from emergentintegrations.llm.chat import ImageContent, LlmChat, StreamDone, TextDelta, UserMessage
+from fastapi import APIRouter, Depends, FastAPI, HTTPException
+from pymongo import ASCENDING, DESCENDING, IndexModel
+
+import auth
+import projects
+from core import EMERGENT_LLM_KEY, client, db
+from storage import init_storage
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.middleware.cors import CORSMiddleware
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / ".env")
 
-EMERGENT_LLM_KEY = os.environ["EMERGENT_LLM_KEY"]
 MODEL_PROVIDER = "anthropic"
 MODEL_NAME = "claude-sonnet-4-5-20250929"
 
-client = AsyncIOMotorClient(os.environ["MONGO_URL"])
-db = client[os.environ["DB_NAME"]]
 RUNNING_JOBS: set = set()
 
 app = FastAPI()
 
 
+INDEXES = {
+    "jobs": [IndexModel([("job_id", ASCENDING)], name="job_id", unique=True)],
+    "users": [IndexModel([("email", ASCENDING)], name="email", unique=True), IndexModel([("user_id", ASCENDING)], name="user_id", unique=True)],
+    "user_sessions": [IndexModel([("session_token", ASCENDING)], name="session_token")],
+    "login_attempts": [IndexModel([("identifier", ASCENDING)], name="identifier")],
+    "password_reset_tokens": [IndexModel([("token", ASCENDING)], name="token"), IndexModel([("expires_at", ASCENDING)], name="ttl", expireAfterSeconds=0)],
+    "projects": [
+        IndexModel([("project_id", ASCENDING)], name="project_id", unique=True),
+        IndexModel([("owner_id", ASCENDING), ("updated_at", DESCENDING)], name="owner_updated"),
+        IndexModel([("members.user_id", ASCENDING)], name="member_user"),
+        IndexModel([("members.email", ASCENDING)], name="member_email"),
+        IndexModel([("members.invite_token", ASCENDING)], name="invite_token"),
+        IndexModel([("public_token", ASCENDING)], name="public_token"),
+    ],
+    "files": [IndexModel([("file_id", ASCENDING)], name="file_id", unique=True), IndexModel([("project_id", ASCENDING), ("kind", ASCENDING)], name="project_kind")],
+}
+
+
 @app.on_event("startup")
-async def ensure_indexes():
-    await db.jobs.create_indexes([
-        IndexModel([("job_id", ASCENDING)], name="job_id", unique=True),
-        IndexModel([("created_at", ASCENDING)], name="created_at"),
-    ])
+async def startup():
+    for coll, models in INDEXES.items():
+        for m in models:
+            try:
+                await db[coll].create_indexes([m])
+            except Exception as exc:
+                logging.error("index %s.%s: %s", coll, m.document["name"], exc)
+    await auth.seed_admin()
+    try:
+        await asyncio.to_thread(init_storage)
+    except Exception as exc:
+        logging.error("Storage init failed: %s", exc)
 
 
 @app.on_event("shutdown")
@@ -64,6 +92,7 @@ class GenerateRequest(BaseModel):
     change_requests: List[str] = Field(default_factory=list, max_length=40)
     previous_system: Optional[dict] = None
     stack_systems: List[dict] = Field(default_factory=list, max_length=4)
+    reference_file_ids: List[str] = Field(default_factory=list, max_length=5)
 
 
 class NodeGraphNode(BaseModel):
@@ -193,8 +222,14 @@ def compact_system(sys: dict, header_chars: int) -> str:
     return json.dumps(keep, indent=1)
 
 
-def build_user_text(req: "GenerateRequest") -> str:
+def build_user_text(req: "GenerateRequest", refs: list) -> str:
     sections = []
+    if refs:
+        parts = []
+        for r in refs:
+            body = "(image attached below)" if r.get("image_bytes") else r.get("text") or ""
+            parts.append(f"--- {r['filename']} ---\n{body}")
+        sections.append("REFERENCE FILES (use as source material: extend existing code, match screenshots and specs):\n" + "\n\n".join(parts))
     if req.project_context.strip():
         sections.append(f"PROJECT CONTEXT (steer every decision by this): {req.project_context.strip()}")
     if req.stack_systems:
@@ -239,7 +274,7 @@ async def set_job(job_id: str, **fields) -> None:
     await db.jobs.update_one({"job_id": job_id}, {"$set": fields})
 
 
-async def run_job(job_id: str, req: GenerateRequest) -> None:
+async def run_job(job_id: str, req: GenerateRequest, refs: list) -> None:
     chat = LlmChat(
         api_key=EMERGENT_LLM_KEY,
         session_id=f"ue5-{job_id}",
@@ -247,7 +282,8 @@ async def run_job(job_id: str, req: GenerateRequest) -> None:
     ).with_model(MODEL_PROVIDER, MODEL_NAME).with_params(max_tokens=12000 if req.stack_systems else 8000)
     raw, last_report = "", 0
     try:
-        async for ev in chat.stream_message(UserMessage(text=build_user_text(req))):
+        images = [ImageContent(base64.b64encode(r["image_bytes"]).decode()) for r in refs if r.get("image_bytes")]
+        async for ev in chat.stream_message(UserMessage(text=build_user_text(req, refs), file_contents=images)):
             if isinstance(ev, TextDelta):
                 raw += ev.content
                 if len(raw) - last_report > 400:
@@ -273,21 +309,22 @@ async def run_job(job_id: str, req: GenerateRequest) -> None:
 
 
 @api_router.post("/generate")
-async def generate_system(req: GenerateRequest):
+async def generate_system(req: GenerateRequest, user: dict = Depends(auth.current_user)):
+    refs = await projects.load_references(req.reference_file_ids, user)
     job_id = str(uuid.uuid4())
     await db.jobs.insert_one({
-        "job_id": job_id, "status": "running", "chars": 0,
+        "job_id": job_id, "status": "running", "chars": 0, "user_id": user["user_id"],
         "created_at": datetime.now(timezone.utc).isoformat(),
     })
-    task = asyncio.create_task(run_job(job_id, req))
+    task = asyncio.create_task(run_job(job_id, req, refs))
     RUNNING_JOBS.add(task)
     task.add_done_callback(RUNNING_JOBS.discard)
     return {"job_id": job_id}
 
 
 @api_router.get("/generate/{job_id}")
-async def get_job(job_id: str):
-    job = await db.jobs.find_one({"job_id": job_id}, {"_id": 0})
+async def get_job(job_id: str, user: dict = Depends(auth.current_user)):
+    job = await db.jobs.find_one({"job_id": job_id, "user_id": user["user_id"]}, {"_id": 0, "user_id": 0})
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
     return job
@@ -376,11 +413,13 @@ async def list_templates():
 
 
 app.include_router(api_router)
+app.include_router(auth.router)
+app.include_router(projects.router)
 
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get("CORS_ORIGINS", "*").split(","),
+    allow_origins=os.environ["CORS_ORIGINS"].split(","),
     allow_methods=["*"],
     allow_headers=["*"],
 )
