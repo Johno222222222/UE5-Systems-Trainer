@@ -142,6 +142,7 @@ export default function App() {
   const [newExtra, setNewExtra] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [tab, setTab] = useState("graph");
   const { items: library, setItems: setLibrary } = useLibrary();
 
@@ -161,6 +162,7 @@ export default function App() {
       return;
     }
     setLoading(true);
+    setError(null);
     try {
       const removed = result ? (result.modules || []).filter((m) => !m.included).map((m) => m.name) : [];
       const { data } = await axios.post(`${API}/generate`, {
@@ -179,7 +181,12 @@ export default function App() {
       toast.success(`${data.system_name} generated`, { description: `${data.node_graph_nodes?.length || 0} nodes · ${data.setup_guide?.length || 0} steps` });
     } catch (e) {
       console.error(e);
-      toast.error("Generation failed", { description: e?.response?.data?.detail || e.message });
+      const detail = e?.response?.data?.detail
+        || (e?.response?.status === 502 ? "Gateway timeout — the model took too long. Try a shorter prompt or lower Complexity."
+          : e?.code === "ECONNABORTED" ? "Request timed out after 3 minutes."
+          : e.message || "Unknown error");
+      setError(detail);
+      toast.error("Generation failed", { description: detail, duration: 10000 });
     } finally {
       setLoading(false);
     }
@@ -390,6 +397,20 @@ export default function App() {
               </div>
             )}
 
+            {error && !loading && (
+              <div className="absolute left-5 right-5 top-5 z-20 panel p-4 border-[var(--accent-red)] bg-[rgba(239,68,68,0.08)]" data-testid="generation-error">
+                <div className="flex items-start gap-3">
+                  <div className="h-7 w-7 shrink-0 rounded-md border border-[var(--accent-red)] bg-[rgba(239,68,68,0.15)] flex items-center justify-center">
+                    <Terminal size={14} className="text-[var(--accent-red)]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-display uppercase tracking-wider text-[13px] text-[var(--accent-red)]">Synthesis Failed</div>
+                    <div className="text-[12px] font-mono text-[var(--text-secondary)] mt-1 leading-relaxed">{error}</div>
+                  </div>
+                  <button onClick={() => setError(null)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm" data-testid="dismiss-error">×</button>
+                </div>
+              </div>
+            )}
             {tab === "graph" && <NodeGraph nodes={result?.node_graph_nodes || []} edges={result?.node_graph_edges || []} />}
             {tab === "blueprint" && (
               <div className="p-5 h-full overflow-auto">

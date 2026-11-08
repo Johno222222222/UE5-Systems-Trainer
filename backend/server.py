@@ -73,45 +73,31 @@ class SystemOutput(BaseModel):
 
 
 # ---------- Prompt ----------
-SYSTEM_PROMPT = """You are an elite Unreal Engine 5 systems architect. Given a user's description of a gameplay/tool system, you emit a precise, production-ready modular architecture for UE 5.4+.
+SYSTEM_PROMPT = """You are an elite Unreal Engine 5 systems architect. Given a user's system description, you emit a compact, production-ready modular architecture for UE 5.4+.
 
-You MUST respond with ONLY a single valid JSON object (no markdown, no prose, no code fences) matching this exact schema:
+Respond with ONLY a single raw JSON object (no markdown, no code fences, no prose) matching this schema:
 
 {
   "system_name": "Short Title Case Name",
-  "summary": "2-3 sentence plain-English description of what this system does and how it is wired",
-  "tunable_parameters": [
-    {"key": "max_health", "label": "Max Health", "value": 100, "min": 1, "max": 1000, "step": 1, "unit": "HP"}
-  ],
-  "modules": [
-    {"name": "StaminaDrain", "included": true, "description": "Drains stamina on attack"}
-  ],
-  "blueprint_pseudocode": "Multi-line Blueprint node pseudocode. Use indentation. Format:\\nEvent BeginPlay\\n  -> Set Health = MaxHealth\\n  -> Bind Delegate OnTakeDamage -> HandleDamage",
-  "cpp_header": "// FullName.h  — complete, compilable UE5 header with UCLASS, UPROPERTY, UFUNCTION macros",
-  "cpp_source": "// FullName.cpp — complete implementation that pairs with the header",
-  "setup_guide": [
-    {"step": 1, "title": "Create Blueprint Class", "detail": "Content Browser > Right Click > Blueprint Class > ActorComponent. Name it BP_SystemName."},
-    {"step": 2, "title": "...", "detail": "..."}
-  ],
-  "node_graph_nodes": [
-    {"id": "n1", "label": "Event BeginPlay", "node_type": "event", "x": 80, "y": 120, "inputs": [], "outputs": ["exec"]}
-  ],
-  "node_graph_edges": [
-    {"from_node": "n1", "to_node": "n2", "kind": "exec"}
-  ],
-  "network_notes": "Short notes on replication, RPCs, authority checks."
+  "summary": "1-2 sentence description of what this system does",
+  "tunable_parameters": [{"key":"max_health","label":"Max Health","value":100,"min":1,"max":1000,"step":1,"unit":"HP"}],
+  "modules": [{"name":"StaminaDrain","included":true,"description":"short desc"}],
+  "blueprint_pseudocode": "Event BeginPlay\\n  -> Set Health = MaxHealth\\n  -> Bind OnTakeDamage -> HandleDamage",
+  "cpp_header": "// Name.h — compilable UE5 header with UCLASS, UPROPERTY, UFUNCTION",
+  "cpp_source": "// Name.cpp — matching implementation",
+  "setup_guide": [{"step":1,"title":"Create Blueprint","detail":"short detail"}],
+  "node_graph_nodes": [{"id":"n1","label":"Event BeginPlay","node_type":"event","x":80,"y":120,"inputs":[],"outputs":["exec"]}],
+  "node_graph_edges": [{"from_node":"n1","to_node":"n2","kind":"exec"}],
+  "network_notes": "Short replication notes."
 }
 
 Rules:
-- node_type must be one of: event, function, variable, flow, pure
-- Lay out nodes on a logical left-to-right grid: x in [40, 1400], y in [60, 700]. Space nodes ~220px horizontally and ~120px vertically. Keep 6-14 nodes total.
-- edge.kind is "exec" for execution wires, "data" for variable/data wires.
-- Produce 4-10 setup_guide steps.
-- Produce 3-8 tunable_parameters that genuinely drive the system; use integer or float values.
-- Produce 3-8 modules reflecting the user's extra_modules / removed_modules choices (mark removed ones included:false but still list them for easy re-enable).
-- Use Unreal macros correctly: UCLASS(), UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="SystemName"), UFUNCTION(BlueprintCallable). Include replication (UPROPERTY(Replicated)) only if network_replicated is true.
-- Keep code idiomatic and compilable: forward declarations, GENERATED_BODY(), proper #include "CoreMinimal.h".
-- NEVER wrap the JSON in ```json fences. Respond with raw JSON starting with { and ending with }."""
+- node_type ∈ {event, function, variable, flow, pure}. Produce 6-9 nodes laid out left-to-right (x ∈ [40,1200], y ∈ [60,560], ~220px x-spacing, ~120px y-spacing). 4-7 edges. edge.kind = "exec" or "data".
+- 4-6 setup_guide steps (keep detail <= 140 chars).
+- 3-5 tunable_parameters with sensible min/max/step/unit.
+- 3-5 modules. Include any user-added names (included:true) and any user-removed names (included:false).
+- C++: use #include "CoreMinimal.h", GENERATED_BODY(), UCLASS(), UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="X"), UFUNCTION(BlueprintCallable). Keep each file ~40-80 lines. Add UPROPERTY(Replicated) + GetLifetimeReplicatedProps ONLY if network_replicated is true.
+- Output raw JSON only, starting with { and ending with }."""
 
 
 def extract_json(raw: str) -> dict:
@@ -161,12 +147,18 @@ Generate the full modular UE5 system now. Respond with raw JSON only."""
         api_key=EMERGENT_LLM_KEY,
         session_id=session_id,
         system_message=SYSTEM_PROMPT,
-    ).with_model(MODEL_PROVIDER, MODEL_NAME).with_params(max_tokens=8000)
+    ).with_model(MODEL_PROVIDER, MODEL_NAME).with_params(max_tokens=4000)
 
     try:
         raw = await chat.send_message(UserMessage(text=user_text))
     except Exception as exc:
         logging.exception("LLM call failed")
+        msg = str(exc)
+        if "Budget has been exceeded" in msg or "RateLimitError" in msg:
+            raise HTTPException(
+                status_code=402,
+                detail="Emergent Universal Key budget exceeded. Add balance: Profile → Manage plan → Universal Key → Add Balance.",
+            ) from exc
         raise HTTPException(status_code=502, detail=f"LLM error: {exc}") from exc
 
     try:
