@@ -14,7 +14,6 @@ export default function BundleModal({ ids, preset, onClose, onPresetsChanged }) 
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [skipped, setSkipped] = useState([]);
-  const [loadedIds, setLoadedIds] = useState([]);
 
   useEffect(() => {
     // One missing or no-longer-shared project shouldn't block the rest
@@ -26,7 +25,6 @@ export default function BundleModal({ ids, preset, onClose, onPresetsChanged }) 
           ...list.filter((p) => !p.missing && !valid.includes(p)).map((p) => `${p.name} (no C++ yet)`),
           ...(missing ? [`${missing} project${missing === 1 ? "" : "s"} you can no longer open`] : []),
         ]);
-        setLoadedIds(valid.map((p) => p.project_id));
         setItems(valid.map((p) => ({ name: p.name, system: p.system, context: { ...(p.context || {}), references: undefined } })));
         setName(preset?.plugin_name || `${[...new Set(valid.map((p) => (p.system.system_name || "").split(/\s+/)[0].replace(/[^A-Za-z0-9]/g, "")))].join("")}Pack`.slice(0, 40));
       });
@@ -36,7 +34,7 @@ export default function BundleModal({ ids, preset, onClose, onPresetsChanged }) 
     const label = window.prompt("Preset name (e.g. Survival Kit)", preset?.name || name)?.trim();
     if (!label) return;
     try {
-      await api.post("/bundle-presets", { name: label.slice(0, 60), plugin_name: name, project_ids: loadedIds });
+      await api.post("/bundle-presets", { name: label.slice(0, 60), plugin_name: name, project_ids: [...new Set(ids)] });
       toast.success(`Saved preset "${label}"`, { description: "Open it any time from Bundle presets in the Projects panel." });
       onPresetsChanged();
     } catch (e) { toast.error("Couldn't save the preset", { description: errorText(e) }); }

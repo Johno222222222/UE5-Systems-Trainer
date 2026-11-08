@@ -108,7 +108,7 @@ export function checkSystem(system) {
   const defined = new Set(defs.map((m) => m[2]));
   const definedIn = new Set(defs.map((m) => `${m[1]}::${m[2]}`));
   const classDecls = [...h.matchAll(/\b(?:class|struct)\s+(?:\w+_API\s+)?([UAFIE][A-Z]\w*)\s*(?:final\s*)?[:{]/g)];
-  const classAt = (idx) => classDecls.filter((d) => d.index < idx).pop()?.[1];
+  const classAt = (idx) => classDecls.filter((d) => d.index < idx && idx < d.index + bodyAt(h, d.index).length + (h.indexOf("{", d.index) - d.index)).pop()?.[1];
   const has = (idx, fn) => (classAt(idx) ? definedIn.has(`${classAt(idx)}::${fn}`) : defined.has(fn));
 
   defs.forEach((m) => {
@@ -167,7 +167,7 @@ const fileText = (system, file) => (file === ".cpp" ? system?.cpp_source : syste
 export function locateIssue(issue, system) {
   const file = issue.file === ".cpp" ? ".cpp" : ".h";
   const lines = fileText(system, file).split("\n");
-  if (issue.line && issue.line <= lines.length) return { file, line: issue.line };
+  if (issue.line > 0 && issue.line <= lines.length) return { file, line: issue.line };
   const tokens = [...(issue.message || "").matchAll(/\b(?:[UAFIE][A-Z]\w*::~?\w+|[A-Za-z_]\w*\.h|[A-Z]\w*_\w+|[A-Z][a-z0-9]+[A-Z]\w*|[A-Z]{3,}\w*)\b/g)]
     .map((m) => m[0]).sort((a, b) => b.includes("::") - a.includes("::"));
   for (const t of tokens) {
@@ -178,11 +178,13 @@ export function locateIssue(issue, system) {
   return { file, line: 1 };
 }
 
+const hash = (s) => { let x = 5381; for (let i = 0; i < s.length; i += 1) x = ((x * 33) ^ s.charCodeAt(i)) >>> 0; return x.toString(36); };
+
 // Stable across regenerations unless the issue's own line text changes
 export function issueKey(issue, system) {
   const { file, line } = locateIssue(issue, system);
   const text = issue.line || line > 1 ? (fileText(system, file).split("\n")[line - 1] || "").trim() : "";
-  return `${file}|${issue.message}|${text}`.slice(0, 300);
+  return `${file}|${hash(`${issue.message}|${text}`)}|${issue.message.slice(0, 200)}`;
 }
 
 export const issuesToText = (issues) => issues.map((i) => `${issueText(i)}${i.fix ? `\n    Fix: ${i.fix}` : ""}`).join("\n");

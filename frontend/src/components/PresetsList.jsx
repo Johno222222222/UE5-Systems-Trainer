@@ -5,8 +5,9 @@ import { api, errorText } from "../lib/api";
 
 export default function PresetsList({ refreshKey, onOpen }) {
   const [presets, setPresets] = useState([]);
+  const [failed, setFailed] = useState(false);
   const load = useCallback(() => {
-    api.get("/bundle-presets").then((r) => setPresets(r.data.presets)).catch(() => setPresets([]));
+    api.get("/bundle-presets").then((r) => { setPresets(r.data.presets); setFailed(false); }).catch(() => setFailed(true));
   }, []);
   useEffect(() => { load(); }, [load, refreshKey]);
 
@@ -22,6 +23,7 @@ export default function PresetsList({ refreshKey, onOpen }) {
     catch (e) { toast.error(errorText(e)); }
   };
 
+  if (failed) return <button className="mt-4 text-[11px] font-mono text-[var(--accent-red)] hover:underline" onClick={load} data-testid="presets-retry">Couldn't load bundle presets. Retry</button>;
   if (!presets.length) return null;
   return (
     <div className="mt-4" data-testid="bundle-presets">

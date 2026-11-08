@@ -6,6 +6,7 @@ import { sideBySideDiff } from "../lib/changes";
 function FileDiff({ label, before, after, testId }) {
   // Show only changed lines with 2 lines of context to keep the review short
   const rows = useMemo(() => {
+    if (before === after) return [];
     const all = sideBySideDiff(before, after);
     const keep = new Set();
     all.forEach((r, i) => { if (r.type !== "same") for (let k = i - 2; k <= i + 2; k += 1) keep.add(k); });
@@ -39,7 +40,7 @@ function FileDiff({ label, before, after, testId }) {
 // fix: {status: "running"|"review"|"error", count, data?, error?}
 export default function FixReviewModal({ fix, system, base, onAccept, onDiscard, onRetry }) {
   return (
-    <Modal title={fix.status === "running" ? "Writing a fix…" : fix.status === "error" ? "Fix not applied" : "Review the fix"} onClose={fix.status === "running" ? null : onDiscard} testId="fix-modal" width={980}>
+    <Modal title={fix.status === "running" ? "Writing a fix…" : fix.status === "error" ? "Fix not applied" : "Review the fix"} onClose={onDiscard} testId="fix-modal" width={980}>
       {fix.status === "running" && (
         <div className="flex items-center gap-2 text-[12.5px] font-mono text-[var(--text-secondary)]" data-testid="fix-running">
           <Loader2 size={14} className="animate-spin text-[var(--unreal-orange)]" /> Patching {fix.count} issue{fix.count === 1 ? "" : "s"} with your AI key. Only the lines that need changing are touched.

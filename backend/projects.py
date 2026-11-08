@@ -7,7 +7,7 @@ from typing import List, Literal, Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from fastapi.responses import Response
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from auth import current_user
 from core import db
@@ -135,6 +135,14 @@ class PresetIn(BaseModel):
     name: str = Field(min_length=1, max_length=60)
     plugin_name: str = Field(min_length=3, max_length=40, pattern=r"^[A-Za-z][A-Za-z0-9]*$")
     project_ids: List[str] = Field(min_length=2, max_length=6)
+
+    @field_validator("project_ids")
+    @classmethod
+    def distinct(cls, v):
+        v = list(dict.fromkeys(v))
+        if len(v) < 2:
+            raise ValueError("pick at least 2 different projects")
+        return v
 
 
 class PresetRename(BaseModel):

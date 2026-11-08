@@ -246,7 +246,7 @@ export default function Workspace() {
       toast.success(`Switched to ${switchTo}`);
     }
     const ok = await runSynthesis(p.body, p.context, p.successLabel, { key, skipLimit: true });
-    if (ok && p.body.stack_systems) { setPrompt(p.body.prompt); setExtra([]); setProject(null); }
+    if (ok && p.body.stack_systems) { setPrompt(p.body.prompt); setExtra([]); setProject(null); setIgnores([]); }
   };
 
   const currentInputs = { prompt, blueprint_class: bpClass, complexity, modularity, performance_vs_flexibility: perfFlex, tick_rate: tickRate, network_replicated: replicated };
@@ -288,6 +288,7 @@ export default function Workspace() {
       setPrompt(stackPrompt);
       setExtra([]);
       setProject(null);
+      setIgnores([]);
     }
     return ok;
   };
@@ -548,7 +549,7 @@ export default function Workspace() {
   const ignoredIssues = keyedIssues.filter((i) => ignoreKeys.has(i.key));
   const checkErrors = activeIssues.filter((i) => i.severity === "error").length;
   const [aiReview, runAiReview] = useAiReview(result, activeIssues, aiKey, () => setKeyModal("required"), () => setUsageTick((n) => n + 1));
-  const exportIssues = aiReview?.status === "done" ? [...activeIssues, ...aiReview.issues.map((i) => ({ ...i, message: `AI review: ${i.message}` }))] : checkIssues;
+  const exportIssues = aiReview?.status === "done" ? [...activeIssues, ...aiReview.issues.map((i) => ({ ...i, message: `AI review: ${i.message}` }))] : activeIssues;
   const exportErrors = exportIssues.filter((i) => i.severity === "error").length;
 
   useEffect(() => { setJump(null); }, [result?.id]);
@@ -558,9 +559,14 @@ export default function Workspace() {
     setTab("cpp");
     setJump({ ...locateIssue(issue, result), nonce: Date.now() });
   };
+  const ignoreQueue = useRef(Promise.resolve());
   const saveIgnores = (next) => {
     setIgnores(next);
-    if (project && !readOnly) api.put(`/projects/${project.project_id}/ignores`, { ignores: next }).catch((e) => toast.error("Couldn't save ignored issues", { description: errorText(e) }));
+    if (!project || readOnly) return;
+    const pid = project.project_id;
+    // Whole-list writes are queued so a slower earlier write can't overwrite a later one
+    ignoreQueue.current = ignoreQueue.current.then(() => api.put(`/projects/${pid}/ignores`, { ignores: next })
+      .catch((e) => toast.error("Couldn't save ignored issues", { description: errorText(e) })));
   };
   const ignoreIssue = (i) => { saveIgnores([...ignores, { key: i.key, file: i.file, message: i.message.slice(0, 400) }]); toast.message("Issue ignored", { description: "Restore it from the Ignored list." }); };
   const restoreIssue = (i) => saveIgnores(ignores.filter((x) => x.key !== i.key));
@@ -578,7 +584,7 @@ export default function Workspace() {
     setFix({ status: "running", count: list.length, list, before });
     try {
       const { data } = await api.post("/ai/fix-cpp", {
-        file_base: baseName(result), cpp_header: before.h, cpp_source: before.c,
+        file_base: baseName(result), cpp_header: before.h, cpp_source: before.c, project_id: project?.project_id || null,
         issues: list.slice(0, 40).map((i) => `${issueText(i)}${i.fix ? ` (suggested fix: ${i.fix})` : ""}`),
       }, { headers: aiHeaders(aiKey) });
       setFix((f) => (f?.list === list ? { ...f, status: "review", data } : f));
@@ -608,7 +614,11 @@ export default function Workspace() {
     const aiCount = list.length - builtIn.length;
     toast.success(builtIn.length ? `Cleared ${cleared} of ${builtIn.length} issue${builtIn.length === 1 ? "" : "s"}` : `Applied ${data.changes.length} change${data.changes.length === 1 ? "" : "s"}`, {
       description: [after.length ? `${after.length} still listed${fresh ? ` (${fresh} new)` : ""}.` : "The compile check is clean.", aiCount ? "Run AI review again to confirm the AI findings." : "", "Press Save to keep it."].filter(Boolean).join(" "),
-      duration: 8000,
+      duration: 10000,
+      action: {
+        label: "Undo fix",
+        onClick: () => setResult((r) => (r?.id === before.id && r.cpp_header === data.cpp_header && r.cpp_source === data.cpp_source ? { ...r, cpp_header: before.h, cpp_source: before.c } : r)),
+      },
     });
     setTab("cpp");
   };
@@ -861,8 +871,8 @@ export default function Workspace() {
                 {result && <CompileCheck issues={activeIssues} ignored={ignoredIssues} ai={aiReview} onReview={runAiReview} aiKey={aiKey} canEdit={!readOnly}
                   fixing={fix?.status === "running"} onJump={jumpTo} onFix={runFix} onIgnore={ignoreIssue} onRestore={restoreIssue} onCopy={copyIssues} />}
                 <div className="grid md:grid-cols-2 gap-4">
-                  <CodeBox title={`${result?.system_name || "System"}.h`} code={result?.cpp_header} lang="cpp" testId="cpp-header" target={jump?.file === ".h" ? jump : null} />
-                  <CodeBox title={`${result?.system_name || "System"}.cpp`} code={result?.cpp_source} lang="cpp" testId="cpp-source" target={jump?.file === ".cpp" ? jump : null} />
+                  <CodeBox title={`${result ? baseName(result) : "System"}.h`} code={result?.cpp_header} lang="cpp" testId="cpp-header" target={jump?.file === ".h" ? jump : null} />
+                  <CodeBox title={`${result ? baseName(result) : "System"}.cpp`} code={result?.cpp_source} lang="cpp" testId="cpp-source" target={jump?.file === ".cpp" ? jump : null} />
                 </div>
               </div>
             )}

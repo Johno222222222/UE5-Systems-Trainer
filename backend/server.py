@@ -511,6 +511,7 @@ class FixRequest(BaseModel):
     cpp_header: str = Field(..., max_length=40000)
     cpp_source: str = Field(..., max_length=60000)
     issues: List[str] = Field(..., min_length=1, max_length=40)
+    project_id: Optional[str] = None
 
 
 def replace_lines_loose(text: str, find: str, repl: str) -> str:
@@ -553,6 +554,8 @@ async def fix_cpp(
     x_llm_key: str = Header(None),
 ):
     provider, model, key = resolve_llm(x_llm_provider, x_llm_model, x_llm_key)
+    if req.project_id:
+        await projects.load_project(req.project_id, user, "editor")
     chat = LlmChat(api_key=key, session_id=f"fix-{uuid.uuid4()}", system_message=FIX_PROMPT) \
         .with_model(provider, model).with_params(max_tokens=12000)
     issues = "\n".join(f"{i + 1}. {t[:300]}" for i, t in enumerate(req.issues))
@@ -574,7 +577,7 @@ async def fix_cpp(
     except Exception as exc:
         logging.warning("Unusable fix patch: %s", exc)
         raise HTTPException(status_code=422, detail={"code": "patch_failed", "message": "The AI's patch didn't match the current code, so nothing was changed. Try again."})
-    if not applied:
+    if not applied or (files[".h"] == req.cpp_header and files[".cpp"] == req.cpp_source):
         raise HTTPException(status_code=422, detail={"code": "no_changes", "message": "The AI didn't propose any changes for these issues."})
     return {"cpp_header": files[".h"], "cpp_source": files[".cpp"], "changes": applied, "model": model}
 
