@@ -178,10 +178,30 @@ function writeModule(root, module, system, extraDeps = []) {
 
 const systemJson = (name, system, context) => JSON.stringify({ format: "ue5-architect-project", version: 1, name, system, context }, null, 2);
 
-function pluginReadme(name, system, plugin, files, deps, enginePlugins) {
+const errorsIn = (issues) => (issues || []).filter((i) => i.severity === "error");
+const BADGE = "![compile-checked](https://img.shields.io/badge/compile--checked-no%20errors-brightgreen)";
+const where = (i) => `${i.file || ""}${i.line ? `:${i.line}` : ""}`;
+
+// Only when the export had no errors (warnings allowed and listed)
+function badgeLines(issues) {
+  if (!issues || errorsIn(issues).length) return [];
+  const warns = issues.filter((i) => i.severity !== "error");
+  return [
+    BADGE,
+    "",
+    `**Compile-checked** by UE5 System Architect on ${new Date().toISOString().slice(0, 10)}: no errors found${warns.length ? `, ${warns.length} warning${warns.length === 1 ? "" : "s"}` : ", no warnings"}.`,
+    ...warns.map((w) => `- Warning ${where(w)}: ${w.message}`),
+    "",
+    "_Pattern check (plus any AI review run before export). It catches common mistakes but isn't a full compile, so build once in Unreal to be sure._",
+    "",
+  ];
+}
+
+function pluginReadme(name, system, plugin, files, deps, enginePlugins, issues) {
   const lines = [
     `# ${system.system_name} (Unreal plugin)`,
     "",
+    ...badgeLines(issues),
     system.summary || "",
     "",
     "## Install (no code edits)",
@@ -203,13 +223,13 @@ function pluginReadme(name, system, plugin, files, deps, enginePlugins) {
   return lines.join("\n");
 }
 
-export async function buildPluginZip(name, system, context) {
+export async function buildPluginZip(name, system, context, issues = null) {
   const plugin = moduleName(system);
   const zip = new JSZip();
   const root = zip.folder(plugin);
   const { files, deps, enginePlugins } = writeModule(root, plugin, system);
   root.file(`${plugin}.uplugin`, upluginJson(system.system_name, system.summary, [plugin], enginePlugins));
-  root.file("README.md", pluginReadme(name, system, plugin, files, deps, enginePlugins));
+  root.file("README.md", pluginReadme(name, system, plugin, files, deps, enginePlugins, issues));
   root.file("SETUP.md", setupMd(system));
   root.file("BLUEPRINT_PSEUDOCODE.md", pseudoMd(system));
   root.file("system.json", systemJson(name, system, context));
@@ -252,24 +272,27 @@ export function bundleIssues(plan) {
   return out;
 }
 
-export async function buildBundleZip(plugin, plan) {
+export async function buildBundleZip(plugin, plan, checks = null) {
   const zip = new JSZip();
   const root = zip.folder(plugin);
   const enginePlugins = [];
-  const rows = plan.map((p) => {
+  const rows = plan.map((p, i) => {
     const { files, deps, enginePlugins: ep } = writeModule(root, p.module, p.system, p.uses);
     enginePlugins.push(...ep);
     const docs = root.folder(`Docs/${p.module}`);
     docs.file("SETUP.md", setupMd(p.system));
     docs.file("BLUEPRINT_PSEUDOCODE.md", pseudoMd(p.system));
     docs.file("system.json", systemJson(p.name, p.system, p.context));
-    return `| ${p.system.system_name} | \`${p.module}\` | \`${files.h}\` | ${["Core", "CoreUObject", "Engine", ...deps].join(", ")} |`;
+    const c = checks?.[i];
+    const status = !c ? "not checked" : errorsIn(c).length ? `${errorsIn(c).length} error(s)` : `✅ no errors${c.length ? ` (${c.length} warning${c.length === 1 ? "" : "s"})` : ""}`;
+    return `| ${p.system.system_name} | \`${p.module}\` | \`${files.h}\` | ${["Core", "CoreUObject", "Engine", ...deps].join(", ")} | ${status} |`;
   });
   const names = plan.map((p) => p.system.system_name);
   root.file(`${plugin}.uplugin`, upluginJson(plugin.replace(/([a-z0-9])([A-Z])/g, "$1 $2"), `Bundles ${names.join(", ")}.`, plan.map((p) => p.module), enginePlugins));
   root.file("README.md", [
     `# ${plugin} (Unreal plugin)`,
     "",
+    ...(checks && checks.length === plan.length ? badgeLines(checks.flatMap((c, i) => c.map((x) => ({ ...x, file: `${plan[i].module} ${x.file || ""}`.trim() })))) : []),
     `One install for ${plan.length} systems: ${names.join(" + ")}. Each system is its own runtime module, so you can read, extend or remove them separately.`,
     "",
     "## Install (no code edits)",
@@ -278,8 +301,8 @@ export async function buildBundleZip(plugin, plan) {
     "3. The plugin is enabled by default. Follow each system's SETUP.md in `Docs/<Module>/`.",
     "",
     "## Modules",
-    "| System | Module | Header | Build.cs dependencies |",
-    "|---|---|---|---|",
+    "| System | Module | Header | Build.cs dependencies | Compile check |",
+    "|---|---|---|---|---|",
     ...rows,
     "",
     "Modules that use another system's classes already list that module in their Build.cs.",

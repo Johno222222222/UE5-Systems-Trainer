@@ -64,11 +64,12 @@ def detail(p: dict, role: str) -> dict:
     return out
 
 
-async def snapshot(p: dict, note: str = "") -> None:
+async def snapshot(p: dict, note: str = "", fixes: Optional[list] = None) -> None:
     await db.project_versions.insert_one({
         "project_id": p["project_id"], "version": p["version"], "system": p.get("system"),
         "context": p.get("context") or {}, "saved_by_name": p["updated_by_name"], "saved_at": p["updated_at"],
         "note": note.strip()[:200],
+        "fixes": fixes or [],
     })
 
 
@@ -82,17 +83,34 @@ async def claim_references(context: dict, user: dict, project_id: str) -> None:
 
 
 # ---------- Models ----------
+class FixHunk(BaseModel):
+    file: Literal[".h", ".cpp"]
+    start: int = Field(ge=1)
+    removed: List[str] = Field(default_factory=list, max_length=400)
+    added: List[str] = Field(default_factory=list, max_length=400)
+
+
+class FixEntry(BaseModel):
+    fix_id: str = Field(max_length=40)
+    at: str = Field(max_length=40)
+    model: str = Field(default="", max_length=80)
+    changes: List[dict] = Field(default_factory=list, max_length=15)
+    hunks: List[FixHunk] = Field(default_factory=list, max_length=2)
+
+
 class ProjectIn(BaseModel):
     name: str = Field(min_length=1, max_length=120)
     system: dict
     context: dict = Field(default_factory=dict)
     note: str = Field(default="", max_length=200)
+    fixes: List[FixEntry] = Field(default_factory=list, max_length=20)
 
 
 class ProjectUpdate(BaseModel):
     system: dict
     context: dict = Field(default_factory=dict)
     note: str = Field(default="", max_length=200)
+    fixes: List[FixEntry] = Field(default_factory=list, max_length=20)
     base_version: int
     force: bool = False
 
@@ -165,7 +183,7 @@ async def list_projects(user: dict = Depends(current_user)):
     }
 
 
-async def create(user: dict, name: str, system: dict, context: dict, note: str = "") -> dict:
+async def create(user: dict, name: str, system: dict, context: dict, note: str = "", fixes: Optional[list] = None) -> dict:
     if not isinstance(system, dict) or not system.get("system_name"):
         raise HTTPException(status_code=400, detail="That doesn't look like a generated system")
     project = {
@@ -176,14 +194,14 @@ async def create(user: dict, name: str, system: dict, context: dict, note: str =
     }
     await db.projects.insert_one(project)
     project.pop("_id", None)
-    await snapshot(project, note)
+    await snapshot(project, note, fixes)
     await claim_references(context, user, project["project_id"])
     return detail(project, "owner")
 
 
 @router.post("/projects")
 async def create_project(body: ProjectIn, user: dict = Depends(current_user)):
-    return await create(user, body.name, body.system, body.context, body.note)
+    return await create(user, body.name, body.system, body.context, body.note, [f.model_dump() for f in body.fixes])
 
 
 @router.post("/projects/import")
@@ -229,10 +247,10 @@ async def save_project(project_id: str, body: ProjectUpdate, user: dict = Depend
             "updated_by_name": latest["updated_by_name"], "updated_at": latest["updated_at"], "version": latest["version"],
         })
     try:
-        await snapshot(res, body.note)
+        await snapshot(res, body.note, [f.model_dump() for f in body.fixes])
     except Exception:
         # a concurrent backfill recorded this version first; keep the note
-        await db.project_versions.update_one({"project_id": project_id, "version": res["version"]}, {"$set": {"note": body.note.strip()[:200]}})
+        await db.project_versions.update_one({"project_id": project_id, "version": res["version"]}, {"$set": {"note": body.note.strip()[:200], "fixes": [f.model_dump() for f in body.fixes]}})
     await claim_references(body.context, user, project_id)
     return detail(res, role)
 
@@ -306,10 +324,10 @@ async def delete_preset(preset_id: str, user: dict = Depends(current_user)):
 async def list_versions(project_id: str, user: dict = Depends(current_user)):
     await load_project(project_id, user)
     rows = await db.project_versions.find(
-        {"project_id": project_id}, {"_id": 0, "version": 1, "saved_by_name": 1, "saved_at": 1, "label": 1, "labeled_by_name": 1, "note": 1, "system.system_name": 1}
+        {"project_id": project_id}, {"_id": 0, "version": 1, "saved_by_name": 1, "saved_at": 1, "label": 1, "labeled_by_name": 1, "note": 1, "fixes": 1, "system.system_name": 1}
     ).sort("version", -1).to_list(1000)
     return {"versions": [{"version": r["version"], "saved_by_name": r["saved_by_name"], "saved_at": r["saved_at"],
-                          "label": r.get("label") or "", "labeled_by_name": r.get("labeled_by_name"), "note": r.get("note") or "",
+                          "label": r.get("label") or "", "labeled_by_name": r.get("labeled_by_name"), "note": r.get("note") or "", "fixes": r.get("fixes") or [],
                           "system_name": (r.get("system") or {}).get("system_name")} for r in rows]}
 
 

@@ -28,7 +28,8 @@ import CompileCheck, { IssueList, useAiReview } from "../components/CompileCheck
 import BundleModal from "../components/BundleModal";
 import HistoryModal from "../components/HistoryModal";
 import { checkSystem, issueKey, issueText, issuesToText, locateIssue } from "../lib/compileCheck";
-import FixReviewModal from "../components/FixReviewModal";
+import FixReviewModal, { FixDetailModal } from "../components/FixReviewModal";
+import { fixNote, makeFixEntry, undoFixEntry } from "../lib/fixLog";
 
 const LS_KEY = "ue5_architect_library_v1";
 const LS_CONTEXT = "ue5_architect_project_context";
@@ -161,6 +162,8 @@ export default function Workspace() {
   const [jump, setJump] = useState(null); // {file, line, nonce}
   const [fix, setFix] = useState(null);
   const [fixNotes, setFixNotes] = useState([]); // pre-fill the next save note
+  const [fixLog, setFixLog] = useState([]); // accepted patches, saved with the next version
+  const [viewFix, setViewFix] = useState(null); // {entry, pending}
   const [historyOpen, setHistoryOpen] = useState(false);
   const projectRef = useRef(null);
   projectRef.current = project;
@@ -322,8 +325,8 @@ export default function Workspace() {
     setSaving(true);
     try {
       const { data } = project && !readOnly
-        ? await api.put(`/projects/${project.project_id}`, { system, context, note, base_version: project.version, force })
-        : await api.post("/projects", { name: result.system_name, system, context, note });
+        ? await api.put(`/projects/${project.project_id}`, { system, context, note, fixes: fixLog, base_version: project.version, force })
+        : await api.post("/projects", { name: result.system_name, system, context, note, fixes: fixLog });
       const { system: _s, context: _c, ...meta } = data;
       if ((projectRef.current?.project_id || null) === savingFor) {
         setProject(meta);
@@ -334,6 +337,7 @@ export default function Workspace() {
       setSaveDialog(false);
       setSaveNote("");
       setFixNotes([]);
+      setFixLog([]);
       toast.success(project ? `Saved v${data.version}` : "Saved as new project", { description: note ? `${data.name}: ${note}` : data.name });
     } catch (e) {
       setSaveDialog(false);
@@ -372,6 +376,7 @@ export default function Workspace() {
       setProject(meta);
       setIgnores(meta.ignored_issues || []);
       setFixNotes([]);
+      setFixLog([]);
       openSystem(system, context);
       toast.message(`Opened ${data.name}`, { description: meta.my_role === "viewer" ? "View only" : `Last saved by ${meta.updated_by_name}` });
     } catch (e) {
@@ -424,7 +429,8 @@ export default function Workspace() {
     const build = kind === "plugin" ? buildPluginZip : buildProjectZip;
     let built;
     try {
-      built = await build(project?.name || result.system_name, system, { ...context, references: undefined });
+      const checked = override ? checkSystem(override).filter((i) => !ignoreKeys.has(issueKey(i, override))) : exportIssues;
+      built = await build(project?.name || result.system_name, system, { ...context, references: undefined }, checked);
     } catch (e) {
       toast.error("Couldn't build the zip", { description: e.message });
       return;
@@ -621,7 +627,9 @@ export default function Workspace() {
     const next = { ...result, cpp_header: data.cpp_header, cpp_source: data.cpp_source };
     setResult(next);
     setFix(null);
-    const note = `Fixed: ${data.changes.map((c) => c.why).filter(Boolean).join("; ") || `${data.changes.length} compile issue(s)`}`;
+    const entry = makeFixEntry(result, next, data);
+    const note = fixNote(entry);
+    setFixLog((l) => [...l, entry].slice(-20));
     setFixNotes((n) => [...n, note]);
     if (fix.thenExport) exportZip(fix.thenExport, true, next);
     const sig = (i) => `${i.file}|${i.message}`;
@@ -640,9 +648,24 @@ export default function Workspace() {
         onClick: () => {
           setResult((r) => (r?.id === before.id && r.cpp_header === data.cpp_header && r.cpp_source === data.cpp_source ? { ...r, cpp_header: before.h, cpp_source: before.c } : r));
           setFixNotes((n) => n.filter((x) => x !== note));
+          setFixLog((l) => l.filter((x) => x.fix_id !== entry.fix_id));
         },
       },
     });
+    setTab("cpp");
+  };
+  const undoFix = (entry, pending) => {
+    const next = result && undoFixEntry(result, entry);
+    if (!next) { toast.error("Can't undo this fix", { description: "Those lines have changed since the fix was applied." }); return; }
+    setResult(next);
+    setViewFix(null);
+    if (pending) {
+      setFixLog((l) => l.filter((x) => x.fix_id !== entry.fix_id));
+      setFixNotes((n) => n.filter((x) => x !== fixNote(entry)));
+    } else {
+      setFixNotes((n) => [...n, fixNote(entry).replace(/^Fixed: /, "Undid fix: ")]);
+    }
+    toast.success("Fix undone in the workspace", { description: "Press Save to keep it." });
     setTab("cpp");
   };
 
@@ -1100,15 +1123,20 @@ export default function Workspace() {
           </div>
         </Modal>
       )}
-      {bundle && <BundleModal ids={bundle.ids} preset={bundle.preset} onClose={() => setBundle(null)} onPresetsChanged={() => setProjRefresh((n) => n + 1)} />}
+      {bundle && <BundleModal ids={bundle.ids} preset={bundle.preset} onClose={() => setBundle(null)} onPresetsChanged={() => setProjRefresh((n) => n + 1)}
+        aiKey={aiKey} usage={usage} onNeedKey={() => setKeyModal("required")} onUsed={() => { setUsageTick((n) => n + 1); setProjRefresh((n) => n + 1); }} />}
       {fix && result && (
         <FixReviewModal fix={fix} system={result} base={baseName(result)} onAccept={acceptFix} onRetry={() => runFix(fix.list, fix.thenExport)}
           onRegenerate={() => fixRegenerate(fix.list)}
           onDiscard={() => { const { thenExport, status } = fix; setFix(null); if (thenExport && status !== "running") exportZip(thenExport, true); }} />
       )}
       {historyOpen && (
-        <HistoryModal versions={versions} current={project?.version} onClose={() => setHistoryOpen(false)}
-          onCompare={(v) => { setHistoryOpen(false); pickBase(String(v)); }} />
+        <HistoryModal versions={versions} current={project?.version} pending={fixLog} onClose={() => setHistoryOpen(false)}
+          onCompare={(v) => { setHistoryOpen(false); pickBase(String(v)); }} onViewFix={(entry, pending) => setViewFix({ entry, pending })} />
+      )}
+      {viewFix && (
+        <FixDetailModal entry={viewFix.entry} pending={viewFix.pending} canUndo={!readOnly && !!result} onClose={() => setViewFix(null)}
+          onUndo={() => { undoFix(viewFix.entry, viewFix.pending); setHistoryOpen(false); }} />
       )}
       {shareOpen && project && (
         <ShareModal project={project} onClose={() => setShareOpen(false)}
