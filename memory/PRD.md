@@ -34,7 +34,13 @@ An app to build modular systems from description in Unreal Engine 5.
   5. Compare tab: previous vs current side by side (Pseudocode, .h, .cpp, Setup, Params & Modules) with an LCS line diff and input-change chips. Opens automatically after a regeneration.
   - Verified in the browser with mocked API responses (credits ran out again before the live check)
 
+- Iteration 4 (approved Phase 1 plan): Google + email/password sign-in (one account per email, admin seeded); cloud Projects (Mine / Shared with me, open/save/rename/delete, last-saved-by, atomic 409 overwrite warning); Export JSON / Copy JSON / Import .json; one-time migration of browser-saved systems; reference files the AI reads (images, PDF text, code; up to 5, 10 MB); project Files tab (25 MB); invites with Editor/Viewer roles plus invite links; view-only public links. Files are stored in Emergent object storage.
+  - Security deviations: reset links are created by the admin only (account menu). Invite links require signing in with the invited email and can be claimed once. Email-matched auto-access applies only to Google-verified accounts.
+- Iteration 5 (bring-your-own key): synthesis uses the user's own Gemini (gemini-2.5-flash / flash-lite / pro) or OpenAI (gpt-4.1-mini / gpt-4.1 / gpt-5-mini) key, stored in browser localStorage (`ue5_architect_ai_key`) and sent per request in the X-LLM-Provider / X-LLM-Model / X-LLM-Key headers. It is never stored or logged on the server (httpx/litellm logs muted, errors redacted). No key → the AI Key modal blocks synthesis. The Universal Key is no longer used for any synthesis; object storage still uses EMERGENT_LLM_KEY.
+  - Fixes from test report iteration 2: logout revokes JWTs (token_version); Google linking drops unverified passwords; Google callback requires a browser-started sign-in; atomic version check on save; removed members lose file access; invite email check; late synthesis results discarded after switching projects; notes typed during synthesis are kept; double-save guard; Unicode download filenames; atomic reset token; references persist on save; reopening a project restores its Project Context; regenerations send the full previous implementation.
+
 ## Backlog
+- P1 (from test report): mobile/narrow layout; pagination beyond 500 projects/files; image-only PDF pages sent to the model; stricter import validation; idempotent migration; per-project version history for Compare
 - P1: Responsive layout for narrow/mobile screens (currently desktop IDE layout)
 - P1: SSE streaming of code as it generates (tokens visible live)
 - P1: Export full C++ project folder as .zip

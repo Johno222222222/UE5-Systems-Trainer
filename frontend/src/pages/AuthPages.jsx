@@ -16,6 +16,13 @@ export function AuthCallback() {
     if (done.current) return;
     done.current = true;
     const sessionId = new URLSearchParams(location.hash.slice(1)).get("session_id");
+    // Only finish sign-ins this browser started (blocks forced logins via crafted links)
+    if (!sessionStorage.getItem("ue5_google_pending")) {
+      window.history.replaceState(null, "", location.pathname);
+      setError("This sign-in wasn't started from this browser.");
+      return;
+    }
+    sessionStorage.removeItem("ue5_google_pending");
     api.post("/auth/google", { session_id: sessionId })
       .then(({ data }) => {
         setUser(data);

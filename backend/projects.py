@@ -1,6 +1,7 @@
 import io
 import secrets
 import uuid
+from urllib.parse import quote
 from datetime import datetime, timezone
 from typing import Literal, Optional
 
@@ -166,11 +167,18 @@ async def save_project(project_id: str, body: ProjectUpdate, user: dict = Depend
             "message": f"{project['updated_by_name']} saved a newer version while you were editing.",
             "updated_by_name": project["updated_by_name"], "updated_at": project["updated_at"], "version": project["version"],
         })
+    expected = project["version"] if body.force else body.base_version
     res = await db.projects.find_one_and_update(
-        {"project_id": project_id},
+        {"project_id": project_id, "version": expected},
         {"$set": {"system": body.system, "context": body.context, "updated_at": now(), "updated_by_name": user["name"]}, "$inc": {"version": 1}},
         projection={"_id": 0}, return_document=True,
     )
+    if not res:
+        latest = await db.projects.find_one({"project_id": project_id}, {"_id": 0})
+        raise HTTPException(status_code=409, detail={
+            "message": f"{latest['updated_by_name']} saved a newer version while you were editing.",
+            "updated_by_name": latest["updated_by_name"], "updated_at": latest["updated_at"], "version": latest["version"],
+        })
     await claim_references(body.context, user, project_id)
     return detail(res, role)
 
@@ -226,6 +234,11 @@ async def accept_invite(token: str, user: dict = Depends(current_user)):
     project = await db.projects.find_one({"members.invite_token": token, "is_deleted": False}, {"_id": 0})
     if not project:
         raise HTTPException(status_code=404, detail="This invite link is no longer valid")
+    member = next(m for m in project["members"] if m["invite_token"] == token)
+    if member["email"] != user["email"]:
+        raise HTTPException(status_code=403, detail=f"This invite is for {member['email']}. Sign in with that email to accept it.")
+    if member.get("user_id") and member["user_id"] != user["user_id"]:
+        raise HTTPException(status_code=403, detail="This invite has already been used")
     if project["owner_id"] != user["user_id"]:
         await db.projects.update_one({"project_id": project["project_id"], "members.invite_token": token}, {"$set": {"members.$.user_id": user["user_id"]}})
     return {"project_id": project["project_id"], "name": project["name"]}
@@ -308,7 +321,7 @@ async def accessible_file(file_id: str, user: dict, need: str = "viewer") -> dic
     f = await db.files.find_one({"file_id": file_id, "is_deleted": False}, {"_id": 0})
     if not f:
         raise HTTPException(status_code=404, detail="File not found")
-    if f["uploaded_by"] == user["user_id"] and (need == "viewer" or f["kind"] == "reference"):
+    if f["uploaded_by"] == user["user_id"] and not f.get("project_id"):
         return f
     if f.get("project_id"):
         await load_project(f["project_id"], user, need)
@@ -327,8 +340,9 @@ async def list_files(project_id: str, user: dict = Depends(current_user)):
 async def download_file(file_id: str, user: dict = Depends(current_user)):
     f = await accessible_file(file_id, user)
     data, _ = await get_object(f["storage_path"])
-    safe = f["filename"].replace('"', "")
-    return Response(content=data, media_type=f["content_type"], headers={"Content-Disposition": f'attachment; filename="{safe}"'})
+    ascii_name = f["filename"].encode("ascii", "ignore").decode().replace('"', "") or "download"
+    disposition = f"attachment; filename=\"{ascii_name}\"; filename*=UTF-8''{quote(f['filename'])}"
+    return Response(content=data, media_type=f["content_type"], headers={"Content-Disposition": disposition})
 
 
 @router.delete("/files/{file_id}")

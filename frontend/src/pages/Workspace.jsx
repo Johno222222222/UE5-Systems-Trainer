@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   Cpu, Code2, Layers, Sliders, Sparkles, Save, Download, Copy,
   Plus, Trash2, CheckCircle2, Terminal, PackageSearch, Settings,
   Boxes, ChevronDown, PlayCircle, Hammer, Wrench, GitBranch, Network, Zap,
   Swords, Package, MessagesSquare, Shield, HardDrive, Car, Hand, Workflow,
-  GitCompareArrows, Compass, StickyNote, Share2, FolderClosed, Eye, Pencil
+  GitCompareArrows, Compass, StickyNote, Share2, FolderClosed, Eye, Pencil, KeyRound
 } from "lucide-react";
 import NodeGraph from "../components/NodeGraph";
 import AnnotatedPseudocode from "../components/AnnotatedPseudocode";
@@ -20,6 +20,7 @@ import ShareModal from "../components/ShareModal";
 import AccountMenu from "../components/AccountMenu";
 import Modal from "../components/Modal";
 import { ReferencesBar, ProjectFiles } from "../components/Files";
+import AiKeyModal, { PROVIDERS, aiHeaders, loadAiKey } from "../components/AiKeyModal";
 import { highlightCpp, highlightBlueprint } from "../lib/highlight";
 
 const LS_KEY = "ue5_architect_library_v1";
@@ -32,16 +33,17 @@ const ICON_MAP = {
 
 const BLUEPRINT_CLASSES = ["ActorComponent", "Actor", "Pawn", "Character", "GameInstanceSubsystem", "WheeledVehiclePawn"];
 
-async function streamGenerate(body, onProgress) {
+async function streamGenerate(body, onProgress, aiKey, isAlive) {
   let job_id;
   try {
-    ({ data: { job_id } } = await api.post("/generate", body));
+    ({ data: { job_id } } = await api.post("/generate", body, { headers: aiHeaders(aiKey) }));
   } catch (e) {
     throw new Error(errorText(e));
   }
   const deadline = Date.now() + 5 * 60 * 1000;
   while (Date.now() < deadline) {
     await new Promise((r) => setTimeout(r, 2000));
+    if (!isAlive()) throw new Error("cancelled");
     let job;
     try {
       job = (await api.get(`/generate/${job_id}`)).data;
@@ -159,6 +161,16 @@ export default function Workspace() {
   const [projRefresh, setProjRefresh] = useState(0);
   const [migration, setMigration] = useState(null);
   const readOnly = project?.my_role === "viewer";
+  const [aiKey, setAiKey] = useState(loadAiKey);
+  const [keyModal, setKeyModal] = useState(null); // null | "edit" | "required"
+  const [saving, setSaving] = useState(false);
+  const projectRef = useRef(null);
+  projectRef.current = project;
+  const aliveRef = useRef(true);
+  useEffect(() => {
+    aliveRef.current = true;
+    return () => { aliveRef.current = false; };
+  }, []);
   useEffect(() => { localStorage.setItem(LS_CONTEXT, projectContext); }, [projectContext]);
 
   useEffect(() => {
@@ -180,19 +192,29 @@ export default function Workspace() {
   };
 
   const runSynthesis = async (body, context, successLabel) => {
+    if (!aiKey) {
+      setKeyModal("required");
+      toast.error("Add your AI key to synthesize");
+      return false;
+    }
+    const startedOn = project?.project_id || null;
     setLoading(true);
     setError(null);
     setProgress(0);
     try {
-      const data = await streamGenerate({ ...body, project_context: projectContext, reference_file_ids: references.map((r) => r.file_id) }, setProgress);
+      const data = await streamGenerate({ ...body, project_context: projectContext, reference_file_ids: references.map((r) => r.file_id) }, setProgress, aiKey, () => aliveRef.current);
+      if ((projectRef.current?.project_id || null) !== startedOn) {
+        toast.message("A synthesis finished after you switched projects, so it was discarded");
+        return false;
+      }
       if (result) setPreviousResult(result);
       setResult({ ...data, context: { ...context, project_context: projectContext, references, notes: body.designer_notes || "" }, baseline_modules: data.modules });
-      setNotes("");
+      setNotes((n) => (n === (body.designer_notes || "") ? "" : n));
       setTab(result ? "compare" : "graph");
       toast.success(successLabel(data), { description: `${data.node_graph_nodes?.length || 0} nodes · ${data.applied_changes?.length || 0} changes applied` });
       return true;
     } catch (e) {
-      console.error(e);
+      if (e.message === "cancelled") return false;
       const detail = e.message || "Unknown error";
       setError(detail);
       toast.error("Generation failed", { description: detail, duration: 10000 });
@@ -217,7 +239,7 @@ export default function Workspace() {
       parameter_overrides: result ? tunable : {},
       designer_notes: notes,
       change_requests: pendingChanges.map((c) => c.text),
-      previous_system: result ? compactForApi(result) : null,
+      previous_system: result ? (({ context: _c, baseline_modules: _b, ...rest }) => rest)(result) : null,
     }, { ...currentInputs, extra_modules: extra }, (d) => `${d.system_name} ${result ? "regenerated" : "generated"}`);
   };
 
@@ -262,12 +284,13 @@ export default function Workspace() {
 
   const splitResult = () => {
     const { context, ...system } = result;
-    return { system, context: context || {} };
+    return { system, context: { ...(context || {}), references } };
   };
 
   const saveProject = async (force = false) => {
-    if (!result) return;
+    if (!result || saving) return;
     const { system, context } = splitResult();
+    setSaving(true);
     try {
       const { data } = project && !readOnly
         ? await api.put(`/projects/${project.project_id}`, { system, context, base_version: project.version, force })
@@ -280,6 +303,8 @@ export default function Workspace() {
     } catch (e) {
       if (e.response?.status === 409) setConflict(e.response.data.detail);
       else toast.error("Couldn't save", { description: errorText(e) });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -294,6 +319,7 @@ export default function Workspace() {
       setTickRate(c.tick_rate ?? 30);
       setReplicated(!!c.network_replicated);
       setExtra(c.extra_modules || []);
+      if (c.project_context !== undefined) setProjectContext(c.project_context);
     }
     setReferences(c.references || []);
     setResult({ ...system, context: c, baseline_modules: system.baseline_modules || system.modules });
@@ -410,12 +436,15 @@ export default function Workspace() {
         <div className="hidden 2xl:flex items-center gap-2">
           <span className="chip"><Zap size={11} /> UE 5.4+</span>
           <span className="chip"><Network size={11} /> {replicated ? "Replicated" : "Local"}</span>
-          <span className="chip"><Terminal size={11} /> Claude Sonnet 4.5</span>
+          <span className="chip"><Terminal size={11} /> {aiKey ? aiKey.model : "No AI key"}</span>
         </div>
         {project?.my_role === "owner" && <button className="ue-btn" onClick={() => setShareOpen(true)} data-testid="share-button"><Share2 size={13} /> Share</button>}
         <button className="ue-btn" onClick={copyJson} disabled={!result} data-testid="copy-json-btn"><Copy size={13} /> Copy JSON</button>
         <button className="ue-btn" onClick={exportAll} disabled={!result} data-testid="export-all-btn"><Download size={13} /> Export JSON</button>
-        <button className="ue-btn ue-btn-primary" onClick={() => saveProject(false)} disabled={!result || readOnly} data-testid="save-system-button"><Save size={13} /> {project ? "Save" : "Save project"}</button>
+        <button className="ue-btn ue-btn-primary" onClick={() => saveProject(false)} disabled={!result || readOnly || saving} data-testid="save-system-button"><Save size={13} /> {project ? "Save" : "Save project"}</button>
+        <button className={`ue-btn ${aiKey ? "" : "!border-[var(--unreal-orange)] !text-[var(--unreal-orange)]"}`} onClick={() => setKeyModal("edit")} data-testid="ai-key-button">
+          <KeyRound size={13} /> {aiKey ? PROVIDERS[aiKey.provider].label.split(" ").pop() : "Add AI key"}
+        </button>
         <AccountMenu />
       </header>
 
@@ -476,7 +505,7 @@ export default function Workspace() {
               disabled={loading}
               data-testid="generate-system-button"
             >
-              {loading ? (<><span className="inline-block h-3 w-3 rounded-full border-2 border-[#0b0e14] border-t-transparent animate-spin" /> Generating…</>)
+              {!aiKey && !loading ? (<><KeyRound size={14} /> Add your AI key to synthesize</>) : loading ? (<><span className="inline-block h-3 w-3 rounded-full border-2 border-[#0b0e14] border-t-transparent animate-spin" /> Generating…</>)
                        : result && pendingChanges.length
                          ? (<><PlayCircle size={14} /> Regenerate with {pendingChanges.length} change{pendingChanges.length === 1 ? "" : "s"}</>)
                          : (<><PlayCircle size={14} /> Synthesize System</>)}
@@ -554,7 +583,7 @@ export default function Workspace() {
                     <div className="h-full bg-[var(--unreal-orange)] transition-[width] duration-300" style={{ width: `${Math.min(97, (progress / 14000) * 100)}%` }} />
                   </div>
                   <div className="mt-2 text-[11px] font-mono text-[var(--text-muted)]" data-testid="generation-progress">
-                    {progress ? `${progress.toLocaleString()} chars streamed…` : "Claude Sonnet 4.5 is laying out blueprint nodes + C++ scaffolding."}
+                    {progress ? `${progress.toLocaleString()} chars streamed…` : `${aiKey?.model || "The model"} is laying out blueprint nodes + C++ scaffolding.`}
                   </div>
                 </div>
               </div>
@@ -724,6 +753,10 @@ export default function Workspace() {
           </fieldset>
         </aside>
       </div>
+      {keyModal && (
+        <AiKeyModal current={aiKey} required={keyModal === "required"} onClose={() => setKeyModal(null)}
+          onSave={(k) => { setAiKey(k); setKeyModal(null); }} />
+      )}
       {shareOpen && project && (
         <ShareModal project={project} onClose={() => setShareOpen(false)}
           onUpdate={(d) => { const { system: _s, context: _c, ...meta } = d; setProject((p) => ({ ...p, ...meta })); }} />

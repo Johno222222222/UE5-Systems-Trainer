@@ -12,12 +12,12 @@ from dotenv import load_dotenv
 import base64
 
 from emergentintegrations.llm.chat import ImageContent, LlmChat, StreamDone, TextDelta, UserMessage
-from fastapi import APIRouter, Depends, FastAPI, HTTPException
+from fastapi import APIRouter, Depends, FastAPI, Header, HTTPException
 from pymongo import ASCENDING, DESCENDING, IndexModel
 
 import auth
 import projects
-from core import EMERGENT_LLM_KEY, client, db
+from core import client, db
 from storage import init_storage
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.middleware.cors import CORSMiddleware
@@ -25,8 +25,11 @@ from starlette.middleware.cors import CORSMiddleware
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / ".env")
 
-MODEL_PROVIDER = "anthropic"
-MODEL_NAME = "claude-sonnet-4-5-20250929"
+# Synthesis runs on the user's own key (sent per request, never stored)
+ALLOWED_MODELS = {
+    "gemini": ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.5-pro"],
+    "openai": ["gpt-4.1-mini", "gpt-4.1", "gpt-5-mini"],
+}
 
 RUNNING_JOBS: set = set()
 
@@ -205,10 +208,10 @@ def extract_json(raw: str) -> dict:
 # ---------- Routes ----------
 @api_router.get("/")
 async def root():
-    return {"message": "UE5 Modular System Architect API", "model": MODEL_NAME}
+    return {"message": "UE5 Modular System Architect API", "models": ALLOWED_MODELS}
 
 
-def compact_system(sys: dict, header_chars: int) -> str:
+def compact_system(sys: dict, header_chars: int, full: bool = False) -> str:
     keep = {
         "system_name": sys.get("system_name"),
         "summary": sys.get("summary"),
@@ -219,6 +222,11 @@ def compact_system(sys: dict, header_chars: int) -> str:
         "network_notes": sys.get("network_notes"),
         "cpp_header_excerpt": (sys.get("cpp_header") or "")[:header_chars],
     }
+    if full:
+        keep["cpp_source"] = (sys.get("cpp_source") or "")[:8000]
+        keep["blueprint_pseudocode"] = (sys.get("blueprint_pseudocode") or "")[:6000]
+        keep["setup_guide"] = sys.get("setup_guide", [])
+        keep["node_graph"] = {"nodes": sys.get("node_graph_nodes", []), "edges": sys.get("node_graph_edges", [])}
     return json.dumps(keep, indent=1)
 
 
@@ -236,7 +244,7 @@ def build_user_text(req: "GenerateRequest", refs: list) -> str:
         stacked = "\n\n".join(f"[System {i + 1}]\n{compact_system(s, 1800)}" for i, s in enumerate(req.stack_systems))
         sections.append(f"STACKED SYSTEMS (merge into one integrated system):\n{stacked}")
     if req.previous_system:
-        sections.append(f"PREVIOUS SYSTEM (revise this, do not start over):\n{compact_system(req.previous_system, 2500)}")
+        sections.append(f"PREVIOUS SYSTEM (revise this, do not start over):\n{compact_system(req.previous_system, 8000, full=True)}")
     if req.change_requests:
         numbered = "\n".join(f"{i + 1}. {c}" for i, c in enumerate(req.change_requests))
         sections.append(f"REQUESTED CHANGES (apply every one, report each in applied_changes):\n{numbered}")
@@ -265,21 +273,26 @@ Generate the full modular UE5 system now. Respond with raw JSON only."""
 
 def friendly_error(exc: Exception) -> str:
     msg = str(exc)
-    if "Budget has been exceeded" in msg:
-        return "Emergent Universal Key budget exceeded. Add balance: Profile → Manage plan → Universal Key → Add Balance."
-    return f"LLM error: {msg[:300]}"
+    low = msg.lower()
+    if any(k in low for k in ("api key not valid", "invalid api key", "incorrect api key", "api_key_invalid", "authenticationerror", "permission_denied")):
+        return "Your AI key was rejected. Open AI Key settings and check it's correct for the selected provider."
+    if any(k in low for k in ("resource_exhausted", "ratelimit", "rate limit", "quota", "429")):
+        return "Your AI key hit its rate limit or free quota. Wait a minute and try again, or switch to a lighter model."
+    if "not found" in low and "model" in low:
+        return "That model isn't available for your key. Pick another model in AI Key settings."
+    return f"AI provider error: {msg[:300]}"
 
 
 async def set_job(job_id: str, **fields) -> None:
     await db.jobs.update_one({"job_id": job_id}, {"$set": fields})
 
 
-async def run_job(job_id: str, req: GenerateRequest, refs: list) -> None:
+async def run_job(job_id: str, req: GenerateRequest, refs: list, provider: str, model: str, key: str) -> None:
     chat = LlmChat(
-        api_key=EMERGENT_LLM_KEY,
+        api_key=key,
         session_id=f"ue5-{job_id}",
         system_message=SYSTEM_PROMPT,
-    ).with_model(MODEL_PROVIDER, MODEL_NAME).with_params(max_tokens=12000 if req.stack_systems else 8000)
+    ).with_model(provider, model).with_params(max_tokens=24000 if provider == "gemini" else (12000 if req.stack_systems else 8000))
     raw, last_report = "", 0
     try:
         images = [ImageContent(base64.b64encode(r["image_bytes"]).decode()) for r in refs if r.get("image_bytes")]
@@ -292,8 +305,8 @@ async def run_job(job_id: str, req: GenerateRequest, refs: list) -> None:
             elif isinstance(ev, StreamDone):
                 break
     except Exception as exc:
-        logging.exception("LLM stream failed")
-        await set_job(job_id, status="error", detail=friendly_error(exc))
+        logging.error("LLM stream failed: %s", str(exc).replace(key, "***")[:500])
+        await set_job(job_id, status="error", detail=friendly_error(exc).replace(key, "***"))
         return
     try:
         data = extract_json(raw)
@@ -309,14 +322,26 @@ async def run_job(job_id: str, req: GenerateRequest, refs: list) -> None:
 
 
 @api_router.post("/generate")
-async def generate_system(req: GenerateRequest, user: dict = Depends(auth.current_user)):
+async def generate_system(
+    req: GenerateRequest,
+    user: dict = Depends(auth.current_user),
+    x_llm_provider: str = Header(None),
+    x_llm_model: str = Header(None),
+    x_llm_key: str = Header(None),
+):
+    if not x_llm_key or not x_llm_key.strip():
+        raise HTTPException(status_code=400, detail="Add your Gemini or OpenAI API key in AI Key settings before synthesizing.")
+    if x_llm_key.startswith("sk-emergent-"):
+        raise HTTPException(status_code=400, detail="Use your own Gemini or OpenAI key, not an Emergent key.")
+    if x_llm_model not in ALLOWED_MODELS.get(x_llm_provider or "", []):
+        raise HTTPException(status_code=400, detail="Pick a supported provider and model in AI Key settings.")
     refs = await projects.load_references(req.reference_file_ids, user)
     job_id = str(uuid.uuid4())
     await db.jobs.insert_one({
         "job_id": job_id, "status": "running", "chars": 0, "user_id": user["user_id"],
         "created_at": datetime.now(timezone.utc).isoformat(),
     })
-    task = asyncio.create_task(run_job(job_id, req, refs))
+    task = asyncio.create_task(run_job(job_id, req, refs, x_llm_provider, x_llm_model, x_llm_key.strip()))
     RUNNING_JOBS.add(task)
     task.add_done_callback(RUNNING_JOBS.discard)
     return {"job_id": job_id}
@@ -429,3 +454,6 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
+# Gemini puts the user's key in the request URL; keep HTTP client logs quiet so it never hits disk
+for noisy in ("httpx", "httpcore", "LiteLLM", "litellm"):
+    logging.getLogger(noisy).setLevel(logging.ERROR)

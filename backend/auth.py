@@ -28,8 +28,8 @@ def verify_password(plain: str, hashed: str) -> bool:
     return bcrypt.checkpw(plain.encode(), hashed.encode())
 
 
-def _token(user_id: str, kind: str, delta: timedelta) -> str:
-    payload = {"sub": user_id, "type": kind, "exp": datetime.now(timezone.utc) + delta}
+def _token(user_id: str, kind: str, delta: timedelta, tv: int = 0) -> str:
+    payload = {"sub": user_id, "type": kind, "tv": tv, "exp": datetime.now(timezone.utc) + delta}
     return jwt.encode(payload, os.environ["JWT_SECRET"], algorithm=JWT_ALGORITHM)
 
 
@@ -37,9 +37,10 @@ def _cookie(resp: Response, key: str, value: str, max_age: int) -> None:
     resp.set_cookie(key=key, value=value, httponly=True, secure=True, samesite="none", max_age=max_age, path="/")
 
 
-def set_jwt_cookies(resp: Response, user_id: str) -> None:
-    _cookie(resp, "access_token", _token(user_id, "access", timedelta(minutes=ACCESS_MIN)), ACCESS_MIN * 60)
-    _cookie(resp, "refresh_token", _token(user_id, "refresh", timedelta(days=REFRESH_DAYS)), REFRESH_DAYS * 86400)
+def set_jwt_cookies(resp: Response, user: dict) -> None:
+    tv = user.get("token_version", 0)
+    _cookie(resp, "access_token", _token(user["user_id"], "access", timedelta(minutes=ACCESS_MIN), tv), ACCESS_MIN * 60)
+    _cookie(resp, "refresh_token", _token(user["user_id"], "refresh", timedelta(days=REFRESH_DAYS), tv), REFRESH_DAYS * 86400)
 
 
 def public_user(u: dict) -> dict:
@@ -59,7 +60,10 @@ async def _user_from_jwt(token: str):
         return None
     if payload.get("type") != "access":
         return None
-    return await db.users.find_one({"user_id": payload["sub"]}, {"_id": 0, "password_hash": 0})
+    user = await db.users.find_one({"user_id": payload["sub"]}, {"_id": 0, "password_hash": 0})
+    if not user or user.get("token_version", 0) != payload.get("tv", 0):
+        return None
+    return user
 
 
 async def _user_from_session(token: str):
@@ -133,7 +137,7 @@ async def register(body: RegisterIn, response: Response):
         "password_hash": hash_password(body.password), "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.users.insert_one(user)
-    set_jwt_cookies(response, user["user_id"])
+    set_jwt_cookies(response, user)
     return public_user(user)
 
 
@@ -153,7 +157,7 @@ async def login(body: LoginIn, request: Request, response: Response):
         )
         raise HTTPException(status_code=401, detail="Invalid email or password")
     await db.login_attempts.delete_one({"identifier": ident})
-    set_jwt_cookies(response, user["user_id"])
+    set_jwt_cookies(response, user)
     return public_user(user)
 
 
@@ -167,7 +171,13 @@ async def google_session(body: GoogleIn, response: Response):
     email = data["email"].lower()
     user = await db.users.find_one({"email": email}, {"_id": 0})
     if user:
-        await db.users.update_one({"email": email}, {"$set": {"email_verified": True, "picture": data.get("picture") or user.get("picture")}})
+        update = {"$set": {"email_verified": True, "picture": data.get("picture") or user.get("picture")}}
+        if not user.get("email_verified"):
+            # Unverified password account: it may have been pre-registered by someone else
+            update["$unset"] = {"password_hash": ""}
+            update["$inc"] = {"token_version": 1}
+            await db.projects.update_many({"members.user_id": user["user_id"]}, {"$set": {"members.$[m].user_id": None}}, array_filters=[{"m.user_id": user["user_id"]}])
+        await db.users.update_one({"email": email}, update)
         user_id = user["user_id"]
     else:
         user_id = f"user_{uuid.uuid4().hex[:12]}"
@@ -196,9 +206,10 @@ async def refresh(request: Request, response: Response):
         payload = jwt.decode(tok or "", os.environ["JWT_SECRET"], algorithms=[JWT_ALGORITHM])
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Session expired")
-    if payload.get("type") != "refresh" or not await db.users.find_one({"user_id": payload["sub"]}):
+    user = await db.users.find_one({"user_id": payload["sub"]}) if payload.get("type") == "refresh" else None
+    if not user or user.get("token_version", 0) != payload.get("tv", 0):
         raise HTTPException(status_code=401, detail="Session expired")
-    _cookie(response, "access_token", _token(payload["sub"], "access", timedelta(minutes=ACCESS_MIN)), ACCESS_MIN * 60)
+    _cookie(response, "access_token", _token(user["user_id"], "access", timedelta(minutes=ACCESS_MIN), user.get("token_version", 0)), ACCESS_MIN * 60)
     return {"ok": True}
 
 
@@ -206,6 +217,8 @@ async def refresh(request: Request, response: Response):
 async def logout(request: Request, response: Response):
     if tok := request.cookies.get("session_token"):
         await db.user_sessions.delete_one({"session_token": tok})
+    if user := await optional_user(request):
+        await db.users.update_one({"user_id": user["user_id"]}, {"$inc": {"token_version": 1}})
     for key in ("access_token", "refresh_token", "session_token"):
         response.delete_cookie(key, path="/", secure=True, samesite="none")
     return {"ok": True}
@@ -226,11 +239,10 @@ async def create_reset_link(body: ResetLinkIn, _: dict = Depends(admin_user)):
 
 @router.post("/reset-password")
 async def reset_password(body: ResetIn):
-    rec = await db.password_reset_tokens.find_one({"token": body.token})
-    if not rec or rec.get("used") or _aware(rec["expires_at"]) < datetime.now(timezone.utc):
+    rec = await db.password_reset_tokens.find_one_and_update({"token": body.token, "used": False}, {"$set": {"used": True}})
+    if not rec or _aware(rec["expires_at"]) < datetime.now(timezone.utc):
         raise HTTPException(status_code=400, detail="This reset link is invalid or has expired. Ask the app owner for a new one.")
-    await db.users.update_one({"user_id": rec["user_id"]}, {"$set": {"password_hash": hash_password(body.password)}})
-    await db.password_reset_tokens.update_one({"token": body.token}, {"$set": {"used": True}})
+    await db.users.update_one({"user_id": rec["user_id"]}, {"$set": {"password_hash": hash_password(body.password)}, "$inc": {"token_version": 1}})
     return {"ok": True}
 
 
