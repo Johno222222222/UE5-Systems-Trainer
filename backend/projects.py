@@ -110,6 +110,10 @@ class PublicIn(BaseModel):
     enabled: bool
 
 
+class LabelIn(BaseModel):
+    label: str = Field(default="", max_length=60)
+
+
 class ImportIn(BaseModel):
     data: dict
 
@@ -204,10 +208,24 @@ async def save_project(project_id: str, body: ProjectUpdate, user: dict = Depend
 async def list_versions(project_id: str, user: dict = Depends(current_user)):
     await load_project(project_id, user)
     rows = await db.project_versions.find(
-        {"project_id": project_id}, {"_id": 0, "version": 1, "saved_by_name": 1, "saved_at": 1, "system.system_name": 1}
+        {"project_id": project_id}, {"_id": 0, "version": 1, "saved_by_name": 1, "saved_at": 1, "label": 1, "labeled_by_name": 1, "system.system_name": 1}
     ).sort("version", -1).to_list(1000)
     return {"versions": [{"version": r["version"], "saved_by_name": r["saved_by_name"], "saved_at": r["saved_at"],
+                          "label": r.get("label") or "", "labeled_by_name": r.get("labeled_by_name"),
                           "system_name": (r.get("system") or {}).get("system_name")} for r in rows]}
+
+
+@router.patch("/projects/{project_id}/versions/{version}")
+async def label_version(project_id: str, version: int, body: LabelIn, user: dict = Depends(current_user)):
+    await load_project(project_id, user, "editor")
+    label = body.label.strip()
+    res = await db.project_versions.update_one(
+        {"project_id": project_id, "version": version},
+        {"$set": {"label": label, "labeled_by_name": user["name"] if label else None}},
+    )
+    if not res.matched_count:
+        raise HTTPException(status_code=404, detail="Version not found")
+    return {"version": version, "label": label}
 
 
 @router.post("/projects/{project_id}/versions/{version}/restore")

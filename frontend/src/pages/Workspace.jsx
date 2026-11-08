@@ -5,7 +5,7 @@ import {
   Plus, Trash2, CheckCircle2, Terminal, PackageSearch, Settings,
   Boxes, ChevronDown, PlayCircle, Hammer, Wrench, GitBranch, Network, Zap,
   Swords, Package, MessagesSquare, Shield, HardDrive, Car, Hand, Workflow,
-  GitCompareArrows, Compass, StickyNote, Share2, FolderClosed, Eye, Pencil, KeyRound, FileArchive, History
+  GitCompareArrows, Compass, StickyNote, Share2, FolderClosed, Eye, Pencil, KeyRound, FileArchive, History, Tag, ChevronDown as Caret, AlertTriangle
 } from "lucide-react";
 import NodeGraph from "../components/NodeGraph";
 import AnnotatedPseudocode from "../components/AnnotatedPseudocode";
@@ -20,8 +20,8 @@ import ShareModal from "../components/ShareModal";
 import AccountMenu from "../components/AccountMenu";
 import Modal from "../components/Modal";
 import { ReferencesBar, ProjectFiles } from "../components/Files";
-import UsageChip from "../components/UsageChip";
-import { buildProjectZip } from "../lib/zipExport";
+import UsageChip, { modelUsage, useUsage } from "../components/UsageChip";
+import { buildPluginZip, buildProjectZip } from "../lib/zipExport";
 import AiKeyModal, { DEFAULT_MODEL, PROVIDERS, aiHeaders, loadAiKey, saveAiKey } from "../components/AiKeyModal";
 import { highlightCpp, highlightBlueprint } from "../lib/highlight";
 
@@ -176,6 +176,9 @@ export default function Workspace() {
   const [baseSystem, setBaseSystem] = useState(null);
   const [usageTick, setUsageTick] = useState(0);
   const [restoring, setRestoring] = useState(false);
+  const usage = useUsage(aiKey, usageTick);
+  const [limitPrompt, setLimitPrompt] = useState(null);
+  const [zipMenu, setZipMenu] = useState(false);
   const projectRef = useRef(null);
   projectRef.current = project;
   const aliveRef = useRef(true);
@@ -203,18 +206,31 @@ export default function Workspace() {
     toast.message(`Loaded template: ${t.title}`);
   };
 
-  const runSynthesis = async (body, context, successLabel) => {
-    if (!aiKey) {
+  const runSynthesis = async (body, context, successLabel, opts = {}) => {
+    const key = opts.key || aiKey;
+    if (!key) {
       setKeyModal("required");
       toast.error("Add your AI key to synthesize");
       return false;
+    }
+    if (!opts.skipLimit) {
+      const { used, limit } = modelUsage(usage, key.provider, key.model);
+      // a synthesis can take up to 3 requests when the model is busy
+      if (limit && used + 3 > limit * 0.85) {
+        const alt = Object.entries(usage.free_limits)
+          .filter(([m, l]) => m !== key.model && l > 0)
+          .map(([m, l]) => ({ model: m, left: l - (usage.models[m]?.used || 0) }))
+          .sort((a, b) => b.left - a.left)[0];
+        setLimitPrompt({ body, context, successLabel, used, limit, model: key.model, alt: alt && alt.left > limit - used ? alt : null });
+        return false;
+      }
     }
     const startedOn = project?.project_id || null;
     setLoading(true);
     setError(null);
     setProgress(0);
     try {
-      const data = await streamGenerate({ ...body, project_context: projectContext, reference_file_ids: references.map((r) => r.file_id) }, setProgress, aiKey, () => aliveRef.current);
+      const data = await streamGenerate({ ...body, project_context: projectContext, reference_file_ids: references.map((r) => r.file_id) }, setProgress, key, () => aliveRef.current);
       if ((projectRef.current?.project_id || null) !== startedOn) {
         toast.message("A synthesis finished after you switched projects, so it was discarded");
         return false;
@@ -235,6 +251,20 @@ export default function Workspace() {
       setLoading(false);
       setUsageTick((n) => n + 1);
     }
+  };
+
+  const continueFromLimit = async (switchTo) => {
+    const p = limitPrompt;
+    setLimitPrompt(null);
+    let key = aiKey;
+    if (switchTo) {
+      key = { ...aiKey, model: switchTo };
+      saveAiKey(key);
+      setAiKey(key);
+      toast.success(`Switched to ${switchTo}`);
+    }
+    const ok = await runSynthesis(p.body, p.context, p.successLabel, { key, skipLimit: true });
+    if (ok && p.body.stack_systems) { setPrompt(p.body.prompt); setExtra([]); setProject(null); }
   };
 
   const currentInputs = { prompt, blueprint_class: bpClass, complexity, modularity, performance_vs_flexibility: perfFlex, tick_rate: tickRate, network_replicated: replicated };
@@ -390,12 +420,16 @@ export default function Workspace() {
     if (!result) return;
     downloadBlob(JSON.stringify(exportData(), null, 2), `${(project?.name || result.system_name).replace(/\s+/g, "_")}.json`);
   };
-  const exportZip = async () => {
+  const exportZip = async (kind) => {
     if (!result) return;
+    setZipMenu(false);
     const { system, context } = splitResult();
-    const { blob, filename } = await buildProjectZip(project?.name || result.system_name, system, { ...context, references: undefined });
+    const build = kind === "plugin" ? buildPluginZip : buildProjectZip;
+    const { blob, filename } = await build(project?.name || result.system_name, system, { ...context, references: undefined });
     downloadBlob(blob, filename);
-    toast.success(`Downloaded ${filename}`, { description: "Public/.h, Private/.cpp, SETUP.md and README.md" });
+    toast.success(`Downloaded ${filename}`, {
+      description: kind === "plugin" ? "Copy the folder into YourProject/Plugins and build. No code edits needed." : "Public/.h, Private/.cpp, SETUP.md and README.md",
+    });
   };
 
   const restoreVersion = async () => {
@@ -441,23 +475,42 @@ export default function Workspace() {
       const { data } = await api.get(`/projects/${pid}/versions/${v}`);
       if (projectRef.current?.project_id !== pid) return;
       setCompareBase(v);
-      setBaseSystem({ ...data.system, context: data.context, version_label: `v${v} · ${data.saved_by_name}` });
+      setBaseSystem({ ...data.system, context: data.context, version_label: `v${v}${data.label ? ` · ${data.label}` : ` · ${data.saved_by_name}`}` });
     } catch (e) { toast.error(errorText(e)); }
   };
 
   const compareBefore = compareBase === "previous" ? previousResult : baseSystem;
   const canRestore = typeof compareBase === "number" && compareBase !== project?.version && project && !readOnly;
+  const labelVersion = async () => {
+    const current = versions.find((v) => v.version === compareBase);
+    const label = window.prompt(`Name v${compareBase} (leave empty to remove the name)`, current?.label || "");
+    if (label === null) return;
+    try {
+      const { data } = await api.patch(`/projects/${project.project_id}/versions/${compareBase}`, { label: label.trim().slice(0, 60) });
+      setVersions((vs) => vs.map((v) => (v.version === data.version ? { ...v, label: data.label } : v)));
+      setBaseSystem((b) => b && { ...b, version_label: `v${data.version}${data.label ? ` · ${data.label}` : ""}` });
+      toast.success(data.label ? `Named v${data.version} "${data.label}"` : `Removed the name from v${data.version}`);
+    } catch (e) { toast.error(errorText(e)); }
+  };
+  const versionOption = (v) => (
+    <option key={v.version} value={v.version}>
+      {v.label ? `★ ${v.label} · ` : ""}v{v.version}{v.version === project?.version ? " (latest)" : ""} · {v.saved_by_name} · {new Date(v.saved_at).toLocaleString()}
+    </option>
+  );
+  const labeled = versions.filter((v) => v.label);
   const versionPicker = (versions.length > 0 || previousResult) ? (
     <>
     <select value={String(compareBase)} onChange={(e) => pickBase(e.target.value)} aria-label="Compare against"
       className="bg-[var(--bg-main)] border border-[var(--border)] rounded-md px-2 py-1 text-[11px] font-mono text-[var(--text-primary)] outline-none focus:border-[var(--unreal-orange)]" data-testid="compare-base-select">
       <option value="previous" disabled={!previousResult}>Previous synthesis{previousResult ? "" : " (none yet)"}</option>
-      {versions.map((v) => (
-        <option key={v.version} value={v.version}>
-          Saved v{v.version}{v.version === project?.version ? " (latest)" : ""} · {v.saved_by_name} · {new Date(v.saved_at).toLocaleString()}
-        </option>
-      ))}
+      {labeled.length > 0 && <optgroup label="Named versions">{labeled.map(versionOption)}</optgroup>}
+      {versions.length > 0 && <optgroup label="All saved versions">{versions.map(versionOption)}</optgroup>}
     </select>
+    {typeof compareBase === "number" && project && !readOnly && (
+      <button className="ue-btn !py-1 !px-2 !text-[11px]" onClick={labelVersion} data-testid="label-version-button">
+        <Tag size={12} /> {versions.find((v) => v.version === compareBase)?.label ? "Rename" : "Name"} v{compareBase}
+      </button>
+    )}
     {canRestore && (
       <button className="ue-btn !py-1 !px-2 !text-[11px] !border-[var(--cpp-green)] !text-[var(--cpp-green)]" onClick={restoreVersion} disabled={restoring} data-testid="restore-version-button">
         <History size={12} /> {restoring ? "Restoring…" : `Restore v${compareBase}`}
@@ -527,9 +580,23 @@ export default function Workspace() {
         {project?.my_role === "owner" && <button className="ue-btn" onClick={() => setShareOpen(true)} data-testid="share-button"><Share2 size={13} /> Share</button>}
         <button className="ue-btn" onClick={copyJson} disabled={!result} data-testid="copy-json-btn"><Copy size={13} /> Copy JSON</button>
         <button className="ue-btn" onClick={exportAll} disabled={!result} data-testid="export-all-btn"><Download size={13} /> JSON</button>
-        <button className="ue-btn" onClick={exportZip} disabled={!result} data-testid="export-zip-btn"><FileArchive size={13} /> UE5 .zip</button>
+        <div className="relative">
+          <button className="ue-btn" onClick={() => setZipMenu((v) => !v)} disabled={!result} aria-expanded={zipMenu} data-testid="export-zip-btn"><FileArchive size={13} /> UE5 .zip <Caret size={12} /></button>
+          {zipMenu && (
+            <div className="absolute right-0 top-full mt-1 z-40 panel w-[290px] p-1.5 shadow-2xl" data-testid="export-zip-menu">
+              <button className="w-full text-left px-2.5 py-2 rounded hover:bg-[var(--surface-hover)]" onClick={() => exportZip("plugin")} data-testid="export-plugin-zip">
+                <div className="font-sub text-[13px] font-semibold">Unreal plugin <span className="chip active !py-0 !text-[9.5px] ml-1">RECOMMENDED</span></div>
+                <div className="text-[10.5px] font-mono text-[var(--text-muted)]">Drop into Plugins/ and build. No code edits.</div>
+              </button>
+              <button className="w-full text-left px-2.5 py-2 rounded hover:bg-[var(--surface-hover)]" onClick={() => exportZip("source")} data-testid="export-source-zip">
+                <div className="font-sub text-[13px] font-semibold">Source files only</div>
+                <div className="text-[10.5px] font-mono text-[var(--text-muted)]">.h/.cpp to add to your own game module</div>
+              </button>
+            </div>
+          )}
+        </div>
         <button className="ue-btn ue-btn-primary" onClick={() => saveProject(false)} disabled={!result || readOnly || saving} data-testid="save-system-button"><Save size={13} /> {project ? "Save" : "Save project"}</button>
-        <UsageChip aiKey={aiKey} refreshKey={usageTick} />
+        <UsageChip aiKey={aiKey} usage={usage} />
         <button className={`ue-btn ${aiKey ? "" : "!border-[var(--unreal-orange)] !text-[var(--unreal-orange)]"}`} onClick={() => setKeyModal("edit")} data-testid="ai-key-button">
           <KeyRound size={13} /> {aiKey ? PROVIDERS[aiKey.provider].label.split(" ").pop() : "Add AI key"}
         </button>
@@ -854,6 +921,25 @@ export default function Workspace() {
       {keyModal && (
         <AiKeyModal current={aiKey} required={keyModal === "required"} onClose={() => { setKeyModal(null); setUsageTick((n) => n + 1); }}
           onSave={(k) => { setAiKey(k); setKeyModal(null); setUsageTick((n) => n + 1); }} />
+      )}
+      {limitPrompt && (
+        <Modal title="Close to today's free limit" onClose={() => setLimitPrompt(null)} testId="limit-warning-modal" width={480}>
+          <div className="flex gap-3 mb-4">
+            <AlertTriangle size={18} className="shrink-0 text-[#e8c547] mt-0.5" />
+            <div className="text-[13px] text-[var(--text-secondary)] leading-relaxed" data-testid="limit-warning-text">
+              {limitPrompt.used >= limitPrompt.limit ? "You've used" : "You've used about"} <b className="text-[var(--text-primary)]">{limitPrompt.used} of ~{limitPrompt.limit}</b> free {limitPrompt.model} requests today with this key.
+              {" "}A synthesis can take up to 3 requests if the model is busy, and Google may refuse once the limit is reached. It resets at midnight Pacific time.
+              {limitPrompt.alt && <> Each Gemini model has its own free quota: <b className="text-[var(--text-primary)]">{limitPrompt.alt.model}</b> has about {limitPrompt.alt.left} left.</>}
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2 justify-end">
+            <button className="ue-btn" onClick={() => setLimitPrompt(null)} data-testid="limit-cancel">Cancel</button>
+            <button className="ue-btn" onClick={() => continueFromLimit(null)} data-testid="limit-continue">Synthesize anyway</button>
+            {limitPrompt.alt && (
+              <button className="ue-btn ue-btn-primary" onClick={() => continueFromLimit(limitPrompt.alt.model)} data-testid="limit-switch-model">Switch to {limitPrompt.alt.model} and synthesize</button>
+            )}
+          </div>
+        </Modal>
       )}
       {shareOpen && project && (
         <ShareModal project={project} onClose={() => setShareOpen(false)}

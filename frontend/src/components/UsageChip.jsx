@@ -7,9 +7,8 @@ async function fingerprint(key) {
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 16);
 }
 
-export default function UsageChip({ aiKey, refreshKey }) {
+export function useUsage(aiKey, refreshKey) {
   const [usage, setUsage] = useState(null);
-
   useEffect(() => {
     if (!aiKey) { setUsage(null); return; }
     let live = true;
@@ -19,10 +18,19 @@ export default function UsageChip({ aiKey, refreshKey }) {
       .catch(() => live && setUsage(null));
     return () => { live = false; };
   }, [aiKey, refreshKey]);
+  return usage;
+}
 
+// {used, limit} for a Gemini model; limit is null when unknown (e.g. OpenAI)
+export function modelUsage(usage, provider, model) {
+  const used = usage?.models[model]?.used || 0;
+  const limit = provider === "gemini" ? usage?.free_limits[model] ?? null : null;
+  return { used, limit };
+}
+
+export default function UsageChip({ aiKey, usage }) {
   if (!aiKey || !usage) return null;
-  const used = usage.models[aiKey.model]?.used || 0;
-  const limit = aiKey.provider === "gemini" ? usage.free_limits[aiKey.model] : null;
+  const { used, limit } = modelUsage(usage, aiKey.provider, aiKey.model);
   const ratio = limit ? used / limit : 0;
   const tone = !limit ? "" : ratio >= 0.9 ? "!border-[var(--accent-red)] !text-[var(--accent-red)]" : ratio >= 0.7 ? "!border-[#e8c547] !text-[#e8c547]" : "";
   const title = limit

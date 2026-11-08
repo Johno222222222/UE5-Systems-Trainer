@@ -10,14 +10,16 @@ function baseName(system) {
   return cls ? cls[1] : (system.system_name || "System").replace(/[^A-Za-z0-9]/g, "");
 }
 
+// [code pattern, Build.cs module, engine plugin that must be enabled (if any)]
 const DEPS = [
-  [/GameplayTag/, "GameplayTags"],
-  [/UUserWidget|UMG|WidgetComponent/, "UMG"],
-  [/EnhancedInput|UInputAction|UInputMappingContext/, "EnhancedInput"],
-  [/AAIController|UBlackboard|UBehaviorTree|AIPerception/, "AIModule"],
-  [/Niagara/, "Niagara"],
-  [/AbilitySystem|UGameplayAbility|UAttributeSet|GameplayEffect/, "GameplayAbilities"],
-  [/ChaosVehicle|WheeledVehicle/, "ChaosVehicles"],
+  [/GameplayTag/, "GameplayTags", null],
+  [/UUserWidget|UMG|WidgetComponent/, "UMG", null],
+  [/EnhancedInput|UInputAction|UInputMappingContext/, "EnhancedInput", "EnhancedInput"],
+  [/AAIController|UBlackboard|UBehaviorTree|AIPerception/, "AIModule", null],
+  [/Niagara/, "Niagara", "Niagara"],
+  [/AbilitySystem|UGameplayAbility|UAttributeSet|GameplayEffect/, "GameplayAbilities", "GameplayAbilities"],
+  [/ChaosVehicle|WheeledVehicle/, "ChaosVehicles", "ChaosVehiclesPlugin"],
+  [/DOREPLIFETIME|Replicated|NetMulticast/, "NetCore", null],
 ];
 
 function readme(name, system, files, apiMacro, deps) {
@@ -90,7 +92,7 @@ export async function buildProjectZip(name, system, context) {
   const files = { h: `${base}.h`, cpp: `${base}.cpp` };
   const code = `${system.cpp_header || ""}\n${system.cpp_source || ""}`;
   const apiMacro = (system.cpp_header || "").match(/\b([A-Z0-9_]+)_API\b/)?.[0] || null;
-  const deps = DEPS.filter(([re]) => re.test(code)).map(([, d]) => d);
+  const deps = DEPS.filter(([re]) => re.test(code)).map(([, d]) => d).filter((d) => d !== "NetCore");
   const zip = new JSZip();
   const root = zip.folder(folder);
   root.file(`Public/${files.h}`, system.cpp_header || "");
@@ -100,4 +102,94 @@ export async function buildProjectZip(name, system, context) {
   root.file("BLUEPRINT_PSEUDOCODE.md", pseudoMd(system));
   root.file("system.json", JSON.stringify({ format: "ue5-architect-project", version: 1, name, system, context }, null, 2));
   return { blob: await zip.generateAsync({ type: "blob" }), filename: `${folder}.zip` };
+}
+
+
+// Uses the module's export macro on every UCLASS/USTRUCT so the classes are usable outside the plugin
+function retargetApi(header, macro) {
+  let out = header.replace(/\b[A-Z0-9_]+_API\b/g, macro);
+  out = out.replace(/((?:UCLASS|USTRUCT)\((?:[^()]|\([^()]*\))*\)\s*(?:class|struct)\s+)(?![A-Z0-9_]+_API\b)(?=[UAF][A-Z]\w*\s*(?::|\{))/g, `$1${macro} `);
+  return out;
+}
+
+function upluginJson(module, system, enginePlugins) {
+  return JSON.stringify({
+    FileVersion: 3,
+    Version: 1,
+    VersionName: "1.0",
+    FriendlyName: system.system_name,
+    Description: (system.summary || "").slice(0, 300),
+    Category: "Gameplay",
+    CreatedBy: "UE5 System Architect",
+    CanContainContent: false,
+    IsBetaVersion: false,
+    Installed: false,
+    EnabledByDefault: true,
+    Modules: [{ Name: module, Type: "Runtime", LoadingPhase: "Default" }],
+    ...(enginePlugins.length ? { Plugins: enginePlugins.map((p) => ({ Name: p, Enabled: true })) } : {}),
+  }, null, 2);
+}
+
+function buildCs(module, deps) {
+  const list = ["Core", "CoreUObject", "Engine", ...deps].map((d) => `"${d}"`).join(", ");
+  return `using UnrealBuildTool;
+
+public class ${module} : ModuleRules
+{
+\tpublic ${module}(ReadOnlyTargetRules Target) : base(Target)
+\t{
+\t\tPCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+\t\tPublicDependencyModuleNames.AddRange(new string[] { ${list} });
+\t}
+}
+`;
+}
+
+function pluginReadme(name, system, plugin, files, deps, enginePlugins) {
+  const lines = [
+    `# ${system.system_name} (Unreal plugin)`,
+    "",
+    system.summary || "",
+    "",
+    "## Install (no code edits)",
+    `1. Copy the \`${plugin}\` folder into your project's \`Plugins/\` folder (create it if needed): \`YourProject/Plugins/${plugin}/\`.`,
+    "2. Right-click your .uproject → Generate Visual Studio project files, then build. (Blueprint-only project? Opening it will offer to build the plugin.)",
+    "3. The plugin is enabled by default. Check Edit → Plugins → Gameplay if you want to confirm.",
+    `4. Follow SETUP.md. The classes from \`${files.h}\` show up in the editor like any other C++ class.`,
+    "",
+    "## What's inside",
+    `- \`${plugin}.uplugin\`: plugin descriptor${enginePlugins.length ? ` (enables ${enginePlugins.join(", ")})` : ""}`,
+    `- \`Source/${plugin}/${plugin}.Build.cs\`: module rules (Core, CoreUObject, Engine${deps.length ? `, ${deps.join(", ")}` : ""})`,
+    `- \`Source/${plugin}/Private/${plugin}Module.cpp\`: module entry point`,
+    `- \`Source/${plugin}/Public/${files.h}\` and \`Private/${files.cpp}\`: the generated system, with its export macro set to \`${plugin.toUpperCase()}_API\``,
+    "- `SETUP.md`, `BLUEPRINT_PSEUDOCODE.md`: editor setup and graph logic with Why notes",
+    "- `system.json`: re-import into UE5 System Architect",
+  ];
+  if (system.network_notes) lines.push("", "## Replication", system.network_notes);
+  lines.push("", `_Exported from UE5 System Architect project "${name}"._`);
+  return lines.join("\n");
+}
+
+export async function buildPluginZip(name, system, context) {
+  const base = baseName(system);
+  const plugin = `${base.replace(/Component$|System$|Subsystem$/, "") || base}Kit`;
+  const macro = `${plugin.toUpperCase()}_API`;
+  const files = { h: `${base}.h`, cpp: `${base}.cpp` };
+  const code = `${system.cpp_header || ""}\n${system.cpp_source || ""}`;
+  const matched = DEPS.filter(([re]) => re.test(code));
+  const deps = matched.map(([, d]) => d);
+  const enginePlugins = matched.map(([, , p]) => p).filter(Boolean);
+  const zip = new JSZip();
+  const root = zip.folder(plugin);
+  const src = root.folder(`Source/${plugin}`);
+  root.file(`${plugin}.uplugin`, upluginJson(plugin, system, enginePlugins));
+  src.file(`${plugin}.Build.cs`, buildCs(plugin, deps));
+  src.file(`Private/${plugin}Module.cpp`, `#include "Modules/ModuleManager.h"\n\nIMPLEMENT_MODULE(FDefaultModuleImpl, ${plugin})\n`);
+  src.file(`Public/${files.h}`, retargetApi(system.cpp_header || "", macro));
+  src.file(`Private/${files.cpp}`, system.cpp_source || "");
+  root.file("README.md", pluginReadme(name, system, plugin, files, deps, enginePlugins));
+  root.file("SETUP.md", setupMd(system));
+  root.file("BLUEPRINT_PSEUDOCODE.md", pseudoMd(system));
+  root.file("system.json", JSON.stringify({ format: "ue5-architect-project", version: 1, name, system, context }, null, 2));
+  return { blob: await zip.generateAsync({ type: "blob" }), filename: `${plugin}.zip` };
 }
