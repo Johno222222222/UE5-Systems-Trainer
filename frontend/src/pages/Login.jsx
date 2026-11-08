@@ -33,9 +33,10 @@ export default function Login() {
   const [showForgot, setShowForgot] = useState(false);
 
   const google = () => {
-    sessionStorage.setItem("ue5_google_pending", "1");
+    const nonce = crypto.randomUUID();
+    sessionStorage.setItem("ue5_google_pending", nonce);
     // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
-    const redirectUrl = window.location.origin + window.location.pathname;
+    const redirectUrl = `${window.location.origin}${window.location.pathname}?gs=${nonce}`;
     window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
   };
 

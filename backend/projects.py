@@ -192,7 +192,10 @@ async def save_project(project_id: str, body: ProjectUpdate, user: dict = Depend
             "message": f"{latest['updated_by_name']} saved a newer version while you were editing.",
             "updated_by_name": latest["updated_by_name"], "updated_at": latest["updated_at"], "version": latest["version"],
         })
-    await snapshot(res)
+    try:
+        await snapshot(res)
+    except Exception:
+        pass  # version already recorded by a concurrent backfill
     await claim_references(body.context, user, project_id)
     return detail(res, role)
 

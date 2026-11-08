@@ -7,7 +7,7 @@ import bcrypt
 import httpx
 import jwt
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from core import db
 
@@ -101,9 +101,16 @@ async def admin_user(user: dict = Depends(current_user)) -> dict:
 
 
 # ---------- Models ----------
+def _bcrypt_len(v: str) -> str:
+    if len(v.encode()) > 72:
+        raise ValueError("Password must be at most 72 bytes")
+    return v
+
+
 class RegisterIn(BaseModel):
     email: EmailStr
-    password: str = Field(min_length=8, max_length=128)
+    password: str = Field(min_length=8, max_length=72)
+    _len = field_validator("password")(_bcrypt_len)
     name: str = Field(default="", max_length=80)
 
 
@@ -114,7 +121,8 @@ class LoginIn(BaseModel):
 
 class ResetIn(BaseModel):
     token: str
-    password: str = Field(min_length=8, max_length=128)
+    password: str = Field(min_length=8, max_length=72)
+    _len = field_validator("password")(_bcrypt_len)
 
 
 class ResetLinkIn(BaseModel):
@@ -217,8 +225,15 @@ async def refresh(request: Request, response: Response):
 async def logout(request: Request, response: Response):
     if tok := request.cookies.get("session_token"):
         await db.user_sessions.delete_one({"session_token": tok})
-    if user := await optional_user(request):
-        await db.users.update_one({"user_id": user["user_id"]}, {"$inc": {"token_version": 1}})
+    user_id = (await optional_user(request) or {}).get("user_id")
+    if not user_id and (rt := request.cookies.get("refresh_token")):
+        try:
+            payload = jwt.decode(rt, os.environ["JWT_SECRET"], algorithms=[JWT_ALGORITHM])
+            user_id = payload["sub"] if payload.get("type") == "refresh" else None
+        except jwt.InvalidTokenError:
+            user_id = None
+    if user_id:
+        await db.users.update_one({"user_id": user_id}, {"$inc": {"token_version": 1}})
     for key in ("access_token", "refresh_token", "session_token"):
         response.delete_cookie(key, path="/", secure=True, samesite="none")
     return {"ok": True}

@@ -277,9 +277,14 @@ Generate the full modular UE5 system now. Respond with raw JSON only."""
 
 def classify_error(exc: Exception, model: str = "") -> tuple[str, str]:
     low = str(exc).lower()
-    if ("free_tier" in low and "limit: 0" in low) or "insufficient_quota" in low:
+    status = getattr(exc, "status_code", None) or getattr(getattr(exc, "__cause__", None), "status_code", None)
+    if "free_tier" in low and "limit: 0" in low:
         return "paid_model_required", PAID_MODEL_MSG.format(model=model or "This model")
-    if "serviceunavailable" in low or "high demand" in low or "overloaded" in low or '"code": 503' in low:
+    if "insufficient_quota" in low:
+        return "no_credits", "This OpenAI key has no credits left (free credits expire after 30 days). Add billing to your OpenAI account, or switch to a free Gemini key."
+    if isinstance(exc, asyncio.TimeoutError) or "timeout" in low or "timed out" in low:
+        return "busy", "The model took too long to answer. Try again, or switch to Gemini 3.5 Flash-Lite."
+    if status in (500, 502, 503, 504) or "serviceunavailable" in low or "high demand" in low or "overloaded" in low:
         return "busy", "That model is overloaded right now. Try again in a minute, or switch to Gemini 3.5 Flash-Lite."
     return "error", friendly_error(exc)
 

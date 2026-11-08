@@ -163,6 +163,11 @@ export default function Workspace() {
   const readOnly = project?.my_role === "viewer";
   const [aiKey, setAiKey] = useState(loadAiKey);
   const [keyModal, setKeyModal] = useState(null); // null | "edit" | "required"
+  useEffect(() => {
+    const onStorage = (e) => { if (e.key === "ue5_architect_ai_key") setAiKey(loadAiKey()); };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
   const [saving, setSaving] = useState(false);
   const [versions, setVersions] = useState([]);
   const [compareBase, setCompareBase] = useState("previous"); // "previous" | version number
@@ -293,14 +298,17 @@ export default function Workspace() {
   const saveProject = async (force = false) => {
     if (!result || saving) return;
     const { system, context } = splitResult();
+    const savingFor = project?.project_id || null;
     setSaving(true);
     try {
       const { data } = project && !readOnly
         ? await api.put(`/projects/${project.project_id}`, { system, context, base_version: project.version, force })
         : await api.post("/projects", { name: result.system_name, system, context });
       const { system: _s, context: _c, ...meta } = data;
-      setProject(meta);
-      setConflict(null);
+      if ((projectRef.current?.project_id || null) === savingFor) {
+        setProject(meta);
+        setConflict(null);
+      }
       setProjRefresh((n) => n + 1);
       toast.success(project ? "Project saved" : "Saved as new project", { description: data.name });
     } catch (e) {
@@ -385,7 +393,10 @@ export default function Workspace() {
 
   useEffect(() => {
     if (tab !== "compare" || !project) { setVersions([]); return; }
-    api.get(`/projects/${project.project_id}/versions`).then((r) => setVersions(r.data.versions)).catch(() => setVersions([]));
+    const pid = project.project_id;
+    api.get(`/projects/${pid}/versions`)
+      .then((r) => { if (projectRef.current?.project_id === pid) setVersions(r.data.versions); })
+      .catch(() => setVersions([]));
   }, [tab, project?.project_id, project?.version]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { setCompareBase("previous"); setBaseSystem(null); }, [project?.project_id]);
@@ -394,7 +405,9 @@ export default function Workspace() {
     if (value === "previous") { setCompareBase("previous"); setBaseSystem(null); return; }
     const v = Number(value);
     try {
-      const { data } = await api.get(`/projects/${project.project_id}/versions/${v}`);
+      const pid = project.project_id;
+      const { data } = await api.get(`/projects/${pid}/versions/${v}`);
+      if (projectRef.current?.project_id !== pid) return;
       setCompareBase(v);
       setBaseSystem({ ...data.system, context: data.context, version_label: `v${v} · ${data.saved_by_name}` });
     } catch (e) { toast.error(errorText(e)); }
