@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 // Renders a bezier wire between two anchor points
 function wirePath(x1, y1, x2, y2) {
@@ -20,6 +20,19 @@ export default function NodeGraph({ nodes = [], edges = [] }) {
     });
     return p;
   }, [nodes, positions]);
+
+  const wrapRef = useRef(null);
+  const fit = () => {
+    const pts = Object.values(pos);
+    const el = wrapRef.current;
+    if (!pts.length || !el) return;
+    const minX = Math.min(...pts.map((p) => p.x)), minY = Math.min(...pts.map((p) => p.y));
+    const maxX = Math.max(...pts.map((p) => p.x)) + 190, maxY = Math.max(...pts.map((p) => p.y)) + 120;
+    const z = Math.min(1.2, Math.max(0.3, Math.min(el.clientWidth / (maxX - minX + 80), (el.clientHeight - 60) / (maxY - minY + 80))));
+    setZoom(z);
+    setPan({ x: 40 - minX * z, y: 60 - minY * z });
+  };
+  useEffect(() => { fit(); }, [nodes]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onBgDown = (e) => {
     if (e.target === svgRef.current || e.target.dataset?.bg === "1") {
@@ -64,17 +77,21 @@ export default function NodeGraph({ nodes = [], edges = [] }) {
 
   return (
     <div
+      ref={wrapRef}
       className="bp-grid relative h-full w-full overflow-hidden"
       data-testid="node-graph-canvas"
-      onMouseDown={onBgDown}
-      onMouseMove={onMove}
-      onMouseUp={onUp}
-      onMouseLeave={onUp}
+      onPointerDown={onBgDown}
+      onPointerMove={onMove}
+      onPointerUp={onUp}
+      onPointerLeave={onUp}
+      onWheel={(e) => setZoom((z) => Math.min(1.6, Math.max(0.3, z - e.deltaY * 0.001)))}
+      style={{ touchAction: "none" }}
     >
       {/* zoom controls */}
       <div className="absolute right-4 top-4 z-20 flex gap-2">
-        <button className="ue-btn" onClick={() => setZoom((z) => Math.min(1.6, z + 0.1))} data-testid="graph-zoom-in">+</button>
-        <button className="ue-btn" onClick={() => setZoom((z) => Math.max(0.4, z - 0.1))} data-testid="graph-zoom-out">−</button>
+        <button className="ue-btn" onClick={() => setZoom((z) => Math.min(1.6, z + 0.1))} aria-label="Zoom in" data-testid="graph-zoom-in">+</button>
+        <button className="ue-btn" onClick={() => setZoom((z) => Math.max(0.3, z - 0.1))} aria-label="Zoom out" data-testid="graph-zoom-out">−</button>
+        <button className="ue-btn" onClick={fit} aria-label="Fit graph to view" data-testid="graph-fit">Fit</button>
         <button className="ue-btn" onClick={() => { setPan({x:0,y:0}); setZoom(0.85); setPositions({}); }} data-testid="graph-reset">Reset</button>
       </div>
       <div className="absolute left-4 top-4 z-20 eyebrow">EVENT GRAPH · {Math.round(zoom*100)}%</div>
@@ -111,7 +128,7 @@ export default function NodeGraph({ nodes = [], edges = [] }) {
               key={n.id}
               className={`node-card ${nodeTypeClass(n.node_type)}`}
               style={{ left: p.x, top: p.y, width: nodeWidth, pointerEvents: "auto" }}
-              onMouseDown={(e) => onNodeDown(e, n.id)}
+              onPointerDown={(e) => onNodeDown(e, n.id)}
               data-testid={`graph-node-${n.id}`}
             >
               <div className="node-header">{n.label}</div>

@@ -22,10 +22,12 @@ An app to build modular systems from description in Unreal Engine 5.
 - 2026-01: Backend `/api/generate` with strict JSON contract (SystemOutput schema), `/api/templates`, budget-exceeded 402 error mapping
 - 2026-01: Frontend IDE workspace with UE5-slate theme, 8 template cards, Event Graph with bezier wires + zoom/pan/drag, syntax-highlighted C++ & Blueprint code boxes, copy/download per file, interactive setup checklist, tunable sliders (complexity/modularity/perf/tick), dynamic per-system parameter sliders, module add/toggle chips, persistent error banner + toast
 - 2026-01: Reduced LLM max_tokens to 4000 + compact system prompt to fit under ~60s gateway budget
-- 2026-01 ISSUE: Emergent Universal Key balance exceeded — user needs to top up to run end-to-end
+- Credits recharged. Generation switched to a background job + polling (POST /api/generate → job_id, GET /api/generate/{job_id}; jobs stored in Mongo `jobs`), with max_tokens 8000 and live char progress. This avoids proxy timeouts and stream drops.
+- Fixes from review: saved systems restore their prompt and settings; single-pass C++ highlighter; module exclusion removes it from the added list; typed nested schema; safe and cross-tab-consistent localStorage; 2000-character prompt limit with counter and readable validation errors; pointer/touch graph pan, wheel zoom, auto-Fit; aria labels on sliders and tabs
+- Per-system parameter sliders are sent back as parameter_overrides and baked into the next generation
 
 ## Backlog
-- P0: User tops up Universal Key balance, then re-test end-to-end generation flow
+- P1: Responsive layout for narrow/mobile screens (currently desktop IDE layout)
 - P1: SSE streaming of code as it generates (tokens visible live)
 - P1: Export full C++ project folder as .zip
 - P2: Shareable URL for generated systems

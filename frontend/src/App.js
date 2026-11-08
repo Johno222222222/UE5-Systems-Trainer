@@ -28,34 +28,53 @@ async function streamGenerate(body, onProgress) {
   });
   if (!res.ok) {
     const j = await res.json().catch(() => ({}));
-    throw new Error(typeof j.detail === "string" ? j.detail : `Request failed (${res.status})`);
+    const msg = typeof j.detail === "string" ? j.detail
+      : Array.isArray(j.detail) ? j.detail.map((d) => `${d.loc?.slice(-1)[0]}: ${d.msg}`).join("; ")
+      : `Request failed (${res.status})`;
+    throw new Error(msg);
   }
-  const reader = res.body.getReader();
-  const decoder = new TextDecoder();
-  let buf = "";
-  while (true) {
-    const { value, done } = await reader.read();
-    if (done) break;
-    buf += decoder.decode(value, { stream: true });
-    const parts = buf.split("\n\n");
-    buf = parts.pop();
-    for (const part of parts) {
-      const ev = part.match(/^event: (\w+)/m)?.[1];
-      const data = JSON.parse(part.match(/^data: (.*)$/m)?.[1] || "{}");
-      if (ev === "progress") onProgress(data.chars);
-      else if (ev === "error") throw new Error(data.detail);
-      else if (ev === "result") return data;
+  const { job_id } = await res.json();
+  const deadline = Date.now() + 5 * 60 * 1000;
+  while (Date.now() < deadline) {
+    await new Promise((r) => setTimeout(r, 2000));
+    let job;
+    try {
+      const r = await fetch(`${API}/generate/${job_id}`);
+      if (!r.ok) continue;
+      job = await r.json();
+    } catch {
+      continue; // transient network blip, keep polling
     }
+    onProgress(job.chars || 0);
+    if (job.status === "done") return job.result;
+    if (job.status === "error") throw new Error(job.detail);
   }
-  throw new Error("Stream ended before the system was complete. Please try again.");
+  throw new Error("Generation took longer than 5 minutes. Please try again.");
 }
 
+const readLib = () => {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || "[]"); } catch { return []; }
+};
+
 function useLibrary() {
-  const [items, setItems] = useState(() => {
-    try { return JSON.parse(localStorage.getItem(LS_KEY) || "[]"); } catch { return []; }
-  });
-  useEffect(() => { localStorage.setItem(LS_KEY, JSON.stringify(items)); }, [items]);
-  return { items, setItems };
+  const [items, setItems] = useState(readLib);
+  useEffect(() => {
+    const onStorage = (e) => { if (e.key === LS_KEY) setItems(readLib()); };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+  // Applies fn to the latest stored list; returns false if storage write fails
+  const update = (fn) => {
+    const next = fn(readLib());
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify(next));
+    } catch {
+      return false;
+    }
+    setItems(next);
+    return true;
+  };
+  return { items, update };
 }
 
 function Slider({ label, value, onChange, min = 0, max = 100, step = 1, unit = "", testId }) {
@@ -71,6 +90,7 @@ function Slider({ label, value, onChange, min = 0, max = 100, step = 1, unit = "
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
         className="w-full accent-[#ff6b00]"
+        aria-label={label}
         data-testid={testId}
       />
     </div>
@@ -175,7 +195,7 @@ export default function App() {
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState(0);
   const [tab, setTab] = useState("graph");
-  const { items: library, setItems: setLibrary } = useLibrary();
+  const { items: library, update: updateLibrary } = useLibrary();
 
   useEffect(() => {
     axios.get(`${API}/templates`).then((r) => setTemplates(r.data.templates || [])).catch(() => {});
@@ -194,6 +214,7 @@ export default function App() {
     }
     setLoading(true);
     setError(null);
+    const context = { prompt, blueprint_class: bpClass, complexity, modularity, performance_vs_flexibility: perfFlex, tick_rate: tickRate, network_replicated: replicated, extra_modules: extra };
     try {
       const removed = result ? (result.modules || []).filter((m) => !m.included).map((m) => m.name) : [];
       setProgress(0);
@@ -209,7 +230,7 @@ export default function App() {
         removed_modules: removed,
         parameter_overrides: result ? tunable : {},
       }, setProgress);
-      setResult(data);
+      setResult({ ...data, context });
       setTab("graph");
       toast.success(`${data.system_name} generated`, { description: `${data.node_graph_nodes?.length || 0} nodes · ${data.setup_guide?.length || 0} steps` });
     } catch (e) {
@@ -224,6 +245,7 @@ export default function App() {
 
   const toggleModule = (name) => {
     if (!result) return;
+    setExtra((e) => e.filter((v) => v !== name));
     setResult({
       ...result,
       modules: result.modules.map((m) => (m.name === name ? { ...m, included: !m.included } : m)),
@@ -238,16 +260,28 @@ export default function App() {
 
   const saveToLibrary = () => {
     if (!result) return;
-    setLibrary((lib) => [{ ...result, saved_at: new Date().toISOString() }, ...lib.filter((x) => x.id !== result.id)]);
-    toast.success("Saved to library", { description: result.system_name });
+    const ok = updateLibrary((lib) => [{ ...result, saved_at: new Date().toISOString() }, ...lib.filter((x) => x.id !== result.id)]);
+    if (ok) toast.success("Saved to library", { description: result.system_name });
+    else toast.error("Couldn't save", { description: "Browser storage is full. Delete some saved systems and try again." });
   };
   const loadFromLibrary = (item) => {
+    const c = item.context;
+    if (c) {
+      setPrompt(c.prompt);
+      setBpClass(c.blueprint_class);
+      setComplexity(c.complexity);
+      setModularity(c.modularity);
+      setPerfFlex(c.performance_vs_flexibility);
+      setTickRate(c.tick_rate);
+      setReplicated(c.network_replicated);
+      setExtra(c.extra_modules || []);
+    }
     setResult(item);
     setTab("graph");
     toast.message(`Loaded: ${item.system_name}`);
   };
   const removeFromLibrary = (id) => {
-    setLibrary((lib) => lib.filter((x) => x.id !== id));
+    updateLibrary((lib) => lib.filter((x) => x.id !== id));
   };
   const exportAll = () => {
     if (!result) return;
@@ -315,10 +349,12 @@ export default function App() {
               onChange={(e) => setPrompt(e.target.value)}
               rows={5}
               placeholder="Describe the system you want to build..."
+              maxLength={2000}
               data-testid="prompt-input"
               className="w-full bg-[var(--bg-main)] border border-[var(--border)] rounded-md p-3 text-[13px] font-mono text-[var(--text-primary)] outline-none focus:border-[var(--unreal-orange)] resize-none"
             />
-            <div className="mt-2 flex items-center gap-2">
+            <div className="text-right text-[10px] font-mono text-[var(--text-muted)]" data-testid="prompt-char-count">{prompt.length}/2000</div>
+            <div className="mt-1 flex items-center gap-2">
               <select
                 value={bpClass}
                 onChange={(e) => setBpClass(e.target.value)}
@@ -399,6 +435,9 @@ export default function App() {
                     key={t.id}
                     onClick={() => setTab(t.id)}
                     data-testid={t.test}
+                    aria-label={t.label}
+                    aria-pressed={active}
+                    title={t.label}
                     className={`ue-btn !py-1.5 ${active ? "!border-[var(--unreal-orange)] !text-[var(--unreal-orange)] !bg-[rgba(255,107,0,0.08)]" : ""}`}
                   >
                     <Icon size={13} /> <span className="hidden lg:inline">{t.label}</span>
@@ -539,7 +578,7 @@ export default function App() {
             )}
 
             <div className="flex flex-wrap gap-1.5 mb-2">
-              {extra.map((x) => (
+              {extra.filter((x) => !result?.modules?.some((m) => m.name === x)).map((x) => (
                 <span key={x} className="chip active" data-testid={`extra-chip-${x}`}>
                   <Plus size={10} /> {x}
                   <button onClick={() => setExtra((e) => e.filter((v) => v !== x))} className="ml-1 opacity-70 hover:opacity-100">×</button>

@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import os
@@ -9,8 +10,9 @@ from typing import List, Optional
 
 from dotenv import load_dotenv
 from emergentintegrations.llm.chat import LlmChat, StreamDone, TextDelta, UserMessage
-from fastapi import APIRouter, FastAPI
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, FastAPI, HTTPException
+from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import ASCENDING, IndexModel
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.middleware.cors import CORSMiddleware
 
@@ -21,7 +23,24 @@ EMERGENT_LLM_KEY = os.environ["EMERGENT_LLM_KEY"]
 MODEL_PROVIDER = "anthropic"
 MODEL_NAME = "claude-sonnet-4-5-20250929"
 
+client = AsyncIOMotorClient(os.environ["MONGO_URL"])
+db = client[os.environ["DB_NAME"]]
+RUNNING_JOBS: set = set()
+
 app = FastAPI()
+
+
+@app.on_event("startup")
+async def ensure_indexes():
+    await db.jobs.create_indexes([
+        IndexModel([("job_id", ASCENDING)], name="job_id", unique=True),
+        IndexModel([("created_at", ASCENDING)], name="created_at"),
+    ])
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    client.close()
 api_router = APIRouter(prefix="/api")
 
 
@@ -58,16 +77,38 @@ class NodeGraphEdge(BaseModel):
     kind: str = "exec"  # exec | data
 
 
+class TunableParam(BaseModel):
+    key: str
+    label: str = ""
+    value: float
+    min: float = 0
+    max: float = 100
+    step: float = 1
+    unit: str = ""
+
+
+class SetupStep(BaseModel):
+    step: int
+    title: str
+    detail: str = ""
+
+
+class ModuleItem(BaseModel):
+    name: str
+    included: bool = True
+    description: str = ""
+
+
 class SystemOutput(BaseModel):
     id: str
     system_name: str
     summary: str
-    tunable_parameters: List[dict]
-    modules: List[dict]
+    tunable_parameters: List[TunableParam]
+    modules: List[ModuleItem]
     blueprint_pseudocode: str
     cpp_header: str
     cpp_source: str
-    setup_guide: List[dict]
+    setup_guide: List[SetupStep]
     node_graph_nodes: List[NodeGraphNode]
     node_graph_edges: List[NodeGraphEdge]
     network_notes: str
@@ -144,10 +185,6 @@ User-tuned parameter values (keep these keys and use these exact values in code 
 Generate the full modular UE5 system now. Respond with raw JSON only."""
 
 
-def sse(event: str, payload: dict) -> str:
-    return f"event: {event}\ndata: {json.dumps(payload)}\n\n"
-
-
 def friendly_error(exc: Exception) -> str:
     msg = str(exc)
     if "Budget has been exceeded" in msg:
@@ -155,43 +192,61 @@ def friendly_error(exc: Exception) -> str:
     return f"LLM error: {msg[:300]}"
 
 
-@api_router.post("/generate")
-async def generate_system(req: GenerateRequest):
+async def set_job(job_id: str, **fields) -> None:
+    await db.jobs.update_one({"job_id": job_id}, {"$set": fields})
+
+
+async def run_job(job_id: str, req: GenerateRequest) -> None:
     chat = LlmChat(
         api_key=EMERGENT_LLM_KEY,
-        session_id=f"ue5-{uuid.uuid4()}",
+        session_id=f"ue5-{job_id}",
         system_message=SYSTEM_PROMPT,
     ).with_model(MODEL_PROVIDER, MODEL_NAME).with_params(max_tokens=8000)
+    raw, last_report = "", 0
+    try:
+        async for ev in chat.stream_message(UserMessage(text=build_user_text(req))):
+            if isinstance(ev, TextDelta):
+                raw += ev.content
+                if len(raw) - last_report > 400:
+                    last_report = len(raw)
+                    await set_job(job_id, chars=len(raw))
+            elif isinstance(ev, StreamDone):
+                break
+    except Exception as exc:
+        logging.exception("LLM stream failed")
+        await set_job(job_id, status="error", detail=friendly_error(exc))
+        return
+    try:
+        data = extract_json(raw)
+        data["id"] = str(uuid.uuid4())
+        data["generated_at"] = datetime.now(timezone.utc).isoformat()
+        result = SystemOutput(**data)
+    except Exception as exc:
+        logging.error("Bad LLM output (%s). Tail: %s", exc, raw[-300:])
+        await set_job(job_id, status="error", detail="The model's output was incomplete. Please try again, or lower Complexity.")
+        return
+    await set_job(job_id, status="done", chars=len(raw), result=result.model_dump())
 
-    async def events():
-        raw = ""
-        try:
-            async for ev in chat.stream_message(UserMessage(text=build_user_text(req))):
-                if isinstance(ev, TextDelta):
-                    raw += ev.content
-                    yield sse("progress", {"chars": len(raw)})
-                elif isinstance(ev, StreamDone):
-                    break
-        except Exception as exc:
-            logging.exception("LLM stream failed")
-            yield sse("error", {"detail": friendly_error(exc)})
-            return
-        try:
-            data = extract_json(raw)
-            data["id"] = str(uuid.uuid4())
-            data["generated_at"] = datetime.now(timezone.utc).isoformat()
-            result = SystemOutput(**data)
-        except Exception as exc:
-            logging.error("Bad LLM output (%s). Tail: %s", exc, raw[-300:])
-            yield sse("error", {"detail": "The model's output was incomplete. Please try again, or lower Complexity."})
-            return
-        yield sse("result", result.model_dump())
 
-    return StreamingResponse(
-        events(),
-        media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
-    )
+@api_router.post("/generate")
+async def generate_system(req: GenerateRequest):
+    job_id = str(uuid.uuid4())
+    await db.jobs.insert_one({
+        "job_id": job_id, "status": "running", "chars": 0,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+    task = asyncio.create_task(run_job(job_id, req))
+    RUNNING_JOBS.add(task)
+    task.add_done_callback(RUNNING_JOBS.discard)
+    return {"job_id": job_id}
+
+
+@api_router.get("/generate/{job_id}")
+async def get_job(job_id: str):
+    job = await db.jobs.find_one({"job_id": job_id}, {"_id": 0})
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return job
 
 
 # ---------- Template library (static, served from backend for easy expansion) ----------

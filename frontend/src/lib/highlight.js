@@ -1,43 +1,37 @@
-// Lightweight C++ / blueprint-pseudocode syntax highlighter (tokens only, no deps)
-const CPP_KEYWORDS = [
-  "class","public","private","protected","virtual","override","const","void","bool","float","int","int32","int64","FString","FName","FText","TArray","TMap","TSet","TSubclassOf","UClass","UObject","AActor","APawn","ACharacter","UActorComponent","USceneComponent","FVector","FRotator","FQuat","FTransform","TObjectPtr","TWeakObjectPtr","TUniquePtr","TSharedPtr","return","if","else","for","while","switch","case","break","continue","static","inline","explicit","new","delete","nullptr","true","false","this","struct","enum","namespace","template","typename","auto","using"
-];
-const BP_KEYWORDS = [
-  "Event","Function","Set","Get","Branch","Sequence","ForEach","Loop","Cast","To","Delay","Spawn","Destroy","Bind","Call","Add","Remove","Create","Promote","Variable","Timer","Interface","Delegate","Replicated","Multicast","Authority","RPC","Server","Client"
-];
-const MACROS = [
-  "UCLASS","UPROPERTY","UFUNCTION","GENERATED_BODY","USTRUCT","UENUM","DECLARE_DYNAMIC_MULTICAST_DELEGATE","DECLARE_DELEGATE","DECLARE_LOG_CATEGORY_EXTERN","DEFINE_LOG_CATEGORY","IMPLEMENT_MODULE","BlueprintCallable","BlueprintReadWrite","BlueprintReadOnly","EditAnywhere","EditDefaultsOnly","VisibleAnywhere","Category","Replicated","ReplicatedUsing","NetMulticast","Server","Client","Reliable","BlueprintImplementableEvent","BlueprintNativeEvent"
-];
+// Single-pass tokenizer: matches tokens on raw source, escapes each piece once
+const CPP_KEYWORDS = "class|public|private|protected|virtual|override|const|void|bool|float|double|int|int32|int64|uint8|FString|FName|FText|TArray|TMap|TSet|TSubclassOf|UClass|UObject|AActor|APawn|ACharacter|UActorComponent|USceneComponent|FVector|FRotator|FQuat|FTransform|TObjectPtr|TWeakObjectPtr|TSharedPtr|return|if|else|for|while|switch|case|break|continue|static|inline|new|delete|nullptr|true|false|this|struct|enum|namespace|template|typename|auto|using|Super";
+const MACROS = "UCLASS|UPROPERTY|UFUNCTION|GENERATED_BODY|USTRUCT|UENUM|UMETA|DECLARE_DYNAMIC_MULTICAST_DELEGATE\\w*|DECLARE_DELEGATE\\w*|DOREPLIFETIME\\w*|#include|#pragma|BlueprintCallable|BlueprintReadWrite|BlueprintReadOnly|BlueprintPure|BlueprintAssignable|EditAnywhere|EditDefaultsOnly|VisibleAnywhere|Category|Replicated|ReplicatedUsing|NetMulticast|Server|Client|Reliable|Unreliable|BlueprintImplementableEvent|BlueprintNativeEvent|Meta";
+const BP_KEYWORDS = "Event|Function|Set|Get|Branch|Sequence|ForEach|For Each|Loop|Cast|Delay|Spawn|Destroy|Bind|Call|Add|Remove|Create|Promote|Timer|Interface|Delegate|Replicated|Multicast|Authority|Return|Server|Client|True|False";
 
-function escapeHtml(s) {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+function tokenize(code, rules) {
+  const re = new RegExp(rules.map((r) => `(${r[0]})`).join("|"), "g");
+  let out = "";
+  let last = 0;
+  for (const m of code.matchAll(re)) {
+    out += esc(code.slice(last, m.index));
+    const idx = m.slice(1).findIndex((g) => g !== undefined);
+    out += `<span class="${rules[idx][1]}">${esc(m[0])}</span>`;
+    last = m.index + m[0].length;
+  }
+  return out + esc(code.slice(last));
 }
 
-export function highlightCpp(code) {
-  if (!code) return "";
-  let out = escapeHtml(code);
-  // line comments
-  out = out.replace(/(\/\/[^\n]*)/g, '<span class="tok-com">$1</span>');
-  // strings (post-escape, so quotes are literal)
-  out = out.replace(/("(?:[^"\\]|\\.)*")/g, '<span class="tok-str">$1</span>');
-  // macros (word followed by ( or alone)
-  const macroRe = new RegExp(`\\b(${MACROS.join("|")})\\b`, "g");
-  out = out.replace(macroRe, '<span class="tok-mac">$1</span>');
-  // keywords
-  const kwRe = new RegExp(`\\b(${CPP_KEYWORDS.join("|")})\\b`, "g");
-  out = out.replace(kwRe, '<span class="tok-key">$1</span>');
-  // numbers
-  out = out.replace(/\b(\d+\.?\d*f?)\b/g, '<span class="tok-num">$1</span>');
-  return out;
-}
+const CPP_RULES = [
+  ["\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/", "tok-com"],
+  ['"(?:[^"\\\\\\n]|\\\\.)*"', "tok-str"],
+  [`(?:${MACROS})\\b`, "tok-mac"],
+  [`\\b(?:${CPP_KEYWORDS})\\b`, "tok-key"],
+  ["\\b\\d+(?:\\.\\d+)?f?\\b", "tok-num"],
+];
+const BP_RULES = [
+  ["\\/\\/[^\\n]*", "tok-com"],
+  ['"[^"\\n]*"', "tok-str"],
+  ["->", "tok-mac"],
+  [`\\b(?:${BP_KEYWORDS})\\b`, "tok-key"],
+  ["\\b\\d+(?:\\.\\d+)?\\b", "tok-num"],
+];
 
-export function highlightBlueprint(code) {
-  if (!code) return "";
-  let out = escapeHtml(code);
-  out = out.replace(/(\/\/[^\n]*)/g, '<span class="tok-com">$1</span>');
-  const kwRe = new RegExp(`\\b(${BP_KEYWORDS.join("|")})\\b`, "g");
-  out = out.replace(kwRe, '<span class="tok-key">$1</span>');
-  out = out.replace(/(->)/g, '<span class="tok-mac">$1</span>');
-  out = out.replace(/\b(\d+\.?\d*)\b/g, '<span class="tok-num">$1</span>');
-  return out;
-}
+export const highlightCpp = (code) => (code ? tokenize(code, CPP_RULES) : "");
+export const highlightBlueprint = (code) => (code ? tokenize(code, BP_RULES) : "");
