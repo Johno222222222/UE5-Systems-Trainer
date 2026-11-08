@@ -88,3 +88,10 @@ An app to build modular systems from description in Unreal Engine 5.
   - Real emails (backend/emailer.py, Emergent managed Resend; EMAIL_FROM_NAME "UE5 System Architect"): project invites, team invites (response `emailed` true/false; on-screen link fallback), and POST /api/auth/forgot-password (generic reply, 3 per hour, 1-hour single-use token, /reset/{token}). New /forgot page linked from the sign-in screen. Link host = the request's ingress host.
   - Review fixes (iteration_7 review): email link host comes only from the Host header (no x-forwarded-host); the email safety gate failure no longer raises; concurrent duplicate invites are guarded ($ne email); undo hunks carry neighbour context and a truncated flag; test-fix retry keeps its target; closing the auto-fix review cancels instead of exporting; batch Accept can't double-fire; Blueprint paste uses the bundle's unique module name; tests survive regeneration (marked out of date); restore clears pending fix notes and log; a late save doesn't clear another project's fix state; badges count test errors; stricter test reply validation; Stack/Bundle buttons count Team projects.
   - Known/left: phone layout; modal focus trapping; AI review findings aren't persisted; the public share export has no compile report; team roster shows emails only.
+
+## Banked backlog (recorded 2026-06, not started; owner picks next month)
+- P1: Data wires in Copy for Unreal (value pins reconnect automatically)
+- P1: Team activity feed (who saved, fixed or exported what)
+- P2: "Follow" emails when a teammate saves a followed project
+- P2: One-click "verify in Unreal" script inside the plugin zip
+- Carry-overs: phone-width layout; keyboard focus trapping in pop-ups; persist AI review results across reopen; compile report on public-share exports; member names in team list
