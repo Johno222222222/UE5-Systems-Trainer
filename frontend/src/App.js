@@ -20,6 +20,36 @@ const ICON_MAP = {
 
 const BLUEPRINT_CLASSES = ["ActorComponent", "Actor", "Pawn", "Character", "GameInstanceSubsystem", "WheeledVehiclePawn"];
 
+async function streamGenerate(body, onProgress) {
+  const res = await fetch(`${API}/generate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const j = await res.json().catch(() => ({}));
+    throw new Error(typeof j.detail === "string" ? j.detail : `Request failed (${res.status})`);
+  }
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buf = "";
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    const parts = buf.split("\n\n");
+    buf = parts.pop();
+    for (const part of parts) {
+      const ev = part.match(/^event: (\w+)/m)?.[1];
+      const data = JSON.parse(part.match(/^data: (.*)$/m)?.[1] || "{}");
+      if (ev === "progress") onProgress(data.chars);
+      else if (ev === "error") throw new Error(data.detail);
+      else if (ev === "result") return data;
+    }
+  }
+  throw new Error("Stream ended before the system was complete. Please try again.");
+}
+
 function useLibrary() {
   const [items, setItems] = useState(() => {
     try { return JSON.parse(localStorage.getItem(LS_KEY) || "[]"); } catch { return []; }
@@ -143,6 +173,7 @@ export default function App() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [progress, setProgress] = useState(0);
   const [tab, setTab] = useState("graph");
   const { items: library, setItems: setLibrary } = useLibrary();
 
@@ -165,7 +196,8 @@ export default function App() {
     setError(null);
     try {
       const removed = result ? (result.modules || []).filter((m) => !m.included).map((m) => m.name) : [];
-      const { data } = await axios.post(`${API}/generate`, {
+      setProgress(0);
+      const data = await streamGenerate({
         prompt,
         blueprint_class: bpClass,
         complexity,
@@ -175,16 +207,14 @@ export default function App() {
         network_replicated: replicated,
         extra_modules: extra,
         removed_modules: removed,
-      }, { timeout: 180000 });
+        parameter_overrides: result ? tunable : {},
+      }, setProgress);
       setResult(data);
       setTab("graph");
       toast.success(`${data.system_name} generated`, { description: `${data.node_graph_nodes?.length || 0} nodes · ${data.setup_guide?.length || 0} steps` });
     } catch (e) {
       console.error(e);
-      const detail = e?.response?.data?.detail
-        || (e?.response?.status === 502 ? "Gateway timeout — the model took too long. Try a shorter prompt or lower Complexity."
-          : e?.code === "ECONNABORTED" ? "Request timed out after 3 minutes."
-          : e.message || "Unknown error");
+      const detail = e.message || "Unknown error";
       setError(detail);
       toast.error("Generation failed", { description: detail, duration: 10000 });
     } finally {
@@ -392,7 +422,12 @@ export default function App() {
                     <div className="h-2 shimmer rounded w-5/6"></div>
                     <div className="h-2 shimmer rounded w-4/6"></div>
                   </div>
-                  <div className="mt-4 text-[11px] font-mono text-[var(--text-muted)]">Claude Sonnet 4.5 is laying out blueprint nodes + C++ scaffolding.</div>
+                  <div className="mt-4 h-1.5 rounded bg-[var(--bg-main)] overflow-hidden">
+                    <div className="h-full bg-[var(--unreal-orange)] transition-[width] duration-300" style={{ width: `${Math.min(97, (progress / 14000) * 100)}%` }} />
+                  </div>
+                  <div className="mt-2 text-[11px] font-mono text-[var(--text-muted)]" data-testid="generation-progress">
+                    {progress ? `${progress.toLocaleString()} chars streamed…` : "Claude Sonnet 4.5 is laying out blueprint nodes + C++ scaffolding."}
+                  </div>
                 </div>
               </div>
             )}
@@ -475,7 +510,7 @@ export default function App() {
                   />
                 ))}
               </div>
-              <div className="mt-2 text-[10.5px] font-mono text-[var(--text-muted)]">Values update your local preview — they feed back into the model on next Synthesize.</div>
+              <div className="mt-2 text-[10.5px] font-mono text-[var(--text-muted)]">Tuned values are baked into the code defaults on next Synthesize.</div>
             </div>
           )}
 

@@ -8,8 +8,9 @@ from pathlib import Path
 from typing import List, Optional
 
 from dotenv import load_dotenv
-from emergentintegrations.llm.chat import LlmChat, UserMessage
-from fastapi import APIRouter, FastAPI, HTTPException
+from emergentintegrations.llm.chat import LlmChat, StreamDone, TextDelta, UserMessage
+from fastapi import APIRouter, FastAPI
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.middleware.cors import CORSMiddleware
 
@@ -38,6 +39,7 @@ class GenerateRequest(BaseModel):
     network_replicated: bool = False
     extra_modules: List[str] = Field(default_factory=list)
     removed_modules: List[str] = Field(default_factory=list)
+    parameter_overrides: dict = Field(default_factory=dict)
 
 
 class NodeGraphNode(BaseModel):
@@ -121,11 +123,8 @@ async def root():
     return {"message": "UE5 Modular System Architect API", "model": MODEL_NAME}
 
 
-@api_router.post("/generate", response_model=SystemOutput)
-async def generate_system(req: GenerateRequest):
-    session_id = f"ue5-{uuid.uuid4()}"
-
-    user_text = f"""User request:
+def build_user_text(req: "GenerateRequest") -> str:
+    return f"""User request:
 \"\"\"{req.prompt}\"\"\"
 
 Target UE5 Blueprint class: {req.blueprint_class}
@@ -133,48 +132,66 @@ System name hint: {req.system_name or "(auto-generate)"}
 Network replicated: {req.network_replicated}
 
 Tunable architecture dials (0-100 unless noted):
-  complexity={req.complexity}  (higher = more features, more classes, deeper logic)
+  complexity={req.complexity}  (higher = more features, deeper logic)
   modularity={req.modularity}  (higher = split into more ActorComponents / Interfaces)
   performance_vs_flexibility={req.performance_vs_flexibility}  (0=max perf, 100=max flexibility)
   tick_rate={req.tick_rate} Hz  (0 = event-driven only)
 
 User-added modules to INCLUDE: {req.extra_modules or "(none)"}
 User-removed modules to mark excluded: {req.removed_modules or "(none)"}
+User-tuned parameter values (keep these keys and use these exact values in code defaults): {req.parameter_overrides or "(none)"}
 
 Generate the full modular UE5 system now. Respond with raw JSON only."""
 
+
+def sse(event: str, payload: dict) -> str:
+    return f"event: {event}\ndata: {json.dumps(payload)}\n\n"
+
+
+def friendly_error(exc: Exception) -> str:
+    msg = str(exc)
+    if "Budget has been exceeded" in msg:
+        return "Emergent Universal Key budget exceeded. Add balance: Profile → Manage plan → Universal Key → Add Balance."
+    return f"LLM error: {msg[:300]}"
+
+
+@api_router.post("/generate")
+async def generate_system(req: GenerateRequest):
     chat = LlmChat(
         api_key=EMERGENT_LLM_KEY,
-        session_id=session_id,
+        session_id=f"ue5-{uuid.uuid4()}",
         system_message=SYSTEM_PROMPT,
-    ).with_model(MODEL_PROVIDER, MODEL_NAME).with_params(max_tokens=4000)
+    ).with_model(MODEL_PROVIDER, MODEL_NAME).with_params(max_tokens=8000)
 
-    try:
-        raw = await chat.send_message(UserMessage(text=user_text))
-    except Exception as exc:
-        logging.exception("LLM call failed")
-        msg = str(exc)
-        if "Budget has been exceeded" in msg or "RateLimitError" in msg:
-            raise HTTPException(
-                status_code=402,
-                detail="Emergent Universal Key budget exceeded. Add balance: Profile → Manage plan → Universal Key → Add Balance.",
-            ) from exc
-        raise HTTPException(status_code=502, detail=f"LLM error: {exc}") from exc
+    async def events():
+        raw = ""
+        try:
+            async for ev in chat.stream_message(UserMessage(text=build_user_text(req))):
+                if isinstance(ev, TextDelta):
+                    raw += ev.content
+                    yield sse("progress", {"chars": len(raw)})
+                elif isinstance(ev, StreamDone):
+                    break
+        except Exception as exc:
+            logging.exception("LLM stream failed")
+            yield sse("error", {"detail": friendly_error(exc)})
+            return
+        try:
+            data = extract_json(raw)
+            data["id"] = str(uuid.uuid4())
+            data["generated_at"] = datetime.now(timezone.utc).isoformat()
+            result = SystemOutput(**data)
+        except Exception as exc:
+            logging.error("Bad LLM output (%s). Tail: %s", exc, raw[-300:])
+            yield sse("error", {"detail": "The model's output was incomplete. Please try again, or lower Complexity."})
+            return
+        yield sse("result", result.model_dump())
 
-    try:
-        data = extract_json(raw)
-    except Exception as exc:
-        logging.error("Failed to parse LLM JSON. Raw first 500 chars: %s", raw[:500])
-        raise HTTPException(status_code=502, detail=f"Model returned invalid JSON: {exc}") from exc
-
-    data["id"] = str(uuid.uuid4())
-    data["generated_at"] = datetime.now(timezone.utc).isoformat()
-
-    try:
-        return SystemOutput(**data)
-    except Exception as exc:
-        logging.error("Validation failed for generated system: %s", exc)
-        raise HTTPException(status_code=502, detail=f"Schema validation failed: {exc}") from exc
+    return StreamingResponse(
+        events(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 # ---------- Template library (static, served from backend for easy expansion) ----------
