@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { CheckCircle2, ExternalLink, FolderOpen, KeyRound, Loader2, Trash2, XCircle, Zap } from "lucide-react";
 import Modal from "./Modal";
 import { api, errorText } from "../lib/api";
+import { APP_VERSION } from "../lib/shell.mjs";
 
 export const PROVIDERS = {
   gemini: {
@@ -59,10 +60,12 @@ export default function AiKeyModal({ current, onSave, onClose, required, onClear
   const [key, setKey] = useState("");
   const [saved, setSaved] = useState({ gemini: false, openai: false, data_dir: "", key_storage: "file" });
   const [test, setTest] = useState(null);
+  const [aboutVersion, setAboutVersion] = useState(APP_VERSION);
   const p = PROVIDERS[provider];
 
   useEffect(() => {
     api.get("/settings").then((r) => setSaved(r.data.keys ? { ...r.data.keys, data_dir: r.data.data_dir, key_storage: r.data.key_storage } : saved)).catch(() => {});
+    api.get("/app").then((r) => { if (r.data?.version) setAboutVersion(r.data.version); }).catch(() => {});
     // Load once when the dialog opens.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -214,6 +217,9 @@ export default function AiKeyModal({ current, onSave, onClose, required, onClear
             Clear remembered project context
           </button>
         </div>
+        <p className="text-[10.5px] font-mono text-[var(--text-muted)]" data-testid="settings-about">
+          UE5 System Architect {aboutVersion}
+        </p>
         <div className="flex gap-2 justify-end pt-1">
           {saved[provider] && <button type="button" className="ue-btn !text-[var(--accent-red)]" onClick={remove} data-testid="ai-key-remove"><Trash2 size={13} /> Remove</button>}
           <button className="ue-btn ue-btn-primary" disabled={test === "running"} data-testid="ai-key-save"><KeyRound size={13} /> Save</button>

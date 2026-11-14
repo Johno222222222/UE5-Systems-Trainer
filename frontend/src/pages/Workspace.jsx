@@ -35,6 +35,9 @@ import {
   isWorkspaceDirty, LEGACY_UNREAL_VERSION, LS_CONTEXT, LS_UNREAL_VERSION, normalizeUnrealVersion,
   resultSignature, saveRequest, setupDoneList, setupDoneMap, UNREAL_VERSIONS, workspaceSnapshot,
 } from "../lib/stage0.mjs";
+import { APP_VERSION } from "../lib/shell.mjs";
+import { draftToSnapshotInput } from "../lib/workspaceSession.mjs";
+import { useShell } from "../shell/ShellContext";
 
 const LS_KEY = "ue5_architect_library_v1";
 const STOCK_PROMPT = "A third-person melee combat system with combo chains, directional attacks, hit reactions, and hitstop.";
@@ -125,32 +128,52 @@ function TemplateCard({ tpl, onPick }) {
 }
 
 export default function Workspace() {
+  const shell = useShell();
+  const session = shell.session;
+  // Restore the in-progress system from the app session. A plain value is
+  // copied so later edits don't rewrite the stored draft in place.
+  const readDraft = (key, fallback) => {
+    const draft = session.get();
+    if (draft && Object.prototype.hasOwnProperty.call(draft, key)) {
+      const value = draft[key];
+      if (value && typeof value === "object") return JSON.parse(JSON.stringify(value));
+      return value;
+    }
+    return typeof fallback === "function" ? fallback() : fallback;
+  };
+  const tunableGuard = useRef(undefined);
+  if (tunableGuard.current === undefined) {
+    const existing = session.get();
+    tunableGuard.current = existing?.result?.id && existing.tunable && Object.keys(existing.tunable).length
+      ? existing.result.id
+      : false;
+  }
   const [templates, setTemplates] = useState([]);
-  const [prompt, setPrompt] = useState(STOCK_PROMPT);
-  const [bpClass, setBpClass] = useState("ActorComponent");
-  const [complexity, setComplexity] = useState(55);
-  const [modularity, setModularity] = useState(75);
-  const [perfFlex, setPerfFlex] = useState(50);
-  const [tickRate, setTickRate] = useState(30);
-  const [replicated, setReplicated] = useState(false);
-  const [extra, setExtra] = useState([]);           // user-added modules
-  const [newExtra, setNewExtra] = useState("");
-  const [result, setResult] = useState(null);
+  const [prompt, setPrompt] = useState(() => readDraft("prompt", STOCK_PROMPT));
+  const [bpClass, setBpClass] = useState(() => readDraft("bpClass", "ActorComponent"));
+  const [complexity, setComplexity] = useState(() => readDraft("complexity", 55));
+  const [modularity, setModularity] = useState(() => readDraft("modularity", 75));
+  const [perfFlex, setPerfFlex] = useState(() => readDraft("perfFlex", 50));
+  const [tickRate, setTickRate] = useState(() => readDraft("tickRate", 30));
+  const [replicated, setReplicated] = useState(() => readDraft("replicated", false));
+  const [extra, setExtra] = useState(() => readDraft("extra", []));           // user-added modules
+  const [newExtra, setNewExtra] = useState(() => readDraft("newExtra", ""));
+  const [result, setResult] = useState(() => readDraft("result", null));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState(0);
-  const [tab, setTab] = useState("graph");
-  const [previousResult, setPreviousResult] = useState(null);
-  const [notes, setNotes] = useState("");
-  const [projectContext, setProjectContext] = useState(readStoredContext);
-  const [unrealVersion, setUnrealVersion] = useState(readStoredVersion);
-  const [setupDone, setSetupDone] = useState({});
-  const [tunable, setTunable] = useState({});
-  const [appInfo, setAppInfo] = useState({ version: "1.0.0", update: null });
+  const [tab, setTab] = useState(() => readDraft("tab", "graph"));
+  const [previousResult, setPreviousResult] = useState(() => readDraft("previousResult", null));
+  const [notes, setNotes] = useState(() => readDraft("notes", ""));
+  const [projectContext, setProjectContext] = useState(() => readDraft("projectContext", readStoredContext));
+  const [unrealVersion, setUnrealVersion] = useState(() => readDraft("unrealVersion", readStoredVersion));
+  const [setupDone, setSetupDone] = useState(() => readDraft("setupDone", {}));
+  const [tunable, setTunable] = useState(() => readDraft("tunable", {}));
+  const [appInfo, setAppInfo] = useState({ version: APP_VERSION, update: null });
   const [newProjectAsk, setNewProjectAsk] = useState(null);
   const [templateAsk, setTemplateAsk] = useState(null);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const [baseline, setBaseline] = useState(() => workspaceSnapshot({
+  const [baseline, setBaseline] = useState(() => readDraft("baseline", () => workspaceSnapshot({
     prompt: STOCK_PROMPT,
     blueprint_class: "ActorComponent",
     complexity: 55,
@@ -167,9 +190,9 @@ export default function Workspace() {
     unreal_version: readStoredVersion(),
     result_sig: "",
     project_id: null,
-  }));
-  const [project, setProject] = useState(null);
-  const [references, setReferences] = useState([]);
+  })));
+  const [project, setProject] = useState(() => readDraft("project", null));
+  const [references, setReferences] = useState(() => readDraft("references", []));
   const [conflict, setConflict] = useState(null);
   const [projRefresh, setProjRefresh] = useState(0);
   const [migration, setMigration] = useState(null);
@@ -189,11 +212,11 @@ export default function Workspace() {
   const [saveNote, setSaveNote] = useState("");
   const [exportPrompt, setExportPrompt] = useState(null);
   const [bundle, setBundle] = useState(null); // {ids, preset}
-  const [ignores, setIgnores] = useState([]); // [{key, file, message}] saved per project
+  const [ignores, setIgnores] = useState(() => readDraft("ignores", [])); // [{key, file, message}] saved per project
   const [jump, setJump] = useState(null); // {file, line, nonce}
   const [fix, setFix] = useState(null);
-  const [fixNotes, setFixNotes] = useState([]); // pre-fill the next save note
-  const [fixLog, setFixLog] = useState([]); // accepted patches, saved with the next version
+  const [fixNotes, setFixNotes] = useState(() => readDraft("fixNotes", [])); // pre-fill the next save note
+  const [fixLog, setFixLog] = useState(() => readDraft("fixLog", [])); // accepted patches, saved with the next version
   const [viewFix, setViewFix] = useState(null); // {entry, pending}
   const [historyOpen, setHistoryOpen] = useState(false);
   const projectRef = useRef(null);
@@ -205,6 +228,19 @@ export default function Workspace() {
     aliveRef.current = true;
     return () => { aliveRef.current = false; };
   }, []);
+
+  // The shell owns this copy, so Home can show the chip and a later visit
+  // can restore the same system if this screen is created again.
+  const draftSnapshot = {
+    prompt, bpClass, complexity, modularity, perfFlex, tickRate, replicated,
+    extra, newExtra, result, previousResult, notes, projectContext,
+    unrealVersion, setupDone, tunable, baseline, project, references,
+    ignores, fixNotes, fixLog, tab,
+  };
+  const draftJson = JSON.stringify(draftSnapshot);
+  useEffect(() => {
+    session.replace(JSON.parse(draftJson));
+  }, [draftJson, session]);
   useEffect(() => {
     if (projectContext) localStorage.setItem(LS_CONTEXT, projectContext);
     else localStorage.removeItem(LS_CONTEXT);
@@ -225,22 +261,11 @@ export default function Workspace() {
   }, []);
 
   const liveSnapshot = (overrides = {}) => workspaceSnapshot({
-    prompt,
-    blueprint_class: bpClass,
-    complexity,
-    modularity,
-    performance_vs_flexibility: perfFlex,
-    tick_rate: tickRate,
-    network_replicated: replicated,
-    extra,
-    notes,
-    new_extra: newExtra,
-    project_context: projectContext,
-    references,
-    setup_done: setupDone,
-    unreal_version: unrealVersion,
-    result_sig: resultSignature(result, tunable),
-    project_id: project?.project_id || null,
+    ...draftToSnapshotInput({
+      prompt, bpClass, complexity, modularity, perfFlex, tickRate, replicated,
+      extra, notes, newExtra, projectContext, references, setupDone, unrealVersion,
+      result, tunable, project,
+    }),
     ...overrides,
   });
 
@@ -619,6 +644,17 @@ export default function Workspace() {
     }
   };
 
+  const commandNonce = shell.commandNonce;
+  useEffect(() => {
+    const cmd = shell.takeCommand();
+    if (!cmd) return;
+    if (cmd.type === "new-project") requestNewProject();
+    else if (cmd.type === "open-project" && cmd.id) openProject(cmd.id);
+    else if (cmd.type === "template" && cmd.template) pickTemplate(cmd.template);
+    // The command is consumed once. The handlers close over this render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commandNonce]);
+
   const renameProject = async () => {
     const name = window.prompt("Project name", project.name)?.trim();
     if (!name || name === project.name) return;
@@ -782,9 +818,14 @@ export default function Workspace() {
     </>
   ) : null;
 
-  // Dynamic tunable params from generated output
+  // Dynamic tunable params from generated output.
+  // A restored session already has the slider values, so don't reset them.
   useEffect(() => {
     if (!result?.tunable_parameters) return;
+    if (tunableGuard.current && tunableGuard.current === result.id) {
+      tunableGuard.current = false;
+      return;
+    }
     const init = {};
     result.tunable_parameters.forEach((p) => { init[p.key] = p.value; });
     setTunable(init);
@@ -1023,12 +1064,12 @@ export default function Workspace() {
               <div className="eyebrow mb-1.5">New GitHub issue</div>
               {FEEDBACK_CATEGORIES.map((category) => (
                 <a key={category} className="block rounded px-2 py-1.5 text-[12.5px] font-sub hover:bg-[var(--surface-hover)]" target="_blank" rel="noreferrer"
-                  href={feedbackUrl({ version: appInfo.version || "1.0.0", category })} data-testid={`feedback-${category.toLowerCase()}`}
+                  href={feedbackUrl({ version: appInfo.version || APP_VERSION, category })} data-testid={`feedback-${category.toLowerCase()}`}
                   onClick={() => setFeedbackOpen(false)}>
                   {category}
                 </a>
               ))}
-              <p className="mt-1 text-[10px] font-mono text-[var(--text-muted)] leading-relaxed">Opens GitHub in your browser. Nothing is sent from this app. Version {appInfo.version || "1.0.0"}.</p>
+              <p className="mt-1 text-[10px] font-mono text-[var(--text-muted)] leading-relaxed">Opens GitHub in your browser. Nothing is sent from this app. Version {appInfo.version || APP_VERSION}.</p>
             </div>
           )}
         </div>

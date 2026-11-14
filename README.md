@@ -10,7 +10,7 @@ It runs on your computer. The only time it uses the internet is when it asks Gem
 2. Unzip the artifact if you used Actions. A Release file is the installer itself.
 3. Run the installer (`UE5 System Architect Setup ….exe`).
 4. Windows may say the app is unrecognized. That is because this installer is not code-signed. Choose **More info**, then **Run anyway**, if you trust the build.
-5. Start **UE5 System Architect** from the Start menu. It opens straight into the workspace. There is no account and no sign-in.
+5. Start **UE5 System Architect** from the Start menu. It opens on **Home**. **Tools** is the workspace. There is no account and no sign-in.
 
 Your projects are stored on this PC, in the app data folder. Open **Settings** (the key button in the top bar) and use **Open folder** to see it. On Windows that folder is usually:
 
@@ -33,6 +33,7 @@ You can save one Gemini key and one OpenAI key and switch between them. Changing
 
 ## Everyday use
 
+- The app opens on **Home**: the five most recent projects, the rest of the saved list, **New project**, **Open last system**, and the template tiles. **Tools** is the same workspace as before. Switching between them keeps an unsaved system, including the result, dials, notes, and references.
 - **New** clears the workspace. If you have unsaved work it asks Save, Discard, or Cancel. Cancel changes nothing. "Keep my project context" is off unless you tick it. The API key and model stay. The next Save creates a new project, not a version of the one you just left.
 - Pick a template while a project is open and the app asks before replacing it. **Start a new project** so Save does not add a version to the open project.
 - **Target Unreal** (under the description) is UE 5.8 by default. 5.4 through 5.7 are selectable. It is saved with the project. An older project with no version opens as 5.4, which is what those systems were written for.
@@ -78,7 +79,7 @@ npm start
 
 Mac and Linux use the same steps, with `npx electron-builder --mac dmg --publish never` or `npx electron-builder --linux AppImage --publish never`. Those installers are not built in GitHub Actions yet. The app code uses `path.join` for files and the operating system's own key store when it is available (Windows data protection, macOS Keychain, or the Linux keyring), so a later Mac or Linux build is not blocked.
 
-GitHub Actions builds the Windows installer on every push and pull request (see `.github/workflows/desktop-installer.yml`) and uploads it as an artifact. Pushing a version tag such as `v1.1.0` also attaches that installer to a GitHub Release. Set `package.json` `"version"` to the same number before you tag, because the in-app update check compares that version with the latest Release. The repository is private, so the check does nothing if GitHub does not answer. Do not commit signing secrets. Code signing is left as a TODO in the workflow for Azure Artifact Signing.
+GitHub Actions builds the Windows installer on every push and pull request (see `.github/workflows/desktop-installer.yml`) and uploads it as an artifact. Pushing a version tag such as `v1.1.0` also attaches that installer to a GitHub Release. Set `package.json` `"version"` to the same number before you tag, because the in-app update check compares that version with the latest Release. The version scheme is in `VERSIONING.md`. The repository is private, so the check does nothing if GitHub does not answer. Do not commit signing secrets. Code signing is left as a TODO in the workflow for Azure Artifact Signing.
 
 **Feedback** in the top bar opens a new GitHub issue with the app version and a category. It does not send email.
 
@@ -87,7 +88,7 @@ GitHub Actions builds the Windows installer on every push and pull request (see 
 ```
 Electron window
   └─ local Node server (127.0.0.1 only)
-       ├─ React workspace (the existing UI, built into frontend/build)
+       ├─ React shell (Home, then Tools — the workspace — built into frontend/build)
        ├─ library.json          projects, versions, presets, usage
        ├─ secrets.json          encrypted API keys
        └─ files/                uploads
@@ -98,6 +99,7 @@ The window is Electron because it keeps this React UI and produces a normal Wind
 | Piece | Where | What to edit |
 | --- | --- | --- |
 | Workspace UI | `frontend/src` | Screens, graph, export zip, compile check |
+| Home and section bar | `frontend/src/shell`, `frontend/src/lib/shell.mjs` | Which sections exist, and the system kept while you switch |
 | Local API | `desktop/server.js` | Projects, versions, files, jobs |
 | AI providers | `desktop/llm.js` | How a provider is called |
 | Prompts and patching | `desktop/logic.js` | The system prompt, review, fix, and test prompts |
