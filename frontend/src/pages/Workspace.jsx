@@ -5,7 +5,8 @@ import {
   Plus, Trash2, CheckCircle2, Terminal, PackageSearch,
   Boxes, ChevronDown, PlayCircle, Hammer, Wrench, GitBranch, Network, Zap,
   Swords, Package, MessagesSquare, Shield, HardDrive, Car, Hand, Workflow,
-  GitCompareArrows, Compass, StickyNote, FolderClosed, Eye, Pencil, KeyRound, FileArchive, History, Tag, ChevronDown as Caret, AlertTriangle
+  GitCompareArrows, Compass, StickyNote, FolderClosed, Eye, Pencil, KeyRound, FileArchive, History, Tag, ChevronDown as Caret, AlertTriangle,
+  FilePlus, MessageSquarePlus
 } from "lucide-react";
 import NodeGraph from "../components/NodeGraph";
 import AnnotatedPseudocode from "../components/AnnotatedPseudocode";
@@ -29,9 +30,22 @@ import HistoryModal from "../components/HistoryModal";
 import { checkSystem, issueKey, issueText, issuesToText, locateIssue } from "../lib/compileCheck";
 import FixReviewModal, { FixDetailModal } from "../components/FixReviewModal";
 import { fixNote, makeFixEntry, undoFixEntry } from "../lib/fixLog";
+import {
+  blankSnapshot, compileHeadline, DEFAULT_UNREAL_VERSION, DIAL_DEFAULTS, feedbackUrl, FEEDBACK_CATEGORIES,
+  isWorkspaceDirty, LEGACY_UNREAL_VERSION, LS_CONTEXT, LS_UNREAL_VERSION, normalizeUnrealVersion,
+  resultSignature, saveRequest, setupDoneList, setupDoneMap, UNREAL_VERSIONS, workspaceSnapshot,
+} from "../lib/stage0.mjs";
 
 const LS_KEY = "ue5_architect_library_v1";
-const LS_CONTEXT = "ue5_architect_project_context";
+const STOCK_PROMPT = "A third-person melee combat system with combo chains, directional attacks, hit reactions, and hitstop.";
+
+function readStoredContext() {
+  try { return localStorage.getItem(LS_CONTEXT) || ""; } catch { return ""; }
+}
+function readStoredVersion() {
+  try { return normalizeUnrealVersion(localStorage.getItem(LS_UNREAL_VERSION)) || DEFAULT_UNREAL_VERSION; }
+  catch { return DEFAULT_UNREAL_VERSION; }
+}
 
 const ICON_MAP = {
   swords: Swords, package: Package, "messages-square": MessagesSquare,
@@ -112,7 +126,7 @@ function TemplateCard({ tpl, onPick }) {
 
 export default function Workspace() {
   const [templates, setTemplates] = useState([]);
-  const [prompt, setPrompt] = useState("A third-person melee combat system with combo chains, directional attacks, hit reactions, and hitstop.");
+  const [prompt, setPrompt] = useState(STOCK_PROMPT);
   const [bpClass, setBpClass] = useState("ActorComponent");
   const [complexity, setComplexity] = useState(55);
   const [modularity, setModularity] = useState(75);
@@ -128,7 +142,32 @@ export default function Workspace() {
   const [tab, setTab] = useState("graph");
   const [previousResult, setPreviousResult] = useState(null);
   const [notes, setNotes] = useState("");
-  const [projectContext, setProjectContext] = useState(() => localStorage.getItem(LS_CONTEXT) || "");
+  const [projectContext, setProjectContext] = useState(readStoredContext);
+  const [unrealVersion, setUnrealVersion] = useState(readStoredVersion);
+  const [setupDone, setSetupDone] = useState({});
+  const [tunable, setTunable] = useState({});
+  const [appInfo, setAppInfo] = useState({ version: "1.0.0", update: null });
+  const [newProjectAsk, setNewProjectAsk] = useState(null);
+  const [templateAsk, setTemplateAsk] = useState(null);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [baseline, setBaseline] = useState(() => workspaceSnapshot({
+    prompt: STOCK_PROMPT,
+    blueprint_class: "ActorComponent",
+    complexity: 55,
+    modularity: 75,
+    performance_vs_flexibility: 50,
+    tick_rate: 30,
+    network_replicated: false,
+    extra: [],
+    notes: "",
+    new_extra: "",
+    project_context: readStoredContext(),
+    references: [],
+    setup_done: [],
+    unreal_version: readStoredVersion(),
+    result_sig: "",
+    project_id: null,
+  }));
   const [project, setProject] = useState(null);
   const [references, setReferences] = useState([]);
   const [conflict, setConflict] = useState(null);
@@ -160,13 +199,19 @@ export default function Workspace() {
   const projectRef = useRef(null);
   projectRef.current = project;
   const aliveRef = useRef(true);
+  const epochRef = useRef(0);
+  const afterSaveRef = useRef(null);
   useEffect(() => {
     aliveRef.current = true;
     return () => { aliveRef.current = false; };
   }, []);
-  useEffect(() => { localStorage.setItem(LS_CONTEXT, projectContext); }, [projectContext]);
+  useEffect(() => {
+    if (projectContext) localStorage.setItem(LS_CONTEXT, projectContext);
+    else localStorage.removeItem(LS_CONTEXT);
+  }, [projectContext]);
 
   useEffect(() => {
+    api.get("/app").then((r) => setAppInfo(r.data || {})).catch(() => {});
     api.get("/templates").then((r) => setTemplates(r.data.templates || [])).catch(() => {});
     api.get("/settings").then((r) => setAiKey(settingsToKey(r.data))).catch(() => {});
     const pending = readLocalLibrary();
@@ -179,10 +224,139 @@ export default function Workspace() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const liveSnapshot = (overrides = {}) => workspaceSnapshot({
+    prompt,
+    blueprint_class: bpClass,
+    complexity,
+    modularity,
+    performance_vs_flexibility: perfFlex,
+    tick_rate: tickRate,
+    network_replicated: replicated,
+    extra,
+    notes,
+    new_extra: newExtra,
+    project_context: projectContext,
+    references,
+    setup_done: setupDone,
+    unreal_version: unrealVersion,
+    result_sig: resultSignature(result, tunable),
+    project_id: project?.project_id || null,
+    ...overrides,
+  });
+
+  const applyBlank = ({ keepContext = false } = {}) => {
+    epochRef.current += 1;
+    const context = keepContext ? projectContext : "";
+    const version = readStoredVersion();
+    setPrompt(DIAL_DEFAULTS.prompt);
+    setBpClass(DIAL_DEFAULTS.blueprint_class);
+    setComplexity(DIAL_DEFAULTS.complexity);
+    setModularity(DIAL_DEFAULTS.modularity);
+    setPerfFlex(DIAL_DEFAULTS.performance_vs_flexibility);
+    setTickRate(DIAL_DEFAULTS.tick_rate);
+    setReplicated(DIAL_DEFAULTS.network_replicated);
+    setExtra([]);
+    setNewExtra("");
+    setResult(null);
+    setPreviousResult(null);
+    setNotes("");
+    setProjectContext(context);
+    setReferences([]);
+    setSetupDone({});
+    setUnrealVersion(version);
+    setProject(null);
+    setIgnores([]);
+    setFixNotes([]);
+    setFixLog([]);
+    setSaveNote("");
+    setTunable({});
+    setTab("graph");
+    setError(null);
+    setJump(null);
+    setFix(null);
+    setConflict(null);
+    setZipMenu(false);
+    setExportPrompt(null);
+    setCompareBase("previous");
+    setBaseSystem(null);
+    setBaseline(blankSnapshot({ project_context: context, unreal_version: version }));
+    toast.message("New project", { description: keepContext ? "Project context kept. The API key was not changed." : "Workspace cleared. The API key was not changed." });
+  };
+
+  const requestNewProject = () => {
+    const dirty = isWorkspaceDirty(liveSnapshot(), baseline);
+    if (!dirty && !String(projectContext || "").trim()) {
+      applyBlank({ keepContext: false });
+      return;
+    }
+    setNewProjectAsk({ keepContext: false, dirty });
+  };
+
+  const applyTemplate = (t, mode) => {
+    epochRef.current += 1;
+    const detach = mode === "new";
+    const nextClass = t.default_class || "ActorComponent";
+    const nextRefs = detach ? [] : references;
+    if (detach) {
+      setProject(null);
+      setIgnores([]);
+      setFixNotes([]);
+      setFixLog([]);
+      setReferences([]);
+    }
+    setPrompt(t.prompt);
+    setBpClass(nextClass);
+    setResult(null);
+    setPreviousResult(null);
+    setNotes("");
+    setExtra([]);
+    setNewExtra("");
+    setSetupDone({});
+    setTunable({});
+    setTab("graph");
+    setError(null);
+    setJump(null);
+    setBaseline(workspaceSnapshot({
+      prompt: t.prompt,
+      blueprint_class: nextClass,
+      complexity,
+      modularity,
+      performance_vs_flexibility: perfFlex,
+      tick_rate: tickRate,
+      network_replicated: replicated,
+      extra: [],
+      notes: "",
+      new_extra: "",
+      project_context: projectContext,
+      references: nextRefs,
+      setup_done: [],
+      unreal_version: unrealVersion,
+      result_sig: "",
+      project_id: detach ? null : (project?.project_id || null),
+    }));
+    setTemplateAsk(null);
+    toast.message(detach ? `Started a new project from ${t.title}` : `Loaded ${t.title} into this project`, {
+      description: detach ? "Save will create a new project." : "The next save adds a version of this project, after you synthesize.",
+    });
+  };
+
   const pickTemplate = (t) => {
+    if (project) {
+      setTemplateAsk({ template: t });
+      return;
+    }
     setPrompt(t.prompt);
     setBpClass(t.default_class || "ActorComponent");
     toast.message(`Loaded template: ${t.title}`);
+  };
+
+  const clearRememberedContext = () => {
+    localStorage.removeItem(LS_CONTEXT);
+    if (!project) {
+      setProjectContext("");
+      setBaseline((current) => workspaceSnapshot({ ...current, project_context: "" }));
+    }
+    toast.success("Remembered project context cleared", { description: "Saved projects still have their own context." });
   };
 
   const runSynthesis = async (body, context, successLabel, opts = {}) => {
@@ -205,18 +379,20 @@ export default function Workspace() {
       }
     }
     const startedOn = project?.project_id || null;
+    const epochAtStart = epochRef.current;
     setLoading(true);
     setError(null);
     setProgress(0);
     try {
       const data = await streamGenerate({ ...body, project_context: projectContext, reference_file_ids: references.map((r) => r.file_id) }, setProgress, key, () => aliveRef.current);
-      if ((projectRef.current?.project_id || null) !== startedOn) {
+      if (epochRef.current !== epochAtStart || (projectRef.current?.project_id || null) !== startedOn) {
         toast.message("A synthesis finished after you switched projects, so it was discarded");
         return false;
       }
       if (result) setPreviousResult(result);
       // Keep generated tests across regenerations; the Tests tab marks them out of date
-      setResult({ ...data, ...(result?.tests && !body.stack_systems ? { tests: result.tests } : {}), context: { ...context, project_context: projectContext, references, notes: body.designer_notes || "" }, baseline_modules: data.modules });
+      setResult({ ...data, ...(result?.tests && !body.stack_systems ? { tests: result.tests } : {}), context: { ...context, project_context: projectContext, references, notes: body.designer_notes || "", unreal_version: unrealVersion }, baseline_modules: data.modules });
+      setSetupDone({});
       setNotes((n) => (n === (body.designer_notes || "") ? "" : n));
       setTab(result ? "compare" : "graph");
       toast.success(successLabel(data), { description: `${data.node_graph_nodes?.length || 0} nodes · ${data.applied_changes?.length || 0} changes applied` });
@@ -253,7 +429,7 @@ export default function Workspace() {
     if (ok && p.body.stack_systems) { setPrompt(p.body.prompt); setExtra([]); setProject(null); setIgnores([]); }
   };
 
-  const currentInputs = { prompt, blueprint_class: bpClass, complexity, modularity, performance_vs_flexibility: perfFlex, tick_rate: tickRate, network_replicated: replicated };
+  const currentInputs = { prompt, blueprint_class: bpClass, complexity, modularity, performance_vs_flexibility: perfFlex, tick_rate: tickRate, network_replicated: replicated, unreal_version: unrealVersion };
 
   const generate = async (extraRequests = []) => {
     if (prompt.trim().length < 5) {
@@ -314,7 +490,16 @@ export default function Workspace() {
 
   const splitResult = () => {
     const { context, ...system } = result;
-    return { system, context: { ...(context || {}), references } };
+    return {
+      system,
+      context: {
+        ...(context || {}),
+        references,
+        project_context: projectContext,
+        setup_done: setupDoneList(setupDone),
+        unreal_version: unrealVersion,
+      },
+    };
   };
 
   const saveProject = async (force = false) => {
@@ -322,25 +507,37 @@ export default function Workspace() {
     const { system, context } = splitResult();
     const savingFor = project?.project_id || null;
     const note = saveNote.trim().slice(0, 200);
+    const creating = saveRequest(savingFor, readOnly) === "create";
     setSaving(true);
     try {
-      const { data } = project && !readOnly
-        ? await api.put(`/projects/${project.project_id}`, { system, context, note, fixes: fixLog, base_version: project.version, force })
-        : await api.post("/projects", { name: result.system_name, system, context, note, fixes: fixLog });
+      const { data } = creating
+        ? await api.post("/projects", { name: result.system_name, system, context, note, fixes: fixLog })
+        : await api.put(`/projects/${project.project_id}`, { system, context, note, fixes: fixLog, base_version: project.version, force });
       const { system: _s, context: _c, ...meta } = data;
-      if ((projectRef.current?.project_id || null) === savingFor) {
+      const stillHere = (projectRef.current?.project_id || null) === savingFor;
+      const follow = stillHere ? afterSaveRef.current : null;
+      if (!stillHere) afterSaveRef.current = null;
+      if (stillHere && !follow) {
         setProject(meta);
+        setConflict(null);
+        if (!savingFor && ignores.length) api.put(`/projects/${data.project_id}/ignores`, { ignores }).catch(() => {});
+        setBaseline(liveSnapshot({ project_id: data.project_id }));
+      } else if (stillHere && follow) {
         setConflict(null);
         if (!savingFor && ignores.length) api.put(`/projects/${data.project_id}/ignores`, { ignores }).catch(() => {});
       }
       setProjRefresh((n) => n + 1);
       setSaveDialog(false);
-      if ((projectRef.current?.project_id || null) === savingFor || !savingFor) {
+      if (stillHere) {
         setSaveNote("");
         setFixNotes([]);
         setFixLog([]);
       }
-      toast.success(project ? `Saved v${data.version}` : "Saved as new project", { description: note ? `${data.name}: ${note}` : data.name });
+      toast.success(creating ? "Saved as new project" : `Saved v${data.version}`, { description: note ? `${data.name}: ${note}` : data.name });
+      if (follow) {
+        afterSaveRef.current = null;
+        follow();
+      }
     } catch (e) {
       setSaveDialog(false);
       if ((projectRef.current?.project_id || null) !== savingFor) toast.error("Couldn't save the project you switched away from", { description: errorText(e) });
@@ -351,35 +548,71 @@ export default function Workspace() {
     }
   };
 
-  const openSystem = (system, context = {}) => {
-    const c = context;
+  const openSystem = (system, context = {}, meta = null) => {
+    const c = context || {};
+    const version = normalizeUnrealVersion(c.unreal_version) || LEGACY_UNREAL_VERSION;
+    const ticks = setupDoneMap(c.setup_done);
+    const nextPrompt = c.prompt !== undefined ? c.prompt : prompt;
+    const nextClass = c.prompt !== undefined ? (c.blueprint_class || "ActorComponent") : bpClass;
+    const nextComplexity = c.prompt !== undefined ? (c.complexity ?? 55) : complexity;
+    const nextModularity = c.prompt !== undefined ? (c.modularity ?? 75) : modularity;
+    const nextPerf = c.prompt !== undefined ? (c.performance_vs_flexibility ?? 50) : perfFlex;
+    const nextTick = c.prompt !== undefined ? (c.tick_rate ?? 30) : tickRate;
+    const nextReplicated = c.prompt !== undefined ? !!c.network_replicated : replicated;
+    const nextExtra = c.prompt !== undefined ? (c.extra_modules || []) : extra;
+    const nextContext = c.project_context !== undefined ? c.project_context : projectContext;
     if (c.prompt !== undefined) {
-      setPrompt(c.prompt);
-      setBpClass(c.blueprint_class || "ActorComponent");
-      setComplexity(c.complexity ?? 55);
-      setModularity(c.modularity ?? 75);
-      setPerfFlex(c.performance_vs_flexibility ?? 50);
-      setTickRate(c.tick_rate ?? 30);
-      setReplicated(!!c.network_replicated);
-      setExtra(c.extra_modules || []);
+      setPrompt(nextPrompt);
+      setBpClass(nextClass);
+      setComplexity(nextComplexity);
+      setModularity(nextModularity);
+      setPerfFlex(nextPerf);
+      setTickRate(nextTick);
+      setReplicated(nextReplicated);
+      setExtra(nextExtra);
       if (c.project_context !== undefined) setProjectContext(c.project_context);
     }
+    const params = {};
+    (system?.tunable_parameters || []).forEach((p) => { params[p.key] = p.value; });
+    setUnrealVersion(version);
+    setSetupDone(ticks);
+    setTunable(params);
     setReferences(c.references || []);
-    setResult({ ...system, context: c, baseline_modules: system.baseline_modules || system.modules });
+    setNewExtra("");
+    setResult({ ...system, context: { ...c, unreal_version: version, setup_done: setupDoneList(ticks) }, baseline_modules: system.baseline_modules || system.modules });
     setPreviousResult(null);
     setNotes("");
     setTab("graph");
+    setBaseline(workspaceSnapshot({
+      prompt: nextPrompt,
+      blueprint_class: nextClass,
+      complexity: nextComplexity,
+      modularity: nextModularity,
+      performance_vs_flexibility: nextPerf,
+      tick_rate: nextTick,
+      network_replicated: nextReplicated,
+      extra: nextExtra,
+      notes: "",
+      new_extra: "",
+      project_context: nextContext,
+      references: c.references || [],
+      setup_done: ticks,
+      unreal_version: version,
+      result_sig: resultSignature(system, params),
+      project_id: meta?.project_id || project?.project_id || null,
+    }));
   };
 
   const openProject = async (id) => {
     try {
       const { data } = await api.get(`/projects/${id}`);
       const { system, context, ...meta } = data;
+      epochRef.current += 1;
       setProject(meta);
       setIgnores(meta.ignored_issues || []);
       setFixNotes([]);
       setFixLog([]);
-      openSystem(system, context);
+      openSystem(system, context, meta);
       toast.message(`Opened ${data.name}`, { description: meta.my_role === "viewer" ? "View only" : `Last saved by ${meta.updated_by_name}` });
     } catch (e) {
       toast.error("Couldn't open project", { description: errorText(e) });
@@ -461,7 +694,7 @@ export default function Workspace() {
       const { system, context, ...meta } = data;
       const from = compareBase;
       setProject(meta);
-      openSystem(system, context);
+      openSystem(system, context, meta);
       setFixLog([]);
       setFixNotes([]);
       setSaveNote("");
@@ -550,7 +783,6 @@ export default function Workspace() {
   ) : null;
 
   // Dynamic tunable params from generated output
-  const [tunable, setTunable] = useState({});
   useEffect(() => {
     if (!result?.tunable_parameters) return;
     const init = {};
@@ -561,7 +793,7 @@ export default function Workspace() {
   const pendingChanges = useMemo(
     () => computeChanges(result, { ...currentInputs, params: tunable, extra, notes }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [result, prompt, bpClass, complexity, modularity, perfFlex, tickRate, replicated, tunable, extra, notes]
+    [result, prompt, bpClass, complexity, modularity, perfFlex, tickRate, replicated, unrealVersion, tunable, extra, notes]
   );
 
   const checkIssues = useMemo(() => (result ? checkSystem(result) : []), [result?.cpp_header, result?.cpp_source]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -569,8 +801,8 @@ export default function Workspace() {
   const keyedIssues = useMemo(() => checkIssues.map((i) => ({ ...i, key: issueKey(i, result) })), [checkIssues]); // eslint-disable-line react-hooks/exhaustive-deps
   const activeIssues = keyedIssues.filter((i) => !ignoreKeys.has(i.key));
   const ignoredIssues = keyedIssues.filter((i) => ignoreKeys.has(i.key));
-  const checkErrors = activeIssues.filter((i) => i.severity === "error").length;
-  const [aiReview, runAiReview] = useAiReview(result, activeIssues, aiKey, () => setKeyModal("required"), () => setUsageTick((n) => n + 1));
+  const [aiReview, runAiReview] = useAiReview(result, activeIssues, aiKey, () => setKeyModal("required"), () => setUsageTick((n) => n + 1), unrealVersion);
+  const headline = compileHeadline(activeIssues, aiReview);
   const exportIssues = aiReview?.status === "done" ? [...activeIssues, ...aiReview.issues.map((i) => ({ ...i, message: `AI review: ${i.message}` }))] : activeIssues;
   const exportErrors = exportIssues.filter((i) => i.severity === "error").length;
 
@@ -630,6 +862,7 @@ export default function Workspace() {
     try {
       const { data } = await api.post("/ai/fix-cpp", {
         file_base: tests ? `${baseName(result)} (header, read-only) and its automation test file` : baseName(result), cpp_header: before.h, cpp_source: before.c, project_id: project?.project_id || null,
+        unreal_version: unrealVersion,
         issues: list.slice(0, 40).map((i) => `${issueText(i)}${i.fix ? ` (suggested fix: ${i.fix})` : ""}`),
       }, { headers: aiHeaders(aiKey) });
       setFix((f) => (f?.list === list ? { ...f, status: "review", data } : f));
@@ -717,17 +950,17 @@ export default function Workspace() {
     <div className="App flex flex-col" data-testid="app-root">
 
       {/* ============ TOP HEADER BAR ============ */}
-      <header className="h-14 shrink-0 border-b border-[var(--border-soft)] bg-[var(--bg-secondary)] flex items-center px-4 gap-4">
-        <div className="flex items-center gap-2.5">
+      <header className="app-header shrink-0 border-b border-[var(--border-soft)] bg-[var(--bg-secondary)] flex items-center px-3 gap-2" data-testid="workspace-header">
+        <div className="flex items-center gap-2.5 shrink-0">
           <div className="h-8 w-8 rounded-md border border-[var(--unreal-orange)] bg-[rgba(255,107,0,0.08)] flex items-center justify-center glow-orange-soft">
             <Cpu size={16} className="text-[var(--unreal-orange)]" />
           </div>
           <div>
             <div className="font-display text-[16px] font-extrabold uppercase tracking-wider leading-none">UE5 System Architect</div>
-            <div className="text-[10px] font-mono text-[var(--text-muted)] uppercase tracking-widest mt-0.5">Modular · AI-driven · Blueprint + C++</div>
+            <div className="app-subtitle text-[10px] font-mono text-[var(--text-muted)] uppercase tracking-widest mt-0.5">Modular · AI-driven · Blueprint + C++</div>
           </div>
         </div>
-        <div className="flex-1 min-w-0 flex items-center gap-2 pl-4 ml-2 border-l border-[var(--border-soft)]">
+        <div className="flex-1 min-w-0 flex items-center gap-2 pl-3 ml-1 border-l border-[var(--border-soft)]">
           {project ? (
             <>
               <button className="font-sub font-semibold text-[14px] truncate max-w-[260px] flex items-center gap-1.5 hover:text-[var(--unreal-orange)] disabled:hover:text-inherit" onClick={renameProject} disabled={readOnly} title={readOnly ? project.name : "Rename project"} data-testid="project-name">
@@ -742,17 +975,22 @@ export default function Workspace() {
             <span className="text-[11px] font-mono text-[var(--text-muted)]" data-testid="project-name-unsaved">Unsaved system</span>
           )}
         </div>
-        <div className="hidden min-[2200px]:flex items-center gap-2">
-          <span className="chip"><Zap size={11} /> UE 5.4+</span>
+        <div className="header-actions">
+        <span className="chip !cursor-default shrink-0" data-testid="unreal-version-badge"><Zap size={11} /> UE {unrealVersion}</span>
+        <div className="hidden min-[1280px]:flex items-center gap-2">
           <span className="chip"><Network size={11} /> {replicated ? "Replicated" : "Local"}</span>
           <span className="chip"><Terminal size={11} /> {aiKey ? aiKey.model : "No AI key"}</span>
         </div>
-        <button className="ue-btn" onClick={copyJson} disabled={!result} data-testid="copy-json-btn"><Copy size={13} /> Copy JSON</button>
-        <button className="ue-btn" onClick={exportAll} disabled={!result} data-testid="export-all-btn"><Download size={13} /> JSON</button>
+        {appInfo.update?.version && (
+          <a className="chip shrink-0" href={appInfo.update.url} target="_blank" rel="noreferrer" data-testid="update-available" title="A newer release is on GitHub">Update {appInfo.update.version}</a>
+        )}
+        <button className="ue-btn shrink-0" onClick={requestNewProject} data-testid="new-project-button"><FilePlus size={13} /> New</button>
+        <button className="ue-btn shrink-0" onClick={copyJson} disabled={!result} data-testid="copy-json-btn"><Copy size={13} /> <span className="hide-narrow">Copy JSON</span></button>
+        <button className="ue-btn shrink-0" onClick={exportAll} disabled={!result} data-testid="export-all-btn"><Download size={13} /> JSON</button>
         <div className="relative">
-          <button className="ue-btn" onClick={() => setZipMenu((v) => !v)} disabled={!result} aria-expanded={zipMenu} data-testid="export-zip-btn"><FileArchive size={13} /> UE5 .zip <Caret size={12} /></button>
+          <button className="ue-btn shrink-0" onClick={() => setZipMenu((v) => !v)} disabled={!result} aria-expanded={zipMenu} data-testid="export-zip-btn"><FileArchive size={13} /> <span className="hide-narrow">UE5 .zip</span> <Caret size={12} /></button>
           {zipMenu && (
-            <div className="absolute right-0 top-full mt-1 z-40 panel w-[290px] p-1.5 shadow-2xl" data-testid="export-zip-menu">
+            <div className="menu-pop absolute right-0 top-full mt-1 z-40 panel w-[290px] p-1.5 shadow-2xl" data-testid="export-zip-menu">
               <button className="w-full text-left px-2.5 py-2 rounded hover:bg-[var(--surface-hover)]" onClick={() => exportZip("plugin")} data-testid="export-plugin-zip">
                 <div className="font-sub text-[13px] font-semibold">Unreal plugin <span className="chip active !py-0 !text-[9.5px] ml-1">RECOMMENDED</span></div>
                 <div className="text-[10.5px] font-mono text-[var(--text-muted)]">Drop into Plugins/ and build. No code edits.</div>
@@ -774,18 +1012,37 @@ export default function Workspace() {
             </div>
           )}
         </div>
-        <button className="ue-btn ue-btn-primary" onClick={() => { if (!saveNote.trim() && fixNotes.length) setSaveNote(fixNotes.join(" · ").slice(0, 200)); setSaveDialog(true); }} disabled={!result || readOnly || saving} data-testid="save-system-button"><Save size={13} /> {project ? "Save" : "Save project"}</button>
+        <button className="ue-btn ue-btn-primary shrink-0" onClick={() => { afterSaveRef.current = null; if (!saveNote.trim() && fixNotes.length) setSaveNote(fixNotes.join(" · ").slice(0, 200)); setSaveDialog(true); }} disabled={!result || readOnly || saving} data-testid="save-system-button"><Save size={13} /> {project ? "Save" : "Save project"}</button>
         <UsageChip aiKey={aiKey} usage={usage} />
-        <button className={`ue-btn ${aiKey ? "" : "!border-[var(--unreal-orange)] !text-[var(--unreal-orange)]"}`} onClick={() => setKeyModal("edit")} data-testid="ai-key-button">
+        <div className="relative">
+          <button className="ue-btn shrink-0" onClick={() => setFeedbackOpen((v) => !v)} aria-expanded={feedbackOpen} data-testid="feedback-button" title="Open a GitHub issue">
+            <MessageSquarePlus size={13} /> <span className="hide-narrow">Feedback</span>
+          </button>
+          {feedbackOpen && (
+            <div className="menu-pop absolute right-0 top-full mt-1 z-40 panel w-[220px] p-2 shadow-2xl" data-testid="feedback-menu">
+              <div className="eyebrow mb-1.5">New GitHub issue</div>
+              {FEEDBACK_CATEGORIES.map((category) => (
+                <a key={category} className="block rounded px-2 py-1.5 text-[12.5px] font-sub hover:bg-[var(--surface-hover)]" target="_blank" rel="noreferrer"
+                  href={feedbackUrl({ version: appInfo.version || "1.0.0", category })} data-testid={`feedback-${category.toLowerCase()}`}
+                  onClick={() => setFeedbackOpen(false)}>
+                  {category}
+                </a>
+              ))}
+              <p className="mt-1 text-[10px] font-mono text-[var(--text-muted)] leading-relaxed">Opens GitHub in your browser. Nothing is sent from this app. Version {appInfo.version || "1.0.0"}.</p>
+            </div>
+          )}
+        </div>
+        <button className={`ue-btn shrink-0 ${aiKey ? "" : "!border-[var(--unreal-orange)] !text-[var(--unreal-orange)]"}`} onClick={() => setKeyModal("edit")} data-testid="ai-key-button">
           <KeyRound size={13} /> {aiKey ? "Settings" : "Add AI key"}
         </button>
+        </div>
       </header>
 
       {/* ============ BODY ============ */}
       <div className="flex-1 flex min-h-0">
 
         {/* LEFT SIDEBAR */}
-        <aside className="w-[320px] shrink-0 border-r border-[var(--border-soft)] bg-[var(--bg-secondary)] overflow-y-auto">
+        <aside className="sidebar-left shrink-0 border-r border-[var(--border-soft)] bg-[var(--bg-secondary)] overflow-y-auto overflow-x-hidden" data-testid="sidebar-left">
           {/* Prompt */}
           <fieldset disabled={readOnly} className="p-4 border-b border-[var(--border-soft)] min-w-0">
             <div className="flex items-center gap-2 mb-2">
@@ -803,6 +1060,22 @@ export default function Workspace() {
             />
             <div className="text-right text-[10px] font-mono text-[var(--text-muted)]" data-testid="prompt-char-count">{prompt.length}/2000</div>
             <ReferencesBar references={references} onChange={setReferences} projectId={project && !readOnly ? project.project_id : null} disabled={readOnly} />
+            <label className="mt-2 block">
+              <span className="eyebrow">Target Unreal</span>
+              <select
+                value={unrealVersion}
+                onChange={(e) => {
+                  const next = normalizeUnrealVersion(e.target.value) || DEFAULT_UNREAL_VERSION;
+                  setUnrealVersion(next);
+                  localStorage.setItem(LS_UNREAL_VERSION, next);
+                }}
+                data-testid="unreal-version-select"
+                aria-label="Target Unreal version"
+                className="mt-1 w-full bg-[var(--bg-main)] border border-[var(--border)] rounded-md px-2 py-1.5 text-[11px] font-mono text-[var(--text-primary)] outline-none focus:border-[var(--unreal-orange)]"
+              >
+                {UNREAL_VERSIONS.map((v) => <option key={v} value={v}>UE {v}</option>)}
+              </select>
+            </label>
             <div className="mt-1 flex items-center gap-2">
               <select
                 value={bpClass}
@@ -830,10 +1103,10 @@ export default function Workspace() {
                 data-testid="project-context-input"
                 className={`w-full bg-[var(--bg-main)] border rounded-md px-2.5 py-1.5 text-[11.5px] font-mono text-[var(--text-primary)] outline-none focus:border-[var(--unreal-orange)] ${projectContext.trim() ? "border-[rgba(0,240,255,0.45)]" : "border-[var(--border)]"}`}
               />
-              <div className="text-[10px] font-mono text-[var(--text-muted)] mt-1">Steers every synthesis. Remembered on this computer.</div>
+              <div className="text-[10px] font-mono text-[var(--text-muted)] mt-1">Steers every synthesis. Remembered on this computer, and saved with the project.</div>
             </div>
             <button
-              className="ue-btn ue-btn-primary w-full justify-center mt-3"
+              className="ue-btn ue-btn-primary w-full justify-center mt-3 whitespace-normal text-center"
               onClick={() => generate()}
               disabled={loading}
               data-testid="generate-system-button"
@@ -861,9 +1134,9 @@ export default function Workspace() {
         </aside>
 
         {/* CENTER STAGE */}
-        <main className="flex-1 flex flex-col min-w-0 bg-[var(--bg-main)]">
+        <main className="workspace-center flex-1 flex flex-col min-w-0 bg-[var(--bg-main)]" data-testid="workspace-center">
           {/* System header */}
-          <div className="h-14 shrink-0 px-5 border-b border-[var(--border-soft)] flex items-center justify-between bg-[var(--bg-secondary)]/60">
+          <div className="center-toolbar shrink-0 px-4 border-b border-[var(--border-soft)] flex items-center justify-between bg-[var(--bg-secondary)]/60">
             <div className="min-w-0">
               <div className="font-display text-[20px] font-extrabold uppercase tracking-wider leading-none truncate">
                 {result?.system_name || <span className="text-[var(--text-muted)]">Awaiting Synthesis</span>}
@@ -877,7 +1150,7 @@ export default function Workspace() {
                 {result?.summary || "Describe a system on the left, tune the dials, press Synthesize."}
               </div>
             </div>
-            <div className="flex gap-1 shrink-0 ml-4">
+            <div className="tab-row shrink min-w-0 ml-2">
               {TABS.map((t) => {
                 const Icon = t.icon;
                 const active = tab === t.id;
@@ -891,9 +1164,9 @@ export default function Workspace() {
                     title={t.label}
                     className={`ue-btn !py-1.5 ${active ? "!border-[var(--unreal-orange)] !text-[var(--unreal-orange)] !bg-[rgba(255,107,0,0.08)]" : ""}`}
                   >
-                    <Icon size={13} /> <span className="hidden lg:inline">{t.label}</span>
-                    {t.id === "cpp" && activeIssues.length > 0 && (
-                      <span className={`ml-0.5 rounded-full px-1.5 text-[9.5px] font-mono leading-[15px] ${checkErrors ? "bg-[var(--accent-red)] text-white" : "bg-[#e8c547] text-[#0b0e14]"}`} data-testid="cpp-issue-badge">{activeIssues.length}</span>
+                    <Icon size={13} /> <span className="hidden min-[1100px]:inline">{t.label}</span>
+                    {t.id === "cpp" && !headline.clean && (headline.errors + headline.warnings) > 0 && (
+                      <span className={`ml-0.5 rounded-full px-1.5 text-[9.5px] font-mono leading-[15px] ${headline.errors ? "bg-[var(--accent-red)] text-white" : "bg-[#e8c547] text-[#0b0e14]"}`} data-testid="cpp-issue-badge">{headline.errors + headline.warnings}</span>
                     )}
                   </button>
                 );
@@ -961,7 +1234,7 @@ export default function Workspace() {
               </div>
             )}
             {tab === "tests" && result && (
-              <TestsPanel system={result} projectId={project?.project_id} aiKey={aiKey} canEdit={!readOnly} fixing={fix?.status === "running"}
+              <TestsPanel system={result} projectId={project?.project_id} aiKey={aiKey} canEdit={!readOnly} fixing={fix?.status === "running"} unrealVersion={unrealVersion}
                 onNeedKey={() => setKeyModal("required")} onUsed={() => setUsageTick((n) => n + 1)}
                 onTests={(id, t) => setResult((r) => (r?.id === id ? { ...r, tests: t } : r))}
                 onFix={(l) => runFix(l, null, "tests")} jump={jump} onJump={(i) => setJump({ file: "tests", line: i.line || 1, nonce: Date.now() })} />
@@ -981,24 +1254,24 @@ export default function Workspace() {
                 </div>
               </div>
             )}
-            {tab === "setup" && <SetupGuide steps={result?.setup_guide || []} />}
+            {tab === "setup" && <SetupGuide steps={result?.setup_guide || []} done={setupDone} onToggle={(step) => setSetupDone((current) => ({ ...current, [step]: !current[step] }))} />}
             {tab === "compare" && <CompareView before={compareBefore} after={result} picker={versionPicker} />}
             {tab === "files" && <ProjectFiles project={project} />}
           </div>
 
           {/* Bottom diagnostic bar */}
-          <div className="h-8 shrink-0 border-t border-[var(--border-soft)] bg-[var(--bg-secondary)] px-4 flex items-center gap-4 text-[10.5px] font-mono text-[var(--text-muted)] uppercase tracking-widest">
+          <div className="status-bar h-8 shrink-0 border-t border-[var(--border-soft)] bg-[var(--bg-secondary)] px-4 flex items-center gap-4 text-[10.5px] font-mono text-[var(--text-muted)] uppercase tracking-widest">
             <span className="flex items-center gap-1.5"><span className={`h-2 w-2 rounded-full ${result ? "bg-[var(--cpp-green)]" : "bg-slate-600"}`}/> {result ? "Ready" : "Idle"}</span>
             <span>Class: <span className="text-[var(--text-secondary)]">{bpClass}</span></span>
             <span>Nodes: <span className="text-[var(--text-secondary)]">{result?.node_graph_nodes?.length || 0}</span></span>
             <span>Modules: <span className="text-[var(--text-secondary)]">{result?.modules?.filter(m=>m.included).length || 0}</span></span>
             <div className="flex-1" />
-            <span>{result?.network_notes?.slice(0, 80) || "—"}</span>
+            <span className="status-notes">{result?.network_notes?.slice(0, 80) || "—"}</span>
           </div>
         </main>
 
         {/* RIGHT TUNER PANEL */}
-        <aside className="w-[340px] shrink-0 border-l border-[var(--border-soft)] bg-[var(--bg-secondary)] overflow-y-auto">
+        <aside className="sidebar-right shrink-0 border-l border-[var(--border-soft)] bg-[var(--bg-secondary)] overflow-y-auto overflow-x-hidden" data-testid="sidebar-right">
           {readOnly && <div className="px-4 py-2 text-[11px] font-mono text-[var(--accent-cyan)] border-b border-[var(--border-soft)] flex items-center gap-2" data-testid="view-only-banner"><Eye size={12} /> View only: ask the owner for Editor access to change this system.</div>}
           <fieldset disabled={readOnly} className="contents">
           <PendingChanges changes={pendingChanges} />
@@ -1082,9 +1355,9 @@ export default function Workspace() {
                 onKeyDown={(e) => e.key === "Enter" && addExtra()}
                 placeholder="+ Add module (e.g. StaminaDrain)"
                 data-testid="add-module-input"
-                className="flex-1 bg-[var(--bg-main)] border border-[var(--border)] rounded-md px-2 py-1.5 text-[11px] font-mono text-[var(--text-primary)] outline-none focus:border-[var(--unreal-orange)]"
+                className="flex-1 min-w-0 bg-[var(--bg-main)] border border-[var(--border)] rounded-md px-2 py-1.5 text-[11px] font-mono text-[var(--text-primary)] outline-none focus:border-[var(--unreal-orange)]"
               />
-              <button className="ue-btn" onClick={addExtra} data-testid="add-component-button"><Plus size={12} /></button>
+              <button className="ue-btn shrink-0" onClick={addExtra} data-testid="add-component-button"><Plus size={12} /></button>
             </div>
             <div className="mt-2 text-[10.5px] font-mono text-[var(--text-muted)]">Chips toggle include/exclude. Press Synthesize to regenerate with changes.</div>
           </div>
@@ -1120,7 +1393,7 @@ export default function Workspace() {
         </aside>
       </div>
       {keyModal && (
-        <AiKeyModal current={aiKey} required={keyModal === "required"} onClose={() => { setKeyModal(null); setUsageTick((n) => n + 1); }}
+        <AiKeyModal current={aiKey} required={keyModal === "required"} onClearProjectContext={clearRememberedContext} onClose={() => { setKeyModal(null); setUsageTick((n) => n + 1); }}
           onSave={(k) => { setAiKey(k); setKeyModal(null); setUsageTick((n) => n + 1); }} />
       )}
       {limitPrompt && (
@@ -1142,8 +1415,54 @@ export default function Workspace() {
           </div>
         </Modal>
       )}
+      {newProjectAsk && (
+        <Modal title="Start a new project?" onClose={() => setNewProjectAsk(null)} testId="new-project-modal" width={480}>
+          <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed" data-testid="new-project-text">
+            {newProjectAsk.dirty
+              ? "This clears the description, project context, references, the current system and graph, notes, dials, modules, and setup ticks. Cancel leaves everything as it is. Your API key and model are not changed."
+              : "This clears the workspace and starts a blank project. Your API key and model are not changed."}
+          </p>
+          <label className="mt-3 flex items-start gap-2 text-[12.5px] text-[var(--text-secondary)]" data-testid="keep-project-context-label">
+            <input type="checkbox" className="accent-[#ff6b00] mt-0.5" checked={!!newProjectAsk.keepContext} data-testid="keep-project-context"
+              onChange={(e) => setNewProjectAsk((current) => ({ ...current, keepContext: e.target.checked }))} />
+            <span>Keep my project context</span>
+          </label>
+          {!result && newProjectAsk.dirty && (
+            <p className="mt-3 text-[11px] font-mono text-[var(--text-muted)]">There is no synthesized system to save yet. Discard clears the screen.</p>
+          )}
+          <div className="flex flex-wrap gap-2 justify-end mt-4">
+            <button className="ue-btn" onClick={() => setNewProjectAsk(null)} data-testid="new-project-cancel">Cancel</button>
+            <button className="ue-btn" onClick={() => { const keep = !!newProjectAsk.keepContext; setNewProjectAsk(null); applyBlank({ keepContext: keep }); }} data-testid="new-project-discard">Discard</button>
+            <button className="ue-btn ue-btn-primary" disabled={!newProjectAsk.dirty || !result || readOnly || saving} data-testid="new-project-save"
+              title={!result ? "Synthesize a system before it can be saved" : readOnly ? "View only" : "Save, then start a new project"}
+              onClick={() => {
+                const keep = !!newProjectAsk.keepContext;
+                setNewProjectAsk(null);
+                afterSaveRef.current = () => applyBlank({ keepContext: keep });
+                if (!saveNote.trim() && fixNotes.length) setSaveNote(fixNotes.join(" · ").slice(0, 200));
+                setSaveDialog(true);
+              }}>
+              <Save size={13} /> Save
+            </button>
+          </div>
+        </Modal>
+      )}
+      {templateAsk && (
+        <Modal title="A project is open" onClose={() => setTemplateAsk(null)} testId="template-replace-modal" width={500}>
+          <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed" data-testid="template-replace-text">
+            Loading “{templateAsk.template.title}” replaces the description and clears the system on screen.
+            Saving afterwards would add a version to “{project?.name}” unless you start a new project.
+            {isWorkspaceDirty(liveSnapshot(), baseline) ? " You also have unsaved work. Cancel if you want to save it first." : ""}
+          </p>
+          <div className="flex flex-wrap gap-2 justify-end mt-4">
+            <button className="ue-btn" onClick={() => setTemplateAsk(null)} data-testid="template-cancel">Cancel</button>
+            <button className="ue-btn" onClick={() => applyTemplate(templateAsk.template, "replace")} data-testid="template-replace">Replace this project</button>
+            <button className="ue-btn ue-btn-primary" onClick={() => applyTemplate(templateAsk.template, "new")} data-testid="template-new-project">Start a new project</button>
+          </div>
+        </Modal>
+      )}
       {saveDialog && (
-        <Modal title={project && !readOnly ? `Save v${project.version + 1}` : "Save project"} onClose={() => setSaveDialog(false)} testId="save-modal" width={460}>
+        <Modal title={project && !readOnly ? `Save v${project.version + 1}` : "Save project"} onClose={() => { afterSaveRef.current = null; setSaveDialog(false); }} testId="save-modal" width={460}>
           <form onSubmit={(e) => { e.preventDefault(); saveProject(false); }}>
             <label htmlFor="save-note" className="eyebrow">What changed and why? <span className="normal-case tracking-normal font-normal">(optional)</span></label>
             <textarea id="save-note" autoFocus value={saveNote} onChange={(e) => setSaveNote(e.target.value)} maxLength={200} rows={3}
@@ -1154,7 +1473,7 @@ export default function Workspace() {
               <span>Shown in version history. Enter saves.</span><span data-testid="save-note-count">{saveNote.length}/200</span>
             </div>
             <div className="flex gap-2 justify-end">
-              <button type="button" className="ue-btn" onClick={() => setSaveDialog(false)} data-testid="save-cancel">Cancel</button>
+              <button type="button" className="ue-btn" onClick={() => { afterSaveRef.current = null; setSaveDialog(false); }} data-testid="save-cancel">Cancel</button>
               <button className="ue-btn ue-btn-primary" disabled={saving} data-testid="save-confirm"><Save size={13} /> {saving ? "Saving…" : "Save"}</button>
             </div>
           </form>
@@ -1193,7 +1512,7 @@ export default function Workspace() {
             {conflict.updated_by_name} saved this project at {new Date(conflict.updated_at).toLocaleString()} while you were editing.
           </div>
           <div className="flex gap-2 justify-end">
-            <button className="ue-btn" onClick={() => { setConflict(null); openProject(project.project_id); }} data-testid="conflict-load-theirs">Load their version</button>
+            <button className="ue-btn" onClick={() => { afterSaveRef.current = null; setConflict(null); openProject(project.project_id); }} data-testid="conflict-load-theirs">Load their version</button>
             <button className="ue-btn ue-btn-primary" onClick={() => saveProject(true)} data-testid="conflict-overwrite">Overwrite with mine</button>
           </div>
         </Modal>

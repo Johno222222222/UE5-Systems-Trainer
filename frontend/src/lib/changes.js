@@ -19,6 +19,9 @@ export function computeChanges(result, current) {
   if (base.network_replicated !== undefined && current.network_replicated !== base.network_replicated) {
     out.push({ kind: "dial", text: current.network_replicated ? "Make the system network replicated" : "Remove network replication (local only)" });
   }
+  if (base.unreal_version && current.unreal_version && current.unreal_version !== base.unreal_version) {
+    out.push({ kind: "dial", text: `Target Unreal Engine ${base.unreal_version} → ${current.unreal_version}` });
+  }
   DIALS.forEach(([key, label]) => {
     if (base[key] !== undefined && current[key] !== base[key]) {
       out.push({ kind: "dial", text: `${label} ${base[key]} → ${current[key]}` });

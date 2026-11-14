@@ -14,6 +14,48 @@ const ALLOWED_MODELS = {
 const DEFAULT_PROVIDER = "gemini";
 const DEFAULT_MODEL = "gemini-3.5-flash-lite";
 
+// Versions the workspace can target. 5.8 is the default for new work.
+// Projects saved before this setting existed were written against the old
+// hard-coded "UE 5.4+" prompts, so a missing version is treated as 5.4.
+const UNREAL_VERSIONS = ["5.4", "5.5", "5.6", "5.7", "5.8"];
+const DEFAULT_UNREAL_VERSION = "5.8";
+const LEGACY_UNREAL_VERSION = "5.4";
+const GITHUB_REPO = "Johno222222222/blueprint-builder";
+
+function normalizeUnrealVersion(value) {
+  const raw = String(value ?? "").trim().replace(/^UE\s*/i, "").replace(/\+$/, "");
+  return UNREAL_VERSIONS.includes(raw) ? raw : null;
+}
+
+function isNewerVersion(remote, local) {
+  const parse = (value) => String(value || "").trim().replace(/^v/i, "").split(".").map((part) => {
+    const n = parseInt(part, 10);
+    return Number.isFinite(n) ? n : 0;
+  });
+  const a = parse(remote);
+  const b = parse(local);
+  const len = Math.max(a.length, b.length, 3);
+  for (let i = 0; i < len; i += 1) {
+    const delta = (a[i] || 0) - (b[i] || 0);
+    if (delta !== 0) return delta > 0;
+  }
+  return false;
+}
+
+// A GitHub release payload, or {version, url} from a test double.
+// Returns null when the remote version is missing or not newer.
+function releaseNotice(local, payload) {
+  if (!payload || typeof payload !== "object") return null;
+  const remote = String(payload.tag_name || payload.version || "").trim().replace(/^v/i, "");
+  if (!remote || !isNewerVersion(remote, local)) return null;
+  const url = typeof payload.html_url === "string" && payload.html_url
+    ? payload.html_url
+    : (typeof payload.url === "string" && payload.url
+      ? payload.url
+      : `https://github.com/${GITHUB_REPO}/releases/tag/v${remote}`);
+  return { version: remote, url };
+}
+
 // Approximate free-tier requests per day. Google resets at midnight Pacific.
 // This is a local hint for the usage chip, not an account limit.
 const FREE_DAILY = {
@@ -25,7 +67,7 @@ const FREE_DAILY = {
 
 const PAID_MODEL_MSG = "{model} needs a paid API key, and this key is on the free tier. Switch back to Gemini 3.5 Flash-Lite, which works free.";
 
-const SYSTEM_PROMPT = `You are an elite Unreal Engine 5 systems architect. Given a user's system description, you emit a compact, production-ready modular architecture for UE 5.4+.
+const SYSTEM_PROMPT_TEMPLATE = `You are an elite Unreal Engine 5 systems architect. Given a user's system description, you emit a compact, production-ready modular architecture for {UNREAL}.
 
 Respond with ONLY a single raw JSON object (no markdown, no code fences, no prose) matching this schema:
 
@@ -59,12 +101,12 @@ Rules:
 - If STACKED SYSTEMS are given: merge them into ONE integrated system. Unify duplicated attributes into a single owner (e.g. one Health attribute used by both), route cross-system calls through interfaces or delegates, rename anything that collides, and list shared_attributes. Record each conflict resolved as an applied_changes entry starting with "Conflict resolved:". Otherwise shared_attributes is [].
 - Output raw JSON only, starting with { and ending with }.`;
 
-const REVIEW_PROMPT = `You are a strict Unreal Engine 5.4 C++ compile reviewer. Find problems in the given .h/.cpp pair that would make it fail to compile, fail Unreal Header Tool, or fail to link: missing #includes, names that don't match between files, wrong or missing signatures, functions declared but not defined, UCLASS/UPROPERTY/UFUNCTION macro mistakes, wrong Super:: calls, replication mistakes, wrong engine API usage.
+const REVIEW_PROMPT_TEMPLATE = `You are a strict {ENGINE} C++ compile reviewer. Find problems in the given .h/.cpp pair that would make it fail to compile, fail Unreal Header Tool, or fail to link: missing #includes, names that don't match between files, wrong or missing signatures, functions declared but not defined, UCLASS/UPROPERTY/UFUNCTION macro mistakes, wrong Super:: calls, replication mistakes, wrong engine API usage.
 Only report real problems, never style. Do not repeat issues already listed under KNOWN ISSUES.
 Respond with ONLY raw JSON: {"issues":[{"severity":"error","file":".h","line":12,"message":"what is wrong","fix":"how to fix it"}]}
 severity is "error" (will not build) or "warning" (likely wrong at runtime). file is ".h" or ".cpp". line may be null. At most 12 issues. If the code looks fine, return {"issues":[]}.`;
 
-const FIX_PROMPT = `You are an Unreal Engine 5.4 C++ fixer. You get a .h/.cpp pair and a list of ISSUES. Fix exactly those issues with the smallest possible edits. Do not rewrite, reformat or rename anything else.
+const FIX_PROMPT_TEMPLATE = `You are an {ENGINE} C++ fixer. You get a .h/.cpp pair and a list of ISSUES. Fix exactly those issues with the smallest possible edits. Do not rewrite, reformat or rename anything else.
 Respond with ONLY raw JSON:
 {"edits":[{"file":".h","find":"exact text copied from the file","replace":"new text","why":"which issue this fixes, in a few words"}]}
 Rules:
@@ -73,7 +115,7 @@ Rules:
 - To delete, set "replace" to "".
 - Never return the whole file. At most 15 edits. If an issue can't be fixed safely, skip it.`;
 
-const TESTS_PROMPT = `You write Unreal Engine 5.4 automation tests. Given a component's .h/.cpp, write ONE C++ file of Automation Spec tests (BEGIN_DEFINE_SPEC / END_DEFINE_SPEC / Describe / It) that check its core behaviour, e.g. damage lowers health, values clamp at 0 and at max, regen stops at max, events fire.
+const TESTS_PROMPT_TEMPLATE = `You write {ENGINE} automation tests. Given a component's .h/.cpp, write ONE C++ file of Automation Spec tests (BEGIN_DEFINE_SPEC / END_DEFINE_SPEC / Describe / It) that check its core behaviour, e.g. damage lowers health, values clamp at 0 and at max, regen stops at max, events fire.
 Rules:
 - Wrap everything in #if WITH_DEV_AUTOMATION_TESTS ... #endif.
 - Include "Misc/AutomationTest.h", the component's header (exact file name given), and any engine headers you use.
@@ -81,6 +123,29 @@ Rules:
 - Spec flags: EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter. Test name prefix: "SystemArchitect.<ClassName>".
 - 4 to 8 It() cases with clear names. Use TestEqual/TestTrue/TestFalse with readable messages.
 Respond with ONLY raw JSON: {"file_name":"<ClassName>Spec.cpp","code":"...","cases":["short name of each It case"]}`;
+
+function fillPrompt(template, version) {
+  const v = normalizeUnrealVersion(version) || DEFAULT_UNREAL_VERSION;
+  return String(template)
+    .replaceAll("{UNREAL}", `UE ${v}`)
+    .replaceAll("{ENGINE}", `Unreal Engine ${v}`);
+}
+
+function promptsFor(version) {
+  const v = normalizeUnrealVersion(version) || DEFAULT_UNREAL_VERSION;
+  return {
+    version: v,
+    system: fillPrompt(SYSTEM_PROMPT_TEMPLATE, v),
+    review: fillPrompt(REVIEW_PROMPT_TEMPLATE, v),
+    fix: fillPrompt(FIX_PROMPT_TEMPLATE, v),
+    tests: fillPrompt(TESTS_PROMPT_TEMPLATE, v),
+  };
+}
+
+const SYSTEM_PROMPT = promptsFor(DEFAULT_UNREAL_VERSION).system;
+const REVIEW_PROMPT = promptsFor(DEFAULT_UNREAL_VERSION).review;
+const FIX_PROMPT = promptsFor(DEFAULT_UNREAL_VERSION).fix;
+const TESTS_PROMPT = promptsFor(DEFAULT_UNREAL_VERSION).tests;
 
 const TEMPLATES = [
   {
@@ -217,6 +282,8 @@ function buildUserText(req, refs) {
     });
     sections.push("REFERENCE FILES (use as source material: extend existing code, match screenshots and specs):\n" + parts.join("\n\n"));
   }
+  const unreal = normalizeUnrealVersion(req.unreal_version) || DEFAULT_UNREAL_VERSION;
+  sections.push(`TARGET ENGINE: UE ${unreal}. Write C++, Blueprint steps, includes, and project setup for this Unreal version.`);
   if (String(req.project_context || "").trim()) {
     sections.push(`PROJECT CONTEXT (steer every decision by this): ${String(req.project_context).trim()}`);
   }
@@ -239,6 +306,7 @@ function buildUserText(req, refs) {
 """${req.prompt}"""
 
 Target UE5 Blueprint class: ${req.blueprint_class}
+Target Unreal version: UE ${normalizeUnrealVersion(req.unreal_version) || DEFAULT_UNREAL_VERSION}
 System name hint: ${req.system_name || "(auto-generate)"}
 Network replicated: ${!!req.network_replicated}
 
@@ -393,6 +461,7 @@ function normalizeGenerateRequest(body) {
     removed_modules: asStringList(body.removed_modules, 20),
     parameter_overrides: body.parameter_overrides && typeof body.parameter_overrides === "object" ? body.parameter_overrides : {},
     project_context: String(body.project_context || "").slice(0, 300),
+    unreal_version: normalizeUnrealVersion(body.unreal_version) || DEFAULT_UNREAL_VERSION,
     designer_notes: String(body.designer_notes || "").slice(0, 1000),
     change_requests: asStringList(body.change_requests, 40),
     previous_system: body.previous_system && typeof body.previous_system === "object" ? body.previous_system : null,
@@ -406,11 +475,19 @@ module.exports = {
   DEFAULT_PROVIDER,
   DEFAULT_MODEL,
   FREE_DAILY,
+  UNREAL_VERSIONS,
+  DEFAULT_UNREAL_VERSION,
+  LEGACY_UNREAL_VERSION,
+  GITHUB_REPO,
   SYSTEM_PROMPT,
   REVIEW_PROMPT,
   FIX_PROMPT,
   TESTS_PROMPT,
   TEMPLATES,
+  normalizeUnrealVersion,
+  isNewerVersion,
+  releaseNotice,
+  promptsFor,
   usageDay,
   keyFingerprint,
   extractJson,

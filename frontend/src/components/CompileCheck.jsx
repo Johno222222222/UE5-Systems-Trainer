@@ -4,6 +4,7 @@ import { api, errorText } from "../lib/api";
 import { aiHeaders } from "./AiKeyModal";
 import { baseName } from "../lib/zipExport";
 import { issueText } from "../lib/compileCheck";
+import { compileHeadline } from "../lib/stage0.mjs";
 
 // onJump/onFix/onIgnore/onRestore are optional per-row actions
 export function IssueList({ issues, testId, onJump, onFix, onIgnore, onRestore }) {
@@ -33,13 +34,8 @@ export function IssueList({ issues, testId, onJump, onFix, onIgnore, onRestore }
   );
 }
 
-const tally = (issues) => {
-  const e = issues.filter((i) => i.severity === "error").length;
-  return { e, w: issues.length - e };
-};
-
 // Lives in Workspace so a running review survives tab switches; results are tied to the reviewed system id
-export function useAiReview(system, issues, aiKey, onNeedKey, onUsed) {
+export function useAiReview(system, issues, aiKey, onNeedKey, onUsed, unrealVersion) {
   const [state, setState] = useState(null); // {id, status: "running"|"done"|"error", issues, model, error}
   const seq = useRef(0);
   useEffect(() => { seq.current += 1; setState(null); }, [system?.id, system?.cpp_header, system?.cpp_source]);
@@ -52,6 +48,7 @@ export function useAiReview(system, issues, aiKey, onNeedKey, onUsed) {
       const { data } = await api.post("/ai/review-cpp", {
         file_base: baseName(system), cpp_header: system.cpp_header, cpp_source: system.cpp_source,
         known_issues: issues.slice(0, 40).map(issueText),
+        unreal_version: unrealVersion || undefined,
       }, { headers: aiHeaders(aiKey) });
       if (mine === seq.current) setState({ id, status: "done", issues: data.issues, model: data.model });
     } catch (err) {
@@ -66,39 +63,40 @@ export function useAiReview(system, issues, aiKey, onNeedKey, onUsed) {
 export default function CompileCheck({ issues, ignored, ai, onReview, aiKey, canEdit, fixing, onJump, onFix, onRegenerate, onIgnore, onRestore, onCopy }) {
   const [open, setOpen] = useState(true);
   const [showIgnored, setShowIgnored] = useState(false);
-  const { e, w } = tally(issues);
   const running = ai?.status === "running";
   const aiIssues = ai?.status === "done" ? ai.issues : [];
   const fixable = issues.length + aiIssues.length;
-
-  const color = e ? "var(--accent-red)" : w ? "#e8c547" : "var(--cpp-green)";
+  const headline = compileHeadline(issues, ai);
+  const color = headline.clean ? "var(--cpp-green)" : headline.errors ? "var(--accent-red)" : "#e8c547";
   return (
     <div className="panel mb-4" style={{ borderColor: color }} data-testid="compile-check-panel">
-      <div className="flex items-center gap-2 px-4 py-2.5">
-        <button className="flex items-center gap-2 flex-1 min-w-0 text-left" onClick={() => setOpen((o) => !o)} aria-expanded={open} data-testid="compile-check-toggle">
-          {e || w ? <AlertTriangle size={14} style={{ color }} /> : <CheckCircle2 size={14} style={{ color }} />}
+      <div className="flex flex-wrap items-center gap-2 px-4 py-2.5">
+        <button className="flex items-center gap-2 flex-1 min-w-[12rem] text-left" onClick={() => setOpen((o) => !o)} aria-expanded={open} data-testid="compile-check-toggle">
+          {headline.clean ? <CheckCircle2 size={14} style={{ color }} /> : <AlertTriangle size={14} style={{ color }} />}
           <span className="eyebrow">Compile check</span>
           <span className="text-[11.5px] font-mono" style={{ color }} data-testid="compile-check-summary">
-            {e || w ? `${e} error${e === 1 ? "" : "s"} · ${w} warning${w === 1 ? "" : "s"}` : "No likely mistakes found"}
+            {headline.text}
           </span>
           {ignored.length > 0 && <span className="text-[10.5px] font-mono text-[var(--text-muted)]">· {ignored.length} ignored</span>}
           <ChevronDown size={13} className={`text-[var(--text-muted)] transition-transform ${open ? "rotate-180" : ""}`} />
         </button>
+        <div className="compile-actions flex flex-wrap items-center gap-2">
         {canEdit && (
-          <button className="ue-btn ue-btn-primary !py-1 !px-2 !text-[11px]" onClick={() => onFix([...issues, ...aiIssues])} disabled={!fixable || fixing} data-testid="fix-all-button">
+          <button className="ue-btn ue-btn-primary !py-1 !px-2 !text-[11px] shrink-0" onClick={() => onFix([...issues, ...aiIssues])} disabled={!fixable || fixing} data-testid="fix-all-button">
             {fixing ? <Loader2 size={12} className="animate-spin" /> : <Wand2 size={12} />} {fixing ? "Fixing…" : `Fix these${fixable ? ` (${fixable})` : ""}`}
           </button>
         )}
         {canEdit && (
-          <button className="ue-btn !py-1 !px-2 !text-[11px]" onClick={() => onRegenerate([...issues, ...aiIssues])} disabled={!fixable || fixing}
+          <button className="ue-btn !py-1 !px-2 !text-[11px] shrink-0" onClick={() => onRegenerate([...issues, ...aiIssues])} disabled={!fixable || fixing}
             title="For structural problems: regenerate the whole system with these issues as change requests (1 synthesis)" data-testid="fix-regenerate-button">
             <RefreshCw size={12} /> Fix &amp; regenerate
           </button>
         )}
-        <button className="ue-btn !py-1 !px-2 !text-[11px]" onClick={() => onCopy([...issues, ...aiIssues])} disabled={!fixable} data-testid="copy-issues-button"><ClipboardCopy size={12} /> Copy issues</button>
-        <button className="ue-btn !py-1 !px-2 !text-[11px]" onClick={onReview} disabled={running} data-testid="ai-review-button">
+        <button className="ue-btn !py-1 !px-2 !text-[11px] shrink-0" onClick={() => onCopy([...issues, ...aiIssues])} disabled={!fixable} data-testid="copy-issues-button"><ClipboardCopy size={12} /> Copy issues</button>
+        <button className="ue-btn !py-1 !px-2 !text-[11px] shrink-0" onClick={onReview} disabled={running} data-testid="ai-review-button">
           {running ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />} {running ? "Reviewing…" : "AI review"}
         </button>
+        </div>
       </div>
       {open && (
         <div className="px-4 pb-3 space-y-3">

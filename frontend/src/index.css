@@ -296,3 +296,51 @@ html, body, #root {
 }
 .issue-row { transition: background-color 0.15s ease; }
 .issue-row:hover { background: var(--surface-hover); }
+
+/* Narrow window: 1024px wide must not overlap panels or clip buttons. */
+.app-header {
+  min-height: 56px;
+  height: auto;
+  flex-wrap: wrap;
+  align-items: center;
+  row-gap: 6px;
+  column-gap: 8px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+.header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.sidebar-left { width: 300px; flex: 0 0 300px; min-width: 0; }
+.sidebar-right { width: 300px; flex: 0 0 300px; min-width: 0; }
+.workspace-center { min-width: 0; }
+.center-toolbar {
+  min-height: 56px;
+  height: auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+.tab-row { display: flex; flex-wrap: wrap; gap: 4px; max-width: 100%; }
+.status-bar { min-width: 0; overflow: hidden; }
+.status-notes { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.menu-pop { max-width: min(290px, calc(100vw - 16px)); }
+
+@media (max-width: 1100px) {
+  .app-header { align-items: flex-start; }
+  .header-actions { flex: 1 0 100%; justify-content: flex-start; }
+  .sidebar-left { width: 220px; flex-basis: 220px; }
+  .sidebar-right { width: 210px; flex-basis: 210px; }
+  .app-subtitle { display: none; }
+  .hide-narrow { display: none; }
+  .app-header .ue-btn,
+  .header-actions .ue-btn,
+  .tab-row .ue-btn,
+  .compile-actions .ue-btn { padding: 6px 8px; }
+}

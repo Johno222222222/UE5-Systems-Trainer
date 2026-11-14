@@ -53,7 +53,7 @@ export const aiHeaders = (k) => {
 
 const field = "w-full bg-[var(--bg-main)] border border-[var(--border)] rounded-md px-2.5 py-2 text-[12px] font-mono text-[var(--text-primary)] outline-none focus:border-[var(--unreal-orange)]";
 
-export default function AiKeyModal({ current, onSave, onClose, required }) {
+export default function AiKeyModal({ current, onSave, onClose, required, onClearProjectContext }) {
   const [provider, setProvider] = useState(current?.provider || "gemini");
   const [model, setModel] = useState(current?.model || DEFAULT_MODEL);
   const [key, setKey] = useState("");
@@ -201,6 +201,19 @@ export default function AiKeyModal({ current, onSave, onClose, required }) {
             <button type="button" className="ue-btn !py-1 !px-2 !text-[11px] mt-2" onClick={openFolder} data-testid="open-data-folder"><FolderOpen size={12} /> Open folder</button>
           </div>
         )}
+        <div className="panel p-2.5" data-testid="clear-project-context-row">
+          <div className="eyebrow mb-1">Project context</div>
+          <p className="text-[10.5px] font-mono text-[var(--text-muted)] leading-relaxed">
+            Clears the Project Context remembered on this computer. Projects you already saved keep their own context.
+          </p>
+          <button type="button" className="ue-btn !py-1 !px-2 !text-[11px] mt-2" data-testid="clear-project-context"
+            onClick={() => {
+              if (!window.confirm("Clear the Project Context remembered on this computer? Saved projects keep their own context.")) return;
+              onClearProjectContext?.();
+            }}>
+            Clear remembered project context
+          </button>
+        </div>
         <div className="flex gap-2 justify-end pt-1">
           {saved[provider] && <button type="button" className="ue-btn !text-[var(--accent-red)]" onClick={remove} data-testid="ai-key-remove"><Trash2 size={13} /> Remove</button>}
           <button className="ue-btn ue-btn-primary" disabled={test === "running"} data-testid="ai-key-save"><KeyRound size={13} /> Save</button>

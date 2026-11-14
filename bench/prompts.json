@@ -1,0 +1,87 @@
+{
+  "target_unreal": "5.8",
+  "project": "Blank C++",
+  "note": "These are the prompts for a first-try compile baseline. Do not edit a prompt between the run you are scoring and the notes you keep.",
+  "prompts": [
+    {
+      "id": "combat",
+      "source": "template",
+      "title": "Advanced Combat System",
+      "tagline": "Combo attacks, hitstop, damage types",
+      "prompt": "A third-person melee combat system with combo chains, directional attacks, hit reactions, hitstop, and a damage type enum. Uses an ActorComponent attached to the player Character.",
+      "default_class": "ActorComponent"
+    },
+    {
+      "id": "inventory",
+      "source": "template",
+      "title": "Grid Inventory",
+      "tagline": "Slot grid, stacking, tooltips",
+      "prompt": "A slot-based grid inventory system (like Resident Evil) with stackable items, item tooltips, drag-and-drop between slots, and a lightweight DataAsset for item definitions.",
+      "default_class": "ActorComponent"
+    },
+    {
+      "id": "dialogue",
+      "source": "template",
+      "title": "Branching Dialogue & Quests",
+      "tagline": "Nodes, choices, flags",
+      "prompt": "A branching dialogue system with speaker lines, player choices, condition-gated branches, quest-stage flag updates, and a DataTable-driven conversation graph.",
+      "default_class": "Actor"
+    },
+    {
+      "id": "ai_guard",
+      "source": "template",
+      "title": "Behavior Tree AI Guard",
+      "tagline": "Patrol, chase, search",
+      "prompt": "An AI guard pawn using a Behavior Tree and Blackboard with patrol route, sight/hearing perception, chase, investigate-last-known-position, and return-to-post states.",
+      "default_class": "Character"
+    },
+    {
+      "id": "save",
+      "source": "template",
+      "title": "Save / Load Game State",
+      "tagline": "Slots, versioning, async",
+      "prompt": "A robust save/load subsystem with multiple save slots, autosave timer, versioned USaveGame struct, async disk I/O, and a Blueprint-friendly API.",
+      "default_class": "GameInstanceSubsystem"
+    },
+    {
+      "id": "vehicle",
+      "source": "template",
+      "title": "Vehicle Physics Controller",
+      "tagline": "Chaos vehicles, gears, drift",
+      "prompt": "A Chaos Vehicles arcade car controller with throttle, brake, handbrake drift, automatic gear shifting, boost ability, and tire smoke VFX hooks.",
+      "default_class": "WheeledVehiclePawn"
+    },
+    {
+      "id": "gas",
+      "source": "template",
+      "title": "Gameplay Ability System",
+      "tagline": "GAS attributes & abilities",
+      "prompt": "A Gameplay Ability System setup with an AttributeSet (Health, Mana, Stamina), three granted GameplayAbilities (Dash, Fireball, Heal), cooldown & cost GEs, and a tag-driven cancellation policy.",
+      "default_class": "Character"
+    },
+    {
+      "id": "interaction",
+      "source": "template",
+      "title": "Interaction System",
+      "tagline": "Line trace, prompts, outlines",
+      "prompt": "A first-person interaction system using a line trace from the camera, a BPI_Interactable interface, dynamic prompt widgets, and a post-process outline on focused actors.",
+      "default_class": "ActorComponent"
+    },
+    {
+      "id": "tactical_fps_weapon",
+      "source": "bench",
+      "title": "Tactical FPS Weapon",
+      "tagline": "ADS, recoil, magazine reload",
+      "prompt": "A tactical first-person weapon component for a Character in a blank UE 5.8 C++ project. Include a hitscan rifle and one projectile grenade mode, aim-down-sights that changes camera FOV, a data-driven recoil pattern, magazine reload that keeps a round in the chamber, ammo types defined in a primary Data Asset, and a short tracer. Use Enhanced Input for fire, aim, and reload. No marketplace plugins. The component must compile against engine modules only.",
+      "default_class": "ActorComponent"
+    },
+    {
+      "id": "gas_character",
+      "source": "bench",
+      "title": "GAS Character",
+      "tagline": "ASC, attributes, startup abilities",
+      "prompt": "A Gameplay Ability System character pawn for a blank UE 5.8 C++ project with the GameplayAbilities plugin enabled. Build an ACharacter that owns an AbilitySystemComponent, an AttributeSet with Health, Stamina, and Armor, and three startup abilities granted on possess: sprint, melee, and heal. Add a GameplayEffect for instant damage and one for stamina regen. Use gameplay tags State.Sprinting and State.Dead. No marketplace plugins. Header and source must compile in that blank C++ project.",
+      "default_class": "Character"
+    }
+  ]
+}

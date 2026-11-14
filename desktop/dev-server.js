@@ -10,11 +10,13 @@ const { startServer } = require("./server");
 
 const dataDir = process.env.UE5_DATA_DIR || path.join(os.homedir(), ".ue5-system-architect");
 const staticDir = path.join(__dirname, "..", "frontend", "build");
+const appVersion = require("../package.json").version;
 
 startServer({
   dataDir,
   staticDir,
   port: process.env.UE5_PORT || 47321,
+  appVersion,
 }).then((handle) => {
   console.log(`UE5 System Architect API http://127.0.0.1:${handle.port}`);
   console.log(`Data folder ${handle.dataDir}`);

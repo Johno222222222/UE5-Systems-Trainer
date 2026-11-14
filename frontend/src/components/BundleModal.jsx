@@ -67,6 +67,7 @@ export default function BundleModal({ ids, preset, onClose, onPresetsChanged, ai
       const { data } = await api.post("/ai/fix-cpp", {
         file_base: baseName(item.system), cpp_header: item.system.cpp_header, cpp_source: item.system.cpp_source,
         project_id: canEdit(item) ? item.raw.project_id : null,
+        unreal_version: item.context?.unreal_version || item.raw.context?.unreal_version || undefined,
         issues: list.slice(0, 40).map((i) => `${issueText(i)}${i.fix ? ` (suggested fix: ${i.fix})` : ""}`),
       }, { headers: aiHeaders(aiKey) });
       setBatch((b) => (b && b.pos === pos ? { ...b, fix: { status: "review", count: list.length, data } } : b));

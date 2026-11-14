@@ -62,7 +62,7 @@ export default function CompareView({ before, after, picker = null }) {
         </div>
         {picker}
         <div className="flex-1" />
-        <div className="flex gap-1">
+        <div className="flex flex-wrap gap-1">
           {VIEWS.map(([id, label]) => (
             <button key={id} onClick={() => setView(id)} aria-pressed={view === id} data-testid={`compare-view-${id}`}
               className={`ue-btn !py-1 !px-2 !text-[11px] ${view === id ? "!border-[var(--unreal-orange)] !text-[var(--unreal-orange)]" : ""}`}>
