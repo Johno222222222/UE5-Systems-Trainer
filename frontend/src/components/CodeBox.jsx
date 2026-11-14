@@ -19,7 +19,7 @@ export function CodeBox({ title, code, lang = "cpp", testId, target }) {
     try {
       await navigator.clipboard.writeText(code || "");
       toast.success(`${title} copied to clipboard`);
-    } catch { toast.error("Your browser blocked the clipboard. Use the download button instead."); }
+    } catch { toast.error("Clipboard access was blocked. Use the download button instead."); }
   };
   const ext = lang === "cpp" ? (title.includes(".h") ? "h" : "cpp") : "txt";
   const download = () => {

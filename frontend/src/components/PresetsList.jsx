@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { Bookmark, Pencil, Trash2 } from "lucide-react";
 import { api, errorText } from "../lib/api";
 
-export default function PresetsList({ refreshKey, onOpen, teams = [] }) {
+export default function PresetsList({ refreshKey, onOpen }) {
   const [presets, setPresets] = useState([]);
   const [failed, setFailed] = useState(false);
   const load = useCallback(() => {
@@ -17,10 +17,6 @@ export default function PresetsList({ refreshKey, onOpen, teams = [] }) {
     try { await api.patch(`/bundle-presets/${p.preset_id}`, { name: name.slice(0, 60) }); load(); }
     catch (e) { toast.error(errorText(e)); }
   };
-  const move = async (p, teamId) => {
-    try { await api.post(`/bundle-presets/${p.preset_id}/team`, { team_id: teamId || null }); load(); }
-    catch (e) { toast.error(errorText(e)); }
-  };
   const remove = async (p) => {
     if (!window.confirm(`Delete the preset "${p.name}"? The projects themselves aren't touched.`)) return;
     try { await api.delete(`/bundle-presets/${p.preset_id}`); toast.success("Preset deleted"); load(); }
@@ -32,23 +28,16 @@ export default function PresetsList({ refreshKey, onOpen, teams = [] }) {
   return (
     <div className="mt-4" data-testid="bundle-presets">
       <div className="eyebrow mb-2 flex items-center gap-1.5"><Bookmark size={11} /> Bundle presets</div>
-      <div className="text-[10px] font-mono text-[var(--text-muted)] mb-2">Teammates see a preset when they can open all of its projects. Only its creator can rename or delete it.</div>
+      <div className="text-[10px] font-mono text-[var(--text-muted)] mb-2">Saved plugin bundles on this computer. Open one to export those projects together.</div>
       <div className="space-y-1.5">
         {presets.map((p) => (
           <div key={p.preset_id} className="panel p-2 flex items-center gap-2" data-testid={`preset-item-${p.preset_id}`}>
             <button className="flex-1 min-w-0 text-left" onClick={() => onOpen(p)} data-testid={`preset-open-${p.preset_id}`}>
               <div className="font-sub text-[12px] font-semibold truncate">{p.name}</div>
-              <div className="text-[10px] font-mono text-[var(--text-muted)] truncate">{p.mine === false ? <span className="text-[var(--accent-cyan)]">from {p.owner_name} · </span> : null}{p.team_id && teams.find((t) => t.team_id === p.team_id) ? <span className="text-[var(--accent-purple)]">⬢ {teams.find((t) => t.team_id === p.team_id).name} · </span> : null}{p.plugin_name} · {p.project_ids.length} projects</div>
+              <div className="text-[10px] font-mono text-[var(--text-muted)] truncate">{p.plugin_name} · {p.project_ids.length} projects</div>
             </button>
-            {p.mine !== false && teams.length > 0 && (
-              <select value={p.team_id || ""} onChange={(e) => move(p, e.target.value)} aria-label={`Team for ${p.name}`} title="Move into a team"
-                className="w-[22px] bg-transparent text-[var(--text-muted)] text-[11px] cursor-pointer" data-testid={`preset-move-${p.preset_id}`}>
-                <option value="">No team</option>
-                {teams.map((t) => <option key={t.team_id} value={t.team_id}>{t.name}</option>)}
-              </select>
-            )}
-            {p.mine !== false && <button onClick={() => rename(p)} aria-label={`Rename ${p.name}`} className="text-[var(--text-muted)] hover:text-[var(--text-primary)]" data-testid={`preset-rename-${p.preset_id}`}><Pencil size={12} /></button>}
-            {p.mine !== false && <button onClick={() => remove(p)} aria-label={`Delete ${p.name}`} className="text-[var(--text-muted)] hover:text-[var(--accent-red)]" data-testid={`preset-delete-${p.preset_id}`}><Trash2 size={12} /></button>}
+            <button onClick={() => rename(p)} aria-label={`Rename ${p.name}`} className="text-[var(--text-muted)] hover:text-[var(--text-primary)]" data-testid={`preset-rename-${p.preset_id}`}><Pencil size={12} /></button>
+            <button onClick={() => remove(p)} aria-label={`Delete ${p.name}`} className="text-[var(--text-muted)] hover:text-[var(--accent-red)]" data-testid={`preset-delete-${p.preset_id}`}><Trash2 size={12} /></button>
           </div>
         ))}
       </div>

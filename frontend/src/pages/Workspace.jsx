@@ -2,10 +2,10 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   Cpu, Code2, Layers, FlaskConical, ClipboardCopy, Sliders, Sparkles, Save, Download, Copy,
-  Plus, Trash2, CheckCircle2, Terminal, PackageSearch, Settings,
+  Plus, Trash2, CheckCircle2, Terminal, PackageSearch,
   Boxes, ChevronDown, PlayCircle, Hammer, Wrench, GitBranch, Network, Zap,
   Swords, Package, MessagesSquare, Shield, HardDrive, Car, Hand, Workflow,
-  GitCompareArrows, Compass, StickyNote, Share2, FolderClosed, Eye, Pencil, KeyRound, FileArchive, History, Tag, ChevronDown as Caret, AlertTriangle
+  GitCompareArrows, Compass, StickyNote, FolderClosed, Eye, Pencil, KeyRound, FileArchive, History, Tag, ChevronDown as Caret, AlertTriangle
 } from "lucide-react";
 import NodeGraph from "../components/NodeGraph";
 import AnnotatedPseudocode from "../components/AnnotatedPseudocode";
@@ -14,15 +14,12 @@ import CompareView from "../components/CompareView";
 import { PendingChanges, AppliedChanges } from "../components/ChangePanels";
 import { computeChanges, compactForApi } from "../lib/changes";
 import { api, errorText, downloadBlob, exportPayload } from "../lib/api";
-import { useAuth } from "../context/AuthContext";
 import ProjectsPanel from "../components/ProjectsPanel";
-import ShareModal from "../components/ShareModal";
-import AccountMenu from "../components/AccountMenu";
 import Modal from "../components/Modal";
 import { ReferencesBar, ProjectFiles } from "../components/Files";
 import UsageChip, { modelUsage, useUsage } from "../components/UsageChip";
 import { baseName, buildPluginZip, buildProjectZip } from "../lib/zipExport";
-import AiKeyModal, { DEFAULT_MODEL, PROVIDERS, aiHeaders, loadAiKey, saveAiKey } from "../components/AiKeyModal";
+import AiKeyModal, { DEFAULT_MODEL, aiHeaders, saveAiKey, settingsToKey } from "../components/AiKeyModal";
 import { CodeBox } from "../components/CodeBox";
 import TestsPanel, { testIssues } from "../components/TestsPanel";
 import { blueprintClipboard, compileReport, reportSection } from "../lib/unrealExtras";
@@ -67,7 +64,7 @@ async function streamGenerate(body, onProgress, aiKey, isAlive) {
   throw new Error("Generation took longer than 5 minutes. Please try again.");
 }
 
-const MIGRATION_KEY = (uid) => `ue5_architect_migrated_${uid}`;
+const MIGRATION_KEY = "ue5_architect_migrated_local";
 const readLocalLibrary = () => {
   try { return JSON.parse(localStorage.getItem(LS_KEY) || "[]"); } catch { return []; }
 };
@@ -114,7 +111,6 @@ function TemplateCard({ tpl, onPick }) {
 }
 
 export default function Workspace() {
-  const { user } = useAuth();
   const [templates, setTemplates] = useState([]);
   const [prompt, setPrompt] = useState("A third-person melee combat system with combo chains, directional attacks, hit reactions, and hitstop.");
   const [bpClass, setBpClass] = useState("ActorComponent");
@@ -135,18 +131,12 @@ export default function Workspace() {
   const [projectContext, setProjectContext] = useState(() => localStorage.getItem(LS_CONTEXT) || "");
   const [project, setProject] = useState(null);
   const [references, setReferences] = useState([]);
-  const [shareOpen, setShareOpen] = useState(false);
   const [conflict, setConflict] = useState(null);
   const [projRefresh, setProjRefresh] = useState(0);
   const [migration, setMigration] = useState(null);
   const readOnly = project?.my_role === "viewer";
-  const [aiKey, setAiKey] = useState(loadAiKey);
+  const [aiKey, setAiKey] = useState(null);
   const [keyModal, setKeyModal] = useState(null); // null | "edit" | "required"
-  useEffect(() => {
-    const onStorage = (e) => { if (e.key === "ue5_architect_ai_key") setAiKey(loadAiKey()); };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
   const [saving, setSaving] = useState(false);
   const [versions, setVersions] = useState([]);
   const [compareBase, setCompareBase] = useState("previous"); // "previous" | version number
@@ -178,8 +168,9 @@ export default function Workspace() {
 
   useEffect(() => {
     api.get("/templates").then((r) => setTemplates(r.data.templates || [])).catch(() => {});
+    api.get("/settings").then((r) => setAiKey(settingsToKey(r.data))).catch(() => {});
     const pending = readLocalLibrary();
-    if (pending.length && !localStorage.getItem(MIGRATION_KEY(user.user_id))) setMigration(pending);
+    if (pending.length && !localStorage.getItem(MIGRATION_KEY)) setMigration(pending);
     const pid = new URLSearchParams(window.location.search).get("project");
     if (pid) {
       openProject(pid);
@@ -248,9 +239,15 @@ export default function Workspace() {
     let key = aiKey;
     if (switchTo) {
       key = { ...aiKey, model: switchTo };
-      saveAiKey(key);
-      setAiKey(key);
-      toast.success(`Switched to ${switchTo}`);
+      try {
+        const saved = await saveAiKey(key);
+        key = saved || key;
+        setAiKey(key);
+        toast.success(`Switched to ${switchTo}`);
+      } catch (err) {
+        toast.error(errorText(err));
+        return;
+      }
     }
     const ok = await runSynthesis(p.body, p.context, p.successLabel, { key, skipLimit: true });
     if (ok && p.body.stack_systems) { setPrompt(p.body.prompt); setExtra([]); setProject(null); setIgnores([]); }
@@ -408,10 +405,10 @@ export default function Workspace() {
           n += 1;
         } catch { /* skip unreadable entries */ }
       }
-      toast.success(`Imported ${n} of ${migration.length} systems into your account`);
+      toast.success(`Imported ${n} of ${migration.length} systems`);
       setProjRefresh((x) => x + 1);
     }
-    localStorage.setItem(MIGRATION_KEY(user.user_id), doImport ? "imported" : "fresh");
+    localStorage.setItem(MIGRATION_KEY, doImport ? "imported" : "fresh");
     setMigration(null);
   };
 
@@ -559,7 +556,7 @@ export default function Workspace() {
     const init = {};
     result.tunable_parameters.forEach((p) => { init[p.key] = p.value; });
     setTunable(init);
-  }, [result?.id]);
+  }, [result?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pendingChanges = useMemo(
     () => computeChanges(result, { ...currentInputs, params: tunable, extra, notes }),
@@ -586,7 +583,7 @@ export default function Workspace() {
         description: `Paste into a Blueprint Event Graph (Ctrl+V), e.g. the actor that owns the component. Build the plugin first; connect the component into each Target pin.${mapped < total ? " Unmapped nodes arrive as TODO comments." : ""}`,
         duration: 9000,
       });
-    } catch { toast.error("Your browser blocked the clipboard"); }
+    } catch { toast.error("Clipboard access was blocked"); }
   };
   const jumpTo = (issue) => {
     if (!result) return;
@@ -603,13 +600,13 @@ export default function Workspace() {
     ignoreQueue.current = ignoreQueue.current.then(() => api.put(`/projects/${pid}/ignores`, { ignores: next })
       .catch((e) => toast.error("Couldn't save ignored issues", { description: errorText(e) })));
   };
-  const ignoreIssue = (i) => { saveIgnores([...ignores, { key: i.key, file: i.file, message: i.message.slice(0, 400), by: (user?.name || "").slice(0, 120) }]); toast.message("Issue ignored", { description: "Restore it from the Ignored list." }); };
+  const ignoreIssue = (i) => { saveIgnores([...ignores, { key: i.key, file: i.file, message: i.message.slice(0, 400), by: "You" }]); toast.message("Issue ignored", { description: "Restore it from the Ignored list." }); };
   const restoreIssue = (i) => saveIgnores(ignores.filter((x) => x.key !== i.key));
   const copyIssues = async (list) => {
     try {
       await navigator.clipboard.writeText(issuesToText(list));
       toast.success(`Copied ${list.length} issue${list.length === 1 ? "" : "s"}`);
-    } catch { toast.error("Your browser blocked the clipboard"); }
+    } catch { toast.error("Clipboard access was blocked"); }
   };
   const toggleAutoFix = async (on) => {
     try {
@@ -737,7 +734,7 @@ export default function Workspace() {
                 {project.name} {!readOnly && <Pencil size={11} className="opacity-60" />}
               </button>
               <span className={`chip !py-0.5 !cursor-default uppercase !text-[10px] ${readOnly ? "!text-[var(--accent-cyan)] !border-[rgba(0,240,255,0.4)]" : "active"}`} data-testid="project-role-badge">
-                {readOnly ? <><Eye size={10} /> View only</> : project.my_role}
+                {readOnly ? <><Eye size={10} /> View only</> : "Local"}
               </span>
               <span className="hidden lg:inline text-[10.5px] font-mono text-[var(--text-muted)] truncate" data-testid="project-last-saved">saved by {project.updated_by_name} · {new Date(project.updated_at).toLocaleString()}</span>
             </>
@@ -750,7 +747,6 @@ export default function Workspace() {
           <span className="chip"><Network size={11} /> {replicated ? "Replicated" : "Local"}</span>
           <span className="chip"><Terminal size={11} /> {aiKey ? aiKey.model : "No AI key"}</span>
         </div>
-        {project?.my_role === "owner" && <button className="ue-btn" onClick={() => setShareOpen(true)} data-testid="share-button"><Share2 size={13} /> Share</button>}
         <button className="ue-btn" onClick={copyJson} disabled={!result} data-testid="copy-json-btn"><Copy size={13} /> Copy JSON</button>
         <button className="ue-btn" onClick={exportAll} disabled={!result} data-testid="export-all-btn"><Download size={13} /> JSON</button>
         <div className="relative">
@@ -771,7 +767,7 @@ export default function Workspace() {
                 <span>
                   <span className="block font-sub text-[12.5px] font-semibold">Auto-fix before export</span>
                   <span className="block text-[10.5px] font-mono text-[var(--text-muted)]">
-                    {!project ? "Save the project to turn this on." : readOnly ? "Editors can change this." : "Runs Fix these with your key and shows the review first. Saved for the whole team."}
+                    {!project ? "Save the project to turn this on." : readOnly ? "Editors can change this." : "Runs Fix these with your key and shows the review first. Saved with this project."}
                   </span>
                 </span>
               </label>
@@ -781,9 +777,8 @@ export default function Workspace() {
         <button className="ue-btn ue-btn-primary" onClick={() => { if (!saveNote.trim() && fixNotes.length) setSaveNote(fixNotes.join(" · ").slice(0, 200)); setSaveDialog(true); }} disabled={!result || readOnly || saving} data-testid="save-system-button"><Save size={13} /> {project ? "Save" : "Save project"}</button>
         <UsageChip aiKey={aiKey} usage={usage} />
         <button className={`ue-btn ${aiKey ? "" : "!border-[var(--unreal-orange)] !text-[var(--unreal-orange)]"}`} onClick={() => setKeyModal("edit")} data-testid="ai-key-button">
-          <KeyRound size={13} /> {aiKey ? PROVIDERS[aiKey.provider].label.split(" ").pop() : "Add AI key"}
+          <KeyRound size={13} /> {aiKey ? "Settings" : "Add AI key"}
         </button>
-        <AccountMenu />
       </header>
 
       {/* ============ BODY ============ */}
@@ -835,7 +830,7 @@ export default function Workspace() {
                 data-testid="project-context-input"
                 className={`w-full bg-[var(--bg-main)] border rounded-md px-2.5 py-1.5 text-[11.5px] font-mono text-[var(--text-primary)] outline-none focus:border-[var(--unreal-orange)] ${projectContext.trim() ? "border-[rgba(0,240,255,0.45)]" : "border-[var(--border)]"}`}
               />
-              <div className="text-[10px] font-mono text-[var(--text-muted)] mt-1">Steers every synthesis. Saved in this browser.</div>
+              <div className="text-[10px] font-mono text-[var(--text-muted)] mt-1">Steers every synthesis. Remembered on this computer.</div>
             </div>
             <button
               className="ue-btn ue-btn-primary w-full justify-center mt-3"
@@ -944,7 +939,8 @@ export default function Workspace() {
                         onClick={() => {
                           setError(null);
                           if (aiKey?.provider !== "gemini") { setKeyModal("required"); toast.message("Add a free Gemini key to switch"); return; }
-                          const k = { ...aiKey, model: DEFAULT_MODEL }; saveAiKey(k); setAiKey(k); toast.success("Switched to Gemini 3.5 Flash-Lite");
+                          const k = { ...aiKey, model: DEFAULT_MODEL };
+                          saveAiKey(k).then((saved) => { setAiKey(saved || k); toast.success("Switched to Gemini 3.5 Flash-Lite"); }).catch((err) => toast.error(errorText(err)));
                         }}>
                         Switch to Gemini 3.5 Flash-Lite
                       </button>
@@ -1191,10 +1187,6 @@ export default function Workspace() {
         <FixDetailModal entry={viewFix.entry} pending={viewFix.pending} canUndo={!readOnly && !!result} onClose={() => setViewFix(null)}
           onUndo={() => { undoFix(viewFix.entry, viewFix.pending); setHistoryOpen(false); }} />
       )}
-      {shareOpen && project && (
-        <ShareModal project={project} onClose={() => setShareOpen(false)}
-          onUpdate={(d) => { const { system: _s, context: _c, ...meta } = d; setProject((p) => ({ ...p, ...meta })); }} />
-      )}
       {conflict && (
         <Modal title="Newer version saved" onClose={() => setConflict(null)} testId="conflict-modal" width={460}>
           <div className="text-[13px] text-[var(--text-secondary)] mb-4" data-testid="conflict-message">
@@ -1207,9 +1199,9 @@ export default function Workspace() {
         </Modal>
       )}
       {migration && (
-        <Modal title="Systems found in this browser" testId="migration-modal" width={460}>
+        <Modal title="Systems found on this computer" testId="migration-modal" width={460}>
           <div className="text-[13px] text-[var(--text-secondary)] mb-3">
-            You have {migration.length} system{migration.length === 1 ? "" : "s"} saved in this browser from before accounts existed. Copy them into your account?
+            You have {migration.length} system{migration.length === 1 ? "" : "s"} saved from an older version of this app. Copy them in?
           </div>
           <ul className="mb-4 space-y-1 max-h-40 overflow-y-auto">
             {migration.map((m, i) => <li key={i} className="text-[12px] font-mono text-[var(--text-muted)] truncate">· {m.system_name || "Untitled system"}</li>)}

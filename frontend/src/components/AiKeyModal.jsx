@@ -1,10 +1,9 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { CheckCircle2, ExternalLink, KeyRound, Loader2, Trash2, XCircle, Zap } from "lucide-react";
+import { CheckCircle2, ExternalLink, FolderOpen, KeyRound, Loader2, Trash2, XCircle, Zap } from "lucide-react";
 import Modal from "./Modal";
 import { api, errorText } from "../lib/api";
 
-const LS = "ue5_architect_ai_key";
 export const PROVIDERS = {
   gemini: {
     label: "Google Gemini",
@@ -32,50 +31,55 @@ export const PROVIDERS = {
 export const DEFAULT_MODEL = "gemini-3.5-flash-lite";
 const isPaid = (provider, model) => PROVIDERS[provider]?.models.find((m) => m[0] === model)?.[2] === "paid";
 
-export function loadAiKey() {
-  try {
-    const v = JSON.parse(localStorage.getItem(LS) || "null");
-    if (!v?.key || !PROVIDERS[v.provider]) return null;
-    // Retired models (e.g. Gemini 2.5) move to the free default
-    if (!PROVIDERS[v.provider].models.some((m) => m[0] === v.model)) {
-      const fixed = { ...v, model: v.provider === "gemini" ? DEFAULT_MODEL : PROVIDERS[v.provider].models[0][0] };
-      localStorage.setItem(LS, JSON.stringify(fixed));
-      return fixed;
-    }
-    return v;
-  } catch {
-    return null;
-  }
+export function settingsToKey(settings) {
+  if (!settings?.keys?.[settings.provider]) return null;
+  return { provider: settings.provider, model: settings.model, hasKey: true };
 }
 
-export function saveAiKey(value) {
-  localStorage.setItem(LS, JSON.stringify(value));
+export async function saveAiKey(value) {
+  const { data } = await api.put("/settings", {
+    provider: value.provider,
+    model: value.model,
+    ...(value.key ? { key: value.key } : {}),
+  });
+  return settingsToKey(data);
 }
 
-export const aiHeaders = (k) => ({ "X-LLM-Provider": k.provider, "X-LLM-Model": k.model, "X-LLM-Key": k.key });
+export const aiHeaders = (k) => {
+  const headers = { "X-LLM-Provider": k.provider, "X-LLM-Model": k.model };
+  if (k.key) headers["X-LLM-Key"] = k.key;
+  return headers;
+};
 
 const field = "w-full bg-[var(--bg-main)] border border-[var(--border)] rounded-md px-2.5 py-2 text-[12px] font-mono text-[var(--text-primary)] outline-none focus:border-[var(--unreal-orange)]";
 
 export default function AiKeyModal({ current, onSave, onClose, required }) {
   const [provider, setProvider] = useState(current?.provider || "gemini");
   const [model, setModel] = useState(current?.model || DEFAULT_MODEL);
-  const [key, setKey] = useState(current?.key || "");
-  const [test, setTest] = useState(null); // null | "running" | {ok, message}
+  const [key, setKey] = useState("");
+  const [saved, setSaved] = useState({ gemini: false, openai: false, data_dir: "", key_storage: "file" });
+  const [test, setTest] = useState(null);
   const p = PROVIDERS[provider];
+
+  useEffect(() => {
+    api.get("/settings").then((r) => setSaved(r.data.keys ? { ...r.data.keys, data_dir: r.data.data_dir, key_storage: r.data.key_storage } : saved)).catch(() => {});
+    // Load once when the dialog opens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const testSeq = useRef(0);
   const runTest = async (m = model, prov = provider) => {
     const k = key.trim();
-    if (!k) return null;
+    if (!k && !saved[prov]) return null;
     const seq = ++testSeq.current;
     setTest("running");
     let r;
     try {
-      r = (await api.post("/ai/test-key", {}, { headers: aiHeaders({ provider: prov, model: m, key: k }) })).data;
+      r = (await api.post("/ai/test-key", {}, { headers: aiHeaders({ provider: prov, model: m, key: k || undefined }) })).data;
     } catch (e) {
       r = { ok: false, message: errorText(e) };
     }
-    if (seq !== testSeq.current) return null; // inputs changed while this test ran
+    if (seq !== testSeq.current) return null;
     setTest(r);
     return r;
   };
@@ -83,47 +87,65 @@ export default function AiKeyModal({ current, onSave, onClose, required }) {
   const chooseModel = (m) => {
     setModel(m);
     resetTest();
-    if (isPaid(provider, m) && key.trim()) runTest(m);
+    if (isPaid(provider, m) && (key.trim() || saved[provider])) runTest(m);
   };
   const switchToFree = () => {
-    if (provider !== "gemini") setKey("");
     setProvider("gemini");
     setModel(DEFAULT_MODEL);
     resetTest();
   };
-
   const pickProvider = (id) => {
     setProvider(id);
     const m = id === "gemini" ? DEFAULT_MODEL : PROVIDERS[id].models[0][0];
     setModel(m);
+    setKey("");
     resetTest();
-    if (isPaid(id, m) && key.trim()) runTest(m, id);
+    if (isPaid(id, m) && saved[id]) runTest(m, id);
   };
   const save = async (e) => {
     e.preventDefault();
     const k = key.trim();
-    if (k.startsWith("sk-emergent-")) {
-      toast.error("Use your own Gemini or OpenAI key");
+    if (!k && !saved[provider]) {
+      toast.error("Paste an API key first");
       return;
     }
     if (isPaid(provider, model)) {
       const r = test && test !== "running" ? test : await runTest();
       if (!r || r.code === "paid_model_required") return;
     }
-    const value = { provider, model, key: k };
-    saveAiKey(value);
-    onSave(value);
-    toast.success(`${p.label} key saved in this browser`);
+    try {
+      const value = await saveAiKey({ provider, model, key: k });
+      onSave(value);
+      toast.success(`${p.label} saved on this computer`);
+    } catch (err) {
+      toast.error(errorText(err));
+    }
   };
-  const remove = () => {
-    localStorage.removeItem(LS);
-    onSave(null);
-    setKey("");
-    toast.message("AI key removed from this browser");
+  const remove = async () => {
+    try {
+      const { data } = await api.put("/settings", { provider, model, clear_key: true });
+      onSave(settingsToKey(data));
+      setSaved((s) => ({ ...s, [provider]: false }));
+      setKey("");
+      toast.message("API key removed from this computer");
+    } catch (err) {
+      toast.error(errorText(err));
+    }
+  };
+  const openFolder = async () => {
+    try {
+      await api.post("/app/open-data-dir");
+    } catch (err) {
+      toast.error(errorText(err));
+    }
   };
 
+  const storageNote = saved.key_storage === "os"
+    ? "Keys are locked with this computer's sign-in (Windows data protection, macOS Keychain, or the Linux keyring). They are not written into projects."
+    : "Keys are encrypted in the app data folder. This computer has no OS key store, so keep that folder private.";
+
   return (
-    <Modal title="Your AI key" onClose={onClose} testId="ai-key-modal" width={480}>
+    <Modal title="Settings" onClose={onClose} testId="ai-key-modal" width={520}>
       {required && (
         <div className="panel p-3 mb-4 border-[var(--unreal-orange)] text-[12px] text-[var(--text-secondary)]" data-testid="ai-key-required">
           Synthesis runs on your own AI key. Add one to start. A free Gemini key works.
@@ -143,13 +165,14 @@ export default function AiKeyModal({ current, onSave, onClose, required }) {
           </select>
         </label>
         <label className="block">
-          <span className="eyebrow">API key</span>
-          <input type="password" required autoComplete="off" value={key} onChange={(e) => { setKey(e.target.value); resetTest(); }}
-            placeholder={provider === "gemini" ? "AIza…" : "sk-…"} className={`${field} mt-1`} data-testid="ai-key-input" />
+          <span className="eyebrow">API key {saved[provider] ? "· saved" : ""}</span>
+          <input type="password" autoComplete="off" value={key} onChange={(e) => { setKey(e.target.value); resetTest(); }}
+            placeholder={saved[provider] ? "Saved on this computer — type a new key to replace it" : (provider === "gemini" ? "AIza…" : "sk-…")}
+            className={`${field} mt-1`} data-testid="ai-key-input" />
           <span className="block mt-1 text-[10.5px] font-mono text-[#e8c547]" data-testid="ai-key-free-note">Free Gemini keys work best. OpenAI free credits expire after 30 days.</span>
         </label>
         <div className="flex items-center gap-2">
-          <button type="button" className="ue-btn !py-1 !px-2 !text-[11px] whitespace-nowrap shrink-0" onClick={() => runTest()} disabled={!key.trim() || test === "running"} data-testid="ai-key-test">
+          <button type="button" className="ue-btn !py-1 !px-2 !text-[11px] whitespace-nowrap shrink-0" onClick={() => runTest()} disabled={(!key.trim() && !saved[provider]) || test === "running"} data-testid="ai-key-test">
             {test === "running" ? <Loader2 size={12} className="animate-spin" /> : <Zap size={12} />} Test key
           </button>
           {test && test !== "running" && test.code !== "paid_model_required" && (
@@ -168,12 +191,19 @@ export default function AiKeyModal({ current, onSave, onClose, required }) {
         <a href={p.getKey} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[11.5px] font-mono text-[var(--unreal-orange)] hover:underline" data-testid="ai-get-key-link">
           {p.hint} <ExternalLink size={11} />
         </a>
-        <div className="text-[10.5px] font-mono text-[var(--text-muted)] leading-relaxed">
-          Stored only in this browser. It's sent with each synthesis straight to {p.label} through this app's server and is never saved there. Usage is billed to your own account.
+        <div className="text-[10.5px] font-mono text-[var(--text-muted)] leading-relaxed" data-testid="ai-key-storage-note">
+          {storageNote} Usage is billed to your own account. More providers can be added later in the provider list.
         </div>
+        {saved.data_dir && (
+          <div className="panel p-2.5" data-testid="data-folder">
+            <div className="eyebrow mb-1">Projects and keys live here</div>
+            <div className="text-[10.5px] font-mono text-[var(--text-secondary)] break-all">{saved.data_dir}</div>
+            <button type="button" className="ue-btn !py-1 !px-2 !text-[11px] mt-2" onClick={openFolder} data-testid="open-data-folder"><FolderOpen size={12} /> Open folder</button>
+          </div>
+        )}
         <div className="flex gap-2 justify-end pt-1">
-          {current && <button type="button" className="ue-btn !text-[var(--accent-red)]" onClick={remove} data-testid="ai-key-remove"><Trash2 size={13} /> Remove</button>}
-          <button className="ue-btn ue-btn-primary" disabled={test === "running"} data-testid="ai-key-save"><KeyRound size={13} /> Save key</button>
+          {saved[provider] && <button type="button" className="ue-btn !text-[var(--accent-red)]" onClick={remove} data-testid="ai-key-remove"><Trash2 size={13} /> Remove</button>}
+          <button className="ue-btn ue-btn-primary" disabled={test === "running"} data-testid="ai-key-save"><KeyRound size={13} /> Save</button>
         </div>
       </form>
     </Modal>
