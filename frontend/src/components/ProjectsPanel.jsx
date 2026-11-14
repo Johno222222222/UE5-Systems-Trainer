@@ -73,23 +73,23 @@ export default function ProjectsPanel({ refreshKey, currentId, onOpen, onDeleted
 
   return (
     <div className="p-4" data-testid="projects-panel">
-      <div className="flex items-center justify-between mb-3 gap-2">
+      <div className="flex flex-wrap items-center justify-between mb-3 gap-2">
         <div className="flex items-center gap-2">
           <PackageSearch size={14} className="text-[var(--unreal-orange)]" />
           <span className="eyebrow">Projects</span>
         </div>
-        <div className="flex gap-1">
+        <div className="flex flex-wrap gap-1">
           <button className="ue-btn !py-1 !px-2 !text-[11px]" onClick={exportLibrary} data-testid="export-library-button"><Download size={12} /> Backup</button>
           <button className="ue-btn !py-1 !px-2 !text-[11px]" onClick={() => fileRef.current?.click()} data-testid="import-project-button"><FileUp size={12} /> Import</button>
         </div>
         <input ref={fileRef} type="file" accept=".json,application/json" className="hidden" onChange={importFile} data-testid="import-project-input" />
       </div>
       {items.length >= 2 && (
-        <div className="flex gap-1.5 mb-2">
-          <button className="ue-btn flex-1 justify-center !border-[var(--accent-purple)] !text-[var(--accent-purple)]" onClick={stack} disabled={busy || sel.length < 2 || sel.length > 4} title="Merge into one integrated system with AI" data-testid="stack-systems-button">
+        <div className="flex flex-wrap gap-1.5 mb-2">
+          <button className="ue-btn flex-1 min-w-[8rem] justify-center whitespace-normal text-center !border-[var(--accent-purple)] !text-[var(--accent-purple)]" onClick={stack} disabled={busy || sel.length < 2 || sel.length > 4} title="Merge into one integrated system with AI" data-testid="stack-systems-button">
             <Combine size={13} /> {sel.length < 2 ? "Tick 2+ to stack" : sel.length > 4 ? "Stack up to 4" : `Stack ${sel.length}`}
           </button>
-          <button className="ue-btn flex-1 justify-center" onClick={() => onBundle(sel)} disabled={sel.length < 2} title="Export the ticked projects as one Unreal plugin, one module each" data-testid="bundle-plugin-button">
+          <button className="ue-btn flex-1 min-w-[8rem] justify-center whitespace-normal text-center" onClick={() => onBundle(sel)} disabled={sel.length < 2} title="Export the ticked projects as one Unreal plugin, one module each" data-testid="bundle-plugin-button">
             <FileArchive size={13} /> {sel.length < 2 ? "Tick 2+ to bundle" : `Bundle ${sel.length} as plugin`}
           </button>
         </div>

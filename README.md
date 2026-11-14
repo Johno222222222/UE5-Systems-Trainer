@@ -6,9 +6,9 @@ It runs on your computer. The only time it uses the internet is when it asks Gem
 
 ## Install on Windows
 
-1. Open the latest successful **Desktop installer** run on this repository's GitHub Actions page.
-2. Download the artifact named `ue5-system-architect-windows`.
-3. Unzip it and run the installer (`UE5 System Architect Setup ….exe`).
+1. Open the latest [GitHub Release](https://github.com/Johno222222222/blueprint-builder/releases) and download the Windows installer, or use the latest successful **Desktop installer** run on this repository's GitHub Actions page and download the artifact named `ue5-system-architect-windows`.
+2. Unzip the artifact if you used Actions. A Release file is the installer itself.
+3. Run the installer (`UE5 System Architect Setup ….exe`).
 4. Windows may say the app is unrecognized. That is because this installer is not code-signed. Choose **More info**, then **Run anyway**, if you trust the build.
 5. Start **UE5 System Architect** from the Start menu. It opens straight into the workspace. There is no account and no sign-in.
 
@@ -33,6 +33,12 @@ You can save one Gemini key and one OpenAI key and switch between them. Changing
 
 ## Everyday use
 
+- **New** clears the workspace. If you have unsaved work it asks Save, Discard, or Cancel. Cancel changes nothing. "Keep my project context" is off unless you tick it. The API key and model stay. The next Save creates a new project, not a version of the one you just left.
+- Pick a template while a project is open and the app asks before replacing it. **Start a new project** so Save does not add a version to the open project.
+- **Target Unreal** (under the description) is UE 5.8 by default. 5.4 through 5.7 are selectable. It is saved with the project. An older project with no version opens as 5.4, which is what those systems were written for.
+- Ticks on the Setup Guide are saved with the project.
+- Settings has **Clear remembered project context**. That forgets the box on this computer. Saved projects keep their own context.
+- **Feedback** opens a new GitHub issue with the app version and a category. Nothing is emailed.
 - Describe a system on the left and press **Synthesize**. Templates are starting points.
 - Edit sliders, modules, and notes, then regenerate. The Compare tab shows what changed.
 - **Save project** keeps a version. History can name a version, compare against it, or restore it. Restoring adds a new version, so older ones stay.
@@ -70,7 +76,11 @@ npm ci
 npm start
 ```
 
-Mac and Linux use the same steps, with `npx electron-builder --mac dmg --publish never` or `npx electron-builder --linux AppImage --publish never`. GitHub Actions builds the Windows installer on every push and pull request (see `.github/workflows/desktop-installer.yml`) and uploads it as an artifact. It does not publish a release by itself.
+Mac and Linux use the same steps, with `npx electron-builder --mac dmg --publish never` or `npx electron-builder --linux AppImage --publish never`. Those installers are not built in GitHub Actions yet. The app code uses `path.join` for files and the operating system's own key store when it is available (Windows data protection, macOS Keychain, or the Linux keyring), so a later Mac or Linux build is not blocked.
+
+GitHub Actions builds the Windows installer on every push and pull request (see `.github/workflows/desktop-installer.yml`) and uploads it as an artifact. Pushing a version tag such as `v1.1.0` also attaches that installer to a GitHub Release. Set `package.json` `"version"` to the same number before you tag, because the in-app update check compares that version with the latest Release. The repository is private, so the check does nothing if GitHub does not answer. Do not commit signing secrets. Code signing is left as a TODO in the workflow for Azure Artifact Signing.
+
+**Feedback** in the top bar opens a new GitHub issue with the app version and a category. It does not send email.
 
 ## How it is put together
 

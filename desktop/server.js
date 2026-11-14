@@ -14,10 +14,6 @@ const {
   DEFAULT_MODEL,
   DEFAULT_PROVIDER,
   FREE_DAILY,
-  SYSTEM_PROMPT,
-  REVIEW_PROMPT,
-  FIX_PROMPT,
-  TESTS_PROMPT,
   TEMPLATES,
   usageDay,
   keyFingerprint,
@@ -28,6 +24,13 @@ const {
   normalizeSystem,
   applyEdits,
   normalizeGenerateRequest,
+  promptsFor,
+  normalizeUnrealVersion,
+  LEGACY_UNREAL_VERSION,
+  DEFAULT_UNREAL_VERSION,
+  UNREAL_VERSIONS,
+  GITHUB_REPO,
+  releaseNotice,
 } = require("./logic");
 
 const OWNER = "You";
@@ -165,11 +168,20 @@ function summary(p) {
   };
 }
 
+function presentContext(context) {
+  const ctx = { ...(context || {}) };
+  ctx.unreal_version = normalizeUnrealVersion(ctx.unreal_version) || LEGACY_UNREAL_VERSION;
+  ctx.setup_done = Array.isArray(ctx.setup_done)
+    ? ctx.setup_done.map((n) => Number(n)).filter((n) => Number.isInteger(n) && n > 0).slice(0, 40)
+    : [];
+  return ctx;
+}
+
 function detail(p) {
   return {
     ...summary(p),
     system: p.system || null,
-    context: p.context || {},
+    context: presentContext(p.context),
     ignored_issues: p.ignored_issues || [],
   };
 }
@@ -346,7 +358,7 @@ async function startServer(options = {}) {
           provider: llm.provider,
           model: llm.model,
           apiKey: llm.key,
-          system: SYSTEM_PROMPT,
+          system: promptsFor(req.unreal_version).system,
           user: userText,
           images,
           maxTokens: maxTokensFor(llm.provider, { stack: req.stack_systems.length > 0 }),
@@ -421,10 +433,49 @@ async function startServer(options = {}) {
     routes.push({ method, re, keys, handler });
   }
 
+  const appVersion = options.appVersion || require("../package.json").version || "0.0.0";
+  let updateOnce = null;
+  function loadUpdate() {
+    if (!updateOnce) {
+      updateOnce = (async () => {
+        try {
+          if (typeof options.updateCheck === "function") {
+            return releaseNotice(appVersion, await options.updateCheck(appVersion));
+          }
+          // Tests inject fetchImpl for the model. Don't send that to GitHub.
+          if (options.fetchImpl) return null;
+          const res = await fetch(`https://api.github.com/repos/${options.repo || GITHUB_REPO}/releases/latest`, {
+            headers: {
+              Accept: "application/vnd.github+json",
+              "User-Agent": "UE5-System-Architect",
+            },
+            signal: AbortSignal.timeout(4000),
+          });
+          // A private repo returns 404 without a token. That is not an error for the user.
+          if (!res.ok) return null;
+          return releaseNotice(appVersion, await res.json());
+        } catch {
+          return null;
+        }
+      })();
+    }
+    return updateOnce;
+  }
+
   route("GET", "/api/", async () => ({
     message: "UE5 System Architect",
     desktop: true,
     models: ALLOWED_MODELS,
+    version: appVersion,
+  }));
+
+  route("GET", "/api/app", async () => ({
+    version: appVersion,
+    repo: options.repo || GITHUB_REPO,
+    unreal_versions: UNREAL_VERSIONS,
+    default_unreal_version: DEFAULT_UNREAL_VERSION,
+    legacy_unreal_version: LEGACY_UNREAL_VERSION,
+    update: await loadUpdate(),
   }));
 
   route("GET", "/api/templates", async () => ({ templates: TEMPLATES }));
@@ -549,8 +600,9 @@ async function startServer(options = {}) {
     if (!header || !source) throw new HttpError(400, "Add both the header and the source before reviewing.");
     const known = (Array.isArray(body.known_issues) ? body.known_issues : []).map((k) => `- ${String(k).slice(0, 200)}`).join("\n") || "(none)";
     const fileBase = String(body.file_base || "System").slice(0, 120);
-    const text = `KNOWN ISSUES:\n${known}\n\n=== ${fileBase}.h ===\n${header.slice(0, 40000)}\n\n=== ${fileBase}.cpp ===\n${source.slice(0, 60000)}`;
-    const raw = await ask(llm, { system: REVIEW_PROMPT, user: text, maxTokens: 8000, timeoutMs: 50000, kind: "review" });
+    const version = normalizeUnrealVersion(body.unreal_version) || DEFAULT_UNREAL_VERSION;
+    const text = `Target Unreal version: UE ${version}\n\nKNOWN ISSUES:\n${known}\n\n=== ${fileBase}.h ===\n${header.slice(0, 40000)}\n\n=== ${fileBase}.cpp ===\n${source.slice(0, 60000)}`;
+    const raw = await ask(llm, { system: promptsFor(version).review, user: text, maxTokens: 8000, timeoutMs: 50000, kind: "review" });
     let issues;
     try {
       issues = extractJson(raw).issues;
@@ -580,9 +632,10 @@ async function startServer(options = {}) {
       await store.update((data) => { requireProject(data, body.project_id); });
     }
     const fileBase = String(body.file_base || "System").slice(0, 120);
+    const version = normalizeUnrealVersion(body.unreal_version) || DEFAULT_UNREAL_VERSION;
     const issues = issueList.map((t, i) => `${i + 1}. ${t.slice(0, 300)}`).join("\n");
-    const text = `ISSUES:\n${issues}\n\n=== ${fileBase}.h ===\n${header.slice(0, 40000)}\n\n=== ${fileBase}.cpp ===\n${source.slice(0, 60000)}`;
-    const raw = await ask(llm, { system: FIX_PROMPT, user: text, maxTokens: 12000, timeoutMs: 55000, kind: "fix" });
+    const text = `Target Unreal version: UE ${version}\n\nISSUES:\n${issues}\n\n=== ${fileBase}.h ===\n${header.slice(0, 40000)}\n\n=== ${fileBase}.cpp ===\n${source.slice(0, 60000)}`;
+    const raw = await ask(llm, { system: promptsFor(version).fix, user: text, maxTokens: 12000, timeoutMs: 55000, kind: "fix" });
     const files = { ".h": header, ".cpp": source };
     let applied;
     try {
@@ -609,8 +662,9 @@ async function startServer(options = {}) {
       await store.update((data) => { requireProject(data, body.project_id); });
     }
     const fileBase = String(body.file_base || "System").slice(0, 120);
-    const text = `Header file name: ${fileBase}.h\n\n=== ${fileBase}.h ===\n${header.slice(0, 40000)}\n\n=== ${fileBase}.cpp ===\n${source.slice(0, 60000)}`;
-    const raw = await ask(llm, { system: TESTS_PROMPT, user: text, maxTokens: 12000, timeoutMs: 55000, kind: "tests" });
+    const version = normalizeUnrealVersion(body.unreal_version) || DEFAULT_UNREAL_VERSION;
+    const text = `Target Unreal version: UE ${version}\n\nHeader file name: ${fileBase}.h\n\n=== ${fileBase}.h ===\n${header.slice(0, 40000)}\n\n=== ${fileBase}.cpp ===\n${source.slice(0, 60000)}`;
+    const raw = await ask(llm, { system: promptsFor(version).tests, user: text, maxTokens: 12000, timeoutMs: 55000, kind: "tests" });
     let data;
     try {
       data = extractJson(raw);
@@ -865,7 +919,7 @@ async function startServer(options = {}) {
     const version = Number(params.version);
     const row = store.data.versions.find((v) => v.project_id === params.project_id && v.version === version);
     if (!row) throw new HttpError(404, "Version not found");
-    return row;
+    return { ...row, context: presentContext(row.context) };
   });
 
   route("PATCH", "/api/projects/:project_id/versions/:version", async (req, params) => {

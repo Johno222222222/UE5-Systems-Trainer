@@ -1,0 +1,11 @@
+prompt_id,title,compiled_first_try,notes
+combat,"Advanced Combat System",,
+inventory,"Grid Inventory",,
+dialogue,"Branching Dialogue & Quests",,
+ai_guard,"Behavior Tree AI Guard",,
+save,"Save / Load Game State",,
+vehicle,"Vehicle Physics Controller",,
+gas,"Gameplay Ability System",,
+interaction,"Interaction System",,
+tactical_fps_weapon,"Tactical FPS Weapon",,
+gas_character,"GAS Character",,

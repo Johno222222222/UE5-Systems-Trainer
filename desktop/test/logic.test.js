@@ -14,6 +14,13 @@ const {
   normalizeSystem,
   usageDay,
   buildUserText,
+  normalizeGenerateRequest,
+  promptsFor,
+  normalizeUnrealVersion,
+  releaseNotice,
+  UNREAL_VERSIONS,
+  DEFAULT_UNREAL_VERSION,
+  LEGACY_UNREAL_VERSION,
 } = require("../logic");
 const { createSecrets } = require("../secrets");
 const { requestFor } = require("../llm");
@@ -85,6 +92,8 @@ test("buildUserText includes context, changes, and reference names", () => {
   assert.match(text, /1\. Remove regen/);
   assert.match(text, /Notes\.md/);
   assert.match(text, /use tags/);
+  assert.match(text, /TARGET ENGINE: UE 5\.8/);
+  assert.match(text, /Target Unreal version: UE 5\.8/);
 });
 
 test("usage day is a Pacific calendar date", () => {
@@ -148,4 +157,36 @@ test("secrets round-trip with the file cipher and a fake OS cipher", () => {
   const stored = JSON.parse(fs.readFileSync(path.join(osDir, "secrets.json"), "utf8"));
   assert.equal(stored.keys.openai.encoding, "safe");
   assert.equal(createSecrets(path.join(osDir, "secrets.json"), path.join(osDir, "secret.key"), codec).getKey("openai"), "sk-test");
+});
+
+test("prompts name the selected Unreal version and drop the old 5.4 default", () => {
+  assert.deepEqual(UNREAL_VERSIONS, ["5.4", "5.5", "5.6", "5.7", "5.8"]);
+  assert.equal(DEFAULT_UNREAL_VERSION, "5.8");
+  assert.equal(LEGACY_UNREAL_VERSION, "5.4");
+  assert.equal(normalizeUnrealVersion("UE 5.7+"), "5.7");
+  assert.equal(normalizeUnrealVersion("nope"), null);
+
+  for (const version of UNREAL_VERSIONS) {
+    const prompts = promptsFor(version);
+    assert.equal(prompts.version, version);
+    for (const text of [prompts.system, prompts.review, prompts.fix, prompts.tests]) {
+      assert.match(text, new RegExp(version.replace(".", "\\.")));
+      assert.equal(text.includes("{UNREAL}"), false);
+      assert.equal(text.includes("{ENGINE}"), false);
+      if (version !== "5.4") assert.equal(text.includes("5.4"), false);
+    }
+  }
+  const asked = normalizeGenerateRequest({ prompt: "A shield component", unreal_version: "5.7" });
+  assert.equal(asked.unreal_version, "5.7");
+  assert.equal(normalizeGenerateRequest({ prompt: "A shield component" }).unreal_version, "5.8");
+  assert.equal(normalizeGenerateRequest({ prompt: "A shield component", unreal_version: "5.1" }).unreal_version, "5.8");
+});
+
+test("release notice stays quiet unless a newer tag exists", () => {
+  assert.equal(releaseNotice("1.0.0", null), null);
+  assert.equal(releaseNotice("1.0.0", { tag_name: "v1.0.0" }), null);
+  assert.equal(releaseNotice("1.2.0", { tag_name: "v1.1.0" }), null);
+  const newer = releaseNotice("1.0.0", { tag_name: "v1.1.0", html_url: "https://github.com/Johno222222222/blueprint-builder/releases/tag/v1.1.0" });
+  assert.equal(newer.version, "1.1.0");
+  assert.match(newer.url, /v1\.1\.0/);
 });

@@ -70,19 +70,22 @@ async function openWorkspace() {
     staticDir: ui,
     port: process.env.UE5_PORT || 0,
     codec: codec(),
+    appVersion: app.getVersion(),
     openPath: (folder) => shell.openPath(folder),
   });
   console.log(`UE5_ARCHITECT_PORT=${serverHandle.port}`);
   console.log(`UE5_ARCHITECT_DATA=${serverHandle.dataDir}`);
 
+  const iconPath = path.join(__dirname, "icons", "icon.png");
   const window = new BrowserWindow({
     width: 1440,
     height: 920,
-    minWidth: 1100,
-    minHeight: 700,
+    minWidth: 1024,
+    minHeight: 640,
     backgroundColor: "#0B0E14",
     title: "UE5 System Architect",
     autoHideMenuBar: true,
+    icon: fs.existsSync(iconPath) ? iconPath : undefined,
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,

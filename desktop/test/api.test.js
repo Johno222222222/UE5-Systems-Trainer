@@ -306,3 +306,142 @@ test("templates, presets, and project delete stay local", async () => {
     await handle.close();
   }
 });
+
+test("old projects read as UE 5.4 and a saved version comes back unchanged", async () => {
+  const { handle, base, dataDir } = await boot(async () => geminiResponse("OK"));
+  try {
+    const legacy = await json(await fetch(`${base}/api/projects`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: "Old", system: SAMPLE, context: { prompt: "health" } }),
+    }));
+    assert.equal(legacy.context.unreal_version, "5.4");
+    const stored = JSON.parse(fs.readFileSync(path.join(dataDir, "library.json"), "utf8"));
+    const raw = stored.projects.find((p) => p.project_id === legacy.project_id);
+    assert.equal(raw.context.unreal_version, undefined);
+
+    const saved = await json(await fetch(`${base}/api/projects`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: "Rifle",
+        system: { ...SAMPLE, system_name: "Rifle" },
+        context: { prompt: "A rifle", unreal_version: "5.7", setup_done: [1, 3], project_context: "tactical FPS" },
+      }),
+    }));
+    const again = await json(await fetch(`${base}/api/projects/${saved.project_id}`));
+    assert.equal(again.context.unreal_version, "5.7");
+    assert.deepEqual(again.context.setup_done, [1, 3]);
+    assert.equal(again.context.project_context, "tactical FPS");
+    assert.equal(legacy.version, 1);
+    const legacyAgain = await json(await fetch(`${base}/api/projects/${legacy.project_id}`));
+    assert.equal(legacyAgain.version, 1);
+  } finally {
+    await handle.close();
+  }
+});
+
+test("synthesis, review, fix, and tests prompts use the requested Unreal version", async () => {
+  const seen = [];
+  const { handle, base } = await boot(async (_url, opts) => {
+    seen.push(JSON.parse(opts.body));
+    if (seen.length === 1) return geminiResponse(JSON.stringify(SAMPLE));
+    if (seen.length === 2) return geminiResponse(JSON.stringify({ issues: [] }));
+    if (seen.length === 3) {
+      return geminiResponse(JSON.stringify({
+        edits: [{ file: ".h", find: "int32 MaxHealth;", replace: "int32 MaxHealth = 100;", why: "init" }],
+      }));
+    }
+    return geminiResponse(JSON.stringify({
+      file_name: "HealthSpec.cpp",
+      code: "#if WITH_DEV_AUTOMATION_TESTS\nBEGIN_DEFINE_SPEC(FHealthSpec, \"SystemArchitect.Health\", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)\nEND_DEFINE_SPEC(FHealthSpec)\nvoid FHealthSpec::Define() { It(\"ok\", [this]{ TestTrue(\"ok\", true); }); }\n#endif\n",
+      cases: ["ok"],
+    }));
+  });
+  try {
+    await json(await fetch(`${base}/api/settings`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ provider: "gemini", model: "gemini-3.5-flash-lite", key: "unit-test-key" }),
+    }));
+    const started = await json(await fetch(`${base}/api/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: "A health component for a character", unreal_version: "5.7" }),
+    }));
+    let job;
+    for (let i = 0; i < 20; i++) {
+      job = await json(await fetch(`${base}/api/generate/${started.job_id}`));
+      if (job.status !== "running") break;
+    }
+    assert.equal(job.status, "done");
+    const systemText = seen[0].systemInstruction.parts[0].text;
+    const userText = seen[0].contents[0].parts[0].text;
+    assert.match(systemText, /UE 5\.7/);
+    assert.equal(systemText.includes("5.4"), false);
+    assert.match(userText, /UE 5\.7/);
+
+    await json(await fetch(`${base}/api/ai/review-cpp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cpp_header: SAMPLE.cpp_header, cpp_source: SAMPLE.cpp_source, unreal_version: "5.6", known_issues: [] }),
+    }));
+    assert.match(seen[1].systemInstruction.parts[0].text, /Unreal Engine 5\.6/);
+    assert.equal(seen[1].systemInstruction.parts[0].text.includes("5.4"), false);
+
+    await json(await fetch(`${base}/api/ai/fix-cpp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cpp_header: SAMPLE.cpp_header, cpp_source: SAMPLE.cpp_source, unreal_version: "5.8", issues: ["Initialize MaxHealth"] }),
+    }));
+    assert.match(seen[2].systemInstruction.parts[0].text, /Unreal Engine 5\.8/);
+
+    await json(await fetch(`${base}/api/ai/tests`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cpp_header: SAMPLE.cpp_header, cpp_source: SAMPLE.cpp_source, unreal_version: "5.5", file_base: "Health" }),
+    }));
+    assert.match(seen[3].systemInstruction.parts[0].text, /Unreal Engine 5\.5/);
+  } finally {
+    await handle.close();
+  }
+});
+
+test("update check fails quietly and reports a newer release when one is known", async () => {
+  const quietDir = fs.mkdtempSync(path.join(os.tmpdir(), "ue5-upd-"));
+  const quiet = await startServer({
+    dataDir: quietDir,
+    port: 0,
+    staticDir: path.join(__dirname, "missing-ui"),
+    fetchImpl: async () => geminiResponse("OK"),
+    appVersion: "1.0.0",
+    updateCheck: async () => { throw new Error("404 Not Found"); },
+  });
+  try {
+    const info = await json(await fetch(`http://127.0.0.1:${quiet.port}/api/app`));
+    assert.equal(info.version, "1.0.0");
+    assert.equal(info.update, null);
+    assert.equal(info.default_unreal_version, "5.8");
+    assert.equal(info.legacy_unreal_version, "5.4");
+    assert.ok(info.unreal_versions.includes("5.7"));
+  } finally {
+    await quiet.close();
+  }
+
+  const newerDir = fs.mkdtempSync(path.join(os.tmpdir(), "ue5-upd-"));
+  const newer = await startServer({
+    dataDir: newerDir,
+    port: 0,
+    staticDir: path.join(__dirname, "missing-ui"),
+    fetchImpl: async () => geminiResponse("OK"),
+    appVersion: "1.0.0",
+    updateCheck: async () => ({ version: "1.2.0", url: "https://github.com/Johno222222222/blueprint-builder/releases/tag/v1.2.0" }),
+  });
+  try {
+    const info = await json(await fetch(`http://127.0.0.1:${newer.port}/api/app`));
+    assert.equal(info.update.version, "1.2.0");
+    assert.match(info.update.url, /v1\.2\.0/);
+  } finally {
+    await newer.close();
+  }
+});

@@ -17,7 +17,7 @@ export const codeHash = (s) => {
 
 export const testIssues = (system) => (system?.tests?.code ? checkTests(system.tests.code, baseName(system)) : []);
 
-export default function TestsPanel({ system, projectId, aiKey, canEdit, fixing, onNeedKey, onUsed, onTests, onFix, jump, onJump }) {
+export default function TestsPanel({ system, projectId, aiKey, canEdit, fixing, onNeedKey, onUsed, onTests, onFix, jump, onJump, unrealVersion }) {
   const [busy, setBusy] = useState(false);
   const tests = system.tests;
   const issues = useMemo(() => testIssues(system), [system]);
@@ -30,6 +30,7 @@ export default function TestsPanel({ system, projectId, aiKey, canEdit, fixing, 
     try {
       const { data } = await api.post("/ai/tests", {
         file_base: baseName(system), cpp_header: system.cpp_header, cpp_source: system.cpp_source, project_id: projectId || null,
+        unreal_version: unrealVersion || undefined,
       }, { headers: aiHeaders(aiKey) });
       onTests(forId, { file_name: data.file_name, code: data.code, cases: data.cases, model: data.model, for: codeHash(system), at: new Date().toISOString() });
       toast.success(`Generated ${data.cases.length} test case${data.cases.length === 1 ? "" : "s"}`, { description: "Press Save to keep them with the project." });
