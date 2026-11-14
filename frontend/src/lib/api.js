@@ -1,26 +1,10 @@
 import axios from "axios";
 
-export const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
-export const api = axios.create({ baseURL: API, withCredentials: true });
-
-let refreshing = null;
-api.interceptors.response.use(
-  (r) => r,
-  async (error) => {
-    const cfg = error.config;
-    if (error.response?.status === 401 && !cfg._retried && !["/auth/login", "/auth/register", "/auth/refresh", "/auth/google", "/auth/me"].includes(cfg.url)) {
-      cfg._retried = true;
-      refreshing = refreshing || api.post("/auth/refresh").finally(() => { refreshing = null; });
-      try {
-        await refreshing;
-        return api(cfg);
-      } catch {
-        /* fall through to the original 401 */
-      }
-    }
-    return Promise.reject(error);
-  }
-);
+// The desktop app serves the UI and the API from the same local address.
+// REACT_APP_BACKEND_URL is only for a split dev setup (UI on :3000, API elsewhere).
+const origin = process.env.REACT_APP_BACKEND_URL || (typeof window !== "undefined" ? window.location.origin : "http://127.0.0.1:47321");
+export const API = `${origin}/api`;
+export const api = axios.create({ baseURL: API });
 
 export function errorText(e) {
   const detail = e?.response?.data?.detail;

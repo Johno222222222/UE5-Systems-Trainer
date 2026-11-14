@@ -1,18 +1,20 @@
 # UE5 Modular System Architect — PRD
 
+The current app is a local desktop program. Electron opens this React workspace, and a small Node server on the same computer stores projects and calls Gemini or OpenAI with a key saved in Settings. Accounts, teams, sharing, and hosted storage described below are history from the earlier web version. See the README for the layout of the code.
+
 ## Problem Statement
 An app to build modular systems from description in Unreal Engine 5.
 
 ## User Choices (Jan 2026)
 - Outputs: ALL (Blueprint pseudocode + C++ snippets + step-by-step setup + visual node graph)
-- AI: Claude Sonnet 4.5 (`claude-sonnet-4-5-20250929`) via Emergent Universal Key
+- AI: Claude Sonnet 4.5 (`claude-sonnet-4-5-20250929`) via the hosted model gateway (later replaced by the user's own Gemini or OpenAI key)
 - Features: describe-to-system, pre-built template library, personal saved library
 - No authentication (single-page tool, localStorage persistence)
 - Design: Dark "Unreal Editor" inspired — dark navy (#0B0E14) + Unreal orange (#FF6B00)
 - Outputs tunable via sliders + add/subtract module chips
 
 ## Architecture
-- FastAPI backend `/api/generate` → calls Claude Sonnet 4.5 via `emergentintegrations`, returns structured JSON
+- FastAPI backend `/api/generate` → calls the configured model and returns structured JSON
 - `/api/templates` → static library of 8 pre-built system templates
 - React IDE-style frontend: left (prompt + templates + saved library), center (4 tabs: Event Graph, Blueprint Pseudocode, C++ Snippets, Setup Guide), right (architecture dials + dynamic system parameter sliders + module chips)
 - SVG draggable node graph with exec/data wire styling
@@ -34,9 +36,9 @@ An app to build modular systems from description in Unreal Engine 5.
   5. Compare tab: previous vs current side by side (Pseudocode, .h, .cpp, Setup, Params & Modules) with an LCS line diff and input-change chips. Opens automatically after a regeneration.
   - Verified in the browser with mocked API responses (credits ran out again before the live check)
 
-- Iteration 4 (approved Phase 1 plan): Google + email/password sign-in (one account per email, admin seeded); cloud Projects (Mine / Shared with me, open/save/rename/delete, last-saved-by, atomic 409 overwrite warning); Export JSON / Copy JSON / Import .json; one-time migration of browser-saved systems; reference files the AI reads (images, PDF text, code; up to 5, 10 MB); project Files tab (25 MB); invites with Editor/Viewer roles plus invite links; view-only public links. Files are stored in Emergent object storage.
+- Iteration 4 (approved Phase 1 plan): Google + email/password sign-in (one account per email, admin seeded); cloud Projects (Mine / Shared with me, open/save/rename/delete, last-saved-by, atomic 409 overwrite warning); Export JSON / Copy JSON / Import .json; one-time migration of browser-saved systems; reference files the AI reads (images, PDF text, code; up to 5, 10 MB); project Files tab (25 MB); invites with Editor/Viewer roles plus invite links; view-only public links. Files were stored in hosted object storage.
   - Security deviations: reset links are created by the admin only (account menu). Invite links require signing in with the invited email and can be claimed once. Email-matched auto-access applies only to Google-verified accounts.
-- Iteration 5 (bring-your-own key): synthesis uses the user's own Gemini (gemini-2.5-flash / flash-lite / pro) or OpenAI (gpt-4.1-mini / gpt-4.1 / gpt-5-mini) key, stored in browser localStorage (`ue5_architect_ai_key`) and sent per request in the X-LLM-Provider / X-LLM-Model / X-LLM-Key headers. It is never stored or logged on the server (httpx/litellm logs muted, errors redacted). No key → the AI Key modal blocks synthesis. The Universal Key is no longer used for any synthesis; object storage still uses EMERGENT_LLM_KEY.
+- Iteration 5 (bring-your-own key): synthesis uses the user's own Gemini (gemini-2.5-flash / flash-lite / pro) or OpenAI (gpt-4.1-mini / gpt-4.1 / gpt-5-mini) key, stored in browser localStorage (`ue5_architect_ai_key`) and sent per request in the X-LLM-Provider / X-LLM-Model / X-LLM-Key headers. It is never stored or logged on the server (httpx/litellm logs muted, errors redacted). No key → the AI Key modal blocks synthesis. The hosted universal key is no longer used for any synthesis.
   - Fixes from test report iteration 2: logout revokes JWTs (token_version); Google linking drops unverified passwords; Google callback requires a browser-started sign-in; atomic version check on save; removed members lose file access; invite email check; late synthesis results discarded after switching projects; notes typed during synthesis are kept; double-save guard; Unicode download filenames; atomic reset token; references persist on save; reopening a project restores its Project Context; regenerations send the full previous implementation.
 
 - Iteration 6: version history (`project_versions` snapshot on every create/save, with a pre-update backfill on first save; GET /projects/{id}/versions[/{n}]; Compare "compare against" picker). Test key button (POST /api/ai/test-key, stale results ignored). Default model gemini-3.5-flash-lite (retired models migrate automatically). Gemini models: 3.5 Flash-Lite, 3.1 Flash-Lite, 3.8 Flash, 3.1 Pro (paid); OpenAI models are marked paid. Paid-model / free-key detection (Gemini "free_tier" + "limit: 0" → paid_model_required; OpenAI insufficient_quota → no_credits) shows an inline panel with a "Switch to Gemini 3.5 Flash-Lite" button in both the key modal and the error banner. Gemini runs non-streaming with 2 automatic retries on 503/timeouts. Prompt tuned for Gemini (no copied sample text, Title Case names, 50–120 line C++ files). Empty systems are rejected.
@@ -85,7 +87,7 @@ An app to build modular systems from description in Unreal Engine 5.
   - Data Table: tuningFiles() writes Data/<Base>_Tuning.csv + <Base>TuningRow.h/.cpp (FTableRowBase row struct + U<Base>TuningLibrary::ApplyTuningRow, a reflection-based copier by property name); SETUP.md gets import/assign steps. The generated component itself isn't modified; the user calls ApplyTuningRow in BeginPlay.
   - COMPILE_REPORT.md in plugin, source-only and bundle zips (issues, ignored with "by", fixes since the last save, AI review model).
   - Teams (backend/teams.py): teams {team_id, name, owner_id, members[{email, role, user_id, invite_token}]}; GET/POST/PATCH/DELETE /api/teams, members add/role/remove, POST /api/team-invites/{token}/accept, POST /api/projects/{id}/team (project owner only), POST /api/bundle-presets/{id}/team. load_project and list_projects merge team role with direct share (the higher one wins; the team owner gets editor). GET /projects returns a `team` list. Deleting a team unsets team_id. UI: Team tab with switcher, TeamModal, per-project and per-preset move selects, team badges.
-  - Real emails (backend/emailer.py, Emergent managed Resend; EMAIL_FROM_NAME "UE5 System Architect"): project invites, team invites (response `emailed` true/false; on-screen link fallback), and POST /api/auth/forgot-password (generic reply, 3 per hour, 1-hour single-use token, /reset/{token}). New /forgot page linked from the sign-in screen. Link host = the request's ingress host.
+  - Real emails (backend/emailer.py, a managed email service; EMAIL_FROM_NAME "UE5 System Architect"): project invites, team invites (response `emailed` true/false; on-screen link fallback), and POST /api/auth/forgot-password (generic reply, 3 per hour, 1-hour single-use token, /reset/{token}). New /forgot page linked from the sign-in screen. Link host = the request's ingress host. The desktop app does not send email.
   - Review fixes (iteration_7 review): email link host comes only from the Host header (no x-forwarded-host); the email safety gate failure no longer raises; concurrent duplicate invites are guarded ($ne email); undo hunks carry neighbour context and a truncated flag; test-fix retry keeps its target; closing the auto-fix review cancels instead of exporting; batch Accept can't double-fire; Blueprint paste uses the bundle's unique module name; tests survive regeneration (marked out of date); restore clears pending fix notes and log; a late save doesn't clear another project's fix state; badges count test errors; stricter test reply validation; Stack/Bundle buttons count Team projects.
   - Known/left: phone layout; modal focus trapping; AI review findings aren't persisted; the public share export has no compile report; team roster shows emails only.
 

@@ -1,0 +1,43 @@
+name: Desktop installer
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    name: Windows installer
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+          cache-dependency-path: frontend/yarn.lock
+
+      - name: Install and build the workspace UI
+        working-directory: frontend
+        run: |
+          yarn install --frozen-lockfile
+          yarn build
+        env:
+          CI: true
+
+      - name: Install the desktop shell
+        run: npm ci
+
+      - name: Build the Windows installer
+        run: npx electron-builder --win nsis --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Upload the installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: ue5-system-architect-windows
+          path: release/*.exe
+          if-no-files-found: error

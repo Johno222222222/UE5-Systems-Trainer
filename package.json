@@ -1,0 +1,58 @@
+{
+  "name": "ue5-system-architect",
+  "productName": "UE5 System Architect",
+  "version": "1.0.0",
+  "description": "A local desktop app for designing Unreal Engine 5 gameplay systems.",
+  "main": "desktop/main.js",
+  "private": true,
+  "author": "Johno",
+  "scripts": {
+    "start": "electron .",
+    "server": "node desktop/dev-server.js",
+    "test": "node --test desktop/test/*.js",
+    "build:ui": "yarn --cwd frontend build",
+    "dist:win": "electron-builder --win nsis --publish never",
+    "dist:linux": "electron-builder --linux AppImage --publish never",
+    "dist:mac": "electron-builder --mac dmg --publish never"
+  },
+  "dependencies": {
+    "busboy": "1.6.0",
+    "pdf-parse": "1.1.1"
+  },
+  "devDependencies": {
+    "electron": "33.4.11",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "app.ue5.system-architect",
+    "productName": "UE5 System Architect",
+    "icon": "desktop/icon.png",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "desktop/**/*",
+      "!desktop/test/**",
+      "frontend/build/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "win": {
+      "target": ["nsis"],
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "UE5 System Architect"
+    },
+    "linux": {
+      "target": ["AppImage"],
+      "category": "Development"
+    },
+    "mac": {
+      "target": ["dmg"],
+      "category": "public.app-category.developer-tools"
+    }
+  }
+}
