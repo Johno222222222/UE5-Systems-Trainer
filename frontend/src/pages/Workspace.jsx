@@ -9,7 +9,7 @@ import {
   FilePlus, MessageSquarePlus
 } from "lucide-react";
 import EventGraph from "../components/EventGraph";
-import { commitGraphEdit, graphText, readEventGraph } from "../lib/graph.mjs";
+import { commitDocument, commitGraphEdit, graphText, readEventGraph } from "../lib/graph.mjs";
 import AnnotatedPseudocode from "../components/AnnotatedPseudocode";
 import SetupGuide from "../components/SetupGuide";
 import CompareView from "../components/CompareView";
@@ -997,6 +997,9 @@ export default function Workspace() {
   const onGraphChange = (graph) => {
     setResult((current) => (current ? commitGraphEdit(current, graph).system : current));
   };
+  const onDocumentChange = (doc) => {
+    setResult((current) => (current ? commitDocument(current, doc).system : current));
+  };
   const showGraphLine = (nodeId) => {
     const loc = result?.graph_lines?.[nodeId];
     if (!loc?.line) return;
@@ -1608,6 +1611,7 @@ export default function Workspace() {
                   }).filter(([, note]) => note))}
                   highlightIds={shell.reveal?.node_ids || []}
                   onChange={onGraphChange}
+                  onDocument={onDocumentChange}
                   onShowCpp={showGraphLine}
                   onExplain={explainCurrentGraph}
                   onRevertManual={revertGraphCpp}

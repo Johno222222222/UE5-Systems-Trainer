@@ -1183,7 +1183,7 @@ async function startServer(options = {}) {
     const body = await readJson(req);
     const step = findStep(program, body.step_id);
     if (!step) throw new HttpError(404, "That step isn't in the program.");
-    const pass = acceptText(step.accept, body.answer);
+    const pass = acceptText(step.accept, body.answer) || (!!step.graph_check && body.graph_ok === true);
     return store.update((data) => {
       data.progress = ensureStudy(data.progress);
       const study = data.progress.study;

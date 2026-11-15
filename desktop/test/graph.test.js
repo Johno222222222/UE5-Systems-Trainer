@@ -181,3 +181,46 @@ test("a pointer drop connects palette nodes at different zoom levels, including 
   assert.equal(mismatch.ok, false);
   assert.match(mismatch.reason, /Float does not connect to String/);
 });
+
+test("functions, macros, variables, and collapse generate C++", async () => {
+  const g = await graphLib();
+  let doc = g.readDocument({ cpp_header: HEADER, cpp_source: SOURCE, node_graph_nodes: [], node_graph_edges: [] });
+  doc = g.addFunction(doc, "ApplyDamage");
+  const fnId = doc.items.find((item) => item.kind === "function").id;
+  doc = g.setFunctionSignature(doc, fnId, { inputs: [{ name: "Amount", type: "float" }], outputs: [], pure: false, callable: true });
+  const fn = doc.items.find((item) => item.id === fnId);
+  assert.equal(fn.nodes.find((node) => node.catalog === "entry").pins.some((pin) => pin.name === "Amount"), true);
+  assert.equal(fn.pure, false);
+  doc = g.setFunctionSignature(doc, fnId, { inputs: [{ name: "Amount", type: "float" }], outputs: [{ name: "Left", type: "float" }], pure: true, callable: true });
+  const pure = doc.items.find((item) => item.id === fnId);
+  assert.equal(pure.nodes.find((node) => node.catalog === "entry").pins.some((pin) => pin.type === "exec"), false);
+  const event = doc.items.find((item) => item.kind === "event");
+  const call = g.placeCall(doc, fnId, 200, 40);
+  event.nodes.push(call);
+  const again = g.setFunctionSignature(doc, fnId, { inputs: [{ name: "Amount", type: "int" }], outputs: [{ name: "Left", type: "float" }], pure: true, callable: true });
+  const updatedCall = again.items.find((item) => item.kind === "event").nodes.find((node) => node.catalog === "call-user");
+  assert.equal(updatedCall.pins.some((pin) => pin.name === "Amount" && pin.type === "int"), true);
+
+  doc = g.addVariable(again, { name: "Health", type: "float", default: "100.f", replicated: true, repNotify: true });
+  doc = g.addMacro(doc, "Pulse");
+  const eventGraph = doc.items.find((item) => item.kind === "event");
+  eventGraph.nodes.push(g.createNode("forloop", 40, 200, { id: "loop" }));
+  eventGraph.nodes.push(g.createNode("cast-to", 240, 200, { id: "cast" }));
+  const loop = eventGraph.nodes.find((node) => node.id === "loop");
+  const body = loop.pins.find((pin) => pin.name === "Loop Body");
+  eventGraph.wires.push({ id: "wloop", from: { node: "loop", pin: body.id }, to: { node: "cast", pin: "in-exec" } });
+  const collapsed = g.collapseSelection(doc, eventGraph.id, ["loop", "cast"], { kind: "function", name: "Scan" });
+  assert.equal(collapsed.items.filter((item) => item.kind === "function").length, 2);
+  const system = { cpp_header: HEADER, cpp_source: SOURCE, manual_cpp: false };
+  const applied = g.commitDocument(system, collapsed);
+  assert.match(applied.system.cpp_header, /UFUNCTION\(BlueprintPure/);
+  assert.match(applied.system.cpp_header, /ReplicatedUsing=OnRep_Health/);
+  assert.match(applied.system.cpp_source, /DOREPLIFETIME/);
+  assert.match(applied.system.cpp_source, /OnRep_Health/);
+  const locked = g.commitDocument({ ...applied.system, manual_cpp: true, cpp_source: "keep me" }, collapsed);
+  assert.equal(locked.blocked, true);
+  assert.equal(locked.system.cpp_source, "keep me");
+  const warns = g.graphWarnings(eventGraph, [], { functions: [] });
+  assert.ok(warns.some((item) => item.lock === "cast-loop"));
+  assert.equal(g.refactorCheck(applied.system).pass, true);
+});
