@@ -9,6 +9,7 @@ import Learn from "./Learn";
 import References from "./References";
 import Programs from "./Programs";
 import Courses from "./Courses";
+import Community from "./Community";
 
 export default function AppShell() {
   const shell = useShell();
@@ -44,6 +45,7 @@ export default function AppShell() {
         {screen === "references" && <References />}
         {screen === "programs" && <Programs />}
         {screen === "courses" && <Courses />}
+        {screen === "community" && <Community />}
         {screen === "empty" && <EmptySection section={section} onAction={onEmptyAction} />}
         {screen === "remembered" && (
           <EmptySection section={section} open={shell.memory[section.id]} onAction={onEmptyAction} />

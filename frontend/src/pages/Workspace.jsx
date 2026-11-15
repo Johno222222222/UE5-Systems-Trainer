@@ -46,6 +46,7 @@ const LOCK_CHOICES = [
 ];
 import { draftToSnapshotInput } from "../lib/workspaceSession.mjs";
 import { useShell } from "../shell/ShellContext";
+import { PlannedList } from "../shell/Home";
 import {
   moduleNote, parameterEffect, shouldRunLearningPass, showChallenges, showTraps, visibleWhyNotes, whyForCpp, whyForNode,
 } from "../lib/learning.mjs";
@@ -1329,6 +1330,7 @@ export default function Workspace() {
                   {category}
                 </a>
               ))}
+              <PlannedList compact />
               <p className="mt-1 text-[10px] font-mono text-[var(--text-muted)] leading-relaxed">Opens GitHub in your browser. Nothing is sent from this app. Version {appInfo.version || APP_VERSION}.</p>
             </div>
           )}

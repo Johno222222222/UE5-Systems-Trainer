@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "ue-companion",
+      "title": "UE companion plugin",
+      "status": "planned",
+      "detail": "Stage 8, in phases: a plugin that can read a Blueprint, push a graph from this app, and show a live compile. Not in 1.11.0."
+    },
+    {
+      "id": "mac-signing",
+      "title": "Mac signing",
+      "status": "planned",
+      "detail": "The macOS download is unsigned. Notarizing it needs an Apple certificate Johno has not added."
+    },
+    {
+      "id": "community-repo",
+      "title": "Public community repo",
+      "status": "deciding",
+      "detail": "The Community tab can list packs from a GitHub repo, but that download is off until a public repo is chosen. Local .bbpack import works now."
+    },
+    {
+      "id": "linux-packages",
+      "title": "Linux packages",
+      "status": "in progress",
+      "detail": "AppImage and deb are built next to the Windows installer. They are unsigned, the same way the Windows build is unsigned today."
+    }
+  ]
+}

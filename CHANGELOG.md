@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.11.0
+
+- A .bbpack file is one zip of a manifest and content. Export a saved project, a lesson pack, or a graph template. Import it on another computer after a preview. A name that is already there can be renamed or replaced. The file is data. Nothing in it is run.
+- Community is on the section bar. Listing packs from GitHub is off until a public repo is chosen. The tab explains that, shows how to submit a pack, and imports a local file. A bundled sample index is included.
+- An imported pack can attach notes to a reference topic. References has a Community notes switch and shows the author.
+- Home and Feedback list what is planned: the UE companion plugin, Mac signing, the community repo, and Linux packages.
+- References has a Resources page for real Unreal projects and docs, with what to look at and a link that opens in the browser.
+- The installer workflow also builds an unsigned macOS dmg and zip, and a Linux AppImage and deb. Those jobs are separate from the Windows installer.
+
 ## 1.10.0
 
 - Play on the graph toolbar steps the open graph inside the app. Step, Run, Pause, and Stop are next to it. The active node glows and a pulse travels the execution wire. A watch lists variable values. Branch says which way it went. Loops count, and they stop at eight iterations. DoOnce, Gate, and FlipFlop remember their state. Server, client, multicast, and Has Authority nodes are tagged. No Unreal install is required.

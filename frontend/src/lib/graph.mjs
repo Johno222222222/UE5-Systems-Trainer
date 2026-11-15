@@ -729,7 +729,7 @@ function literalCpp(node) {
   return Number.isFinite(n) ? `${n}f` : "0.f";
 }
 
-function exprFor(graph, node, seen = new Set()) {
+function exprFor(graph, node, seen = new Set(), outPin = null) {
   if (!node || seen.has(node.id)) return "0";
   const next = new Set(seen);
   next.add(node.id);
@@ -751,6 +751,13 @@ function exprFor(graph, node, seen = new Set()) {
     case "or": return `(${arg("A", "false")} || ${arg("B", "false")})`;
     case "not": return `(!${arg("A", "false")})`;
     case "select": return `(${arg("Pick", "true")} ? ${arg("A", "0")} : ${arg("B", "0")})`;
+    case "line-trace": return outPin?.name === "Hit Actor" ? `Hit_${ident(node.id, "Trace")}.GetActor()` : `bHit_${ident(node.id, "Trace")}`;
+    case "any-damage":
+    case "point-damage": return "Damage";
+    case "begin-overlap":
+    case "end-overlap":
+    case "hit": return "OtherActor";
+    case "tick": return "DeltaSeconds";
     default: return ident(node.label, "Value");
   }
 }
@@ -762,7 +769,8 @@ function incomingValue(graph, node, pinName, seen = new Set()) {
   if (!wire) return "";
   const source = graph.nodes.find((item) => item.id === wire.from.node);
   if (!source) return "";
-  return exprFor(graph, source, seen);
+  const sourcePin = source.pins.find((item) => item.id === wire.from.pin) || null;
+  return exprFor(graph, source, seen, sourcePin);
 }
 
 function statementFor(node, graph) {
@@ -780,8 +788,30 @@ function statementFor(node, graph) {
       const value = wired && wired !== name ? wired : fallback;
       return `${name} = ${value};`;
     }
-    case "call-function":
-      return `${ident(node.data?.function || "Function", "Function")}();`;
+    case "call-function": {
+      const fn = ident(node.data?.function || node.label || "Function", "Function");
+      if (/destroy/i.test(fn)) return "if (AActor* GraphOwner = GetOwner()) { GraphOwner->Destroy(); }";
+      return `${fn}();`;
+    }
+    case "line-trace": {
+      const local = ident(node.id, "Trace");
+      return `FHitResult Hit_${local}; bool bHit_${local} = false; if (UWorld* World_${local} = GetWorld()) { const FVector Start_${local} = GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector; bHit_${local} = World_${local}->LineTraceSingleByChannel(Hit_${local}, Start_${local}, Start_${local} + FVector(200.f, 0.f, 0.f), ECC_Visibility); }`;
+    }
+    case "interface-call": {
+      const local = ident(node.id, "Call");
+      const target = incomingValue(graph, node, "Target") || "nullptr";
+      const message = ident(node.data?.function || "Interact", "Interact");
+      return `if (AActor* Target_${local} = Cast<AActor>(${target})) { if (UFunction* Fn_${local} = Target_${local}->FindFunction(TEXT("${message}"))) { Target_${local}->ProcessEvent(Fn_${local}, nullptr); } }`;
+    }
+    case "set-timer": {
+      const seconds = Number(node.data?.seconds) || Number(incomingValue(graph, node, "Time")) || 1;
+      const eventName = node.data?.event;
+      const target = (graph.nodes || []).find((item) => item.catalog === "custom-event" && item.data?.name === eventName);
+      const method = target ? functionBase(target) : "";
+      const cls = graph.cppClass || "UKitComponent";
+      if (method) return `if (UWorld* World = GetWorld()) { FTimerHandle Timer_${id}; World->GetTimerManager().SetTimer(Timer_${id}, this, &${cls}::${method}, ${seconds}f, true); }`;
+      return `if (UWorld* World = GetWorld()) { FTimerHandle Timer_${id}; FTimerDelegate Delegate_${id}; Delegate_${id}.BindUFunction(this, TEXT("${eventName || "Timer"}")); World->GetTimerManager().SetTimer(Timer_${id}, Delegate_${id}, ${seconds}f, true); }`;
+    }
     case "spawn-actor":
       return `if (UWorld* World = GetWorld()) { World->SpawnActor<${ident(node.data?.className || "AActor", "AActor")}>(${ident(node.data?.className || "AActor", "AActor")}::StaticClass()); }`;
     case "cast-to": {
@@ -789,9 +819,7 @@ function statementFor(node, graph) {
       return `if (${ident(node.data?.className || "AActor", "AActor")}* Cast_${id} = Cast<${ident(node.data?.className || "AActor", "AActor")}>(${wired})) { /* cast ok */ }`;
     }
     case "delay":
-      return `if (UWorld* World = GetWorld()) { FTimerHandle Delay_${id}; World->GetTimerManager().SetTimer(Delay_${id}, ${Number(node.data?.seconds) || 0.5}f, false); }`;
-    case "set-timer":
-      return `if (UWorld* World = GetWorld()) { FTimerHandle Timer_${id}; World->GetTimerManager().SetTimer(Timer_${id}, ${Number(node.data?.seconds) || 1}f, false); }`;
+      return `if (UWorld* World = GetWorld()) { FTimerHandle Delay_${id}; World->GetTimerManager().SetTimer(Delay_${id}, FTimerDelegate(), ${Number(node.data?.seconds) || 0.5}f, false); }`;
     case "timeline":
       return `// Timeline ${ident(node.label, "Timeline")}`;
     case "has-authority":
@@ -910,7 +938,20 @@ function rpcMacro(catalog) {
   if (catalog === "server-rpc") return "UFUNCTION(Server, Reliable)";
   if (catalog === "client-rpc") return "UFUNCTION(Client, Reliable)";
   if (catalog === "multicast-rpc") return "UFUNCTION(NetMulticast, Reliable)";
+  if (catalog === "begin-overlap" || catalog === "end-overlap" || catalog === "hit" || catalog === "any-damage" || catalog === "point-damage") return "UFUNCTION()";
   return "UFUNCTION(BlueprintCallable, Category=\"EventGraph\")";
+}
+
+function eventParams(node) {
+  const map = {
+    "begin-overlap": "UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult",
+    "end-overlap": "UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex",
+    hit: "UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit",
+    "any-damage": "AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser",
+    "point-damage": "AActor* DamagedActor, float Damage, AController* InstigatedBy, FVector HitLocation, UPrimitiveComponent* HitComponent, FName BoneName, FVector ShotFromDirection, const UDamageType* DamageType, AActor* DamageCauser",
+    tick: "float DeltaSeconds",
+  };
+  return map[node?.catalog] || "";
 }
 
 export function syncCpp(system, graph) {
@@ -918,6 +959,7 @@ export function syncCpp(system, graph) {
   const docItems = Array.isArray(system?.graphs?.items) ? system.graphs.items : [];
   eventGraph.macros = docItems.filter((item) => item && item.kind === "macro");
   const cls = classNameOf(system?.cpp_header);
+  eventGraph.cppClass = cls;
   const events = eventGraph.nodes.filter((node) => node.kind === "event").sort(byPos);
   const headerLines = ["public:"];
   const sourceLines = [];
@@ -925,15 +967,46 @@ export function syncCpp(system, graph) {
     headerLines.push("\t// No event graph handlers.");
     sourceLines.push("// No event graph handlers.");
   }
+  const componentBinds = [];
+  const actorBinds = [];
   for (const event of events) {
     const base = functionBase(event);
     const cppName = RPCS.has(event.catalog) ? `${base}_Implementation` : base;
+    const params = eventParams(event);
     headerLines.push(`\t${rpcMacro(event.catalog)}`);
-    headerLines.push(`\tvoid ${base}(); // node:${event.id}`);
-    sourceLines.push(`void ${cls}::${cppName}() // node:${event.id}`);
+    headerLines.push(`\tvoid ${base}(${params}); // node:${event.id}`);
+    sourceLines.push(`void ${cls}::${cppName}(${params}) // node:${event.id}`);
     sourceLines.push("{");
     const first = outgoing(eventGraph, event, event.pins.find((item) => item.dir === "out" && item.type === "exec")?.id);
     emitBody(eventGraph, first, "\t", new Set([event.id]), sourceLines);
+    sourceLines.push("}");
+    sourceLines.push("");
+    if (event.catalog === "begin-overlap") componentBinds.push(`Prim->OnComponentBeginOverlap.AddDynamic(this, &${cls}::${base});`);
+    if (event.catalog === "end-overlap") componentBinds.push(`Prim->OnComponentEndOverlap.AddDynamic(this, &${cls}::${base});`);
+    if (event.catalog === "hit") componentBinds.push(`Prim->OnComponentHit.AddDynamic(this, &${cls}::${base});`);
+    if (event.catalog === "any-damage") actorBinds.push(`Owner->OnTakeAnyDamage.AddDynamic(this, &${cls}::${base});`);
+    if (event.catalog === "point-damage") actorBinds.push(`Owner->OnTakePointDamage.AddDynamic(this, &${cls}::${base});`);
+  }
+  const outsideGraph = (text) => String(text || "").replace(/\/\/ graph:begin[\s\S]*?\/\/ graph:end[^\n]*\n?/g, "");
+  const alreadyBegins = new RegExp(`\\b${cls}::BeginPlay\\s*\\(`).test(outsideGraph(system?.cpp_source))
+    || /\bvoid\s+BeginPlay\s*\(/.test(outsideGraph(system?.cpp_header));
+  if ((componentBinds.length || actorBinds.length) && !alreadyBegins) {
+    headerLines.push("\tvirtual void BeginPlay() override;");
+    sourceLines.push(`void ${cls}::BeginPlay()`);
+    sourceLines.push("{");
+    sourceLines.push("\tSuper::BeginPlay();");
+    sourceLines.push("\tif (AActor* Owner = GetOwner())");
+    sourceLines.push("\t{");
+    for (const line of actorBinds) sourceLines.push(`\t\t${line}`);
+    if (componentBinds.length) {
+      sourceLines.push("\t\tTArray<UPrimitiveComponent*> Prims;");
+      sourceLines.push("\t\tOwner->GetComponents<UPrimitiveComponent>(Prims);");
+      sourceLines.push("\t\tfor (UPrimitiveComponent* Prim : Prims)");
+      sourceLines.push("\t\t{");
+      for (const line of componentBinds) sourceLines.push(`\t\t\t${line}`);
+      sourceLines.push("\t\t}");
+    }
+    sourceLines.push("\t}");
     sourceLines.push("}");
     sourceLines.push("");
   }
@@ -991,8 +1064,18 @@ export function syncCpp(system, graph) {
     header = upsertRegion(header, `// graph:begin function ${block.name}`, `// graph:end function ${block.name}`, block.header, true);
     source = upsertRegion(source, `// graph:begin function ${block.name}`, `// graph:end function ${block.name}`, block.source, false);
   }
-  if (/GetWorld\s*\(/.test(source) && !source.includes("Engine/World.h") && !String(system?.cpp_header || "").includes("Engine/World.h")) {
-    source = `#include "Engine/World.h"\n${source}`;
+  const needs = [
+    [/GetWorld\s*\(/, "Engine/World.h"],
+    [/FHitResult|LineTraceSingleByChannel|OnComponentBeginOverlap|OnComponentEndOverlap|OnComponentHit/, "Engine/HitResult.h"],
+    [/UPrimitiveComponent/, "Components/PrimitiveComponent.h"],
+    [/GetOwner\s*\(|->Destroy\s*\(|OnTakeAnyDamage|OnTakePointDamage|GetActorLocation/, "GameFramework/Actor.h"],
+    [/UDamageType/, "Engine/DamageEvents.h"],
+  ];
+  const headerText = String(system?.cpp_header || "");
+  for (const [pattern, include] of needs) {
+    if (pattern.test(source) && !source.includes(include) && !headerText.includes(include)) {
+      source = `#include "${include}"\n${source}`;
+    }
   }
   return { cpp_header: header, cpp_source: source, lines: lineIndex(header, source) };
 }

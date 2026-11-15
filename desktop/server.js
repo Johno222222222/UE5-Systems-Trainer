@@ -16,6 +16,8 @@ const { catalog, forkPayload } = require("./references");
 const { loadPacks, loadPackSources, programById, courseById, taskById } = require("./packs");
 const { loadGlossary } = require("./glossary");
 const { loadGraphTemplates } = require("./graphTemplates");
+const { buildPack, encodePack, decodePack, packItems, conflictsFor, renamed } = require("./bbpack");
+const { loadCommunityIndex, readSettings, writeSettings, readNotes, writeNotes } = require("./community");
 const {
   ensureStudy,
   checkTask,
@@ -346,13 +348,22 @@ async function startServer(options = {}) {
   const fetchImpl = options.fetchImpl || (process.env.UE5_STUB_LLM === "1" ? stubFetch : undefined);
   const clock = options.now || (() => new Date());
   const staticDir = options.staticDir ? path.resolve(options.staticDir) : null;
-  const lessonPacks = options.packsDir
+  let lessonPacks = options.packsDir
     ? loadPacks(options.packsDir)
     : loadPackSources({
       appPath: options.appPath,
       resourcesPath: options.resourcesPath,
       userData: dataDir,
     });
+  function reloadLessonPacks() {
+    lessonPacks = options.packsDir
+      ? loadPacks(options.packsDir)
+      : loadPackSources({
+        appPath: options.appPath,
+        resourcesPath: options.resourcesPath,
+        userData: dataDir,
+      });
+  }
   if (lessonPacks.problems.length) {
     console.error(`Lesson packs: ${lessonPacks.problems.join(" | ")}`);
   } else {
@@ -586,10 +597,267 @@ async function startServer(options = {}) {
     return { terms: loaded.terms, problems: loaded.problems };
   });
 
-  route("GET", "/api/graph-templates", async () => {
+  function importedTemplates() {
+    try {
+      const parsed = JSON.parse(fs.readFileSync(path.join(dataDir, "imported-templates.json"), "utf8"));
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveImportedTemplates(list) {
+    fs.mkdirSync(dataDir, { recursive: true });
+    fs.writeFileSync(path.join(dataDir, "imported-templates.json"), JSON.stringify(list, null, 2));
+  }
+
+  function contentFile(name) {
+    const candidates = [];
+    if (options.appPath) candidates.push(path.join(options.appPath, "content", name));
+    if (options.resourcesPath) {
+      candidates.push(path.join(options.resourcesPath, "app.asar", "content", name));
+      candidates.push(path.join(options.resourcesPath, "app", "content", name));
+    }
+    candidates.push(path.join(__dirname, "..", "content", name));
+    for (const file of candidates) {
+      try {
+        if (fs.existsSync(file)) return JSON.parse(fs.readFileSync(file, "utf8"));
+      } catch { /* try the next copy */ }
+    }
+    return null;
+  }
+
+  function graphTemplateList() {
     const loaded = loadGraphTemplates({ appPath: options.appPath, resourcesPath: options.resourcesPath });
+    const extra = importedTemplates();
+    const seen = new Set(loaded.templates.map((item) => item.id));
+    return { templates: [...loaded.templates, ...extra.filter((item) => item?.id && !seen.has(item.id))], problems: loaded.problems };
+  }
+
+  route("GET", "/api/graph-templates", async () => {
+    const loaded = graphTemplateList();
     if (loaded.problems.length) console.error(`Graph templates: ${loaded.problems.join(" | ")}`);
-    return { templates: loaded.templates, problems: loaded.problems };
+    return loaded;
+  });
+
+  route("GET", "/api/planned", async () => {
+    const planned = contentFile("planned.json");
+    return { items: Array.isArray(planned?.items) ? planned.items : [] };
+  });
+
+  route("GET", "/api/resources", async () => {
+    const resources = contentFile("resources.json");
+    return { resources: Array.isArray(resources?.resources) ? resources.resources : [] };
+  });
+
+  route("GET", "/api/community-notes", async () => ({ notes: readNotes(dataDir) }));
+
+  function communityPayload(remote) {
+    const settings = readSettings(dataDir);
+    const bundled = loadCommunityIndex({ appPath: options.appPath, resourcesPath: options.resourcesPath, dir: options.communityDir });
+    return {
+      enabled: settings.enabled,
+      repo: settings.repo,
+      path: settings.path,
+      source: remote ? "github" : "bundled",
+      packs: remote ? remote.packs : bundled.packs,
+      how_to_submit: bundled.how_to_submit,
+      problems: remote ? remote.problems : bundled.problems,
+    };
+  }
+
+  async function githubListing(settings) {
+    const fetchImpl = options.fetchImpl || fetch;
+    const url = `https://api.github.com/repos/${settings.repo}/contents/${encodeURI(settings.path)}`;
+    const response = await fetchImpl(url, { headers: { Accept: "application/vnd.github+json", "User-Agent": "blueprint-builder" } });
+    if (!response.ok) return { packs: [], problems: [`GitHub returned ${response.status} for ${settings.repo}.`] };
+    const listing = await response.json();
+    if (!Array.isArray(listing)) return { packs: [], problems: ["GitHub did not return a folder."] };
+    return {
+      packs: listing.filter((item) => String(item.name || "").endsWith(".bbpack")).map((item) => ({
+        id: String(item.name).replace(/\.bbpack$/i, ""),
+        title: String(item.name).replace(/\.bbpack$/i, ""),
+        author: settings.repo,
+        summary: "Pack file in the community repo.",
+        file: item.name,
+        download_url: item.download_url || "",
+      })),
+      problems: [],
+    };
+  }
+
+  route("GET", "/api/community", async () => {
+    const settings = readSettings(dataDir);
+    if (!settings.enabled) return communityPayload(null);
+    if (!settings.repo) return { ...communityPayload(null), enabled: true, problems: ["Community download is on, but no GitHub repo is set."] };
+    try {
+      return { ...communityPayload(await githubListing(settings)), enabled: true, repo: settings.repo, path: settings.path, source: "github" };
+    } catch (exc) {
+      return { ...communityPayload(null), enabled: true, source: "github", problems: [`Couldn't reach GitHub (${exc.message}).`] };
+    }
+  });
+
+  route("PUT", "/api/community/settings", async (req) => {
+    const body = await readJson(req);
+    return writeSettings(dataDir, { enabled: body.enabled, repo: body.repo, path: body.path });
+  });
+
+  route("GET", "/api/community/packs/:id", async (_req, params) => {
+    const settings = readSettings(dataDir);
+    const bundled = loadCommunityIndex({ appPath: options.appPath, resourcesPath: options.resourcesPath, dir: options.communityDir });
+    const local = bundled.packs.find((item) => item.id === params.id);
+    const readLocal = () => {
+      const root = path.resolve(bundled.dir);
+      const file = path.resolve(root, local.file);
+      if (file !== root && !file.startsWith(`${root}${path.sep}`)) throw new HttpError(400, "That pack path is not allowed.");
+      return { filename: local.file, base64: fs.readFileSync(file).toString("base64") };
+    };
+    if (!settings.enabled && local) return readLocal();
+    if (settings.enabled && settings.repo) {
+      const remote = await githubListing(settings);
+      const pack = remote.packs.find((item) => item.id === params.id);
+      if (!pack?.download_url) throw new HttpError(404, "That pack is not in the repo listing.");
+      const fetchImpl = options.fetchImpl || fetch;
+      const response = await fetchImpl(pack.download_url, { headers: { "User-Agent": "blueprint-builder" } });
+      if (!response.ok) throw new HttpError(502, "GitHub did not return that pack.");
+      const bytes = Buffer.from(await response.arrayBuffer());
+      return { filename: pack.file, base64: bytes.toString("base64") };
+    }
+    if (local) return readLocal();
+    throw new HttpError(404, "That pack isn't available.");
+  });
+
+  function catalogForConflicts() {
+    const projects = (store.data?.projects || []).filter((item) => !item.is_deleted);
+    const templates = graphTemplateList().templates;
+    return { projects, templates, programs: lessonPacks.programs || [] };
+  }
+
+  function previewPack(decoded) {
+    if (!decoded.ok) return { ok: false, errors: decoded.errors, preview: null, conflicts: [] };
+    return { ok: true, errors: [], preview: decoded.preview, conflicts: conflictsFor(decoded.pack, catalogForConflicts()), pack: decoded.pack };
+  }
+
+  route("POST", "/api/packs/preview", async (req) => {
+    const body = await readJson(req);
+    const raw = body.data ? Buffer.from(String(body.data), "base64") : Buffer.from(JSON.stringify(body.pack || body), "utf8");
+    return previewPack(decodePack(raw));
+  });
+
+  route("POST", "/api/packs/export", async (req) => {
+    const body = await readJson(req);
+    let pack;
+    if (body.kind === "project") {
+      const project = (store.data.projects || []).find((item) => item.project_id === body.project_id && !item.is_deleted);
+      if (!project) throw new HttpError(404, "That project isn't saved.");
+      pack = buildPack({
+        kind: "project",
+        name: project.name,
+        author: body.author || "Local",
+        description: project.system?.summary || "",
+        content: { system: project.system, context: project.context || {} },
+      });
+    } else if (body.kind === "template") {
+      const template = graphTemplateList().templates.find((item) => item.id === body.template_id);
+      if (!template) throw new HttpError(404, "That template isn't in the app.");
+      pack = buildPack({
+        kind: "template",
+        name: template.title || template.id,
+        author: body.author || "Local",
+        description: template.summary || "",
+        content: { template },
+      });
+    } else if (body.kind === "lesson") {
+      const program = (lessonPacks.programs || []).find((item) => item.id === body.program_id);
+      if (!program) throw new HttpError(404, "That lesson pack isn't loaded.");
+      pack = buildPack({
+        kind: "lesson",
+        name: program.title || program.id,
+        author: body.author || "Local",
+        description: program.summary || "",
+        content: { programs: [program] },
+      });
+    } else {
+      throw new HttpError(400, "Say whether this is a project, a template, or a lesson.");
+    }
+    const encoded = encodePack(pack);
+    return { filename: encoded.filename, base64: encoded.bytes.toString("base64"), manifest: encoded.manifest };
+  });
+
+  route("POST", "/api/packs/import", async (req) => {
+    const body = await readJson(req);
+    const raw = body.data ? Buffer.from(String(body.data), "base64") : Buffer.from(JSON.stringify(body.pack || {}), "utf8");
+    const decoded = decodePack(raw);
+    const preview = previewPack(decoded);
+    if (!preview.ok) throw new HttpError(400, preview.errors[0] || "That pack is not valid.");
+    if (preview.conflicts.length && body.mode !== "rename" && body.mode !== "replace") {
+      return { ok: false, needsChoice: true, preview: preview.preview, conflicts: preview.conflicts };
+    }
+    const mode = body.mode || "rename";
+    const items = packItems(decoded.pack);
+    const takenProjects = new Set((store.data.projects || []).filter((item) => !item.is_deleted).map((item) => String(item.name).toLowerCase()));
+    const applied = { projects: [], templates: [], lessons: [], notes: 0 };
+    await store.update((data) => {
+      for (const project of items.projects) {
+        const system = project.system;
+        if (!system?.system_name) continue;
+        let name = project.name || system.system_name;
+        const clash = (data.projects || []).find((item) => !item.is_deleted && String(item.name).toLowerCase() === String(name).toLowerCase());
+        if (clash && mode === "replace") {
+          clash.system = system;
+          clash.context = project.context || clash.context || {};
+          clash.updated_at = nowIso();
+          applied.projects.push(clash.project_id);
+          continue;
+        }
+        if (clash && mode === "rename") name = renamed(name, takenProjects);
+        takenProjects.add(String(name).toLowerCase());
+        const created = createProject(data, { name, system, context: project.context || {}, note: `Imported ${decoded.pack.name}` });
+        applied.projects.push(created.project_id);
+      }
+      return data;
+    });
+    if (items.templates.length) {
+      const list = importedTemplates();
+      for (const template of items.templates) {
+        let next = { ...template };
+        if (list.some((item) => item.id === next.id) || graphTemplateList().templates.some((item) => item.id === next.id)) {
+          if (mode === "replace") {
+            const index = list.findIndex((item) => item.id === next.id);
+            if (index >= 0) list[index] = next;
+            else list.push(next);
+          } else {
+            const ids = new Set(graphTemplateList().templates.map((item) => String(item.id).toLowerCase()));
+            next = { ...next, id: renamed(next.id, ids), title: `${next.title || next.id} (imported)` };
+            list.push(next);
+          }
+        } else list.push(next);
+        applied.templates.push(next.id);
+      }
+      saveImportedTemplates(list);
+    }
+    if (items.lessons.length) {
+      const folder = path.join(dataDir, "packs");
+      fs.mkdirSync(folder, { recursive: true });
+      for (const lesson of items.lessons) {
+        const programs = (lesson.programs || []).map((program) => {
+          if (mode !== "rename") return program;
+          const ids = new Set((lessonPacks.programs || []).map((item) => String(item.id).toLowerCase()));
+          if (!ids.has(String(program.id).toLowerCase())) return program;
+          return { ...program, id: renamed(program.id, ids) };
+        });
+        const file = `${String(lesson.name || "lesson").replace(/[^\w.-]+/g, "-") || "lesson"}.json`;
+        fs.writeFileSync(path.join(folder, file), JSON.stringify({ programs, courses: lesson.courses || [] }, null, 2));
+        applied.lessons.push(file);
+      }
+      reloadLessonPacks();
+    }
+    if (items.notes.length) {
+      const notes = readNotes(dataDir).filter((note) => note.pack !== decoded.pack.name);
+      writeNotes(dataDir, [...notes, ...items.notes]);
+      applied.notes = items.notes.length;
+    }
+    return { ok: true, preview: preview.preview, applied, conflicts: preview.conflicts };
   });
 
   route("POST", "/api/examples/:id/fork", async (_req, params) => {

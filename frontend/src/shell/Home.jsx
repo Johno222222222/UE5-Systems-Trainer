@@ -40,6 +40,30 @@ function asTemplate(example) {
   };
 }
 
+export function PlannedList({ compact = false }) {
+  const [items, setItems] = useState([]);
+  useEffect(() => {
+    api.get("/planned").then((res) => setItems(res.data?.items || [])).catch(() => setItems([]));
+  }, []);
+  if (!items.length) return null;
+  return (
+    <section className={compact ? "mt-2" : "mt-6"} data-testid="whats-planned">
+      <div className="eyebrow mb-2">What's planned</div>
+      <div className={compact ? "flex flex-col gap-1" : "home-grid"}>
+        {items.map((item) => (
+          <div key={item.id} className="panel home-card" data-testid={`planned-${item.id}`}>
+            <div className="flex items-center justify-between gap-2">
+              <div className="font-sub font-semibold text-[14px]">{item.title}</div>
+              <span className="tag">{item.status}</span>
+            </div>
+            {!compact && <p className="mt-1 text-[12px] text-[var(--text-secondary)]">{item.detail}</p>}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   const shell = useShell();
   const [projects, setProjects] = useState([]);
@@ -109,6 +133,7 @@ export default function Home() {
         <p className="mt-2 text-[13px] text-[var(--text-secondary)] max-w-xl">
           Recent systems, a new project, or a template. The workspace itself is under Tools.
         </p>
+        <PlannedList />
 
         {introOn && (
           <div className="panel p-4 mt-5" data-testid="first-run-intro">

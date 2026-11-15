@@ -1,0 +1,23 @@
+{
+  "format": "bbpack",
+  "schema": 1,
+  "kind": "bundle",
+  "name": "Sample community notes",
+  "author": "Blueprint Builder",
+  "version": "1.0.0",
+  "description": "Notes you can attach to interaction and authority in References.",
+  "content": {
+    "notes": [
+      {
+        "topic": "interface-vs-cast",
+        "author": "Blueprint Builder",
+        "body": "A line trace finds the actor. An interface calls it. Keep the cast list out of the interact key."
+      },
+      {
+        "topic": "authority-and-rpcs",
+        "author": "Blueprint Builder",
+        "body": "HasAuthority is the server for a replicated pawn. Change ammo and health there, then let OnRep update the mesh."
+      }
+    ]
+  }
+}

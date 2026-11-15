@@ -1,7 +1,7 @@
 {
   "name": "ue5-system-architect",
   "productName": "UE5 System Architect",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "description": "A local desktop app for designing Unreal Engine 5 gameplay systems.",
   "main": "desktop/main.js",
   "private": true,
@@ -37,6 +37,9 @@
       "content/packs/**/*",
       "content/glossary/**/*",
       "content/templates/**/*",
+      "content/community/**/*",
+      "content/planned.json",
+      "content/resources.json",
       "package.json"
     ],
     "asar": true,
@@ -53,11 +56,13 @@
       "uninstallerIcon": "desktop/icons/icon.ico"
     },
     "linux": {
-      "target": ["AppImage"],
-      "category": "Development"
+      "target": ["AppImage", "deb"],
+      "category": "Development",
+      "maintainer": "Johno <johno222222222@users.noreply.github.com>"
     },
     "mac": {
-      "target": ["dmg"],
+      "target": ["dmg", "zip"],
+      "identity": null,
       "category": "public.app-category.developer-tools"
     }
   }

@@ -1,0 +1,52 @@
+{
+  "resources": [
+    {
+      "id": "action-roguelike",
+      "title": "Tom Looman's Action Roguelike",
+      "author": "Tom Looman",
+      "url": "https://github.com/tomlooman/ActionRoguelike",
+      "systems": ["GAS", "interaction", "inventory", "AI"],
+      "look": "Start with the interaction interface and the inventory component, then the Gameplay Ability attribute set. The course notes in the repo explain why the ability system owns damage."
+    },
+    {
+      "id": "lyra",
+      "title": "Lyra sample game",
+      "author": "Epic Games",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/lyra-sample-game-in-unreal-engine",
+      "systems": ["GAS", "interaction", "inventory", "UI", "networking"],
+      "look": "Look at how Experience definitions pick the pawn and the inventory, and how Gameplay Abilities fire weapons. It is a large sample. Read one feature, not the whole game."
+    },
+    {
+      "id": "content-examples",
+      "title": "Content Examples",
+      "author": "Epic Games",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/content-examples-sample-project-for-unreal-engine",
+      "systems": ["interaction", "animation", "AI", "UI"],
+      "look": "Open the level that matches the system you are building. The Blueprint samples show a trace, a timeline, and an AI move without a full game around them."
+    },
+    {
+      "id": "gas-docs",
+      "title": "GASDocumentation",
+      "author": "tranek",
+      "url": "https://github.com/tranek/GASDocumentation",
+      "systems": ["GAS"],
+      "look": "Read the concepts page before you copy an ability. It names attributes, effects, and the prediction window this app's GAS system is aiming at."
+    },
+    {
+      "id": "save-game",
+      "title": "Saving and loading your game",
+      "author": "Epic Games",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/saving-and-loading-your-game-in-unreal-engine",
+      "systems": ["save"],
+      "look": "The SaveGame class and the async save calls. Put persistent fields there, not in a widget."
+    },
+    {
+      "id": "behavior-trees",
+      "title": "Behavior trees",
+      "author": "Epic Games",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/behavior-trees-in-unreal-engine",
+      "systems": ["AI"],
+      "look": "The quick start shows a blackboard and a tree. Use that when the AI system in this app is a pawn that needs to choose an action."
+    }
+  ]
+}
