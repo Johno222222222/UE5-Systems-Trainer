@@ -51,22 +51,91 @@ function uplugin(module, system, plugins) {
   return JSON.stringify(body, null, 2);
 }
 
-// Writes a plugin folder Unreal's BuildPlugin command can take.
-function writePlugin(dir, system) {
+function pluginFileMap(system) {
   const module = moduleName(system);
   const base = baseName(system);
   const deps = modulesFor(`${system?.cpp_header || ""}\n${system?.cpp_source || ""}`);
-  fs.mkdirSync(path.join(dir, "Source", module, "Public"), { recursive: true });
-  fs.mkdirSync(path.join(dir, "Source", module, "Private"), { recursive: true });
-  fs.writeFileSync(path.join(dir, `${module}.uplugin`), uplugin(module, system, deps.plugins));
-  fs.writeFileSync(path.join(dir, "Source", module, `${module}.Build.cs`), buildCs(module, deps.modules));
-  fs.writeFileSync(
-    path.join(dir, "Source", module, "Private", `${module}Module.cpp`),
-    `#include "Modules/ModuleManager.h"\n\nIMPLEMENT_MODULE(FDefaultModuleImpl, ${module})\n`,
-  );
-  fs.writeFileSync(path.join(dir, "Source", module, "Public", `${base}.h`), system?.cpp_header || "");
-  fs.writeFileSync(path.join(dir, "Source", module, "Private", `${base}.cpp`), system?.cpp_source || "");
-  return { module, uplugin: path.join(dir, `${module}.uplugin`) };
+  return {
+    module,
+    files: {
+      [`${module}.uplugin`]: uplugin(module, system, deps.plugins),
+      [`Source/${module}/${module}.Build.cs`]: buildCs(module, deps.modules),
+      [`Source/${module}/Private/${module}Module.cpp`]: `#include "Modules/ModuleManager.h"\n\nIMPLEMENT_MODULE(FDefaultModuleImpl, ${module})\n`,
+      [`Source/${module}/Public/${base}.h`]: system?.cpp_header || "",
+      [`Source/${module}/Private/${base}.cpp`]: system?.cpp_source || "",
+    },
+  };
 }
 
-module.exports = { baseName, moduleName, writePlugin };
+function changedFiles(dir, files) {
+  const conflicts = [];
+  for (const [rel, body] of Object.entries(files)) {
+    const full = path.join(dir, rel);
+    if (!fs.existsSync(full) || !fs.statSync(full).isFile()) continue;
+    if (fs.readFileSync(full, "utf8") !== body) conflicts.push(rel);
+  }
+  return conflicts;
+}
+
+function writeMapped(dir, files) {
+  for (const [rel, body] of Object.entries(files)) {
+    const full = path.join(dir, rel);
+    fs.mkdirSync(path.dirname(full), { recursive: true });
+    fs.writeFileSync(full, body);
+  }
+}
+
+// Writes a plugin folder Unreal's BuildPlugin command can take.
+// Existing files that differ are left alone unless confirm is true.
+function writePlugin(dir, system, { confirm = false } = {}) {
+  const planned = pluginFileMap(system);
+  const conflicts = changedFiles(dir, planned.files);
+  if (conflicts.length && !confirm) {
+    const err = new Error("Some plugin files were edited in the project. Confirm before replacing them.");
+    err.statusCode = 409;
+    err.conflicts = conflicts;
+    throw err;
+  }
+  writeMapped(dir, planned.files);
+  return { module: planned.module, uplugin: path.join(dir, `${planned.module}.uplugin`), conflicts };
+}
+
+function listFiles(root, base = root) {
+  const out = [];
+  if (!fs.existsSync(root)) return out;
+  for (const name of fs.readdirSync(root)) {
+    const full = path.join(root, name);
+    if (fs.statSync(full).isDirectory()) out.push(...listFiles(full, base));
+    else out.push(path.relative(base, full).split(path.sep).join("/"));
+  }
+  return out;
+}
+
+function copyTree(sourceRoot, destRoot, { confirm = false } = {}) {
+  const files = {};
+  for (const rel of listFiles(sourceRoot)) {
+    files[rel] = fs.readFileSync(path.join(sourceRoot, ...rel.split("/")), "utf8");
+  }
+  const conflicts = changedFiles(destRoot, files);
+  if (conflicts.length && !confirm) {
+    const err = new Error("The companion plugin in that project was edited. Confirm before replacing it.");
+    err.statusCode = 409;
+    err.conflicts = conflicts;
+    throw err;
+  }
+  writeMapped(destRoot, files);
+  return { files: Object.keys(files), conflicts };
+}
+
+function enablePlugin(uprojectPath, pluginName) {
+  const parsed = JSON.parse(fs.readFileSync(uprojectPath, "utf8"));
+  const plugins = Array.isArray(parsed.Plugins) ? parsed.Plugins : [];
+  if (!plugins.some((item) => item && item.Name === pluginName)) {
+    plugins.push({ Name: pluginName, Enabled: true });
+    parsed.Plugins = plugins;
+    fs.writeFileSync(uprojectPath, JSON.stringify(parsed, null, 2));
+  }
+  return parsed;
+}
+
+module.exports = { baseName, moduleName, writePlugin, pluginFileMap, changedFiles, writeMapped, copyTree, enablePlugin };

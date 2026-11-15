@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.12.0
+
+- An editor-only Architect plugin ships in the app and can be copied into a project's Plugins folder. Its panel shows whether it is paired, the project name, and the engine version. It does not call an AI model.
+- The desktop app and the plugin talk only on this computer, with a pairing code. Send to Unreal writes the generated module, asks before replacing a file you edited, and tells the plugin to compile or to ask you to.
+- The plugin can report gameplay classes, enabled plugins, and the engine version. The app shows them and can put a short summary into Project Context.
+- A version tag publishes one GitHub Release after the Windows, macOS, and Linux builds finish, so the later jobs no longer fail looking for a release that is not there yet.
+
 ## 1.11.0
 
 - A .bbpack file is one zip of a manifest and content. Export a saved project, a lesson pack, or a graph template. Import it on another computer after a preview. A name that is already there can be renamed or replaced. The file is data. Nothing in it is run.

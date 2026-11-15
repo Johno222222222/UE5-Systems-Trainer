@@ -170,8 +170,10 @@ test("the installer workflow builds macOS and Linux apart from Windows", () => {
   assert.match(text, /name: Linux packages/);
   assert.match(text, /electron-builder --mac dmg zip/);
   assert.match(text, /electron-builder --linux AppImage deb/);
-  assert.equal(text.includes("needs:"), false);
+  assert.match(text, /name: GitHub Release/);
+  assert.match(text, /gh release create/);
+  assert.equal(/windows:[\s\S]*?needs:\s*\[macos/.test(text), false);
   const pkg = require("../../package.json");
   assert.ok(pkg.build.files.some((item) => String(item).includes("content/community")));
-  assert.equal(pkg.version, "1.11.0");
+  assert.equal(pkg.version, "1.12.0");
 });

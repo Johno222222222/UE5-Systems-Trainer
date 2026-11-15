@@ -220,6 +220,7 @@ export default function Workspace() {
   const [exportOpen, setExportOpen] = useState(false);
   const [exportPath, setExportPath] = useState("");
   const [exportNote, setExportNote] = useState("");
+  const [companion, setCompanion] = useState(null);
   const costWait = useRef(null);
   const [keyModal, setKeyModal] = useState(null); // null | "edit" | "required"
   const [saving, setSaving] = useState(false);
@@ -277,6 +278,14 @@ export default function Workspace() {
     if (projectContext) localStorage.setItem(LS_CONTEXT, projectContext);
     else localStorage.removeItem(LS_CONTEXT);
   }, [projectContext]);
+
+  useEffect(() => {
+    let alive = true;
+    const pull = () => api.get("/companion").then((res) => { if (alive) setCompanion(res.data); }).catch(() => {});
+    pull();
+    const timer = setInterval(pull, 4000);
+    return () => { alive = false; clearInterval(timer); };
+  }, []);
 
   useEffect(() => {
     api.get("/app").then((r) => setAppInfo(r.data || {})).catch(() => {});
@@ -1419,12 +1428,35 @@ export default function Workspace() {
                 id="project-context"
                 value={projectContext}
                 onChange={(e) => setProjectContext(e.target.value)}
-                maxLength={300}
+                maxLength={800}
                 placeholder="e.g. realistic large-scale FPS"
                 data-testid="project-context-input"
                 className={`w-full bg-[var(--bg-main)] border rounded-md px-2.5 py-1.5 text-[11.5px] font-mono text-[var(--text-primary)] outline-none focus:border-[var(--unreal-orange)] ${projectContext.trim() ? "border-[rgba(0,240,255,0.45)]" : "border-[var(--border)]"}`}
               />
               <div className="text-[10px] font-mono text-[var(--text-muted)] mt-1">Steers every synthesis. Remembered on this computer, and saved with the project.</div>
+            </div>
+            <div className="mt-3 panel p-2" data-testid="companion-card">
+              <div className="eyebrow">Architect</div>
+              <p className="mt-1 text-[11px] font-mono text-[var(--text-secondary)]" data-testid="companion-code">
+                {companion ? `127.0.0.1:${companion.port} · ${companion.code}` : "Starting the local link"}
+                {companion?.paired ? " · paired" : " · not paired"}
+              </p>
+              {companion?.project && <p className="mt-1 text-[11px] text-[var(--text-secondary)]" data-testid="companion-project">{companion.project} · {companion.engine}</p>}
+              {!!companion?.classes?.length && (
+                <p className="mt-1 text-[10.5px] font-mono text-[var(--text-muted)]" data-testid="companion-classes">
+                  {companion.classes.slice(0, 6).map((item) => item.name).join(", ")}
+                </p>
+              )}
+              <button type="button" className="ue-btn !py-1 !px-2 !text-[11px] mt-2" data-testid="companion-context" onClick={async () => {
+                try {
+                  const { data } = await api.post("/companion/context");
+                  setProjectContext((current) => current && current.includes(data.summary) ? current : [current, data.summary].filter(Boolean).join(" ").slice(0, 800));
+                  toast.success("Project classes added to context");
+                } catch (err) {
+                  toast.error(errorText(err));
+                }
+              }}>Use project classes</button>
+              {companion?.result?.message && <p className="mt-1 text-[10.5px] font-mono text-[var(--text-muted)]">{companion.result.message}</p>}
             </div>
             <button
               className="ue-btn ue-btn-primary w-full justify-center mt-3 whitespace-normal text-center"
@@ -1965,6 +1997,42 @@ export default function Workspace() {
                 toast.error(errorText(err));
               }
             }}>Copy plugin</button>
+            <button type="button" className="ue-btn" data-testid="companion-install" onClick={async () => {
+              try {
+                const { data } = await api.post("/companion/install", { uproject: exportPath, confirm: false });
+                if (data.ok === false) {
+                  if (window.confirm(`Replace edited companion files?\n${(data.conflicts || []).slice(0, 6).join("\n")}`)) {
+                    const again = await api.post("/companion/install", { uproject: exportPath, confirm: true });
+                    setExportNote(`Installed companion at ${again.data.path}`);
+                  }
+                  return;
+                }
+                setExportNote(`Installed companion at ${data.path}`);
+                toast.success("Companion plugin installed");
+              } catch (err) {
+                setExportNote(errorText(err));
+                toast.error(errorText(err));
+              }
+            }}>Install companion</button>
+            <button type="button" className="ue-btn ue-btn-primary" data-testid="send-to-unreal" onClick={async () => {
+              const send = async (confirm) => api.post("/companion/send", { uproject: exportPath, system: result, confirm });
+              try {
+                const { data } = await send(false);
+                if (data.ok === false) {
+                  if (window.confirm(`Replace edited files?\n${(data.conflicts || []).slice(0, 6).join("\n")}`)) {
+                    const again = await send(true);
+                    setExportNote(again.data.message || "Sent");
+                    toast.success(again.data.message || "Sent to Unreal");
+                  }
+                  return;
+                }
+                setExportNote(data.message);
+                toast.success(data.message || "Sent to Unreal");
+              } catch (err) {
+                setExportNote(errorText(err));
+                toast.error(errorText(err));
+              }
+            }}>Send to Unreal</button>
           </div>
           {exportNote && <p className="mt-3 text-[12px] font-mono text-[var(--text-secondary)]" data-testid="export-project-result">{exportNote}</p>}
         </Modal>
