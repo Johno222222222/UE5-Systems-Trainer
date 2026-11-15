@@ -13,7 +13,7 @@ test("the installer file list includes the lesson packs", () => {
   const files = pkg.build.files.map((item) => String(item));
   assert.ok(files.some((item) => item.includes("content/packs")), files.join(", "));
   assert.equal(pkg.build.asar, true);
-  assert.equal(pkg.version, "1.7.0");
+  assert.equal(pkg.version, "1.8.0");
 });
 
 test("pack folders resolve from the app path, not the current directory", () => {

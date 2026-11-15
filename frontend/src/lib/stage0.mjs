@@ -44,6 +44,7 @@ export function resultSignature(result, tunable) {
     result.cpp_header || "",
     result.cpp_source || "",
     result.blueprint_pseudocode || "",
+    JSON.stringify(result.event_graph || result.graphs || result.node_graph_nodes || []),
     params,
     modules,
   ].join("\n");

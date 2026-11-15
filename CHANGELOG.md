@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.8.0
+
+- The event graph is editable. Search a palette grouped like Unreal, drag nodes on, move them, box or shift select, and delete, duplicate, or copy and paste. Undo and redo use Ctrl+Z, Ctrl+Y, and Ctrl+Shift+Z.
+- Wires connect pin to pin. Execution pins are white and data pins use Unreal's type colors. A mismatched wire shows a red hint and is refused. Alt+click or the right-click menu removes a wire.
+- The canvas zooms, pans, snaps to a grid, and has a minimap and comment boxes. The graph is stored on the project, so Compare and Restore include it.
+- Editing the graph rewrites the matching C++ handlers. Manual edits are left in place, with Revert to generated when you want the graph written back.
+- No Tick and server-authority locks flag the nodes they affect, with a short WHY note. Clicking Show in C++ jumps to that node's line. Explain this graph walks through what fires, using the selected model when a key is set and a local summary otherwise.
+
 ## 1.7.0
 
 - Lesson text, WHY notes, concepts, programs, courses, and setup steps underline glossary terms. Click or press Enter for a short definition. The first mention in each note is the one that is marked. Code, menus, buttons, and the C++ editor are left alone.
