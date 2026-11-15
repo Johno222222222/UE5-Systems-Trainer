@@ -543,7 +543,7 @@ function normalizeGenerateRequest(body) {
     extra_modules: asStringList(body.extra_modules, 20),
     removed_modules: asStringList(body.removed_modules, 20),
     parameter_overrides: body.parameter_overrides && typeof body.parameter_overrides === "object" ? body.parameter_overrides : {},
-    project_context: String(body.project_context || "").slice(0, 300),
+    project_context: String(body.project_context || "").slice(0, 800),
     unreal_version: normalizeUnrealVersion(body.unreal_version) || DEFAULT_UNREAL_VERSION,
     designer_notes: String(body.designer_notes || "").slice(0, 1000),
     change_requests: asStringList(body.change_requests, 40),

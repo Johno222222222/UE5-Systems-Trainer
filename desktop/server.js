@@ -57,7 +57,8 @@ const { knownLocks, checkConstraints } = require("./constraints");
 const { repairCommonCpp } = require("./repair");
 const { stackMap } = require("./stackMap");
 const { detectEngine, compilePlugin } = require("./engine");
-const { moduleName, writePlugin } = require("./pluginFiles");
+const { moduleName, writePlugin, copyTree, enablePlugin } = require("./pluginFiles");
+const { createCompanion, summarizeProject } = require("./companion");
 
 const OWNER = "You";
 const REF_LIMIT = 10 * 1024 * 1024;
@@ -340,6 +341,7 @@ function textFromBytes(data) {
 async function startServer(options = {}) {
   const dataDir = options.dataDir;
   if (!dataDir) throw new Error("dataDir is required");
+  const companion = await createCompanion();
   fs.mkdirSync(path.join(dataDir, "files"), { recursive: true });
   const store = createStore(path.join(dataDir, "library.json"));
   const secrets = createSecrets(path.join(dataDir, "secrets.json"), path.join(dataDir, "secret.key"), options.codec);
@@ -952,8 +954,86 @@ async function startServer(options = {}) {
       throw new HttpError(400, "That .uproject could not be read.");
     }
     const dest = path.join(path.dirname(target), "Plugins", moduleName(system));
-    const written = writePlugin(dest, system);
-    return { plugin: written.module, path: dest, uproject: target };
+    try {
+      const written = writePlugin(dest, system, { confirm: body.confirm === true });
+      return { ok: true, plugin: written.module, path: dest, uproject: target, conflicts: written.conflicts };
+    } catch (exc) {
+      if (exc.statusCode === 409) return { ok: false, conflicts: exc.conflicts || [], path: dest, uproject: target };
+      throw exc;
+    }
+  });
+
+  function companionSource() {
+    const candidates = [];
+    if (options.appPath) candidates.push(path.join(options.appPath, "ue-plugin", "ArchitectCompanion"));
+    candidates.push(path.join(__dirname, "..", "ue-plugin", "ArchitectCompanion"));
+    return candidates.find((dir) => fs.existsSync(path.join(dir, "ArchitectCompanion.uplugin"))) || "";
+  }
+
+  route("GET", "/api/companion", async () => ({
+    host: "127.0.0.1",
+    port: companion.port,
+    code: companion.code,
+    paired: companion.paired,
+    summary: companion.summary(),
+    project: companion.report?.project || "",
+    engine: companion.report?.engine || "",
+    classes: Array.isArray(companion.report?.classes) ? companion.report.classes.slice(0, 24) : [],
+    result: companion.lastResult,
+  }));
+
+  route("POST", "/api/companion/rotate", async () => ({ code: companion.rotate() }));
+
+  route("POST", "/api/companion/install", async (req) => {
+    const body = await readJson(req);
+    const target = path.resolve(String(body.uproject || ""));
+    if (!target.toLowerCase().endsWith(".uproject") || !fs.existsSync(target)) {
+      throw new HttpError(400, "Pick an Unreal project file that ends in .uproject.");
+    }
+    const source = companionSource();
+    if (!source) throw new HttpError(500, "The companion plugin is not in this app.");
+    const dest = path.join(path.dirname(target), "Plugins", "ArchitectCompanion");
+    try {
+      const copied = copyTree(source, dest, { confirm: body.confirm === true });
+      enablePlugin(target, "ArchitectCompanion");
+      return { ok: true, path: dest, files: copied.files.length, conflicts: copied.conflicts };
+    } catch (exc) {
+      if (exc.statusCode === 409) return { ok: false, conflicts: exc.conflicts || [], path: dest };
+      throw exc;
+    }
+  });
+
+  route("POST", "/api/companion/send", async (req) => {
+    const body = await readJson(req);
+    const system = body.system;
+    if (!system?.cpp_header || !system?.cpp_source) throw new HttpError(400, "Send to Unreal needs a generated system.");
+    const target = path.resolve(String(body.uproject || ""));
+    if (!target.toLowerCase().endsWith(".uproject") || !fs.existsSync(target)) {
+      throw new HttpError(400, "Pick an Unreal project file that ends in .uproject.");
+    }
+    const dest = path.join(path.dirname(target), "Plugins", moduleName(system));
+    let written;
+    try {
+      written = writePlugin(dest, system, { confirm: body.confirm === true });
+    } catch (exc) {
+      if (exc.statusCode === 409) return { ok: false, conflicts: exc.conflicts || [], path: dest };
+      throw exc;
+    }
+    const command = companion.paired ? companion.queue({ type: "reload", module: written.module }) : null;
+    return {
+      ok: true,
+      plugin: written.module,
+      path: dest,
+      paired: companion.paired,
+      queued: !!command,
+      message: command ? "Files written. The editor was asked to compile." : "Files written. Pair the Architect panel, then compile in the editor.",
+    };
+  });
+
+  route("POST", "/api/companion/context", async () => {
+    const summary = summarizeProject(companion.report);
+    if (!summary || summary.startsWith("Engine unknown")) throw new HttpError(400, "The editor has not sent a project yet.");
+    return { summary };
   });
 
   route("GET", "/api/usage/today", async () => {
@@ -1924,7 +2004,7 @@ async function startServer(options = {}) {
     server,
     port: server.address().port,
     dataDir,
-    close: () => new Promise((resolve) => server.close(resolve)),
+    close: () => companion.close().then(() => new Promise((resolve) => server.close(resolve))),
   };
 }
 

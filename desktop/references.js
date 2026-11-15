@@ -293,7 +293,9 @@ protected:
 
   const source = `#include "CharacterInteractComponent.h"
 #include "Engine/World.h"
+#include "Interactable.h"
 #include "GameFramework/Pawn.h"
+#include "Engine/HitResult.h"
 
 UCharacterInteractComponent::UCharacterInteractComponent()
 {
@@ -318,7 +320,7 @@ void UCharacterInteractComponent::TraceForFocus()
   FCollisionQueryParams Params(SCENE_QUERY_STAT(CharacterInteract), false, OwnerPawn);
   const bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params);
   AActor* Next = nullptr;
-  if (bHit && Hit.GetActor() && Hit.GetActor()->ImplementsInterface(UInteractable::StaticClass()))
+  if (bHit && Hit.GetActor() && Hit.GetActor()->GetClass()->ImplementsInterface(UInteractable::StaticClass()))
   {
     Next = Hit.GetActor();
   }
