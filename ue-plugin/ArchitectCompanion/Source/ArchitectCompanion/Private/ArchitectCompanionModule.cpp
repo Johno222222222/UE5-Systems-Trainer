@@ -3,6 +3,8 @@
 #include "ToolMenus.h"
 #include "Widgets/Docking/SDockTab.h"
 #include "Framework/Docking/TabManager.h"
+#include "Framework/Commands/UIAction.h"
+#include "Styling/SlateIcon.h"
 #include "WorkspaceMenuStructure.h"
 #include "WorkspaceMenuStructureModule.h"
 

@@ -7,6 +7,7 @@
 #include "Widgets/Input/SEditableTextBox.h"
 #include "Widgets/Text/STextBlock.h"
 #include "Widgets/Layout/SScrollBox.h"
+#include "Widgets/SBoxPanel.h"
 
 void SArchitectPanel::Construct(const FArguments& InArgs)
 {

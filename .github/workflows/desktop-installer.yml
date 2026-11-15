@@ -136,6 +136,19 @@ jobs:
             release/*.deb
           if-no-files-found: error
 
+  plugin-includes:
+    name: Plugin include check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Check plugin includes against their engine modules
+        run: node --test desktop/test/plugin-includes.test.js
+
   # One release step after the builds, so macOS and Linux never race to create the tag.
   release:
     name: GitHub Release
