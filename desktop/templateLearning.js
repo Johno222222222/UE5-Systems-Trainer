@@ -1,6 +1,7 @@
 "use strict";
 
 const { assertLearningAnchors } = require("./learning");
+const { ensurePractice } = require("./practice");
 
 function note(id, anchor, one, trade, mistake, concept, title) {
   return {
@@ -73,6 +74,7 @@ function build(def) {
       module_notes: def.modules.map(([name, description]) => ({ name, note: description })),
     },
   };
+  system.learning = ensurePractice(system.learning, system);
   assertLearningAnchors(system);
   return system;
 }

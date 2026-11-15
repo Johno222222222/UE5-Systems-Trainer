@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.0
+
+Stage 3, practice.
+
+- Learn is in the top bar. It walks the open system's challenges. After an answer it shows the slider or module that challenge is about. Open in Learn from Tools, and Tools is still where you left it.
+- Before a new system or a fix is shown, Learning asks you to predict the outcome. You can skip it. Minimal never asks.
+- The reveal marks the graph nodes and the C++ lines and opens the matching WHY note. A wrong answer says why that choice is tempting.
+- A What-if switch shows two versions of a key snippet, such as a timer and a Tick. Moving a parameter slider highlights the lines it will change, with no extra request.
+- After a fix, Outcome Check lists every edit and why. Compare can explain one changed block in a single request.
+- Practice progress is saved with the library. Home shows continue cards from it. Backup and Import carry that progress. Older projects still open.
+
 ## 1.2.0
 
 Stage 2, the learning layer.

@@ -36,7 +36,7 @@ function inputDiff(before, after) {
 }
 
 
-export default function CompareView({ before, after, picker = null }) {
+export default function CompareView({ before, after, picker = null, onExplain = null, explanation = "" }) {
   const [view, setView] = useState("blueprint");
   const rows = useMemo(() => sideBySideDiff(textFor(before, view), textFor(after, view)), [before, after, view]);
   const changed = rows.filter((r) => r.type !== "same").length;
@@ -80,12 +80,20 @@ export default function CompareView({ before, after, picker = null }) {
       <div className="px-5 py-1.5 text-[10.5px] font-mono uppercase tracking-widest text-[var(--text-muted)]" data-testid="compare-changed-count">
         {changed} changed line{changed === 1 ? "" : "s"}
       </div>
+      {explanation && <div className="px-5 py-2 text-[12.5px] text-[var(--text-secondary)] border-b border-[var(--border-soft)]" data-testid="explain-result">{explanation}</div>}
       <div className="flex-1 min-h-0 overflow-auto px-5 pb-5">
         <div className="code-box !overflow-visible grid grid-cols-2 font-mono text-[12px] leading-[1.6]">
           {rows.map((r, i) => (
             <React.Fragment key={i}>
               <div className={`px-3 whitespace-pre-wrap break-words border-r border-[var(--border-soft)] ${r.type === "del" || r.type === "change" ? "diff-del" : ""}`}>{r.left ?? ""}</div>
-              <div className={`px-3 whitespace-pre-wrap break-words ${r.type === "add" || r.type === "change" ? "diff-add" : ""}`}>{r.right ?? ""}</div>
+              <div className={`px-3 whitespace-pre-wrap break-words ${r.type === "add" || r.type === "change" ? "diff-add" : ""}`}>
+                {r.right ?? ""}
+                {onExplain && r.type !== "same" && (r.right || r.left) && (
+                  <button type="button" className="ue-btn !py-0.5 !px-1.5 !text-[10px] mt-1" data-testid={`explain-change-${i}`} onClick={() => onExplain(r)}>
+                    Explain this change
+                  </button>
+                )}
+              </div>
             </React.Fragment>
           ))}
         </div>

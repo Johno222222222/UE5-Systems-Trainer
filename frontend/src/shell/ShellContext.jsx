@@ -2,13 +2,14 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 import { api } from "../lib/api";
 import { APP_VERSION, SECTION_REGISTRY, rememberOpen } from "../lib/shell.mjs";
 import { createHelpLevelStore } from "../lib/learning.mjs";
+import { loadWorkspace, saveWorkspace } from "../lib/practice.mjs";
 import { createWorkspaceSession, openItemFromDraft, systemChip } from "../lib/workspaceSession.mjs";
 
 const ShellContext = createContext(null);
 
 export function ShellProvider({ children }) {
   const sessionRef = useRef(null);
-  if (!sessionRef.current) sessionRef.current = createWorkspaceSession();
+  if (!sessionRef.current) sessionRef.current = createWorkspaceSession(loadWorkspace(window.localStorage)?.draft || null);
   const session = sessionRef.current;
 
   const [section, setSection] = useState(() => {
@@ -21,6 +22,12 @@ export function ShellProvider({ children }) {
   const [memory, setMemory] = useState({});
   const [homeFocus, setHomeFocus] = useState(null);
   const [draftTick, setDraftTick] = useState(0);
+  const [reveal, setReveal] = useState(() => loadWorkspace(window.localStorage)?.reveal || null);
+  const [learnIndex, setLearnIndex] = useState(() => Number(loadWorkspace(window.localStorage)?.learnIndex) || 0);
+  const revealRef = useRef(reveal);
+  revealRef.current = reveal;
+  const learnIndexRef = useRef(learnIndex);
+  learnIndexRef.current = learnIndex;
   const [helpLevel, setHelpLevelState] = useState(() => {
     try { return createHelpLevelStore(window.localStorage).get(); }
     catch { return "learning"; }
@@ -35,7 +42,19 @@ export function ShellProvider({ children }) {
   sectionRef.current = section;
   const [commandNonce, setCommandNonce] = useState(0);
 
-  useEffect(() => session.subscribe(() => setDraftTick((n) => n + 1)), [session]);
+  useEffect(() => session.subscribe((draft) => {
+    setDraftTick((n) => n + 1);
+    try {
+      saveWorkspace(localStorage, draft, revealRef.current, learnIndexRef.current);
+    } catch { /* a full disk should not break the workspace */ }
+  }), [session]);
+  useEffect(() => {
+    const draft = session.get();
+    if (!draft) return;
+    try {
+      saveWorkspace(localStorage, draft, reveal, learnIndex);
+    } catch { /* ignore */ }
+  }, [reveal, learnIndex, session]);
 
   useEffect(() => {
     api.get("/app").then((r) => {
@@ -111,7 +130,11 @@ export function ShellProvider({ children }) {
     draftTick,
     helpLevel,
     setHelpLevel,
-  }), [session, section, memory, toolsOpen, homeFocus, appInfo, chip, commandNonce, go, issue, takeCommand, sendToSection, draftTick, helpLevel]);
+    reveal,
+    setReveal,
+    learnIndex,
+    setLearnIndex,
+  }), [session, section, memory, toolsOpen, homeFocus, appInfo, chip, commandNonce, go, issue, takeCommand, sendToSection, draftTick, helpLevel, reveal, learnIndex]);
 
   return <ShellContext.Provider value={value}>{children}</ShellContext.Provider>;
 }

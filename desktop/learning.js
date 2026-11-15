@@ -3,10 +3,12 @@
 // Stage 2 teaching data. Optional on a system, so a project saved before
 // this stage still opens. The learning pass fills it after the system exists.
 
+const { ensurePractice } = require("./practice");
+
 const LEARNING_PROMPT = `You are teaching a game developer who just received a finished Unreal system. The code is already written. Do not rewrite it.
 Respond with ONLY a raw JSON object, no markdown, matching this shape:
 {
-  "challenges": [{"title":"short","detail":"one or two sentences"}],
+  "challenges": [{"title":"short","detail":"one or two sentences","prompt":"What happens?","choices":["the careful version","the crashy version"],"answer":0,"why_people_pick":"why the wrong one is tempting","reveal":{"node_ids":["n1"],"lines":[{"file":".cpp","line":2}],"why_id":"n1"},"related":{"kind":"parameter","key":"max_health","label":"Max Health"}}],
   "why_notes": [{
     "anchor": {"kind":"node","node_id":"n1"},
     "one_line":"one sentence a designer can read at a glance",
@@ -20,7 +22,9 @@ Respond with ONLY a raw JSON object, no markdown, matching this shape:
   "complexity": "beginner",
   "related_concepts": [{"id":"kebab-case-id","title":"Short Concept Name"}],
   "traps": [{"title":"Common trap name","detail":"why this pattern hurts in Unreal"}],
-  "module_notes": [{"name":"ModuleName","note":"what adding or removing this module changes architecturally"}]
+  "module_notes": [{"name":"ModuleName","note":"what adding or removing this module changes architecturally"}],
+  "what_ifs": [{"title":"Tick vs timer","variants":[{"id":"timer","label":"Timer","code":"void Run() { /* timer */ }"},{"id":"tick","label":"Tick","code":"void Tick() { /* every frame */ }"}]}],
+  "parameter_impacts": [{"key":"max_health","lines":[{"file":".h","line":4}]}]
 }
 Rules:
 - At least 2 challenges.
@@ -96,7 +100,7 @@ function learningGaps(raw, system) {
 
 function fillLearning(raw, system) {
   const challenges = asList(raw?.challenges)
-    .map((item) => ({ title: text(item.title, 120), detail: text(item.detail, 400) }))
+    .map((item) => ({ ...item, title: text(item.title, 120), detail: text(item.detail, 400) }))
     .filter((item) => item.title);
   const name = text(system?.system_name, 80) || "This system";
   while (challenges.length < 2) {
@@ -122,7 +126,7 @@ function fillLearning(raw, system) {
     have.add(key);
   }
   const complexity = ["beginner", "intermediate", "advanced"].includes(raw?.complexity) ? raw.complexity : "intermediate";
-  return {
+  return ensurePractice({
     challenges: challenges.slice(0, 8),
     why_notes: normalizeWhy(raw?.why_notes, system).slice(0, 16),
     parameter_effects: effects.slice(0, 20),
@@ -140,7 +144,9 @@ function fillLearning(raw, system) {
       .map((item) => ({ name: text(item.name, 80), note: text(item.note, 400) }))
       .filter((item) => item.name && item.note)
       .slice(0, 12),
-  };
+    what_ifs: raw?.what_ifs,
+    parameter_impacts: raw?.parameter_impacts,
+  }, system);
 }
 
 function learningUserText(system, unrealVersion) {

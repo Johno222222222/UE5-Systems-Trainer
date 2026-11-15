@@ -3,8 +3,12 @@
 const fs = require("fs");
 const path = require("path");
 
+function emptyProgress() {
+  return { answered: [], practiced: [] };
+}
+
 function emptyLibrary() {
-  return { projects: [], versions: [], presets: [], files: [], usage: [] };
+  return { projects: [], versions: [], presets: [], files: [], usage: [], progress: emptyProgress() };
 }
 
 function createStore(file) {
@@ -15,8 +19,12 @@ function createStore(file) {
       const parsed = JSON.parse(fs.readFileSync(file, "utf8"));
       data = { ...emptyLibrary(), ...parsed };
       for (const key of Object.keys(emptyLibrary())) {
+        if (key === "progress") continue;
         if (!Array.isArray(data[key])) data[key] = [];
       }
+      if (!data.progress || typeof data.progress !== "object" || Array.isArray(data.progress)) data.progress = emptyProgress();
+      if (!Array.isArray(data.progress.answered)) data.progress.answered = [];
+      if (!Array.isArray(data.progress.practiced)) data.progress.practiced = [];
     } catch (exc) {
       const broken = `${file}.broken-${Date.now()}`;
       try { fs.renameSync(file, broken); } catch { /* keep going with an empty library */ }
@@ -46,6 +54,7 @@ function createStore(file) {
         data.presets = backup.presets;
         data.files = backup.files;
         data.usage = backup.usage;
+        data.progress = backup.progress;
         throw exc;
       }
     });

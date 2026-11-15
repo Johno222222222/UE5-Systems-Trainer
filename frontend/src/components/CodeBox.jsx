@@ -7,13 +7,19 @@ const LINE_PX = 20;
 const PAD_PX = 18;
 
 // target: {line, nonce} scrolls to and pulses that line
-export function CodeBox({ title, code, lang = "cpp", testId, target, callouts = null, renderCallout = null }) {
+export function CodeBox({ title, code, lang = "cpp", testId, target, callouts = null, renderCallout = null, highlightLines = [] }) {
   const html = useMemo(() => (lang === "cpp" ? highlightCpp(code) : highlightBlueprint(code)), [code, lang]);
   const count = (code || "").split("\n").length;
   const markRef = useRef(null);
+  const rootRef = useRef(null);
+  const highlightKey = highlightLines.join(",");
   useEffect(() => {
     if (target && markRef.current) markRef.current.scrollIntoView({ block: "center", behavior: "smooth" });
   }, [target?.nonce]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!highlightKey || !rootRef.current) return;
+    rootRef.current.querySelector("[data-impact='1']")?.scrollIntoView({ block: "center" });
+  }, [highlightKey]);
 
   const copy = async () => {
     try {
@@ -30,7 +36,7 @@ export function CodeBox({ title, code, lang = "cpp", testId, target, callouts = 
     a.click(); URL.revokeObjectURL(url);
   };
   return (
-    <div className="code-box" data-testid={`codebox-${testId}`}>
+    <div className="code-box" data-testid={`codebox-${testId}`} ref={rootRef}>
       <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border-soft)] bg-[var(--bg-secondary)]">
         <div className="flex items-center gap-2">
           <span className={`inline-block h-2 w-2 rounded-full ${lang === "cpp" ? "bg-[var(--cpp-green)]" : "bg-[var(--blueprint-blue)]"}`} />
@@ -41,15 +47,16 @@ export function CodeBox({ title, code, lang = "cpp", testId, target, callouts = 
           <button className="ue-btn !py-1 !px-2 !text-[11px]" onClick={download} data-testid={`download-${testId}`}><Download size={12} /> .{ext}</button>
         </div>
       </div>
-      {Array.isArray(callouts) && callouts.length > 0 ? (
+      {(Array.isArray(callouts) && callouts.length > 0) || highlightLines.length > 0 ? (
         <div className="code-lines">
           {(code || "").split("\n").map((line, index) => {
             const lineNo = index + 1;
-            const notes = callouts.filter((note) => note.anchor?.line === lineNo);
+            const notes = (callouts || []).filter((note) => note.anchor?.line === lineNo);
             const lineHtml = lang === "cpp" ? highlightCpp(line || " ") : highlightBlueprint(line || " ");
+            const marked = target?.line === lineNo || highlightLines.includes(lineNo);
             return (
               <div key={lineNo} data-testid={`${testId}-line-${lineNo}`}>
-                <div className={`flex ${target?.line === lineNo ? "code-line-mark" : ""}`} style={{ lineHeight: `${LINE_PX}px` }} data-line={lineNo}>
+                <div ref={target?.line === lineNo ? markRef : undefined} className={`flex ${marked ? "code-line-mark" : ""}`} style={{ lineHeight: `${LINE_PX}px` }} data-line={lineNo} data-impact={highlightLines.includes(lineNo) ? "1" : undefined}>
                   <div className="select-none text-right pr-3 pl-3 font-mono text-[11px] text-[var(--text-muted)] border-r border-[var(--border-soft)] shrink-0 w-10">{lineNo}</div>
                   <pre className="flex-1 !m-0 !px-4 !py-0" dangerouslySetInnerHTML={{ __html: lineHtml }} />
                 </div>
