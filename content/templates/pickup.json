@@ -1,0 +1,27 @@
+{
+  "id": "pickup",
+  "title": "Pickup",
+  "summary": "Overlap adds one to ammo, then destroys the pickup.",
+  "variables": [
+    {"name": "Ammo", "type": "int", "default": "0"}
+  ],
+  "graph": {
+    "kind": "event",
+    "name": "Pickup",
+    "nodes": [
+      {"key": "overlap", "catalog": "begin-overlap", "x": 40, "y": 60, "note": "The pickup actor overlaps the player. On a server, check the other actor is a pawn before you grant ammo."},
+      {"key": "get", "catalog": "get-variable", "x": 40, "y": 220, "data": {"variable": "Ammo", "varType": "int"}, "note": "Read the current ammo so you add to it instead of replacing it."},
+      {"key": "one", "catalog": "literal", "x": 40, "y": 340, "data": {"varType": "int", "value": "1"}, "note": "One round, or one item. A data asset should own the stack size later."},
+      {"key": "add", "catalog": "add", "x": 320, "y": 200, "pinType": "int", "note": "Ammo plus one. Do the add on the server so two clients cannot both grant it."},
+      {"key": "set", "catalog": "set-variable", "x": 580, "y": 60, "data": {"variable": "Ammo", "varType": "int"}, "note": "Write the new total. Replicate ammo if the HUD on other machines must match."},
+      {"key": "destroy", "catalog": "call-function", "x": 860, "y": 60, "data": {"function": "DestroyActor"}, "label": "Destroy Actor", "note": "Destroy the pickup after the grant. Destroying first would skip the add if the overlap ended the actor early."}
+    ],
+    "wires": [
+      {"from": "overlap", "fromPin": "Exec", "to": "set", "toPin": "Exec"},
+      {"from": "get", "fromPin": "Value", "to": "add", "toPin": "A"},
+      {"from": "one", "fromPin": "Value", "to": "add", "toPin": "B"},
+      {"from": "add", "fromPin": "Result", "to": "set", "toPin": "Value"},
+      {"from": "set", "fromPin": "Exec", "to": "destroy", "toPin": "Exec"}
+    ]
+  }
+}

@@ -34,6 +34,7 @@ export const CATALOG = [
   { id: "tick", group: "Lifecycle", label: "Tick", visual: "event", pins: [pin("Exec", "out", "exec"), pin("Delta Seconds", "out", "float")] },
   { id: "enhanced-input", group: "Input", label: "Enhanced Input Action", visual: "event", pins: [pin("Triggered", "out", "exec"), pin("Value", "out", "float")], data: { action: "IA_Action" } },
   { id: "begin-overlap", group: "Collision", label: "On Component Begin Overlap", visual: "event", pins: [pin("Exec", "out", "exec"), pin("Other Actor", "out", "object")] },
+  { id: "line-trace", group: "Collision", label: "Line Trace", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Exec", "out", "exec"), pin("Hit", "out", "bool"), pin("Hit Actor", "out", "object")], data: { hit: true, actor: "HitActor" } },
   { id: "end-overlap", group: "Collision", label: "On Component End Overlap", visual: "event", pins: [pin("Exec", "out", "exec"), pin("Other Actor", "out", "object")] },
   { id: "hit", group: "Collision", label: "On Hit", visual: "event", pins: [pin("Exec", "out", "exec"), pin("Other Actor", "out", "object")] },
   { id: "any-damage", group: "Damage", label: "Any Damage", visual: "event", pins: [pin("Exec", "out", "exec"), pin("Damage", "out", "float")] },
@@ -52,6 +53,8 @@ export const CATALOG = [
   { id: "sequence", group: "Actions", label: "Sequence", visual: "flow", pins: [pin("Exec", "in", "exec"), pin("Then 0", "out", "exec"), pin("Then 1", "out", "exec")] },
   { id: "delay", group: "Actions", label: "Delay", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Duration", "in", "float"), pin("Completed", "out", "exec")], data: { seconds: 0.5 } },
   { id: "print-string", group: "Actions", label: "Print String", visual: "function", pins: [pin("Exec", "in", "exec"), pin("In String", "in", "string"), pin("Exec", "out", "exec")], data: { text: "Hello" } },
+  { id: "interface-call", group: "Actions", label: "Interface Call", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Target", "in", "object"), pin("Exec", "out", "exec")], data: { function: "Interact" } },
+  { id: "placeholder", group: "Actions", label: "Unknown Node", visual: "flow", pins: [pin("Exec", "in", "exec"), pin("Exec", "out", "exec")], data: { unrealClass: "" } },
   { id: "set-variable", group: "Actions", label: "Set Variable", visual: "variable", pins: [pin("Exec", "in", "exec"), pin("Value", "in", "float"), pin("Exec", "out", "exec")], data: { variable: "Value", varType: "float" } },
   { id: "get-variable", group: "Actions", label: "Get Variable", visual: "pure", pins: [pin("Value", "out", "float")], data: { variable: "Value", varType: "float" } },
   { id: "call-function", group: "Actions", label: "Call Function", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Exec", "out", "exec")], data: { function: "Function" } },
@@ -77,6 +80,7 @@ export const CATALOG = [
   { id: "and", group: "Math", label: "AND", visual: "pure", pins: [pin("A", "in", "bool"), pin("B", "in", "bool"), pin("Result", "out", "bool")] },
   { id: "or", group: "Math", label: "OR", visual: "pure", pins: [pin("A", "in", "bool"), pin("B", "in", "bool"), pin("Result", "out", "bool")] },
   { id: "not", group: "Math", label: "NOT", visual: "pure", pins: [pin("A", "in", "bool"), pin("Result", "out", "bool")] },
+  { id: "literal", group: "Math", label: "Literal", visual: "pure", pins: [pin("Value", "out", "float")], data: { varType: "float", value: "0" } },
   { id: "entry", group: "Tunnel", label: "Entry", visual: "event", pins: [pin("Exec", "out", "exec")] },
   { id: "return", group: "Tunnel", label: "Return", visual: "function", pins: [pin("Exec", "in", "exec")] },
   { id: "macro-in", group: "Tunnel", label: "Macro Inputs", visual: "event", pins: [pin("Exec", "out", "exec")] },
@@ -118,7 +122,7 @@ export function catalogGroups(query = "") {
   const needle = String(query || "").trim().toLowerCase();
   const groups = GROUP_ORDER.map((name) => ({
     name,
-    items: CATALOG.filter((entry) => entry.group === name && (!needle || entry.label.toLowerCase().includes(needle))),
+    items: CATALOG.filter((entry) => entry.id !== "placeholder" && entry.group === name && (!needle || entry.label.toLowerCase().includes(needle))),
   })).filter((group) => group.items.length);
   return groups;
 }
@@ -129,8 +133,8 @@ function clone(value) {
 
 function pinsFromSpec(entry, data) {
   return entry.pins.map((item) => {
-    const type = (entry.id === "set-variable" || entry.id === "get-variable") && item.name === "Value"
-      ? (data.varType || "float")
+    const type = (entry.id === "set-variable" || entry.id === "get-variable" || entry.id === "literal") && item.name === "Value"
+      ? (data.varType || item.type || "float")
       : item.type;
     return { id: pinSlug(item.dir, item.name), name: item.name, dir: item.dir, type };
   });
@@ -167,6 +171,9 @@ function switchEnumPins(cases) {
 function labelFor(catalog, data, fallback) {
   if (catalog === "set-variable") return `Set ${data.variable || "Variable"}`;
   if (catalog === "get-variable") return `Get ${data.variable || "Variable"}`;
+  if (catalog === "literal") return String(data.value ?? data.varType ?? fallback);
+  if (catalog === "interface-call") return data.function || fallback;
+  if (catalog === "line-trace") return "Line Trace";
   if (catalog === "call-function") return data.function || fallback;
   if (catalog === "custom-event") return data.name || "Custom Event";
   if (catalog === "on-rep") return `OnRep ${data.variable || ""}`.trim();

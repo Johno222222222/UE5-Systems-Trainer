@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.10.0
+
+- Play on the graph toolbar steps the open graph inside the app. Step, Run, Pause, and Stop are next to it. The active node glows and a pulse travels the execution wire. A watch lists variable values. Branch says which way it went. Loops count, and they stop at eight iterations. DoOnce, Gate, and FlipFlop remember their state. Server, client, multicast, and Has Authority nodes are tagged. No Unreal install is required.
+- New from template adds Interact, Health & Damage, Door open/close, Pickup, Timer loop, and a Tactical FPS reload. Each node has a short note. Insert adds the graph to the one you have open. The other button opens it as a new function and creates the variables it needs.
+- Copy for Unreal writes Blueprint clipboard text for the selection or the whole graph. Paste from Unreal reads that text back. Unknown nodes stay as labeled placeholders, and the panel says what will not translate. The text format is best effort.
+
 ## 1.9.0
 
 - My Blueprint lists the event graph, functions, macros, and variables. Add, rename, or delete them. Double-click a function or macro to open it beside the event graph.

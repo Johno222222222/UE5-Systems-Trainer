@@ -1,0 +1,39 @@
+{
+  "id": "health",
+  "title": "Health & Damage",
+  "summary": "Any Damage subtracts, clamps, and branches on death.",
+  "variables": [
+    {"name": "Health", "type": "float", "default": "100.f"},
+    {"name": "MaxHealth", "type": "float", "default": "100.f"}
+  ],
+  "graph": {
+    "kind": "event",
+    "name": "Health",
+    "nodes": [
+      {"key": "dmg", "catalog": "any-damage", "x": 40, "y": 40, "data": {"sample": 100}, "note": "Any Damage runs on the server. This sample hit is 100, which is enough to empty a full bar."},
+      {"key": "get", "catalog": "get-variable", "x": 40, "y": 200, "data": {"variable": "Health", "varType": "float"}, "note": "Read health before you write it. The next node subtracts the incoming damage from this."},
+      {"key": "sub", "catalog": "subtract", "x": 300, "y": 80, "note": "Health minus damage. Do this on the server. The client only shows the result."},
+      {"key": "max", "catalog": "get-variable", "x": 300, "y": 240, "data": {"variable": "MaxHealth", "varType": "float"}, "note": "Max health is the ceiling. Healing later clamps to this same number."},
+      {"key": "zero", "catalog": "literal", "x": 300, "y": 360, "data": {"varType": "float", "value": "0"}, "note": "Zero is the floor. Health should not go negative."},
+      {"key": "clamp", "catalog": "clamp", "x": 560, "y": 80, "note": "Clamp keeps the result between 0 and Max Health."},
+      {"key": "set", "catalog": "set-variable", "x": 820, "y": 40, "data": {"variable": "Health", "varType": "float"}, "note": "Write the clamped value back. One Set, after the math, not inside the branch."},
+      {"key": "eq", "catalog": "equal", "x": 820, "y": 220, "note": "Death is health equal to zero after the clamp. Check the new value, not the raw damage."},
+      {"key": "branch", "catalog": "branch", "x": 1080, "y": 40, "note": "Then is death. Else is still standing. Put ragdoll or a respawn on Then, not on the damage event itself."},
+      {"key": "die", "catalog": "print-string", "x": 1340, "y": 20, "data": {"text": "Died"}, "note": "A print stands in for the death function. Replace it with the real call when you leave the sample."}
+    ],
+    "wires": [
+      {"from": "dmg", "fromPin": "Exec", "to": "set", "toPin": "Exec"},
+      {"from": "get", "fromPin": "Value", "to": "sub", "toPin": "A"},
+      {"from": "dmg", "fromPin": "Damage", "to": "sub", "toPin": "B"},
+      {"from": "sub", "fromPin": "Result", "to": "clamp", "toPin": "Value"},
+      {"from": "zero", "fromPin": "Value", "to": "clamp", "toPin": "Min"},
+      {"from": "max", "fromPin": "Value", "to": "clamp", "toPin": "Max"},
+      {"from": "clamp", "fromPin": "Result", "to": "set", "toPin": "Value"},
+      {"from": "clamp", "fromPin": "Result", "to": "eq", "toPin": "A"},
+      {"from": "zero", "fromPin": "Value", "to": "eq", "toPin": "B"},
+      {"from": "eq", "fromPin": "Result", "to": "branch", "toPin": "Condition"},
+      {"from": "set", "fromPin": "Exec", "to": "branch", "toPin": "Exec"},
+      {"from": "branch", "fromPin": "Then", "to": "die", "toPin": "Exec"}
+    ]
+  }
+}

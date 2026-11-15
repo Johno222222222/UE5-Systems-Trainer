@@ -1,0 +1,25 @@
+{
+  "id": "interact",
+  "title": "Interact",
+  "summary": "A look trace, then an interface call on whatever was hit.",
+  "variables": [],
+  "graph": {
+    "kind": "event",
+    "name": "Interact",
+    "nodes": [
+      {"key": "input", "catalog": "enhanced-input", "x": 40, "y": 80, "data": {"action": "IA_Interact"}, "note": "IA_Interact fires when the player presses the interact key. Keep the key on the input action, not in this graph."},
+      {"key": "trace", "catalog": "line-trace", "x": 320, "y": 80, "data": {"hit": true, "actor": "Door"}, "note": "A short line trace from the camera. Hit is true when something solid is in front of the player."},
+      {"key": "branch", "catalog": "branch", "x": 600, "y": 80, "note": "Only talk to an actor when the trace hit. A miss should do nothing expensive."},
+      {"key": "call", "catalog": "interface-call", "x": 880, "y": 20, "data": {"function": "Interact"}, "note": "Call Interact through an interface. The door, the chest, and the switch can all answer. A cast list cannot grow."},
+      {"key": "miss", "catalog": "print-string", "x": 880, "y": 180, "data": {"text": "Nothing to use"}, "note": "A miss is quiet in a shipping game. The print is here so the simulation can show the empty path."}
+    ],
+    "wires": [
+      {"from": "input", "fromPin": "Triggered", "to": "trace", "toPin": "Exec"},
+      {"from": "trace", "fromPin": "Exec", "to": "branch", "toPin": "Exec"},
+      {"from": "trace", "fromPin": "Hit", "to": "branch", "toPin": "Condition"},
+      {"from": "branch", "fromPin": "Then", "to": "call", "toPin": "Exec"},
+      {"from": "trace", "fromPin": "Hit Actor", "to": "call", "toPin": "Target"},
+      {"from": "branch", "fromPin": "Else", "to": "miss", "toPin": "Exec"}
+    ]
+  }
+}

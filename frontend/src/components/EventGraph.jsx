@@ -1,5 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import GlossaryText from "./GlossaryText";
+import { api } from "../lib/api";
+import { exportBlueprintText, importBlueprintText } from "../lib/blueprint-text.mjs";
+import { formatValue, startSimulation, stepSimulation } from "../lib/simulate.mjs";
+import { applyTemplate } from "../lib/templates.mjs";
 import {
   addComment, addFunction, addMacro, addNode, addVariable, catalogGroups, clientToGraphPoint, collapseSelection,
   commitHistory, createHistory, createNode, deleteGraph, deleteVariable, duplicateParts, explainGraph,
@@ -86,6 +90,12 @@ export default function EventGraph({
   const [hint, setHint] = useState(null);
   const [summary, setSummary] = useState("");
   const [explainOpen, setExplainOpen] = useState(false);
+  const [sim, setSim] = useState(null);
+  const [notesOn, setNotesOn] = useState(true);
+  const [graphTemplates, setGraphTemplates] = useState([]);
+  const [blueprintPanel, setBlueprintPanel] = useState(null);
+  const [pasteText, setPasteText] = useState("");
+  const simRef = useRef(null);
   const [explainState, setExplainState] = useState("");
   const [explainError, setExplainError] = useState("");
   const [armed, setArmed] = useState(null);
@@ -121,6 +131,56 @@ export default function EventGraph({
     el.addEventListener("wheel", onWheel, { passive: false });
     return () => el.removeEventListener("wheel", onWheel);
   }, []);
+
+  useEffect(() => {
+    let cancel = false;
+    api.get("/graph-templates").then((res) => { if (!cancel) setGraphTemplates(res.data?.templates || []); }).catch(() => {});
+    return () => { cancel = true; };
+  }, []);
+
+  useEffect(() => { simRef.current = { sim, graph, doc }; });
+  useEffect(() => {
+    if (sim?.status !== "running") return undefined;
+    const timer = setInterval(() => {
+      const cur = simRef.current;
+      if (!cur?.sim || cur.sim.status !== "running") return;
+      setSim(stepSimulation({ ...cur.sim, status: "running" }, cur.graph, cur.doc));
+    }, 520);
+    return () => clearInterval(timer);
+  }, [sim?.status]);
+
+  const playSim = () => {
+    const started = startSimulation(doc, graph, { nodeId: selection.nodes[0], authority: sim?.authority !== false });
+    setSim(started.status === "done" ? started : { ...started, status: "running" });
+  };
+  const stepSim = () => {
+    setSim((current) => {
+      const base = current && current.status !== "done" ? { ...current, status: "paused" } : startSimulation(doc, graph, { nodeId: selection.nodes[0], authority: current?.authority !== false });
+      return stepSimulation(base, graph, doc);
+    });
+  };
+  const insertTemplate = (template, mode) => {
+    const applied = applyTemplate(doc, template, { mode, graphId: activeMeta?.id });
+    publish(applied.doc);
+    if (applied.graphId) {
+      setOpenTabs((tabs) => (tabs.includes(applied.graphId) ? tabs : [...tabs, applied.graphId]));
+      setActiveId(applied.graphId);
+    }
+    if (applied.warnings.length) setHint({ x: 24, y: 80, text: applied.warnings[0] });
+  };
+  const copyBlueprint = async () => {
+    const result = exportBlueprintText(graph, { nodeIds: selection.nodes.length ? selection.nodes : undefined });
+    setBlueprintPanel({ mode: "copy", warnings: result.warnings });
+    setPasteText(result.text);
+    try { await navigator.clipboard.writeText(result.text); } catch { /* the panel keeps the text */ }
+  };
+  const pasteBlueprint = () => {
+    const result = importBlueprintText(pasteText);
+    const shift = graph.nodes.reduce((max, node) => Math.max(max, (node.x || 0) + 240), 0);
+    const nodes = result.nodes.map((node) => ({ ...node, x: (node.x || 0) + (graph.nodes.length ? shift : 0) }));
+    commit({ ...graph, nodes: [...graph.nodes, ...nodes], wires: [...graph.wires, ...result.wires] });
+    setBlueprintPanel({ mode: "paste", warnings: result.warnings });
+  };
 
   const publish = (nextDoc) => {
     if (onDocument) onDocument(nextDoc);
@@ -475,6 +535,16 @@ export default function EventGraph({
           {doc.variables?.[0] && (
             <VariableEditor variable={doc.variables.find((item) => item.id === (varMenu?.edit || doc.variables[0].id)) || doc.variables[0]} onChange={(patch) => publish(updateVariable(doc, (varMenu?.edit || doc.variables[0].id), patch))} onDelete={(id) => publish(deleteVariable(doc, id))} onPick={(id) => setVarMenu({ edit: id })} />
           )}
+          <div className="mt-3 eyebrow">New from template</div>
+          <div data-testid="graph-templates">
+            {graphTemplates.map((template) => (
+              <div key={template.id} className="graph-lib-item" data-testid={`template-${template.id}`}>
+                <span title={template.summary}>{template.title}</span>
+                <button type="button" className="graph-lib-add" aria-label={`Insert ${template.title}`} onClick={() => insertTemplate(template, "insert")}>+</button>
+                <button type="button" className="graph-lib-add" aria-label={`Open ${template.title}`} onClick={() => insertTemplate(template, "new")}>↗</button>
+              </div>
+            ))}
+          </div>
         </aside>
       )}
       {editable && (
@@ -518,7 +588,17 @@ export default function EventGraph({
           <button type="button" className="ue-btn !py-1 !px-2 !text-[11px]" data-testid="graph-explain" onClick={runExplain}>Explain this graph</button>
           <button type="button" className="ue-btn !py-1 !px-2 !text-[11px]" data-testid="collapse-function" onClick={() => publish(collapseSelection(doc, activeMeta.id, selection.nodes, { kind: "function", name: "Collapsed" }))}>Collapse</button>
         </div>
-        <div className="absolute left-3 top-12 z-20 flex flex-wrap gap-1" data-graph-chrome onPointerDown={(event) => event.stopPropagation()}>
+        <div className="absolute left-3 top-11 z-30 flex flex-wrap items-center gap-1 max-w-[calc(100%-8rem)]" data-testid="graph-simbar" data-graph-chrome onPointerDown={(event) => event.stopPropagation()}>
+          <button type="button" className="ue-btn !py-1 !px-2 !text-[11px]" data-testid="graph-play" onClick={playSim}>Play</button>
+          <button type="button" className="ue-btn !py-1 !px-2 !text-[11px]" data-testid="graph-step" onClick={stepSim}>Step</button>
+          <button type="button" className="ue-btn !py-1 !px-2 !text-[11px]" data-testid="graph-run" onClick={() => setSim((current) => (current && current.status !== "done" ? { ...current, status: "running" } : null))}>Run</button>
+          <button type="button" className="ue-btn !py-1 !px-2 !text-[11px]" data-testid="graph-pause" onClick={() => setSim((current) => (current && current.status === "running" ? { ...current, status: "paused" } : current))}>Pause</button>
+          <button type="button" className="ue-btn !py-1 !px-2 !text-[11px]" data-testid="graph-stop" onClick={() => setSim(null)}>Stop</button>
+          <button type="button" className={`ue-btn !py-1 !px-2 !text-[11px] ${notesOn ? "!border-[var(--unreal-orange)] !text-[var(--unreal-orange)]" : ""}`} data-testid="graph-notes" onClick={() => setNotesOn((value) => !value)}>Notes</button>
+          <button type="button" className="ue-btn !py-1 !px-2 !text-[11px]" data-testid="graph-copy-blueprint" onClick={copyBlueprint}>Copy for Unreal</button>
+          <button type="button" className="ue-btn !py-1 !px-2 !text-[11px]" data-testid="graph-paste-blueprint" onClick={() => setBlueprintPanel({ mode: "paste", warnings: [] })}>Paste from Unreal</button>
+        </div>
+        <div className="absolute left-3 top-[5.4rem] z-20 flex flex-wrap gap-1" data-graph-chrome onPointerDown={(event) => event.stopPropagation()}>
           {openTabs.map((id) => {
             const item = doc.items.find((entry) => entry.id === id) || (id === "event" ? doc.items.find((entry) => entry.kind === "event") : null);
             if (!item) return null;
@@ -529,8 +609,34 @@ export default function EventGraph({
           <button type="button" className="ue-btn" aria-label="Zoom in" data-testid="graph-zoom-in" onClick={() => setZoom((value) => clampZoom(value + 0.1))}>+</button>
           <button type="button" className="ue-btn" aria-label="Zoom out" data-testid="graph-zoom-out" onClick={() => setZoom((value) => clampZoom(value - 0.1))}>−</button>
         </div>
+        {sim && (
+          <div className="graph-watch panel" data-testid="graph-watch" data-graph-chrome onPointerDown={(event) => event.stopPropagation()}>
+            <div className="flex items-center justify-between gap-2">
+              <span className="eyebrow">Watch</span>
+              <label className="text-[11px] flex items-center gap-1"><input type="checkbox" checked={sim.authority !== false} onChange={(event) => setSim({ ...sim, authority: event.target.checked })} /> Server</label>
+            </div>
+            <p className="graph-watch-note" data-testid="graph-watch-note">{sim.note}</p>
+            {sim.branch && <p className="graph-watch-note" data-testid="graph-watch-branch">Branch {sim.branch.taken}: {sim.branch.why}</p>}
+            {sim.role && <p className="node-role" data-testid="graph-watch-role">{sim.role}</p>}
+            <ul className="graph-watch-list">
+              {Object.entries(sim.variables || {}).map(([name, value]) => (
+                <li key={name}><span>{name}</span><span>{formatValue(value)}</span></li>
+              ))}
+            </ul>
+            {!!sim.log?.length && <p className="graph-watch-note">Log: {sim.log.join(" · ")}</p>}
+            {!!sim.warnings?.length && <p className="graph-watch-note">{sim.warnings[sim.warnings.length - 1]}</p>}
+          </div>
+        )}
+        {blueprintPanel && (
+          <div className="graph-blueprint panel" data-testid="graph-blueprint" data-graph-chrome onPointerDown={(event) => event.stopPropagation()}>
+            <div className="flex items-center justify-between"><span className="eyebrow">{blueprintPanel.mode === "paste" ? "Paste from Unreal" : "Copy for Unreal"}</span><button type="button" className="ue-btn !py-0.5 !px-1.5 !text-[10px]" onClick={() => setBlueprintPanel(null)}>Close</button></div>
+            <textarea className="graph-blueprint-text" aria-label="Blueprint text" value={pasteText} onChange={(event) => setPasteText(event.target.value)} />
+            {blueprintPanel.mode === "paste" && <button type="button" className="ue-btn !py-1 !px-2 !text-[11px] mt-1" data-testid="graph-paste-apply" onClick={pasteBlueprint}>Add nodes</button>}
+            <ul className="graph-watch-list">{(blueprintPanel.warnings || []).map((item) => <li key={item}>{item}</li>)}</ul>
+          </div>
+        )}
         {system?.manual_cpp && (
-          <div className="absolute left-3 top-24 z-20 panel p-2 flex items-center gap-2 max-w-xl" data-testid="graph-manual-lock" data-graph-chrome onPointerDown={(event) => event.stopPropagation()}>
+          <div className="absolute left-3 top-36 z-20 panel p-2 flex items-center gap-2 max-w-xl" data-testid="graph-manual-lock" data-graph-chrome onPointerDown={(event) => event.stopPropagation()}>
             <span className="text-[12px] text-[var(--text-secondary)]">Manual edits are locked. The graph is saved, and the C++ was not overwritten.</span>
             <button type="button" className="ue-btn !py-1 !px-2 !text-[11px]" data-testid="graph-revert" onClick={onRevertManual}>Revert to generated</button>
           </div>
@@ -550,7 +656,8 @@ export default function EventGraph({
                 <path
                   key={wire.id}
                   d={wirePath(a.x, a.y, b.x, b.y)}
-                  stroke={selection.wires.includes(wire.id) ? "var(--unreal-orange)" : color}
+                  className={sim?.wireId === wire.id ? "graph-wire is-pulse" : "graph-wire"}
+                  stroke={sim?.wireId === wire.id ? "#f5c518" : (selection.wires.includes(wire.id) ? "var(--unreal-orange)" : color)}
                   strokeWidth={fromPin.type === "exec" ? 2.4 : 2}
                   fill="none"
                   data-testid={`graph-wire-${wire.id}`}
@@ -615,7 +722,7 @@ export default function EventGraph({
             return (
               <div
                 key={node.id}
-                className={`node-card node-${node.kind} graph-node ${selection.nodes.includes(node.id) ? "is-selected" : ""} ${highlightIds.includes(node.id) ? "node-reveal" : ""}`}
+                className={`node-card node-${node.kind} graph-node ${selection.nodes.includes(node.id) ? "is-selected" : ""} ${highlightIds.includes(node.id) ? "node-reveal" : ""} ${sim?.activeId === node.id ? "is-sim" : ""}`}
                 style={{ left: pos.x, top: pos.y, width: NODE_W, pointerEvents: "auto" }}
                 data-node-id={node.id}
                 data-testid={`graph-node-${node.id}`}
@@ -624,6 +731,9 @@ export default function EventGraph({
                 onContextMenu={(event) => openMenu(event, { nodeId: node.id })}
               >
                 <div className="node-header"><span className="truncate">{node.label}</span></div>
+                {["server-rpc", "client-rpc", "multicast-rpc", "has-authority"].includes(node.catalog) && (
+                  <div className="node-role" data-testid={`role-${node.id}`}>{node.catalog === "client-rpc" ? "runs on client" : node.catalog === "multicast-rpc" ? "runs on server and clients" : "runs on server"}</div>
+                )}
                 <div className="node-body">
                   {Array.from({ length: rows }, (_, index) => (
                     <div key={index} className="flex justify-between gap-2" style={{ height: GRAPH_LAYOUT.row, minHeight: GRAPH_LAYOUT.row }}>
@@ -642,6 +752,7 @@ export default function EventGraph({
                     </div>
                   ))}
                 </div>
+                {notesOn && node.data?.note && <div className="node-note" data-testid={`note-${node.id}`}><GlossaryText text={node.data.note} /></div>}
                 {(warningByNode[node.id] || []).map((item) => (
                   <div key={item.lock} className="node-warn" data-testid={`graph-warn-${node.id}`}>
                     <GlossaryText text={item.why} />
