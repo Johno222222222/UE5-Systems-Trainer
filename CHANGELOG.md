@@ -6,6 +6,7 @@
 - A Glossary section lists every term. You can search and filter by tag. A program or course underlines only the tags that fit that lesson.
 - Right-click a word that is not in the glossary to request a definition. The Glossary page lists those requests and can copy them.
 - Version is 1.13.0. Real assets are planned for 1.14.0. Learning inside the editor is planned for 1.15.0.
+- The stage 2 spec terms are in the glossary, including Pose Search, GAS effect data, and the replication conditions. Short words such as Pose, Period, and Widget stay in the index and are not underlined.
 
 ## 1.12.0
 

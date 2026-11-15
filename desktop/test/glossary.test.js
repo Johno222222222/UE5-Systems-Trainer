@@ -73,6 +73,93 @@ test("glossary matches the longest whole term once, and skips noisy words", asyn
   assert.equal(tagged.some((phrase) => phrase.id === "replication"), false);
 });
 
+const SPEC_TERMS = [
+  "Pose Search Database",
+  "Motion Matching Database",
+  "Trajectory",
+  "Pose",
+  "Feature Channel",
+  "Schema",
+  "Motion Warping",
+  "Distance Matching",
+  "Orientation Warping",
+  "Animation Compression",
+  "Blend Profile",
+  "Gameplay Effect Spec",
+  "Duration Policy",
+  "Period",
+  "Stacking",
+  "Magnitude Calculation",
+  "Execution Calculation",
+  "Target Data",
+  "Ability System Global Data",
+  "Net Serialize",
+  "Conditional Replication",
+  "Owner Only",
+  "Skip Owner",
+  "Net Priority",
+  "Net Cull Distance",
+  "Subobject Replication",
+  "Bunch",
+  "Streamable Manager",
+  "Curve Table",
+  "Gameplay Tag Container",
+  "Trigger",
+  "Widget",
+  "Binding",
+  "MVVM",
+  "EQS",
+  "State Tree",
+  "Rigid Body",
+  "Constraint",
+  "Destruction",
+  "Instanced Static Mesh",
+  "Virtual Shadow Maps",
+  "Significance Manager",
+];
+
+const QUIET_WORDS = ["Pose", "Period", "Trigger", "Widget", "Binding", "Schema", "Constraint", "Bunch", "Stacking"];
+
+test("every stage 2 spec term is present, and short words stay off the underline", async () => {
+  const { prepareGlossary, linkTerms } = await matcher();
+  const terms = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "content", "glossary.json"), "utf8")).terms;
+  const names = new Set();
+  const ids = new Set();
+  for (const term of terms) {
+    names.add(String(term.term).toLowerCase());
+    for (const alias of term.aliases || []) names.add(String(alias).toLowerCase());
+    ids.add(term.id);
+  }
+  for (const term of terms) {
+    for (const id of term.see || []) assert.ok(ids.has(id), `${term.id} -> ${id}`);
+  }
+  for (const name of SPEC_TERMS) {
+    assert.ok(names.has(name.toLowerCase()), name);
+    const term = terms.find((item) => item.term.toLowerCase() === name.toLowerCase() || (item.aliases || []).some((alias) => alias.toLowerCase() === name.toLowerCase()));
+    assert.ok(term.summary, name);
+    assert.ok(term.detail, name);
+    assert.ok((term.tags || []).length, name);
+    assert.ok((term.see || []).length, name);
+  }
+  for (const name of ["inventory", "damage", "replicate", "weapon", "magazine", "reserve", "clamp", "gameplay"]) {
+    assert.ok(names.has(name), name);
+  }
+  const replication = terms.find((term) => term.id === "replication");
+  assert.ok(replication.aliases.some((alias) => alias.toLowerCase() === "replicate"));
+  for (const name of QUIET_WORDS) {
+    const term = terms.find((item) => item.term.toLowerCase() === name.toLowerCase());
+    assert.equal(term.match, "skip", name);
+  }
+
+  const phrases = prepareGlossary(terms);
+  const quiet = linkTerms("Take a pose for a period, then trigger the widget binding schema constraint bunch stacking.", phrases);
+  assert.equal(quiet.some((part) => part.type === "term"), false);
+  const database = linkTerms("The Pose Search Database feeds the Motion Matching node.", phrases);
+  assert.equal(database.find((part) => part.type === "term").id, "pose-search-database");
+  const verb = linkTerms("Replicate the magazine.", phrases);
+  assert.deepEqual(verb.filter((part) => part.type === "term").map((part) => part.id), ["replication", "magazine"]);
+});
+
 test("a requested word is stored once and capped", async () => {
   const { addGlossaryRequest } = await matcher();
   const first = addGlossaryRequest([], "Prediction");
