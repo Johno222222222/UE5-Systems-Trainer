@@ -4,7 +4,7 @@
 #include "Widgets/Docking/SDockTab.h"
 #include "Framework/Docking/TabManager.h"
 #include "Framework/Commands/UIAction.h"
-#include "Styling/SlateIcon.h"
+#include "Textures/SlateIcon.h"
 #include "WorkspaceMenuStructure.h"
 #include "WorkspaceMenuStructureModule.h"
 

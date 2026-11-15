@@ -30,7 +30,7 @@ const HEADER_MODULES = {
   "Modules/ModuleManager.h": "Core",
   "Serialization/JsonSerializer.h": "Json",
   "Serialization/JsonWriter.h": "Json",
-  "Styling/SlateIcon.h": "SlateCore",
+  "Textures/SlateIcon.h": "SlateCore",
   "ToolMenus.h": "ToolMenus",
   "Widgets/Docking/SDockTab.h": "Slate",
   "Widgets/Input/SButton.h": "Slate",
@@ -43,6 +43,11 @@ const HEADER_MODULES = {
   "WorkspaceMenuStructure.h": "WorkspaceMenuStructure",
   "WorkspaceMenuStructureModule.h": "WorkspaceMenuStructure",
 };
+
+// Paths that are not public headers in UE 5.8. Checked before the map, so listing one there still fails.
+const ABSENT_IN_UE58 = new Set([
+  "Styling/SlateIcon.h",
+]);
 
 function walk(dir) {
   const out = [];
@@ -71,12 +76,18 @@ test("the companion plugin is editor-only and each engine include names its modu
     for (const match of text.matchAll(/#include\s+[<"]([^">]+)[">]/g)) {
       const header = match[1];
       if (localNames.has(path.basename(header))) continue;
+      assert.equal(ABSENT_IN_UE58.has(header), false, `${header} is not a public header in UE 5.8`);
       const moduleName = HEADER_MODULES[header];
       assert.ok(moduleName, `${path.basename(file)} includes ${header}, which is not mapped to a UE 5.8 module`);
       assert.ok(modules.has(moduleName), `${header} belongs to ${moduleName}, which is missing from ArchitectCompanion.Build.cs`);
       seen.push(header);
     }
   }
+  for (const header of ABSENT_IN_UE58) {
+    assert.equal(Object.hasOwn(HEADER_MODULES, header), false, `${header} must not be treated as a real UE 5.8 header`);
+  }
+  assert.ok(seen.includes("Textures/SlateIcon.h"));
+  assert.equal(HEADER_MODULES["Textures/SlateIcon.h"], "SlateCore");
   assert.ok(seen.includes("HttpManager.h"));
   assert.ok(seen.includes("WorkspaceMenuStructure.h"));
   assert.ok(modules.has("HTTP"));
