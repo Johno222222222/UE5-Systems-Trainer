@@ -3,6 +3,7 @@ import {
   Boxes, Car, FilePlus, FolderOpen, Hand, HardDrive, History, Layers, MessagesSquare, Package, Shield, Sparkles, Swords,
 } from "lucide-react";
 import { api } from "../lib/api";
+import { INTRO, introSeen, markIntroSeen } from "../lib/references.mjs";
 import { rankProjects } from "../lib/shell.mjs";
 import { useShell } from "./ShellContext";
 
@@ -27,14 +28,45 @@ function ago(iso) {
   return new Date(iso).toLocaleDateString();
 }
 
+function asTemplate(example) {
+  return {
+    id: example.id,
+    title: example.title,
+    tagline: example.tagline,
+    icon: example.icon,
+    prompt: example.prompt,
+    default_class: example.default_class,
+    starter: example.starter,
+  };
+}
+
 export default function Home() {
   const shell = useShell();
   const [projects, setProjects] = useState([]);
   const [templates, setTemplates] = useState([]);
+  const [examples, setExamples] = useState([]);
   const [loadError, setLoadError] = useState("");
   const [showRest, setShowRest] = useState(false);
   const [continueCards, setContinueCards] = useState([]);
+  const [introOn, setIntroOn] = useState(() => {
+    try { return !introSeen(window.localStorage); }
+    catch { return false; }
+  });
   const ranked = rankProjects(projects);
+  const startHere = examples.find((item) => item.id === "start-here") || null;
+  const templateCards = examples.filter((item) => item.kind === "template");
+  const shownTemplates = templateCards.length ? templateCards : templates;
+
+  const dismissIntro = () => {
+    try { markIntroSeen(window.localStorage); }
+    catch { /* still hide it for this visit */ }
+    setIntroOn(false);
+  };
+
+  const openExample = (example) => {
+    dismissIntro();
+    shell.issue({ type: "template", template: asTemplate(example) });
+  };
 
   useEffect(() => {
     let alive = true;
@@ -43,6 +75,9 @@ export default function Home() {
       .catch(() => { if (alive) setLoadError("Couldn't load saved projects."); });
     api.get("/templates")
       .then((r) => { if (alive) setTemplates(r.data?.templates || []); })
+      .catch(() => {});
+    api.get("/references")
+      .then((r) => { if (alive) setExamples(r.data?.examples || []); })
       .catch(() => {});
     api.get("/progress")
       .then((r) => {
@@ -70,6 +105,56 @@ export default function Home() {
         <p className="mt-2 text-[13px] text-[var(--text-secondary)] max-w-xl">
           Recent systems, a new project, or a template. The workspace itself is under Tools.
         </p>
+
+        {introOn && (
+          <div className="panel p-4 mt-5" data-testid="first-run-intro">
+            <div className="eyebrow mb-2">Before you start</div>
+            <p className="text-[13px] text-[var(--text-primary)]" data-testid="intro-is">{INTRO.is}</p>
+            <p className="mt-1 text-[13px] text-[var(--text-secondary)]" data-testid="intro-isnt">{INTRO.isnt}</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                className="ue-btn ue-btn-primary"
+                data-testid="intro-open-start-here"
+                disabled={!startHere}
+                onClick={() => startHere && openExample(startHere)}
+              >
+                Open Start Here
+              </button>
+              <button type="button" className="ue-btn" data-testid="intro-dismiss" onClick={dismissIntro}>Keep browsing</button>
+            </div>
+          </div>
+        )}
+
+        {startHere && (
+          <section className="mt-6" data-testid="home-start-here">
+            <div className="eyebrow mb-2">Start here</div>
+            <div className="panel home-card">
+              <div className="font-sub font-semibold text-[16px]">{startHere.title}</div>
+              <p className="mt-1 text-[12px] text-[var(--text-secondary)]">{startHere.starter?.summary || startHere.tagline}</p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {startHere.complexity && <span className={`tag tag-${startHere.complexity}`}>{startHere.complexity}</span>}
+                {(startHere.prerequisites || []).map((item) => <span key={item} className="tag">{item}</span>)}
+              </div>
+              {(startHere.learn_more || []).length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-3">
+                  <span className="text-[10.5px] font-mono uppercase tracking-widest text-[var(--text-muted)]">Inspired by</span>
+                  {startHere.learn_more.slice(0, 3).map((link) => (
+                    <a key={link.url} className="why-concept !mt-0" href={link.url} target="_blank" rel="noreferrer">{link.title}</a>
+                  ))}
+                </div>
+              )}
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button type="button" className="ue-btn ue-btn-primary" data-testid="home-open-start-here" onClick={() => openExample(startHere)}>
+                  Open Start Here
+                </button>
+                <button type="button" className="ue-btn" data-testid="home-start-here-references" onClick={() => shell.openExample(startHere.id)}>
+                  Read the notes
+                </button>
+              </div>
+            </div>
+          </section>
+        )}
 
         <div className="mt-5 flex flex-wrap gap-2">
           <button type="button" className="ue-btn ue-btn-primary" data-testid="home-new-project" onClick={() => shell.issue({ type: "new-project" })}>
@@ -195,24 +280,39 @@ export default function Home() {
             <h2 className="eyebrow !text-[var(--text-secondary)]">Template quick start</h2>
           </div>
           <div className="home-grid">
-            {templates.map((tpl) => {
+            {shownTemplates.map((tpl) => {
               const Icon = ICONS[tpl.icon] || Boxes;
+              const complexity = tpl.complexity || tpl.starter?.learning?.complexity;
+              const prerequisites = tpl.prerequisites || tpl.starter?.learning?.prerequisites || [];
               return (
-                <button
-                  key={tpl.id}
-                  type="button"
-                  className="panel home-card home-template text-left"
-                  data-testid={`home-template-${tpl.id}`}
-                  onClick={() => shell.issue({ type: "template", template: tpl })}
-                >
-                  <div className="flex items-start gap-2">
-                    <span className="home-template-icon"><Icon size={14} /></span>
-                    <span className="min-w-0">
-                      <span className="block font-sub font-semibold text-[13px] leading-tight">{tpl.title}</span>
-                      <span className="block mt-0.5 text-[11px] font-mono text-[var(--text-muted)] truncate">{tpl.tagline}</span>
-                    </span>
-                  </div>
-                </button>
+                <div key={tpl.id} className="panel home-card home-template text-left" data-testid={`home-template-${tpl.id}`}>
+                  <button
+                    type="button"
+                    className="block w-full text-left bg-transparent border-0 p-0 text-inherit cursor-pointer"
+                    onClick={() => shell.issue({ type: "template", template: tpl.starter ? asTemplate(tpl) : tpl })}
+                  >
+                    <div className="flex items-start gap-2">
+                      <span className="home-template-icon"><Icon size={14} /></span>
+                      <span className="min-w-0">
+                        <span className="block font-sub font-semibold text-[13px] leading-tight">{tpl.title}</span>
+                        <span className="block mt-0.5 text-[11px] font-mono text-[var(--text-muted)] truncate">{tpl.tagline}</span>
+                      </span>
+                    </div>
+                  </button>
+                  {(complexity || prerequisites.length > 0) && (
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {complexity && <span className={`tag tag-${complexity}`}>{complexity}</span>}
+                      {prerequisites.slice(0, 2).map((item) => <span key={item} className="tag">{item}</span>)}
+                    </div>
+                  )}
+                  {(tpl.learn_more || []).length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {tpl.learn_more.map((link) => (
+                        <a key={link.url} className="why-concept !mt-0" href={link.url} target="_blank" rel="noreferrer">{link.title}</a>
+                      ))}
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>

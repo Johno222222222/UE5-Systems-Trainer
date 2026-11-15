@@ -12,6 +12,7 @@ const { complete, joinModelText, outputTokenLimit, stubFetch } = require("./llm"
 const { LEARNING_PROMPT, learningGaps, fillLearning, learningUserText } = require("./learning");
 const { attachStarters } = require("./templateLearning");
 const { recordAnswer, emptyProgress } = require("./practice");
+const { catalog, forkPayload } = require("./references");
 const {
   ALLOWED_MODELS,
   DEFAULT_MODEL,
@@ -536,6 +537,14 @@ async function startServer(options = {}) {
   }));
 
   route("GET", "/api/templates", async () => ({ templates: attachStarters(TEMPLATES) }));
+
+  route("GET", "/api/references", async () => catalog());
+
+  route("POST", "/api/examples/:id/fork", async (_req, params) => {
+    const payload = forkPayload(params.id);
+    if (!payload) throw new HttpError(404, "That example isn't in the library.");
+    return store.update((data) => createProject(data, payload));
+  });
 
   route("GET", "/api/settings", async () => secrets.publicView(dataDir));
 

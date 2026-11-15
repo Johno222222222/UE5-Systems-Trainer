@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.4.0
+
+Stage 4, references.
+
+- Start Here is a Character Interaction module that ships with the app. It opens with no API key. The graph, the pseudocode, the C++, the challenges, and the parameter sliders do not call the model.
+- The first time you open the app, and in About, a short note says what this is. It is a UE5 architecture and learning tool. It is not a full game generator. Review the code before you ship it.
+- References is in the top bar. It shows a system with every WHY note open and a list of the key decisions. That works for the bundled examples and for a system you saved.
+- Fork copies a bundled example or a template into your projects. The original stays as it shipped.
+- Concepts has a card for Tick vs timers, authority and server RPCs, Interface vs Cast, Data Assets, replication and RepNotify, delegates and events, components vs inheritance, Gameplay Tags, and line traces. Each card has a short explanation, a question you answer on this computer, and a link to an example that uses it. A WHY note's related concept opens that card.
+- Examples and templates show a complexity, the topics they assume, and links to the official Unreal Engine docs.
+- A project saved before this version still opens. Practice progress still loads.
+
 ## 1.3.0
 
 Stage 3, practice.

@@ -1472,23 +1472,23 @@ export default function Workspace() {
               <div className="p-5 h-full overflow-auto">
                 {result && <CompileCheck issues={activeIssues} ignored={ignoredIssues} ai={aiReview} onReview={runAiReview} aiKey={aiKey} canEdit={!readOnly}
                   fixing={fix?.status === "running" || loading} onJump={jumpTo} onFix={(l) => runFix(l)} onRegenerate={fixRegenerate} onIgnore={ignoreIssue} onRestore={restoreIssue} onCopy={copyIssues} />}
-                {whatIfsOf(result).length > 0 && shell.helpLevel !== "minimal" && (
-                  <div className="panel p-3 mb-4" data-testid="what-if">
-                    <div className="eyebrow mb-2">{whatIfsOf(result)[0].title || "What if"}</div>
+                {shell.helpLevel !== "minimal" && whatIfsOf(result).map((item, itemIndex) => (
+                  <div key={item.title || itemIndex} className="panel p-3 mb-4" data-testid={itemIndex === 0 ? "what-if" : `what-if-${itemIndex}`}>
+                    <div className="eyebrow mb-2">{item.title || "What if"}</div>
                     <div className="flex flex-wrap gap-1 mb-2">
-                      {whatIfsOf(result)[0].variants.map((variant) => (
+                      {item.variants.map((variant) => (
                         <button key={variant.id} type="button" className={`ue-btn !py-1 !px-2 !text-[11px] ${whatIfId === variant.id ? "!border-[var(--unreal-orange)] !text-[var(--unreal-orange)]" : ""}`} data-testid={`what-if-${variant.id}`} onClick={() => setWhatIfId(variant.id)}>
                           {variant.label}
                         </button>
                       ))}
                     </div>
-                    {whatIfId && (
-                      <pre className="text-[12px] font-mono whitespace-pre-wrap text-[var(--text-secondary)]" data-testid="what-if-code">
-                        {whatIfsOf(result)[0].variants.find((variant) => variant.id === whatIfId)?.code}
+                    {item.variants.some((variant) => variant.id === whatIfId) && (
+                      <pre className="text-[12px] font-mono whitespace-pre-wrap text-[var(--text-secondary)]" data-testid={itemIndex === 0 ? "what-if-code" : `what-if-code-${itemIndex}`}>
+                        {item.variants.find((variant) => variant.id === whatIfId)?.code}
                       </pre>
                     )}
                   </div>
-                )}
+                ))}
                 <div className="grid md:grid-cols-2 gap-4">
                   <CodeBox title={`${result ? baseName(result) : "System"}.h`} code={result?.cpp_header} lang="cpp" testId="cpp-header" target={jump?.file === ".h" ? jump : null} callouts={whyForCpp(result, shell.helpLevel, ".h")} renderCallout={(note) => <WhyNote note={note} level={shell.helpLevel} />} highlightLines={(impactKey ? impactLines(result, impactKey) : shell.reveal?.lines || []).filter((line) => line.file === ".h").map((line) => line.line)} />
                   <CodeBox title={`${result ? baseName(result) : "System"}.cpp`} code={result?.cpp_source} lang="cpp" testId="cpp-source" target={jump?.file === ".cpp" ? jump : null} callouts={whyForCpp(result, shell.helpLevel, ".cpp")} renderCallout={(note) => <WhyNote note={note} level={shell.helpLevel} />} highlightLines={(impactKey ? impactLines(result, impactKey) : shell.reveal?.lines || []).filter((line) => line.file === ".cpp").map((line) => line.line)} />

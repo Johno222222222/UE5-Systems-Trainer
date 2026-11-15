@@ -4,6 +4,7 @@ import { CheckCircle2, ExternalLink, FolderOpen, KeyRound, Loader2, Trash2, XCir
 import Modal from "./Modal";
 import { api, errorText } from "../lib/api";
 import { APP_VERSION } from "../lib/shell.mjs";
+import { INTRO } from "../lib/references.mjs";
 
 export const PROVIDERS = {
   gemini: {
@@ -217,9 +218,14 @@ export default function AiKeyModal({ current, onSave, onClose, required, onClear
             Clear remembered project context
           </button>
         </div>
-        <p className="text-[10.5px] font-mono text-[var(--text-muted)]" data-testid="settings-about">
-          UE5 System Architect {aboutVersion}
-        </p>
+        <div className="panel p-2.5" data-testid="about-scope">
+          <div className="eyebrow mb-1">About</div>
+          <p className="text-[12px] text-[var(--text-secondary)] leading-relaxed" data-testid="about-is">{INTRO.is}</p>
+          <p className="text-[12px] text-[var(--text-secondary)] leading-relaxed mt-1" data-testid="about-isnt">{INTRO.isnt}</p>
+          <p className="text-[10.5px] font-mono text-[var(--text-muted)] mt-2" data-testid="settings-about">
+            UE5 System Architect {aboutVersion}
+          </p>
+        </div>
         <div className="flex gap-2 justify-end pt-1">
           {saved[provider] && <button type="button" className="ue-btn !text-[var(--accent-red)]" onClick={remove} data-testid="ai-key-remove"><Trash2 size={13} /> Remove</button>}
           <button className="ue-btn ue-btn-primary" disabled={test === "running"} data-testid="ai-key-save"><KeyRound size={13} /> Save</button>
