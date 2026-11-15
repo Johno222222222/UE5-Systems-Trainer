@@ -639,6 +639,15 @@ async function startServer(options = {}) {
         workDir,
         spawnImpl: options.spawnImpl,
       });
+    } catch (exc) {
+      const message = String(exc?.message || exc || "Build failed");
+      return {
+        found: true,
+        ok: false,
+        issues: [{ severity: "error", file: "", line: null, message: message.slice(0, 500), fix: "This is the error from the app, before Unreal printed a compiler line." }],
+        log: String(exc?.stack || message).slice(0, 4000),
+        message: `Build with Unreal failed: ${message.slice(0, 400)}`,
+      };
     } finally {
       fs.rmSync(workDir, { recursive: true, force: true });
     }
@@ -1297,6 +1306,31 @@ async function startServer(options = {}) {
       throw new HttpError(502, "Couldn't explain that change. Try again.");
     }
     return { explanation: String(reply.text || "").trim().slice(0, 600) };
+  });
+
+  route("POST", "/api/graph/explain", async (req) => {
+    const body = await readJson(req);
+    const summary = String(body.summary || "").slice(0, 2000);
+    const text = String(body.text || "").slice(0, 4000);
+    if (!summary && !text) throw new HttpError(400, "There is no graph to explain.");
+    const llm = resolveLlm(req.headers, secrets);
+    await store.update((data) => { recordUsage(data, llm.key, llm.provider, llm.model, "explain", clock); });
+    let reply;
+    try {
+      reply = await complete({
+        provider: llm.provider,
+        model: llm.model,
+        apiKey: llm.key,
+        system: "Explain an Unreal event graph in plain English for a learner. Say which events fire and what they do next. Two to five sentences. No JSON.",
+        user: `Graph:\n${text || summary}`,
+        maxTokens: 400,
+        timeoutMs: 40000,
+        fetchImpl,
+      });
+    } catch (exc) {
+      return { explanation: summary };
+    }
+    return { explanation: String(reply.text || "").trim().slice(0, 800) || summary };
   });
 
   route("GET", "/api/projects/:project_id", async (_req, params) => {

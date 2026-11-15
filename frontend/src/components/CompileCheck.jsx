@@ -79,7 +79,16 @@ export default function CompileCheck({ issues, ignored, ai, onReview, aiKey, can
       setBuild(data);
       setEngine(data);
     } catch (err) {
-      setBuild({ found: false, message: errorText(err), issues: [] });
+      const detail = errorText(err);
+      const logged = err?.response?.data?.log || err?.response?.data?.detail || err?.message || detail;
+      setLogOpen(true);
+      setBuild({
+        found: false,
+        ok: false,
+        message: `Build with Unreal failed: ${detail}`,
+        log: typeof logged === "string" ? logged : detail,
+        issues: [],
+      });
     } finally {
       setBuilding(false);
     }

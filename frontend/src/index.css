@@ -271,15 +271,122 @@ html, body, #root {
   text-transform: uppercase;
 }
 .node-body { padding: 8px 10px; color: var(--text-secondary); }
-.node-pin { display:flex; align-items:center; gap:6px; padding: 2px 0; }
+.node-pin { display:flex; align-items:center; gap:6px; min-height: 22px; padding: 0 2px; cursor: crosshair; }
 .node-pin.out { justify-content: flex-end; }
-.node-dot { width: 8px; height: 8px; border-radius: 50%; display:inline-block; }
+.node-pin.is-hot .node-dot { box-shadow: 0 0 0 3px #fff; }
+.node-dot { width: 18px; height: 18px; border-radius: 50%; display:inline-block; flex: 0 0 18px; box-shadow: 0 0 0 2px rgba(0,0,0,0.45); }
 
 .node-event .node-header { background: linear-gradient(90deg, #a30d1a, #ef4444); }
 .node-function .node-header { background: linear-gradient(90deg, #0a5aa0, #0099ff); }
 .node-flow .node-header { background: linear-gradient(90deg, #2b3245, #475569); }
 .node-variable .node-header { background: linear-gradient(90deg, #6a2db5, #a855f7); }
 .node-pure .node-header { background: linear-gradient(90deg, #0a7a3f, #00e676); color:#06090f; }
+.graph-node { overflow: visible; z-index: 2; }
+.graph-node.is-selected { outline: 1px solid var(--unreal-orange); outline-offset: 1px; }
+.node-warn { margin: 0 8px 8px; color: #f0a8a8; font-size: 10.5px; line-height: 1.35; }
+.graph-palette {
+  width: 232px;
+  flex: 0 0 232px;
+  overflow: auto;
+  border-right: 1px solid var(--border-soft);
+  background: var(--bg-secondary);
+  padding: 10px;
+}
+.graph-search, .graph-palette select, .graph-inspector select {
+  width: 100%;
+  background: var(--bg-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 12px;
+  padding: 6px 8px;
+}
+.graph-palette-item {
+  padding: 6px 8px;
+  margin-top: 4px;
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-size: 12px;
+  cursor: grab;
+}
+.graph-palette-item:hover { border-color: var(--unreal-orange); }
+.graph-canvas { overflow: hidden; }
+.graph-comment {
+  position: absolute;
+  background: rgba(255, 186, 40, 0.18);
+  border: 2px solid rgba(255, 196, 0, 0.9);
+  border-radius: 8px;
+  z-index: 1;
+}
+.graph-comment.is-selected { border-color: var(--unreal-orange); }
+.graph-comment-bar { height: 18px; cursor: grab; background: rgba(255, 196, 0, 0.18); border-radius: 8px 8px 0 0; }
+.graph-comment textarea {
+  width: 100%;
+  height: calc(100% - 18px);
+  resize: none;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  padding: 6px 8px;
+}
+.graph-comment-resize { position: absolute; right: 0; bottom: 0; width: 14px; height: 14px; cursor: nwse-resize; }
+.graph-box { fill: rgba(255, 107, 0, 0.12); stroke: var(--unreal-orange); stroke-width: 1; }
+.graph-minimap {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  width: 168px;
+  height: 104px;
+  background: rgba(8, 10, 16, 0.88);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  z-index: 20;
+}
+.graph-inspector {
+  position: absolute;
+  right: 12px;
+  top: 52px;
+  width: 220px;
+  z-index: 20;
+}
+.graph-explain {
+  position: absolute;
+  left: 12px;
+  right: 196px;
+  bottom: 12px;
+  z-index: 20;
+  max-height: 140px;
+  overflow: auto;
+}
+.graph-menu { position: fixed; z-index: 40; min-width: 160px; padding: 4px; }
+.graph-menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  color: var(--text-primary);
+  font-size: 12px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.graph-menu-item:hover { background: var(--surface-hover); }
+.graph-hint {
+  position: fixed;
+  z-index: 40;
+  max-width: 240px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: #2a1012;
+  border: 1px solid #e02424;
+  color: #ffb4b4;
+  font-size: 12px;
+  pointer-events: none;
+}
 
 /* Shimmer for loading */
 @keyframes shimmer {

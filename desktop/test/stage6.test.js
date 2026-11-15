@@ -183,6 +183,18 @@ test("a compiler log becomes issues, and a missing engine does not spawn the bui
   assert.equal(built.found, true);
   assert.equal(built.version, "5.8");
   assert.equal(built.issues[0].message.includes("Nope"), true);
+
+  const thrown = await compilePlugin({
+    system: SAMPLE,
+    engineRoot: engine,
+    platform: "linux",
+    workDir: fs.mkdtempSync(path.join(os.tmpdir(), "ue5-throw-")),
+    spawnImpl: () => { throw new Error("The network path was not found."); },
+  });
+  assert.equal(thrown.ok, false);
+  assert.match(thrown.message, /network path was not found/);
+  assert.match(thrown.log, /network path was not found/);
+  assert.match(thrown.issues[0].message, /network path was not found/);
 });
 
 test("export copies a plugin into the project's Plugins folder", async () => {

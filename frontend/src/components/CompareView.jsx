@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { ArrowRight, GitCompareArrows } from "lucide-react";
 import { computeChanges, sideBySideDiff } from "../lib/changes";
+import { graphText, readEventGraph } from "../lib/graph.mjs";
 
 const VIEWS = [
   ["blueprint", "Pseudocode"],
@@ -8,6 +9,7 @@ const VIEWS = [
   ["source", "C++ .cpp"],
   ["setup", "Setup Guide"],
   ["params", "Parameters & Modules"],
+  ["graph", "Event Graph"],
 ];
 
 const textFor = (sys, view) => {
@@ -16,6 +18,7 @@ const textFor = (sys, view) => {
   if (view === "header") return sys.cpp_header || "";
   if (view === "source") return sys.cpp_source || "";
   if (view === "setup") return (sys.setup_guide || []).map((s) => `${s.step}. ${s.title}\n   ${s.detail}${s.why ? `\n   WHY: ${s.why}` : ""}`).join("\n");
+  if (view === "graph") return graphText(readEventGraph(sys));
   return [
     "# Parameters",
     ...(sys.tunable_parameters || []).map((p) => `${p.label || p.key} = ${p.value}${p.unit ? ` ${p.unit}` : ""}`),

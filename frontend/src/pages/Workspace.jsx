@@ -8,7 +8,8 @@ import {
   GitCompareArrows, Compass, StickyNote, FolderClosed, Eye, Pencil, KeyRound, FileArchive, History, Tag, ChevronDown as Caret, AlertTriangle,
   FilePlus, MessageSquarePlus
 } from "lucide-react";
-import NodeGraph from "../components/NodeGraph";
+import EventGraph from "../components/EventGraph";
+import { commitGraphEdit, graphText, readEventGraph } from "../lib/graph.mjs";
 import AnnotatedPseudocode from "../components/AnnotatedPseudocode";
 import SetupGuide from "../components/SetupGuide";
 import CompareView from "../components/CompareView";
@@ -993,6 +994,33 @@ export default function Workspace() {
       });
     } catch { toast.error("Clipboard access was blocked"); }
   };
+  const onGraphChange = (graph) => {
+    setResult((current) => (current ? commitGraphEdit(current, graph).system : current));
+  };
+  const showGraphLine = (nodeId) => {
+    const loc = result?.graph_lines?.[nodeId];
+    if (!loc?.line) return;
+    setTab("cpp");
+    setJump({ file: loc.file === ".h" ? ".h" : ".cpp", line: loc.line, nonce: Date.now() });
+  };
+  const explainCurrentGraph = async (_graph, fallback) => {
+    if (!aiKey) return { text: fallback, source: "local" };
+    try {
+      const { data } = await api.post("/graph/explain", { summary: fallback, text: graphText(_graph) }, { headers: aiHeaders(aiKey) });
+      setUsageTick((n) => n + 1);
+      if (!data?.explanation) throw new Error("The model returned an empty explanation.");
+      return { text: data.explanation, source: "model" };
+    } catch (err) {
+      throw new Error(errorText(err));
+    }
+  };
+  const revertGraphCpp = () => {
+    setResult((current) => {
+      if (!current) return current;
+      const reverted = revertManualEdit(current);
+      return commitGraphEdit({ ...reverted, manual_cpp: false }, readEventGraph(reverted)).system;
+    });
+  };
   const jumpTo = (issue) => {
     if (!result) return;
     setExportPrompt(null);
@@ -1539,29 +1567,10 @@ export default function Workspace() {
               </div>
             )}
             {tab === "graph" && (
-              <div className="relative h-full">
-                {showChallenges(shell.helpLevel) && result?.learning && (
-                  <div className="absolute left-4 bottom-4 z-20 max-w-md space-y-2" data-testid="learning-panel">
-                    {(result.learning.challenges || []).length > 0 && (
-                      <div className="panel p-2.5" data-testid="challenges">
-                        <div className="eyebrow mb-1">Challenges</div>
-                        {result.learning.challenges.map((item) => (
-                          <div key={item.title} className="text-[12px] text-[var(--text-secondary)]"><b className="text-[var(--text-primary)]">{item.title}.</b> {item.detail}</div>
-                        ))}
-                      </div>
-                    )}
-                    {showTraps(shell.helpLevel) && (result.learning.traps || []).length > 0 && (
-                      <div className="panel p-2.5" data-testid="common-traps">
-                        <div className="eyebrow mb-1">Common traps</div>
-                        {result.learning.traps.map((item) => (
-                          <div key={item.title} className="text-[12px] text-[var(--text-secondary)]"><b className="text-[var(--unreal-orange)]">{item.title}.</b> {item.detail}</div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
+              <div className="flex flex-col h-full min-h-0">
+                <div className="relative flex-1 min-h-0 overflow-hidden">
                 {(result?.stacked_from?.length > 0 || result?.stack_map?.shared?.length || result?.stack_map?.conflicts?.length) && (
-                  <div className="absolute left-4 top-4 z-20 max-w-sm panel p-3" data-testid="stack-map">
+                  <div className="absolute left-[248px] top-16 z-20 max-w-sm panel p-3" data-testid="stack-map">
                     <div className="eyebrow mb-1">Stack map</div>
                     {(result.stack_map?.shared || []).map((item) => (
                       <div key={`${item.kind}-${item.name}`} className="text-[12px] text-[var(--text-secondary)]" data-testid={`stack-shared-${item.name}`}>
@@ -1577,32 +1586,57 @@ export default function Workspace() {
                   </div>
                 )}
                 {result?.confidence === "low" && (
-                  <div className="absolute right-4 top-4 z-20 max-w-sm panel p-3 border-[var(--unreal-orange)]" data-testid="low-confidence">
+                  <div className="absolute right-4 top-16 z-20 max-w-sm panel p-3 border-[var(--unreal-orange)]" data-testid="low-confidence">
                     <div className="eyebrow mb-1">Low confidence</div>
                     <p className="text-[12px] text-[var(--text-secondary)]">{result.alternative || "The model was not sure about this shape. Try the other approach, or lock the constraint you care about and regenerate."}</p>
                   </div>
                 )}
                 {(result?.constraint_violations || []).length > 0 && (
-                  <div className="absolute left-4 bottom-24 z-20 max-w-sm panel p-3 border-[var(--accent-red)]" data-testid="constraint-violations">
+                  <div className="absolute left-[248px] bottom-24 z-20 max-w-sm panel p-3 border-[var(--accent-red)]" data-testid="constraint-violations">
                     {(result.constraint_violations || []).map((item) => (
                       <div key={item.id} className="text-[12px] text-[var(--accent-red)]">{item.message}</div>
                     ))}
                   </div>
                 )}
-                <NodeGraph
-                  nodes={result?.node_graph_nodes || []}
-                  edges={result?.node_graph_edges || []}
+                <EventGraph
+                  system={result}
+                  editable={!readOnly && !!result}
+                  locks={locks}
                   whyByNode={Object.fromEntries((result?.node_graph_nodes || []).map((node) => {
                     const notes = whyForNode(result, shell.helpLevel, node.id);
                     return [node.id, notes[0]];
                   }).filter(([, note]) => note))}
-                  onNodeClick={(nodeId) => { setWhyFocus(nodeId); setTab("blueprint"); }}
                   highlightIds={shell.reveal?.node_ids || []}
+                  onChange={onGraphChange}
+                  onShowCpp={showGraphLine}
+                  onExplain={explainCurrentGraph}
+                  onRevertManual={revertGraphCpp}
                 />
                 {result?.node_graph_nodes?.length > 0 && (
-                  <button className="ue-btn ue-btn-primary !text-[12px] absolute bottom-4 right-4 z-20" onClick={copyForUnreal} title="Copies the graph in Unreal's clipboard format" data-testid="copy-for-unreal-button">
+                  <button className="ue-btn ue-btn-primary !text-[12px] absolute bottom-32 right-4 z-20" onClick={copyForUnreal} title="Copies the graph in Unreal's clipboard format" data-testid="copy-for-unreal-button">
                     <ClipboardCopy size={13} /> Copy for Unreal
                   </button>
+                )}
+                </div>
+                {showChallenges(shell.helpLevel) && result?.learning && (
+                  <div className="shrink-0 max-h-40 overflow-auto border-t border-[var(--border-soft)] px-4 py-2 space-y-2" data-testid="learning-panel">
+                    {(result.learning.challenges || []).length > 0 && (
+                      <div data-testid="challenges">
+                        <div className="eyebrow mb-1">Challenges</div>
+                        {result.learning.challenges.map((item) => (
+                          <div key={item.title} className="text-[12px] text-[var(--text-secondary)]"><b className="text-[var(--text-primary)]">{item.title}.</b> {item.detail}</div>
+                        ))}
+                      </div>
+                    )}
+                    {showTraps(shell.helpLevel) && (result.learning.traps || []).length > 0 && (
+                      <div data-testid="common-traps">
+                        <div className="eyebrow mb-1">Common traps</div>
+                        {result.learning.traps.map((item) => (
+                          <div key={item.title} className="text-[12px] text-[var(--text-secondary)]"><b className="text-[var(--unreal-orange)]">{item.title}.</b> {item.detail}</div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             )}
