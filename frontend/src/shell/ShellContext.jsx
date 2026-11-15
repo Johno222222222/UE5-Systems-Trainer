@@ -24,6 +24,10 @@ export function ShellProvider({ children }) {
   const [draftTick, setDraftTick] = useState(0);
   const [reveal, setReveal] = useState(() => loadWorkspace(window.localStorage)?.reveal || null);
   const [learnIndex, setLearnIndex] = useState(() => Number(loadWorkspace(window.localStorage)?.learnIndex) || 0);
+  const [conceptId, setConceptId] = useState("");
+  const [exampleId, setExampleId] = useState("start-here");
+  const [exampleTick, setExampleTick] = useState(0);
+  const [referencesView, setReferencesView] = useState("system");
   const revealRef = useRef(reveal);
   revealRef.current = reveal;
   const learnIndexRef = useRef(learnIndex);
@@ -96,6 +100,19 @@ export function ShellProvider({ children }) {
     return current;
   }, []);
 
+  const openConcept = useCallback((id) => {
+    setConceptId(String(id || ""));
+    setReferencesView("concepts");
+    go("references");
+  }, [go]);
+
+  const openExample = useCallback((id) => {
+    setExampleId(String(id || "start-here"));
+    setExampleTick((n) => n + 1);
+    setReferencesView("system");
+    go("references");
+  }, [go]);
+
   const sendToSection = useCallback((sectionId) => {
     const item = openItemFromDraft(session.get());
     if (item) setMemory((prev) => rememberOpen(prev, sectionId, item));
@@ -134,7 +151,14 @@ export function ShellProvider({ children }) {
     setReveal,
     learnIndex,
     setLearnIndex,
-  }), [session, section, memory, toolsOpen, homeFocus, appInfo, chip, commandNonce, go, issue, takeCommand, sendToSection, draftTick, helpLevel, reveal, learnIndex]);
+    conceptId,
+    exampleId,
+    exampleTick,
+    referencesView,
+    setReferencesView,
+    openConcept,
+    openExample,
+  }), [session, section, memory, toolsOpen, homeFocus, appInfo, chip, commandNonce, go, issue, takeCommand, sendToSection, draftTick, helpLevel, reveal, learnIndex, conceptId, exampleId, exampleTick, referencesView, openConcept, openExample]);
 
   return <ShellContext.Provider value={value}>{children}</ShellContext.Provider>;
 }

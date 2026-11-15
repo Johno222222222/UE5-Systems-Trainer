@@ -535,6 +535,33 @@ html, body, #root {
 }
 .home-rest-row:hover { border-color: var(--unreal-orange); }
 .home-reserve:empty { display: none; }
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+}
+.tag-beginner { color: var(--cpp-green); border-color: rgba(0, 230, 118, 0.4); }
+.tag-intermediate { color: var(--unreal-orange); border-color: rgba(255, 107, 0, 0.45); }
+.tag-advanced { color: #c084fc; border-color: rgba(192, 132, 252, 0.45); }
+.ref-layout {
+  display: grid;
+  grid-template-columns: minmax(200px, 260px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+.ref-graph { height: 340px; }
+@media (max-width: 800px) {
+  .ref-layout { grid-template-columns: 1fr; }
+  .ref-graph { height: 280px; }
+}
+
 .home-footer {
   margin-top: 36px;
   padding-top: 14px;

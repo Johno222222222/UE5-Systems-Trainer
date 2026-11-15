@@ -33,7 +33,10 @@ You can save one Gemini key and one OpenAI key and switch between them. Changing
 
 ## Everyday use
 
-- The app opens on **Home**: the five most recent projects, the rest of the saved list, **New project**, **Open last system**, and the template tiles. **Tools** is the same workspace as before. Switching between them keeps an unsaved system, including the result, dials, notes, and references.
+- The app opens on **Home**: the five most recent projects, the rest of the saved list, **New project**, **Open last system**, **Start Here**, and the template tiles. **Tools** is the same workspace as before. Switching between them keeps an unsaved system, including the result, dials, notes, and references.
+- **Start Here** is a finished Character Interaction module. It needs no API key. Opening it, reading the graph, the pseudocode, and the C++, answering a challenge, and moving a parameter do not call the model.
+- The first launch, and **About** inside Settings, say what this app is: a UE5 architecture and learning tool. It is not a full game generator. Review the code before you ship it.
+- **References** shows a system with every WHY note open and the key decisions. **Concepts** are short cards with a question and a link to an example. **Fork** copies an example or a template into your projects. The original stays as it shipped.
 - **New** clears the workspace. If you have unsaved work it asks Save, Discard, or Cancel. Cancel changes nothing. "Keep my project context" is off unless you tick it. The API key and model stay. The next Save creates a new project, not a version of the one you just left.
 - Pick a template while a project is open and the app asks before replacing it. **Start a new project** so Save does not add a version to the open project.
 - **Target Unreal** (under the description) is UE 5.8 by default. 5.4 through 5.7 are selectable. It is saved with the project. An older project with no version opens as 5.4, which is what those systems were written for.
@@ -90,7 +93,7 @@ GitHub Actions builds the Windows installer on every push and pull request (see 
 ```
 Electron window
   └─ local Node server (127.0.0.1 only)
-       ├─ React shell (Home, then Tools — the workspace — built into frontend/build)
+       ├─ React shell (Home, Tools, Learn, References — built into frontend/build)
        ├─ library.json          projects, versions, presets, usage
        ├─ secrets.json          encrypted API keys
        └─ files/                uploads
@@ -102,6 +105,7 @@ The window is Electron because it keeps this React UI and produces a normal Wind
 | --- | --- | --- |
 | Workspace UI | `frontend/src` | Screens, graph, export zip, compile check |
 | Home and section bar | `frontend/src/shell`, `frontend/src/lib/shell.mjs` | Which sections exist, and the system kept while you switch |
+| Bundled examples and concepts | `desktop/references.js` | Start Here, concept cards, fork, official doc links |
 | Local API | `desktop/server.js` | Projects, versions, files, jobs |
 | AI providers | `desktop/llm.js` | How a provider is called |
 | Prompts and patching | `desktop/logic.js` | The system prompt, review, fix, and test prompts |

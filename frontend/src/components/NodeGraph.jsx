@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useShell } from "../shell/ShellContext";
 
 // Renders a bezier wire between two anchor points
 function wirePath(x1, y1, x2, y2) {
@@ -7,6 +8,7 @@ function wirePath(x1, y1, x2, y2) {
 }
 
 export default function NodeGraph({ nodes = [], edges = [], whyByNode = {}, onNodeClick, highlightIds = [] }) {
+  const shell = useShell();
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(0.85);
   const [dragging, setDragging] = useState(null);
@@ -34,7 +36,21 @@ export default function NodeGraph({ nodes = [], edges = [], whyByNode = {}, onNo
     setZoom(z);
     setPan({ x: 40 - minX * z, y: 60 - minY * z });
   };
-  useEffect(() => { fit(); }, [nodes]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    let frame = 0;
+    let tries = 0;
+    const run = () => {
+      const el = wrapRef.current;
+      if ((!el || el.clientWidth < 40) && tries < 12) {
+        tries += 1;
+        frame = requestAnimationFrame(run);
+        return;
+      }
+      fit();
+    };
+    frame = requestAnimationFrame(run);
+    return () => cancelAnimationFrame(frame);
+  }, [nodes]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onBgDown = (e) => {
     if (e.target === svgRef.current || e.target.dataset?.bg === "1") {
@@ -165,7 +181,21 @@ export default function NodeGraph({ nodes = [], edges = [], whyByNode = {}, onNo
               </div>
               {openWhy === n.id && whyByNode[n.id] && (
                 <div className="why-pop" data-testid={`why-pop-${n.id}`} onPointerDown={(event) => event.stopPropagation()}>
-                  {whyByNode[n.id].one_line}
+                  <div>{whyByNode[n.id].one_line}</div>
+                  {whyByNode[n.id].concept_id && (
+                    <button
+                      type="button"
+                      className="why-concept"
+                      data-testid={`why-graph-concept-${whyByNode[n.id].id || n.id}`}
+                      onPointerDown={(event) => event.stopPropagation()}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        shell.openConcept(whyByNode[n.id].concept_id);
+                      }}
+                    >
+                      {whyByNode[n.id].concept_title || "Related concept"}
+                    </button>
+                  )}
                 </div>
               )}
               <div className="node-body">
