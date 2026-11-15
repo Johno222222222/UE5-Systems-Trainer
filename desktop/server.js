@@ -11,6 +11,7 @@ const { createSecrets } = require("./secrets");
 const { complete, joinModelText, outputTokenLimit, stubFetch } = require("./llm");
 const { LEARNING_PROMPT, learningGaps, fillLearning, learningUserText } = require("./learning");
 const { attachStarters } = require("./templateLearning");
+const { recordAnswer, emptyProgress } = require("./practice");
 const {
   ALLOWED_MODELS,
   DEFAULT_MODEL,
@@ -867,6 +868,7 @@ async function startServer(options = {}) {
         project_ids: p.project_ids,
         updated_at: p.updated_at,
       })),
+      progress: store.data.progress || emptyProgress(),
     };
   });
 
@@ -930,8 +932,58 @@ async function startServer(options = {}) {
         });
         presets += 1;
       }
-      return { imported: count, presets };
+      if (!data.progress || typeof data.progress !== "object") data.progress = emptyProgress();
+      const saved = incoming.progress && typeof incoming.progress === "object" ? incoming.progress : null;
+      if (saved) {
+        const have = new Set((data.progress.answered || []).map((item) => item.id));
+        for (const item of Array.isArray(saved.answered) ? saved.answered : []) {
+          if (!item || !item.id || have.has(item.id)) continue;
+          data.progress.answered.push(item);
+          have.add(item.id);
+        }
+        for (const item of Array.isArray(saved.practiced) ? saved.practiced : []) {
+          if (!item?.system_name) continue;
+          if (data.progress.practiced.some((row) => row.system_name === item.system_name)) continue;
+          data.progress.practiced.unshift(item);
+        }
+      }
+      return { imported: count, presets, progress: data.progress.answered.length };
     });
+  });
+
+  route("GET", "/api/progress", async () => store.data.progress || emptyProgress());
+
+  route("POST", "/api/progress/answer", async (req) => {
+    const body = await readJson(req);
+    return store.update((data) => {
+      data.progress = recordAnswer(data.progress, body || {});
+      return data.progress;
+    });
+  });
+
+  route("POST", "/api/explain", async (req) => {
+    const body = await readJson(req);
+    const before = String(body.before || "").slice(0, 2000);
+    const after = String(body.after || "").slice(0, 2000);
+    if (!before && !after) throw new HttpError(400, "There is no change to explain.");
+    const llm = resolveLlm(req.headers, secrets);
+    await store.update((data) => { recordUsage(data, llm.key, llm.provider, llm.model, "explain", clock); });
+    let reply;
+    try {
+      reply = await complete({
+        provider: llm.provider,
+        model: llm.model,
+        apiKey: llm.key,
+        system: "Explain one Unreal code change in two short sentences for a learner. No JSON.",
+        user: `Before:\n${before || "(nothing)"}\n\nAfter:\n${after || "(removed)"}`,
+        maxTokens: 400,
+        timeoutMs: 40000,
+        fetchImpl,
+      });
+    } catch (exc) {
+      throw new HttpError(502, "Couldn't explain that change. Try again.");
+    }
+    return { explanation: String(reply.text || "").trim().slice(0, 600) };
   });
 
   route("GET", "/api/projects/:project_id", async (_req, params) => {

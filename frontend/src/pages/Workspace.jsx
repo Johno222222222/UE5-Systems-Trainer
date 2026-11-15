@@ -41,6 +41,7 @@ import { useShell } from "../shell/ShellContext";
 import {
   moduleNote, parameterEffect, shouldRunLearningPass, showChallenges, showTraps, visibleWhyNotes, whyForCpp, whyForNode,
 } from "../lib/learning.mjs";
+import { challengesOf, impactLines, readyChallenge, shouldShowPredict, whatIfsOf } from "../lib/practice.mjs";
 import WhyNote from "../components/WhyNote";
 
 const LS_KEY = "ue5_architect_library_v1";
@@ -209,6 +210,11 @@ export default function Workspace() {
   const [viewingVersion, setViewingVersion] = useState(null);
   const [learningState, setLearningState] = useState(null);
   const [whyFocus, setWhyFocus] = useState(null);
+  const [pendingReveal, setPendingReveal] = useState(null);
+  const [outcomeCheck, setOutcomeCheck] = useState(null);
+  const [impactKey, setImpactKey] = useState(null);
+  const [whatIfId, setWhatIfId] = useState(null);
+  const [explanation, setExplanation] = useState("");
   const [compareBase, setCompareBase] = useState("previous"); // "previous" | version number
   const [baseSystem, setBaseSystem] = useState(null);
   const [usageTick, setUsageTick] = useState(0);
@@ -398,25 +404,46 @@ export default function Workspace() {
     toast.success("Remembered project context cleared", { description: "Saved projects still have their own context." });
   };
 
-  const runLearning = async (system) => {
-    if (!system || !shouldRunLearningPass(shell.helpLevel)) return;
+  const runLearning = async (system, { apply = true } = {}) => {
+    if (!system || !shouldRunLearningPass(shell.helpLevel)) return system;
     if (!aiKey) {
       setLearningState("failed");
-      return;
+      return system;
     }
     const epoch = epochRef.current;
     const id = system.id;
     setLearningState("running");
     try {
       const { data } = await api.post("/learn", { system, unreal_version: unrealVersion }, { headers: aiHeaders(aiKey) });
-      if (epochRef.current !== epoch) return;
-      setResult((current) => (current && current.id === id ? { ...current, learning: data.learning } : current));
+      if (epochRef.current !== epoch) return system;
+      const next = { ...system, learning: data.learning };
+      if (apply) setResult((current) => (current && current.id === id ? { ...current, learning: data.learning } : current));
       setLearningState("done");
+      return next;
     } catch {
-      if (epochRef.current !== epoch) return;
+      if (epochRef.current !== epoch) return system;
       setLearningState("failed");
+      return system;
     } finally {
       setUsageTick((n) => n + 1);
+    }
+  };
+
+  const revealSystem = (system, challenge, outcome) => {
+    setResult(system);
+    setPendingReveal(null);
+    if (outcome) {
+      setOutcomeCheck(outcome);
+      if (shouldRunLearningPass(shell.helpLevel)) runLearning(system);
+    }
+    if (challenge?.reveal) {
+      shell.setReveal({
+        node_ids: challenge.reveal.node_ids || [],
+        lines: challenge.reveal.lines || [],
+        why_id: challenge.reveal.why_id || "",
+      });
+      if (challenge.reveal.why_id) setWhyFocus(challenge.reveal.why_id);
+      setTab("graph");
     }
   };
 
@@ -454,14 +481,19 @@ export default function Workspace() {
       // Keep generated tests across regenerations; the Tests tab marks them out of date
       setViewingVersion(null);
       const shown = { ...data, ...(result?.tests && !body.stack_systems ? { tests: result.tests } : {}), context: { ...context, project_context: projectContext, references, notes: body.designer_notes || "", unreal_version: unrealVersion }, baseline_modules: data.modules };
-      setResult(shown);
       setLearningState(null);
       setSetupDone({});
       setNotes((n) => (n === (body.designer_notes || "") ? "" : n));
-      setTab(result ? "compare" : "graph");
       setLoading(false);
       toast.success(successLabel(data), { description: `${data.node_graph_nodes?.length || 0} nodes · ${data.applied_changes?.length || 0} changes applied` });
-      if (shouldRunLearningPass(shell.helpLevel)) await runLearning(shown);
+      let ready = shown;
+      if (shouldRunLearningPass(shell.helpLevel)) ready = await runLearning(shown, { apply: !shouldShowPredict(shell.helpLevel) });
+      if (shouldShowPredict(shell.helpLevel) && challengesOf(ready).length) {
+        setPendingReveal({ system: ready, kind: "synthesis", index: 0 });
+        return true;
+      }
+      setResult(ready);
+      setTab(result ? "compare" : "graph");
       return true;
     } catch (e) {
       if (e.message === "cancelled") return false;
@@ -1000,13 +1032,24 @@ export default function Workspace() {
       return;
     }
     const next = { ...result, cpp_header: data.cpp_header, cpp_source: data.cpp_source };
-    setResult(next);
+    const outcome = (data.changes || []).map((change) => ({
+      file: change.file || "",
+      why: change.why || "Updated the code.",
+    }));
     setFix(null);
-    if (shouldRunLearningPass(shell.helpLevel)) runLearning(next);
+    const holdForPredict = shouldShowPredict(shell.helpLevel) && challengesOf(result).length;
+    if (holdForPredict) {
+      setPendingReveal({ system: next, kind: "fix", index: 0, outcome });
+    } else {
+      setResult(next);
+      setOutcomeCheck(outcome);
+      if (shouldRunLearningPass(shell.helpLevel)) runLearning(next);
+    }
     const entry = makeFixEntry(result, next, data);
     const note = fixNote(entry);
     setFixLog((l) => [...l, entry].slice(-20));
     setFixNotes((n) => [...n, note]);
+    if (holdForPredict) return;
     if (fix.thenExport) exportZip(fix.thenExport, true, next);
     const sig = (i) => `${i.file}|${i.message}`;
     const after = checkSystem(next).filter((i) => !ignoreKeys.has(issueKey(i, next)));
@@ -1079,12 +1122,20 @@ export default function Workspace() {
                 {readOnly ? <><Eye size={10} /> View only</> : "Local"}
               </span>
               <span className="hidden lg:inline text-[10.5px] font-mono text-[var(--text-muted)] truncate" data-testid="project-last-saved">saved by {project.updated_by_name} · {new Date(project.updated_at).toLocaleString()}</span>
+              {result && (
+                <button className="ue-btn !py-1 !px-2 !text-[11px] shrink-0" onClick={() => shell.go("learn")} data-testid="open-in-learn">Open in Learn</button>
+              )}
               <button className="ue-btn !py-1 !px-2 !text-[11px] shrink-0" onClick={() => setHistoryOpen(true)} data-testid="versions-button" title="Saved versions of this project">
                 <History size={12} /> Versions{versions.length > 0 ? ` · ${versions.length}` : ""}
               </button>
             </>
           ) : (
-            <span className="text-[11px] font-mono text-[var(--text-muted)]" data-testid="project-name-unsaved">Unsaved system</span>
+            <>
+              <span className="text-[11px] font-mono text-[var(--text-muted)]" data-testid="project-name-unsaved">Unsaved system</span>
+              {result && (
+                <button className="ue-btn !py-1 !px-2 !text-[11px] shrink-0" onClick={() => shell.go("learn")} data-testid="open-in-learn">Open in Learn</button>
+              )}
+            </>
           )}
         </div>
         <div className="header-actions">
@@ -1261,6 +1312,17 @@ export default function Workspace() {
               <div className="text-[11px] font-mono text-[var(--text-secondary)] truncate mt-1">
                 {result?.summary || "Describe a system on the left, tune the dials, press Synthesize."}
               </div>
+              {outcomeCheck?.length > 0 && (
+                <div className="mt-2 panel p-2.5" data-testid="outcome-check">
+                  <div className="eyebrow mb-1">Outcome check</div>
+                  {outcomeCheck.map((item, itemIndex) => (
+                    <div key={itemIndex} className="text-[12px] text-[var(--text-secondary)]" data-testid={`outcome-edit-${itemIndex}`}>
+                      {item.file ? `${item.file}: ` : ""}{item.why}
+                    </div>
+                  ))}
+                  <div className="mt-1 text-[11px] font-mono text-[var(--text-muted)]">Save if you want to keep the fix. Run the compile check for anything still listed.</div>
+                </div>
+              )}
               {learningState === "running" && (
                 <div className="mt-1 text-[11px] font-mono text-[var(--text-muted)]" data-testid="learning-pass-running">Writing teaching notes…</div>
               )}
@@ -1381,6 +1443,7 @@ export default function Workspace() {
                     return [node.id, notes[0]];
                   }).filter(([, note]) => note))}
                   onNodeClick={(nodeId) => { setWhyFocus(nodeId); setTab("blueprint"); }}
+                  highlightIds={shell.reveal?.node_ids || []}
                 />
                 {result?.node_graph_nodes?.length > 0 && (
                   <button className="ue-btn ue-btn-primary !text-[12px] absolute bottom-4 right-4 z-20" onClick={copyForUnreal} title="Copies the graph in Unreal's clipboard format" data-testid="copy-for-unreal-button">
@@ -1409,14 +1472,49 @@ export default function Workspace() {
               <div className="p-5 h-full overflow-auto">
                 {result && <CompileCheck issues={activeIssues} ignored={ignoredIssues} ai={aiReview} onReview={runAiReview} aiKey={aiKey} canEdit={!readOnly}
                   fixing={fix?.status === "running" || loading} onJump={jumpTo} onFix={(l) => runFix(l)} onRegenerate={fixRegenerate} onIgnore={ignoreIssue} onRestore={restoreIssue} onCopy={copyIssues} />}
+                {whatIfsOf(result).length > 0 && shell.helpLevel !== "minimal" && (
+                  <div className="panel p-3 mb-4" data-testid="what-if">
+                    <div className="eyebrow mb-2">{whatIfsOf(result)[0].title || "What if"}</div>
+                    <div className="flex flex-wrap gap-1 mb-2">
+                      {whatIfsOf(result)[0].variants.map((variant) => (
+                        <button key={variant.id} type="button" className={`ue-btn !py-1 !px-2 !text-[11px] ${whatIfId === variant.id ? "!border-[var(--unreal-orange)] !text-[var(--unreal-orange)]" : ""}`} data-testid={`what-if-${variant.id}`} onClick={() => setWhatIfId(variant.id)}>
+                          {variant.label}
+                        </button>
+                      ))}
+                    </div>
+                    {whatIfId && (
+                      <pre className="text-[12px] font-mono whitespace-pre-wrap text-[var(--text-secondary)]" data-testid="what-if-code">
+                        {whatIfsOf(result)[0].variants.find((variant) => variant.id === whatIfId)?.code}
+                      </pre>
+                    )}
+                  </div>
+                )}
                 <div className="grid md:grid-cols-2 gap-4">
-                  <CodeBox title={`${result ? baseName(result) : "System"}.h`} code={result?.cpp_header} lang="cpp" testId="cpp-header" target={jump?.file === ".h" ? jump : null} callouts={whyForCpp(result, shell.helpLevel, ".h")} renderCallout={(note) => <WhyNote note={note} level={shell.helpLevel} />} />
-                  <CodeBox title={`${result ? baseName(result) : "System"}.cpp`} code={result?.cpp_source} lang="cpp" testId="cpp-source" target={jump?.file === ".cpp" ? jump : null} callouts={whyForCpp(result, shell.helpLevel, ".cpp")} renderCallout={(note) => <WhyNote note={note} level={shell.helpLevel} />} />
+                  <CodeBox title={`${result ? baseName(result) : "System"}.h`} code={result?.cpp_header} lang="cpp" testId="cpp-header" target={jump?.file === ".h" ? jump : null} callouts={whyForCpp(result, shell.helpLevel, ".h")} renderCallout={(note) => <WhyNote note={note} level={shell.helpLevel} />} highlightLines={(impactKey ? impactLines(result, impactKey) : shell.reveal?.lines || []).filter((line) => line.file === ".h").map((line) => line.line)} />
+                  <CodeBox title={`${result ? baseName(result) : "System"}.cpp`} code={result?.cpp_source} lang="cpp" testId="cpp-source" target={jump?.file === ".cpp" ? jump : null} callouts={whyForCpp(result, shell.helpLevel, ".cpp")} renderCallout={(note) => <WhyNote note={note} level={shell.helpLevel} />} highlightLines={(impactKey ? impactLines(result, impactKey) : shell.reveal?.lines || []).filter((line) => line.file === ".cpp").map((line) => line.line)} />
                 </div>
               </div>
             )}
             {tab === "setup" && <SetupGuide steps={result?.setup_guide || []} done={setupDone} onToggle={(step) => setSetupDone((current) => ({ ...current, [step]: !current[step] }))} />}
-            {tab === "compare" && <CompareView before={compareBefore} after={result} picker={versionPicker} />}
+            {tab === "compare" && (
+              <CompareView
+                before={compareBefore}
+                after={result}
+                picker={versionPicker}
+                explanation={explanation}
+                onExplain={async (row) => {
+                  if (!aiKey) { setKeyModal("required"); return; }
+                  setExplanation("Asking…");
+                  try {
+                    const { data } = await api.post("/explain", { before: row.left || "", after: row.right || "" }, { headers: aiHeaders(aiKey) });
+                    setExplanation(data.explanation || "No explanation came back.");
+                    setUsageTick((n) => n + 1);
+                  } catch (err) {
+                    setExplanation(errorText(err));
+                  }
+                }}
+              />
+            )}
             {tab === "files" && <ProjectFiles project={project} />}
           </div>
 
@@ -1470,10 +1568,15 @@ export default function Workspace() {
                         max={p.max ?? 100}
                         step={p.step ?? 1}
                         unit={p.unit || ""}
-                        onChange={(v) => setTunable((t) => ({ ...t, [p.key]: v }))}
+                        onChange={(v) => { setTunable((t) => ({ ...t, [p.key]: v })); setImpactKey(p.key); setTab("cpp"); }}
                         testId={`param-${p.key}`}
                       />
                       {effect && <div className="text-[10.5px] font-mono text-[var(--text-muted)] -mt-1" data-testid={`param-effect-${p.key}`}>{effect}</div>}
+                      {impactKey === p.key && impactLines(result, p.key).length > 0 && (
+                        <div className="text-[10.5px] font-mono text-[var(--unreal-orange)]" data-testid={`param-impact-${p.key}`}>
+                          Highlights {impactLines(result, p.key).map((line) => `${line.file} line ${line.line}`).join(", ")} before the next synthesis.
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -1558,6 +1661,60 @@ export default function Workspace() {
           </fieldset>
         </aside>
       </div>
+      {pendingReveal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(5,7,11,0.72)] p-4" data-testid="predict-card">
+          <div className="panel w-full max-w-lg p-5">
+            <div className="eyebrow">Predict the outcome</div>
+            <h2 className="font-display text-[22px] font-extrabold uppercase tracking-wider mt-1">{pendingReveal.system?.system_name || "New system"}</h2>
+            {(() => {
+              const challenge = readyChallenge(challengesOf(pendingReveal.system)[pendingReveal.index || 0], pendingReveal.system);
+              if (!challenge) return <p className="mt-3 text-[13px]">No question for this one.</p>;
+              return (
+                <div className="mt-3">
+                  <div className="text-[14px] text-[var(--text-primary)]">{challenge.prompt || challenge.title}</div>
+                  <div className="mt-3 flex flex-col gap-2">
+                    {(challenge.choices || []).map((choice, choiceIndex) => (
+                      <button
+                        key={choice}
+                        type="button"
+                        className="ue-btn justify-start whitespace-normal text-left"
+                        data-testid={`predict-choice-${choiceIndex}`}
+                        onClick={async () => {
+                          const correct = choiceIndex === challenge.answer;
+                          if (!correct) {
+                            setPendingReveal((current) => ({ ...current, wrong: challenge.why_people_pick, choice: choiceIndex }));
+                            return;
+                          }
+                          try {
+                            await api.post("/progress/answer", {
+                              system_name: pendingReveal.system.system_name,
+                              project_id: project?.project_id || null,
+                              challenge_index: pendingReveal.index || 0,
+                              correct: true,
+                            });
+                          } catch { /* the reveal still happens */ }
+                          revealSystem(pendingReveal.system, challenge, pendingReveal.outcome);
+                        }}
+                      >
+                        {choice}
+                      </button>
+                    ))}
+                  </div>
+                  {pendingReveal.wrong && (
+                    <div className="mt-3 text-[13px] text-[var(--text-secondary)]" data-testid="predict-why-wrong">
+                      <div>{pendingReveal.wrong}</div>
+                      <button type="button" className="ue-btn ue-btn-primary mt-3" data-testid="predict-show-anyway" onClick={() => revealSystem(pendingReveal.system, challenge, pendingReveal.outcome)}>
+                        Show the result
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+            <button type="button" className="ue-btn mt-4" data-testid="predict-skip" onClick={() => revealSystem(pendingReveal.system, null, pendingReveal.outcome)}>Skip</button>
+          </div>
+        </div>
+      )}
       {keyModal && (
         <AiKeyModal current={aiKey} required={keyModal === "required"} onClearProjectContext={clearRememberedContext} onClose={() => { setKeyModal(null); setUsageTick((n) => n + 1); }}
           onSave={(k) => { setAiKey(k); setKeyModal(null); setUsageTick((n) => n + 1); }} />

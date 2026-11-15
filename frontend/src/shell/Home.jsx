@@ -33,6 +33,7 @@ export default function Home() {
   const [templates, setTemplates] = useState([]);
   const [loadError, setLoadError] = useState("");
   const [showRest, setShowRest] = useState(false);
+  const [continueCards, setContinueCards] = useState([]);
   const ranked = rankProjects(projects);
 
   useEffect(() => {
@@ -42,6 +43,13 @@ export default function Home() {
       .catch(() => { if (alive) setLoadError("Couldn't load saved projects."); });
     api.get("/templates")
       .then((r) => { if (alive) setTemplates(r.data?.templates || []); })
+      .catch(() => {});
+    api.get("/progress")
+      .then((r) => {
+        if (!alive) return;
+        const practiced = Array.isArray(r.data?.practiced) ? r.data.practiced : [];
+        setContinueCards(practiced.slice(0, 4));
+      })
       .catch(() => {});
     return () => { alive = false; };
   }, []);
@@ -80,7 +88,30 @@ export default function Home() {
         </div>
 
         {/* Continue cards land in this slot in a later stage. Empty on purpose. */}
-        <div data-testid="continue-cards-slot" className="home-reserve" />
+        <div data-testid="continue-cards-slot" className={continueCards.length ? "mt-6" : "home-reserve"}>
+          {continueCards.length > 0 && (
+            <>
+              <div className="eyebrow mb-2">Continue</div>
+              <div className="home-grid">
+                {continueCards.map((card) => (
+                  <button
+                    key={card.system_name}
+                    type="button"
+                    className="panel home-card text-left"
+                    data-testid={`continue-card-${card.system_name}`}
+                    onClick={() => {
+                      if (card.project_id) shell.issue({ type: "open-project", id: card.project_id });
+                      else shell.go("learn");
+                    }}
+                  >
+                    <div className="font-sub font-semibold text-[14px]">Continue {card.system_name}</div>
+                    <div className="mt-1 text-[11px] font-mono text-[var(--text-muted)]">{card.count} answered</div>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
 
         <section className="mt-8" data-testid="home-recent" id="home-recent">
           <div className="flex items-center gap-2 mb-3">

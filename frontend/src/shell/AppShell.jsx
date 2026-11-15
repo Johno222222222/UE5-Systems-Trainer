@@ -5,6 +5,7 @@ import SectionBar from "./SectionBar";
 import Home from "./Home";
 import EmptySection from "./EmptySection";
 import Workspace from "../pages/Workspace";
+import Learn from "./Learn";
 
 export default function AppShell() {
   const shell = useShell();
@@ -36,6 +37,7 @@ export default function AppShell() {
         <div className="shell-pane" hidden={screen !== "tools"}>
           <Workspace />
         </div>
+        {screen === "learn" && <Learn />}
         {screen === "empty" && <EmptySection section={section} onAction={onEmptyAction} />}
         {screen === "remembered" && (
           <EmptySection section={section} open={shell.memory[section.id]} onAction={onEmptyAction} />

@@ -6,7 +6,7 @@ function wirePath(x1, y1, x2, y2) {
   return `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
 }
 
-export default function NodeGraph({ nodes = [], edges = [], whyByNode = {}, onNodeClick }) {
+export default function NodeGraph({ nodes = [], edges = [], whyByNode = {}, onNodeClick, highlightIds = [] }) {
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(0.85);
   const [dragging, setDragging] = useState(null);
@@ -139,7 +139,7 @@ export default function NodeGraph({ nodes = [], edges = [], whyByNode = {}, onNo
           return (
             <div
               key={n.id}
-              className={`node-card ${nodeTypeClass(n.node_type)}`}
+              className={`node-card ${nodeTypeClass(n.node_type)} ${highlightIds.includes(n.id) ? "node-reveal" : ""}`}
               style={{ left: p.x, top: p.y, width: nodeWidth, pointerEvents: "auto" }}
               onPointerDown={(e) => onNodeDown(e, n.id)}
               data-testid={`graph-node-${n.id}`}
