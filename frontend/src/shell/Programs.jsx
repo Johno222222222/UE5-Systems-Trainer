@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { api, errorText } from "../lib/api";
+import ChoiceButton from "../components/ChoiceButton";
 import { useShell } from "./ShellContext";
 
 const VIEWS = [
@@ -210,9 +211,16 @@ export default function Programs() {
             <div className="mt-4 font-sub font-semibold" data-testid="program-predict">{step.predict?.prompt}</div>
             <div className="mt-2 flex flex-col gap-2">
               {(step.predict?.choices || []).map((choice, index) => (
-                <button key={choice} type="button" className="ue-btn justify-start whitespace-normal text-left" data-testid={`program-choice-${index}`} onClick={() => setPicked(index)}>
-                  {choice}
-                </button>
+                <ChoiceButton
+                  key={`${step.id}-${index}`}
+                  id={index}
+                  label={choice}
+                  picked={picked}
+                  correct={step.predict.answer}
+                  revealed={picked !== null}
+                  onPick={setPicked}
+                  testId={`program-choice-${index}`}
+                />
               ))}
             </div>
             {picked !== null && (
