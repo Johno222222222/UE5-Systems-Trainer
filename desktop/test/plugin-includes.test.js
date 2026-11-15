@@ -10,6 +10,24 @@ const root = path.join(__dirname, "..", "..", "ue-plugin", "ArchitectCompanion")
 // Engine header -> module that owns it in UE 5.8. A header missing from this map fails the test.
 const HEADER_MODULES = {
   "AssetRegistry/AssetRegistryModule.h": "AssetRegistry",
+  "AssetToolsModule.h": "AssetTools",
+  "DataTableEditorUtils.h": "UnrealEd",
+  "EdGraph/EdGraph.h": "Engine",
+  "EdGraphNode_Comment.h": "Engine",
+  "EdGraphSchema_K2.h": "BlueprintGraph",
+  "Editor.h": "UnrealEd",
+  "Engine/BlueprintGeneratedClass.h": "Engine",
+  "Engine/DataAsset.h": "Engine",
+  "Engine/DataTable.h": "Engine",
+  "Factories/DataAssetFactory.h": "UnrealEd",
+  "Factories/DataTableFactory.h": "UnrealEd",
+  "Kismet2/BlueprintEditorUtils.h": "UnrealEd",
+  "Kismet2/KismetEditorUtilities.h": "UnrealEd",
+  "Misc/PackageName.h": "CoreUObject",
+  "ObjectTools.h": "UnrealEd",
+  "ScopedTransaction.h": "UnrealEd",
+  "Subsystems/AssetEditorSubsystem.h": "UnrealEd",
+  "UObject/SavePackage.h": "CoreUObject",
   "Containers/Ticker.h": "Core",
   "CoreMinimal.h": "Core",
   "Dom/JsonObject.h": "Json",
@@ -93,4 +111,11 @@ test("the companion plugin is editor-only and each engine include names its modu
   assert.ok(seen.includes("WorkspaceMenuStructure.h"));
   assert.ok(modules.has("HTTP"));
   assert.equal(modules.has("HTTPServer"), false);
+  assert.ok(modules.has("AssetTools"));
+  assert.ok(modules.has("Kismet"));
+  assert.ok(modules.has("KismetCompiler"));
+  assert.ok(modules.has("BlueprintGraph"));
+  assert.ok(seen.includes("Kismet2/KismetEditorUtilities.h"));
+  assert.ok(seen.includes("Factories/DataTableFactory.h"));
+  assert.ok(seen.includes("UObject/SavePackage.h"));
 });

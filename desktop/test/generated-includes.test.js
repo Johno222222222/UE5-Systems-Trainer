@@ -30,8 +30,11 @@ test("Character Interaction exports an Interactable interface and only resolvabl
     "CharacterInteractKit.uplugin",
     "Source/CharacterInteractKit/CharacterInteractKit.Build.cs",
     "Source/CharacterInteractKit/Private/CharacterInteractComponent.cpp",
+    "Source/CharacterInteractKit/Private/CharacterInteractData.cpp",
     "Source/CharacterInteractKit/Private/CharacterInteractKitModule.cpp",
     "Source/CharacterInteractKit/Public/CharacterInteractComponent.h",
+    "Source/CharacterInteractKit/Public/CharacterInteractData.h",
+    "Source/CharacterInteractKit/Public/CharacterInteractStatsRow.h",
     "Source/CharacterInteractKit/Public/Interactable.h",
   ]);
   const iface = map.files["Source/CharacterInteractKit/Public/Interactable.h"];

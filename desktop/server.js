@@ -59,6 +59,7 @@ const { stackMap } = require("./stackMap");
 const { detectEngine, compilePlugin } = require("./engine");
 const { moduleName, writePlugin, copyTree, enablePlugin } = require("./pluginFiles");
 const { createCompanion, summarizeProject } = require("./companion");
+const { buildAssetPlan } = require("./realAssets");
 
 const OWNER = "You";
 const REF_LIMIT = 10 * 1024 * 1024;
@@ -1028,6 +1029,37 @@ async function startServer(options = {}) {
       queued: !!command,
       message: command ? "Files written. The editor was asked to compile." : "Files written. Pair the Architect panel, then compile in the editor.",
     };
+  });
+
+  route("POST", "/api/companion/assets", async (req) => {
+    const body = await readJson(req);
+    const system = body.system;
+    if (!system?.cpp_header || !system?.cpp_source) throw new HttpError(400, "Create in Unreal needs a generated system.");
+    const plan = buildAssetPlan(system, { folder: body.folder, confirm: body.confirm === true });
+    if (!companion.paired) {
+      return { ok: false, paired: false, folder: plan.folder, message: "Pair the Architect panel in the editor first." };
+    }
+    companion.clearResult();
+    const command = companion.queue(plan);
+    return {
+      ok: true,
+      queued: true,
+      id: command.id,
+      folder: plan.folder,
+      confirm: plan.confirm,
+      message: plan.confirm
+        ? `Asked the editor to replace assets in ${plan.folder}.`
+        : `Asked the editor to create assets in ${plan.folder}.`,
+    };
+  });
+
+  route("POST", "/api/companion/open", async (req) => {
+    const body = await readJson(req);
+    const asset = String(body.asset || "").trim();
+    if (!asset.startsWith("/Game/")) throw new HttpError(400, "Open in Unreal needs an asset under /Game.");
+    if (!companion.paired) return { ok: false, paired: false, message: "Pair the Architect panel in the editor first." };
+    const command = companion.queue({ type: "open-asset", asset });
+    return { ok: true, queued: true, id: command.id, asset, message: "Asked the editor to open that asset." };
   });
 
   route("POST", "/api/companion/context", async () => {

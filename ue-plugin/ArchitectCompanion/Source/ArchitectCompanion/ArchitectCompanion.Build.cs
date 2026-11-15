@@ -23,7 +23,11 @@ public class ArchitectCompanion : ModuleRules
 			"AssetRegistry",
 			"InputCore",
 			"ToolMenus",
-			"WorkspaceMenuStructure"
+			"WorkspaceMenuStructure",
+			"AssetTools",
+			"Kismet",
+			"KismetCompiler",
+			"BlueprintGraph"
 		});
 	}
 }

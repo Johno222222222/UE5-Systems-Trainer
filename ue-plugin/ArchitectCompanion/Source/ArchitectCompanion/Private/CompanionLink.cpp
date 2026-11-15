@@ -100,7 +100,7 @@ bool CompanionLink::Report(const FString& Host, int32 Port, const FString& Token
 	return true;
 }
 
-bool CompanionLink::TakePending(const FString& Host, int32 Port, const FString& Token, FString& OutType, FString& OutMessage)
+bool CompanionLink::TakePending(const FString& Host, int32 Port, const FString& Token, TSharedPtr<FJsonObject>& OutCommand)
 {
 	FString Text;
 	if (!GetText(BaseUrl(Host, Port) + TEXT("/v1/pending"), Token, Text)) return false;
@@ -109,16 +109,21 @@ bool CompanionLink::TakePending(const FString& Host, int32 Port, const FString& 
 	if (!FJsonSerializer::Deserialize(Reader, Parsed) || !Parsed.IsValid() || !Parsed->HasField(TEXT("command"))) return false;
 	const TSharedPtr<FJsonObject>* Command = nullptr;
 	if (!Parsed->TryGetObjectField(TEXT("command"), Command) || !Command || !Command->IsValid()) return false;
-	OutType = (*Command)->GetStringField(TEXT("type"));
-	OutMessage = (*Command)->GetStringField(TEXT("module"));
-	return !OutType.IsEmpty();
+	OutCommand = *Command;
+	return OutCommand.IsValid() && !OutCommand->GetStringField(TEXT("type")).IsEmpty();
 }
 
-bool CompanionLink::PostResult(const FString& Host, int32 Port, const FString& Token, bool bOk, const FString& Message, FString& OutError)
+bool CompanionLink::PostResult(const FString& Host, int32 Port, const FString& Token, bool bOk, const FString& Message, const TArray<FString>& Assets, const TArray<FString>& Conflicts, FString& OutError)
 {
 	TSharedRef<FJsonObject> Body = MakeShared<FJsonObject>();
 	Body->SetBoolField(TEXT("ok"), bOk);
 	Body->SetStringField(TEXT("message"), Message);
+	TArray<TSharedPtr<FJsonValue>> AssetValues;
+	for (const FString& Asset : Assets) AssetValues.Add(MakeShared<FJsonValueString>(Asset));
+	TArray<TSharedPtr<FJsonValue>> ConflictValues;
+	for (const FString& Conflict : Conflicts) ConflictValues.Add(MakeShared<FJsonValueString>(Conflict));
+	Body->SetArrayField(TEXT("assets"), AssetValues);
+	Body->SetArrayField(TEXT("conflicts"), ConflictValues);
 	FString Text;
 	int32 Status = 0;
 	return PostJson(BaseUrl(Host, Port) + TEXT("/v1/result"), Token, Body, Text, Status);
