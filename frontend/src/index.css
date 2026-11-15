@@ -287,6 +287,18 @@ html, body, #root {
 .node-pure .node-header { background: linear-gradient(90deg, #0a7a3f, #00e676); color:#06090f; }
 .graph-node { overflow: visible; z-index: 2; }
 .graph-node.is-selected { outline: 1px solid var(--unreal-orange); outline-offset: 1px; }
+.graph-node.is-sim { outline: 2px solid #f5c518; box-shadow: 0 0 0 4px rgba(245, 197, 24, 0.45), 0 0 22px rgba(245, 197, 24, 0.75); }
+.graph-node.is-sim .node-header { background: #8a6a08; }
+.node-role { margin: 0 8px; color: #9ecbff; font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase; }
+.node-note { margin: 0 8px 8px; color: var(--text-secondary); font-size: 10.5px; line-height: 1.35; }
+.graph-wire.is-pulse { stroke-dasharray: 8 6; animation: wirepulse 0.7s linear infinite; }
+@keyframes wirepulse { to { stroke-dashoffset: -28; } }
+.graph-watch, .graph-blueprint { position: absolute; right: 12px; bottom: 12px; z-index: 20; width: 260px; max-height: 240px; overflow: auto; padding: 8px; }
+.graph-blueprint { bottom: 12px; width: 320px; max-height: 280px; }
+.graph-watch-note { margin: 6px 0; font-size: 11px; line-height: 1.35; color: var(--text-secondary); }
+.graph-watch-list { list-style: none; margin: 0; padding: 0; font-family: "JetBrains Mono", monospace; font-size: 11px; }
+.graph-watch-list li { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0; }
+.graph-blueprint-text { width: 100%; min-height: 90px; margin-top: 6px; font-family: "JetBrains Mono", monospace; font-size: 10px; background: #0c1018; color: var(--text-secondary); border: 1px solid var(--border); }
 .node-warn { margin: 0 8px 8px; color: #f0a8a8; font-size: 10.5px; line-height: 1.35; }
 .graph-library {
   width: 196px;

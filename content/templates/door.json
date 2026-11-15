@@ -1,0 +1,29 @@
+{
+  "id": "door",
+  "title": "Door open/close",
+  "summary": "Overlap plays a timeline, and FlipFlop toggles the open flag.",
+  "variables": [
+    {"name": "IsOpen", "type": "bool", "default": "false"}
+  ],
+  "graph": {
+    "kind": "event",
+    "name": "Door",
+    "nodes": [
+      {"key": "overlap", "catalog": "begin-overlap", "x": 40, "y": 80, "note": "Begin Overlap is the player walking into the door trigger. Filter the other actor before you move the mesh."},
+      {"key": "timeline", "catalog": "timeline", "x": 340, "y": 80, "note": "A timeline blends the door angle. The simulation jumps to Finished. In Unreal, Update would drive the mesh each tick of the curve."},
+      {"key": "flip", "catalog": "flipflop", "x": 640, "y": 80, "note": "FlipFlop remembers the last way the door moved. The first overlap opens. The next one closes."},
+      {"key": "yes", "catalog": "literal", "x": 640, "y": 240, "data": {"varType": "bool", "value": "true"}, "note": "True means open."},
+      {"key": "no", "catalog": "literal", "x": 640, "y": 340, "data": {"varType": "bool", "value": "false"}, "note": "False means closed."},
+      {"key": "open", "catalog": "set-variable", "x": 940, "y": 20, "data": {"variable": "IsOpen", "varType": "bool"}, "note": "Set IsOpen true on the A path. Replicate this if other players need to see the door."},
+      {"key": "close", "catalog": "set-variable", "x": 940, "y": 180, "data": {"variable": "IsOpen", "varType": "bool"}, "note": "Set IsOpen false on the B path."}
+    ],
+    "wires": [
+      {"from": "overlap", "fromPin": "Exec", "to": "timeline", "toPin": "Play"},
+      {"from": "timeline", "fromPin": "Finished", "to": "flip", "toPin": "Exec"},
+      {"from": "flip", "fromPin": "A", "to": "open", "toPin": "Exec"},
+      {"from": "flip", "fromPin": "B", "to": "close", "toPin": "Exec"},
+      {"from": "yes", "fromPin": "Value", "to": "open", "toPin": "Value"},
+      {"from": "no", "fromPin": "Value", "to": "close", "toPin": "Value"}
+    ]
+  }
+}

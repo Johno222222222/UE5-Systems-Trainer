@@ -1,0 +1,22 @@
+{
+  "id": "timer",
+  "title": "Timer loop",
+  "summary": "Begin Play sets a timer by event, and the event sets it again.",
+  "variables": [],
+  "graph": {
+    "kind": "event",
+    "name": "Timer",
+    "nodes": [
+      {"key": "begin", "catalog": "begin-play", "x": 40, "y": 80, "note": "Begin Play runs once. Start the timer here, not on Tick."},
+      {"key": "arm", "catalog": "set-timer", "x": 320, "y": 80, "data": {"seconds": 0.5, "event": "TimerTick"}, "note": "Set Timer by Event names the custom event. The simulation fires it immediately, up to a small cap, so the loop is visible."},
+      {"key": "tick", "catalog": "custom-event", "x": 40, "y": 260, "data": {"name": "TimerTick"}, "note": "TimerTick is the event the timer calls. It is not Tick. It runs on the timer interval."},
+      {"key": "print", "catalog": "print-string", "x": 340, "y": 260, "data": {"text": "Tick"}, "note": "The work for one loop. A print stands in for spawning, a pulse, or a cooldown check."},
+      {"key": "again", "catalog": "set-timer", "x": 620, "y": 260, "data": {"seconds": 0.5, "event": "TimerTick"}, "note": "Setting the timer again makes the loop. Clear it in End Play so it does not fire after the actor is gone."}
+    ],
+    "wires": [
+      {"from": "begin", "fromPin": "Exec", "to": "arm", "toPin": "Exec"},
+      {"from": "tick", "fromPin": "Exec", "to": "print", "toPin": "Exec"},
+      {"from": "print", "fromPin": "Exec", "to": "again", "toPin": "Exec"}
+    ]
+  }
+}

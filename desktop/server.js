@@ -15,6 +15,7 @@ const { recordAnswer, emptyProgress } = require("./practice");
 const { catalog, forkPayload } = require("./references");
 const { loadPacks, loadPackSources, programById, courseById, taskById } = require("./packs");
 const { loadGlossary } = require("./glossary");
+const { loadGraphTemplates } = require("./graphTemplates");
 const {
   ensureStudy,
   checkTask,
@@ -583,6 +584,12 @@ async function startServer(options = {}) {
     const loaded = loadGlossary({ appPath: options.appPath, resourcesPath: options.resourcesPath });
     if (loaded.problems.length) console.error(`Glossary: ${loaded.problems.join(" | ")}`);
     return { terms: loaded.terms, problems: loaded.problems };
+  });
+
+  route("GET", "/api/graph-templates", async () => {
+    const loaded = loadGraphTemplates({ appPath: options.appPath, resourcesPath: options.resourcesPath });
+    if (loaded.problems.length) console.error(`Graph templates: ${loaded.problems.join(" | ")}`);
+    return { templates: loaded.templates, problems: loaded.problems };
   });
 
   route("POST", "/api/examples/:id/fork", async (_req, params) => {
