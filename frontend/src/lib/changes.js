@@ -75,13 +75,16 @@ export function sideBySideDiff(a = "", b = "") {
   return rows;
 }
 
+// Stacking sends the shape of each system. The server turns this into a summary.
+// The implementation is left out so a chopped .cpp is not what the model copies.
 export function compactForApi(sys) {
   return {
     system_name: sys.system_name,
     summary: sys.summary,
-    modules: (sys.modules || []).map((m) => ({ name: m.name, included: m.included })),
+    modules: (sys.modules || []).map((m) => ({ name: m.name, included: m.included, description: m.description })),
     tunable_parameters: sys.tunable_parameters || [],
     network_notes: sys.network_notes,
-    cpp_header: (sys.cpp_header || "").slice(0, 4000),
+    cpp_header: sys.cpp_header || "",
+    setup_guide: (sys.setup_guide || []).map((step) => ({ step: step.step, title: step.title })),
   };
 }

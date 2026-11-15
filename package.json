@@ -1,7 +1,7 @@
 {
   "name": "ue5-system-architect",
   "productName": "UE5 System Architect",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A local desktop app for designing Unreal Engine 5 gameplay systems.",
   "main": "desktop/main.js",
   "private": true,

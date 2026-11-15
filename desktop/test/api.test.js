@@ -118,6 +118,7 @@ test("generation uses the stored key, retries a busy Gemini model, and saves ver
     assert.match(seen.body.contents[0].parts[0].text, /Health\.h/);
     assert.match(seen.body.contents[0].parts[0].text, /int Health = 100/);
     assert.equal(calls, 3);
+    assert.equal(seen.body.generationConfig.maxOutputTokens, 65536);
 
     const project = await json(await fetch(`${base}/api/projects`, {
       method: "POST",
@@ -150,6 +151,9 @@ test("generation uses the stored key, retries a busy Gemini model, and saves ver
     const versions = await json(await fetch(`${base}/api/projects/${project.project_id}/versions`));
     assert.deepEqual(versions.versions.map((v) => v.version), [2, 1]);
     assert.equal(versions.versions[0].note, "Tuned the summary");
+    assert.equal(versions.versions[0].summary, "Revised health");
+    assert.equal(versions.versions[1].prompt, "A health component");
+    assert.equal(versions.versions[1].summary, SAMPLE.summary);
     const older = await json(await fetch(`${base}/api/projects/${project.project_id}/versions/1`));
     assert.equal(older.system.summary, SAMPLE.summary);
     assert.notEqual(older.system.summary, "Revised health");

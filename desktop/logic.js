@@ -98,7 +98,7 @@ Rules:
 - LEARNING ANNOTATIONS: in blueprint_pseudocode, after 3-5 key decisions add an indented line starting with "WHY:" (e.g. "WHY: Replicated because state must match across all clients", "WHY: Data Asset used so designers can tweak without recompiling"). Every setup_guide step gets a "why" (<= 110 chars).
 - If PROJECT CONTEXT is given, every design decision must fit it.
 - If a PREVIOUS SYSTEM and REQUESTED CHANGES are given: this is a revision. Keep everything from the previous system that is not affected, apply EVERY requested change exactly (parameter values, module removals/additions, dial shifts, designer notes), and list one applied_changes entry per requested change in the same order. Otherwise applied_changes is [].
-- If STACKED SYSTEMS are given: merge them into ONE integrated system. Unify duplicated attributes into a single owner (e.g. one Health attribute used by both), route cross-system calls through interfaces or delegates, rename anything that collides, and list shared_attributes. Record each conflict resolved as an applied_changes entry starting with "Conflict resolved:". Otherwise shared_attributes is [].
+- If STACKED SYSTEMS are given: each entry is a SUMMARY (names, parameters, modules, declarations), not the full source and not a chopped file. Merge them into ONE integrated system and write complete .h and .cpp files. Do not stop mid-function and do not copy a cut-off excerpt. Unify duplicated attributes into a single owner (e.g. one Health attribute used by both), route cross-system calls through interfaces or delegates, rename anything that collides, and list shared_attributes. Record each conflict resolved as an applied_changes entry starting with "Conflict resolved:". Otherwise shared_attributes is [].
 - Output raw JSON only, starting with { and ending with }.`;
 
 const REVIEW_PROMPT_TEMPLATE = `You are a strict {ENGINE} C++ compile reviewer. Find problems in the given .h/.cpp pair that would make it fail to compile, fail Unreal Header Tool, or fail to link: missing #includes, names that don't match between files, wrong or missing signatures, functions declared but not defined, UCLASS/UPROPERTY/UFUNCTION macro mistakes, wrong Super:: calls, replication mistakes, wrong engine API usage.
@@ -253,6 +253,77 @@ function extractJson(raw) {
   }
 }
 
+const TRUNCATED_OUTPUT_MESSAGE = "The model's answer was cut off at its length limit, so this system was not shown. Stack fewer projects, or lower Complexity, and try again.";
+
+// A stack used to send the first 4000 characters of the header and nothing of the
+// source. A second stack then started from a file that ended mid-declaration.
+// This keeps the shape of the system and leaves the source out.
+function stackSummary(sys) {
+  const header = String(sys?.cpp_header || "");
+  const declarations = header.split("\n").map((line) => line.trim()).filter((line) => (
+    /^(class |struct |enum |UCLASS|UPROPERTY|UFUNCTION|GENERATED_BODY|virtual |void |bool |int|float |double |FString |FName |FText |TArray|TMap|TSubclassOf)/.test(line)
+  )).slice(0, 40);
+  return {
+    system_name: sys?.system_name || "",
+    summary: String(sys?.summary || "").slice(0, 400),
+    modules: (sys?.modules || []).slice(0, 12).map((m) => ({
+      name: m?.name,
+      included: !!m?.included,
+      description: String(m?.description || "").slice(0, 120),
+    })),
+    tunable_parameters: (sys?.tunable_parameters || []).slice(0, 12).map((p) => ({
+      key: p?.key, label: p?.label, value: p?.value, unit: p?.unit,
+    })),
+    setup_titles: (sys?.setup_guide || []).slice(0, 8).map((step) => step?.title).filter(Boolean),
+    declarations,
+    network_notes: String(sys?.network_notes || "").slice(0, 240),
+  };
+}
+
+function braceDelta(text) {
+  let depth = 0;
+  let quote = "";
+  const src = String(text || "");
+  for (let i = 0; i < src.length; i += 1) {
+    const ch = src[i];
+    if (quote) {
+      if (ch === "\\") { i += 1; continue; }
+      if (ch === quote) quote = "";
+      continue;
+    }
+    if (ch === '"' || ch === "'") { quote = ch; continue; }
+    if (ch === "{") depth += 1;
+    else if (ch === "}") depth -= 1;
+  }
+  return depth;
+}
+
+// Valid JSON can still hold C++ that stops mid-function. Balanced braces mean
+// the files were finished, not sliced off.
+function codeLooksCut(data) {
+  if (!data || typeof data !== "object") return true;
+  const files = [data.cpp_header, data.cpp_source];
+  for (const file of files) {
+    const text = String(file || "").trim();
+    if (!text) return true;
+    if (braceDelta(text) !== 0) return true;
+  }
+  return false;
+}
+
+// What to do with one model reply. "append" continues a cut JSON string.
+// "replace" asks for the whole system again when the C++ itself is unfinished.
+function assessReply(raw, { truncated = false } = {}) {
+  let data = null;
+  try { data = extractJson(raw); } catch { data = null; }
+  const jsonOk = !!data && typeof data === "object" && !Array.isArray(data);
+  const cut = jsonOk && codeLooksCut(data);
+  if (jsonOk && !cut) return { action: "accept", data };
+  if (!jsonOk) return { action: "append" };
+  if (truncated || cut) return { action: "replace" };
+  return { action: "accept", data };
+}
+
 function compactSystem(sys, headerChars, full = false) {
   const keep = {
     system_name: sys?.system_name,
@@ -288,8 +359,8 @@ function buildUserText(req, refs) {
     sections.push(`PROJECT CONTEXT (steer every decision by this): ${String(req.project_context).trim()}`);
   }
   if (req.stack_systems?.length) {
-    const stacked = req.stack_systems.map((s, i) => `[System ${i + 1}]\n${compactSystem(s, 4000)}`).join("\n\n");
-    sections.push(`STACKED SYSTEMS (merge into one integrated system):\n${stacked}`);
+    const stacked = req.stack_systems.map((s, i) => `[System ${i + 1}]\n${JSON.stringify(stackSummary(s), null, 1)}`).join("\n\n");
+    sections.push(`STACKED SYSTEMS (summaries only — write complete files, do not copy a chopped excerpt):\n${stacked}`);
   }
   if (req.previous_system) {
     sections.push(`PREVIOUS SYSTEM (revise this, do not start over):\n${compactSystem(req.previous_system, 8000, true)}`);
@@ -491,6 +562,10 @@ module.exports = {
   usageDay,
   keyFingerprint,
   extractJson,
+  stackSummary,
+  codeLooksCut,
+  assessReply,
+  TRUNCATED_OUTPUT_MESSAGE,
   buildUserText,
   classifyError,
   friendlyError,

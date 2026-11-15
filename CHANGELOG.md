@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.1
+
+- Versions is next to the project name again. It lists each save with its number, time, and a short summary. You can open one, compare it, or restore it. Home's project cards link to that list. Opening a card still loads the latest save.
+- Stacking no longer feeds the model a chopped source file. Each system goes in as a summary, and the reply is allowed the model's full output length. If the answer is still cut off, the app asks the model to continue and will not show a half-finished system.
+
 ## 1.1.0
 
 Stage 1, the app shell.

@@ -18,7 +18,7 @@ function FixRows({ fixes, pending, onView, testId }) {
   );
 }
 
-export default function HistoryModal({ versions, current, pending = [], onCompare, onViewFix, onClose }) {
+export default function HistoryModal({ versions, current, pending = [], onOpen, onCompare, onRestore, onViewFix, onClose, restoring = false, loading = false }) {
   return (
     <Modal title="Version history" onClose={onClose} testId="history-modal" width={600}>
       {pending.length > 0 && (
@@ -41,16 +41,31 @@ export default function HistoryModal({ versions, current, pending = [], onCompar
               {v.note
                 ? <div className="mt-1 text-[12px] text-[var(--text-primary)] flex gap-1.5" data-testid={`history-note-${v.version}`}><MessageSquareText size={12} className="shrink-0 mt-0.5 text-[var(--text-muted)]" /> {v.note}</div>
                 : <div className="mt-1 text-[11px] font-mono text-[var(--text-muted)]">No note</div>}
+              {(v.summary || v.prompt) && (
+                <div className="mt-1 text-[11px] font-mono text-[var(--text-secondary)] line-clamp-2" data-testid={`history-summary-${v.version}`}>
+                  {v.summary || v.prompt}
+                </div>
+              )}
               <FixRows fixes={v.fixes} pending={false} onView={onViewFix} testId={`history-fixes-${v.version}`} />
             </div>
-            {v.version !== current && (
-              <button className="ue-btn !py-1 !px-2 !text-[11px] shrink-0" onClick={() => onCompare(v.version)} data-testid={`history-compare-${v.version}`}>
-                <GitCompareArrows size={12} /> Compare
+            <div className="flex flex-col gap-1 shrink-0">
+              <button className="ue-btn !py-1 !px-2 !text-[11px]" onClick={() => onOpen?.(v.version)} data-testid={`history-open-${v.version}`}>
+                Open
               </button>
-            )}
+              {v.version !== current && (
+                <button className="ue-btn !py-1 !px-2 !text-[11px]" onClick={() => onCompare(v.version)} data-testid={`history-compare-${v.version}`}>
+                  <GitCompareArrows size={12} /> Compare
+                </button>
+              )}
+              {v.version !== current && (
+                <button className="ue-btn !py-1 !px-2 !text-[11px] !border-[var(--cpp-green)] !text-[var(--cpp-green)]" onClick={() => onRestore?.(v.version)} disabled={restoring} data-testid={`history-restore-${v.version}`}>
+                  Restore
+                </button>
+              )}
+            </div>
           </li>
         ))}
-        {versions.length === 0 && <li className="text-[12px] font-mono text-[var(--text-muted)]">No saved versions yet.</li>}
+        {versions.length === 0 && <li className="text-[12px] font-mono text-[var(--text-muted)]" data-testid="history-empty">{loading ? "Loading versions…" : "No saved versions yet."}</li>}
       </ul>
     </Modal>
   );
