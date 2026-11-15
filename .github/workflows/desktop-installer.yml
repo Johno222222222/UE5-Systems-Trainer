@@ -71,3 +71,104 @@ jobs:
           else
             gh release create "$tag" release/*.exe --title "$tag" --generate-notes --verify-tag
           fi
+
+  macos:
+    name: macOS archive
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+          cache-dependency-path: frontend/yarn.lock
+
+      - name: Install and build the workspace UI
+        working-directory: frontend
+        run: |
+          yarn install --frozen-lockfile
+          yarn build
+        env:
+          CI: true
+
+      - name: Install the desktop shell
+        run: npm ci
+
+      - name: Build the unsigned macOS archive
+        run: npx electron-builder --mac dmg zip --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Upload the macOS archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: ue5-system-architect-macos
+          path: |
+            release/*.dmg
+            release/*.zip
+          if-no-files-found: error
+
+      - name: Attach the macOS archive to a GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          for _ in 1 2 3 4 5 6; do
+            gh release view "$tag" >/dev/null 2>&1 && break
+            sleep 15
+          done
+          gh release upload "$tag" release/*.dmg release/*.zip --clobber
+
+  linux:
+    name: Linux packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+          cache-dependency-path: frontend/yarn.lock
+
+      - name: Install and build the workspace UI
+        working-directory: frontend
+        run: |
+          yarn install --frozen-lockfile
+          yarn build
+        env:
+          CI: true
+
+      - name: Install the desktop shell
+        run: npm ci
+
+      - name: Install Linux packaging tools
+        run: sudo apt-get update && sudo apt-get install -y fakeroot dpkg
+
+      - name: Build the AppImage and deb
+        run: npx electron-builder --linux AppImage deb --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Upload the Linux packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: ue5-system-architect-linux
+          path: |
+            release/*.AppImage
+            release/*.deb
+          if-no-files-found: error
+
+      - name: Attach the Linux packages to a GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          for _ in 1 2 3 4 5 6; do
+            gh release view "$tag" >/dev/null 2>&1 && break
+            sleep 15
+          done
+          gh release upload "$tag" release/*.AppImage release/*.deb --clobber

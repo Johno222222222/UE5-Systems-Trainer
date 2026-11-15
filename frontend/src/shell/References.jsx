@@ -19,6 +19,20 @@ function Tags({ complexity, prerequisites }) {
   );
 }
 
+function CommunityNotes({ notes }) {
+  if (!notes.length) return <p className="mt-4 text-[12px] text-[var(--text-muted)]" data-testid="community-notes-empty">No community notes for this topic yet.</p>;
+  return (
+    <div className="mt-4 flex flex-col gap-2" data-testid="community-notes">
+      {notes.map((note) => (
+        <div key={`${note.pack}-${note.topic}-${note.author}`} className="panel p-3">
+          <div className="text-[11px] font-mono text-[var(--text-muted)]">{note.author}{note.pack ? ` · ${note.pack}` : ""}</div>
+          <p className="mt-1 text-[13px] text-[var(--text-secondary)]">{note.body}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function ConceptStudy({ card, examples, onExample }) {
   const [choice, setChoice] = useState(null);
   if (!card) return null;
@@ -95,6 +109,9 @@ export default function References() {
   const [forking, setForking] = useState(false);
   const [draft, setDraft] = useState(() => shell.session.get());
   const [localConcept, setLocalConcept] = useState("");
+  const [communityNotes, setCommunityNotes] = useState([]);
+  const [showNotes, setShowNotes] = useState(false);
+  const [resources, setResources] = useState([]);
 
   useEffect(() => shell.session.subscribe(setDraft), [shell.session]);
 
@@ -105,6 +122,12 @@ export default function References() {
       .catch(() => { if (alive) setLoadError("Couldn't load the library."); });
     api.get("/projects")
       .then((r) => { if (alive) setProjects(r.data?.mine || []); })
+      .catch(() => {});
+    api.get("/community-notes")
+      .then((r) => { if (alive) setCommunityNotes(r.data?.notes || []); })
+      .catch(() => {});
+    api.get("/resources")
+      .then((r) => { if (alive) setResources(r.data?.resources || []); })
       .catch(() => {});
     return () => { alive = false; };
   }, []);
@@ -163,6 +186,11 @@ export default function References() {
         <div className="mt-4 flex flex-wrap gap-2">
           <button type="button" className={`chip ${shell.referencesView === "system" ? "active" : ""}`} data-testid="references-tab-system" onClick={() => shell.setReferencesView("system")}>This system</button>
           <button type="button" className={`chip ${shell.referencesView === "concepts" ? "active" : ""}`} data-testid="references-tab-concepts" onClick={() => shell.setReferencesView("concepts")}>Concepts</button>
+          <button type="button" className={`chip ${shell.referencesView === "resources" ? "active" : ""}`} data-testid="references-tab-resources" onClick={() => shell.setReferencesView("resources")}>Resources</button>
+          <label className="chip flex items-center gap-1" data-testid="community-notes-toggle">
+            <input type="checkbox" checked={showNotes} onChange={(event) => setShowNotes(event.target.checked)} />
+            Community notes
+          </label>
         </div>
         {loadError && <p className="mt-4 text-[12px] font-mono text-[var(--accent-red)]">{loadError}</p>}
 
@@ -181,12 +209,31 @@ export default function References() {
                 </button>
               ))}
             </div>
-            <ConceptStudy
-              key={card?.id || "none"}
-              card={card}
-              examples={examples}
-              onExample={(id) => shell.openExample(id)}
-            />
+            <div>
+              <ConceptStudy
+                key={card?.id || "none"}
+                card={card}
+                examples={examples}
+                onExample={(id) => shell.openExample(id)}
+              />
+              {showNotes && (
+                <CommunityNotes notes={communityNotes.filter((note) => note.topic === card?.id || (card?.aliases || []).includes(note.topic))} />
+              )}
+            </div>
+          </div>
+        )}
+
+        {shell.referencesView === "resources" && (
+          <div className="home-grid mt-6" data-testid="resource-list">
+            {resources.map((item) => (
+              <article key={item.id} className="panel home-card" data-testid={`resource-${item.id}`}>
+                <div className="font-sub font-semibold text-[16px]">{item.title}</div>
+                <div className="mt-1 text-[11px] font-mono text-[var(--text-muted)]">{item.author}</div>
+                <p className="mt-2 text-[12px] text-[var(--text-secondary)]">{item.look}</p>
+                <div className="mt-2 flex flex-wrap gap-1">{(item.systems || []).map((systemName) => <span key={systemName} className="tag">{systemName}</span>)}</div>
+                <a className="why-concept" href={item.url} target="_blank" rel="noreferrer" data-testid={`resource-link-${item.id}`}>{item.url.replace(/^https?:\/\//, "")}</a>
+              </article>
+            ))}
           </div>
         )}
 

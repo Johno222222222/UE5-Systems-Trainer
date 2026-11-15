@@ -1,0 +1,12 @@
+{
+  "how_to_submit": "A pack is one .bbpack file: a zip of manifest.json and content.json, or the same JSON saved with a .bbpack name. Include a name, an author, a version, and content. Do not put executables in the zip. To offer a pack, open a pull request that adds the file and a row in index.json (id, title, author, summary, file). The Community download stays off until a public repo is chosen. Anyone can still import the file from disk.",
+  "packs": [
+    {
+      "id": "sample-notes",
+      "title": "Sample community notes",
+      "author": "Blueprint Builder",
+      "summary": "Two short notes on interaction and authority. Bundled so the tab has something to import with the download turned off.",
+      "file": "sample-notes.bbpack"
+    }
+  ]
+}

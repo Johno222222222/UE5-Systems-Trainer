@@ -25,9 +25,9 @@ const sampleResult = {
 
 test("the bar lists only sections that exist, and a new one is a registry flag", async () => {
   const shell = await load("shell.mjs");
-  assert.deepEqual(shell.visibleSections().map((section) => section.id), ["home", "tools", "learn", "references", "programs", "courses"]);
+  assert.deepEqual(shell.visibleSections().map((section) => section.id), ["home", "tools", "learn", "references", "programs", "courses", "community"]);
   const planned = shell.SECTION_REGISTRY.filter((section) => !section.exists).map((section) => section.id);
-  assert.deepEqual(planned, ["community"]);
+  assert.deepEqual(planned, []);
 });
 
 test("Open in stays hidden until a second section can take a system", async () => {
@@ -157,14 +157,14 @@ test("workspace draft survives a section switch, and save clears the unsaved dot
   assert.equal(sessionMod.systemChip(named).name, "Rifle Project");
 });
 
-test("app version is 1.10.0 and the feedback link and update check use it", async () => {
+test("app version is 1.11.0 and the feedback link and update check use it", async () => {
   const shell = await load("shell.mjs");
   const stage = await load("stage0.mjs");
   const pkg = require("../../package.json");
-  assert.equal(pkg.version, "1.10.0");
+  assert.equal(pkg.version, "1.11.0");
   assert.equal(shell.APP_VERSION, pkg.version);
   const url = new URL(stage.feedbackUrl({ version: shell.APP_VERSION, category: "Idea" }));
-  assert.match(url.searchParams.get("body"), /App version: 1\.10\.0/);
+  assert.match(url.searchParams.get("body"), /App version: 1\.11\.0/);
   assert.equal(url.searchParams.get("body").toLowerCase().includes("mailto:"), false);
 
   const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "ue5-shell-"));
@@ -176,7 +176,7 @@ test("app version is 1.10.0 and the feedback link and update check use it", asyn
   });
   try {
     const info = await (await fetch(`http://127.0.0.1:${handle.port}/api/app`)).json();
-    assert.equal(info.version, "1.10.0");
+    assert.equal(info.version, "1.11.0");
     assert.equal(info.update, null);
   } finally {
     await handle.close();

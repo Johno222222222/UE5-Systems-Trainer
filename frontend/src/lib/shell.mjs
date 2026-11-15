@@ -3,7 +3,7 @@
 
 import { systemChip } from "./workspaceSession.mjs";
 
-export const APP_VERSION = "1.10.0";
+export const APP_VERSION = "1.11.0";
 
 export const SECTION_REGISTRY = [
   { id: "home", label: "Home", exists: true, screen: "home", acceptsSystem: false },
@@ -12,8 +12,7 @@ export const SECTION_REGISTRY = [
   { id: "references", label: "References", exists: true, screen: "references", acceptsSystem: true },
   { id: "programs", label: "Programs", exists: true, screen: "programs", acceptsSystem: false },
   { id: "courses", label: "Courses", exists: true, screen: "courses", acceptsSystem: false },
-  // Not built yet. They stay out of the bar until exists is true.
-  { id: "community", label: "Community", exists: false, screen: "placeholder", acceptsSystem: false },
+  { id: "community", label: "Community", exists: true, screen: "community", acceptsSystem: false },
 ];
 
 export const EMPTY_ACTIONS = [
@@ -42,7 +41,7 @@ export function openInTargets(registry = SECTION_REGISTRY, currentId = null) {
 
 export function sectionScreen(section, memory) {
   if (!section?.exists) return "missing";
-  if (section.screen === "home" || section.screen === "tools" || section.screen === "learn" || section.screen === "references" || section.screen === "programs" || section.screen === "courses") return section.screen;
+  if (section.screen === "home" || section.screen === "tools" || section.screen === "learn" || section.screen === "references" || section.screen === "programs" || section.screen === "courses" || section.screen === "community") return section.screen;
   return memory?.[section.id] ? "remembered" : "empty";
 }
 
