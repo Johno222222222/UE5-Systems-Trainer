@@ -1004,13 +1004,14 @@ export default function Workspace() {
     setJump({ file: loc.file === ".h" ? ".h" : ".cpp", line: loc.line, nonce: Date.now() });
   };
   const explainCurrentGraph = async (_graph, fallback) => {
-    if (!aiKey) return fallback;
+    if (!aiKey) return { text: fallback, source: "local" };
     try {
       const { data } = await api.post("/graph/explain", { summary: fallback, text: graphText(_graph) }, { headers: aiHeaders(aiKey) });
       setUsageTick((n) => n + 1);
-      return data.explanation || fallback;
-    } catch {
-      return fallback;
+      if (!data?.explanation) throw new Error("The model returned an empty explanation.");
+      return { text: data.explanation, source: "model" };
+    } catch (err) {
+      throw new Error(errorText(err));
     }
   };
   const revertGraphCpp = () => {
@@ -1566,27 +1567,8 @@ export default function Workspace() {
               </div>
             )}
             {tab === "graph" && (
-              <div className="relative h-full">
-                {showChallenges(shell.helpLevel) && result?.learning && (
-                  <div className="absolute left-[248px] bottom-4 z-20 max-w-md space-y-2" data-testid="learning-panel">
-                    {(result.learning.challenges || []).length > 0 && (
-                      <div className="panel p-2.5" data-testid="challenges">
-                        <div className="eyebrow mb-1">Challenges</div>
-                        {result.learning.challenges.map((item) => (
-                          <div key={item.title} className="text-[12px] text-[var(--text-secondary)]"><b className="text-[var(--text-primary)]">{item.title}.</b> {item.detail}</div>
-                        ))}
-                      </div>
-                    )}
-                    {showTraps(shell.helpLevel) && (result.learning.traps || []).length > 0 && (
-                      <div className="panel p-2.5" data-testid="common-traps">
-                        <div className="eyebrow mb-1">Common traps</div>
-                        {result.learning.traps.map((item) => (
-                          <div key={item.title} className="text-[12px] text-[var(--text-secondary)]"><b className="text-[var(--unreal-orange)]">{item.title}.</b> {item.detail}</div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
+              <div className="flex flex-col h-full min-h-0">
+                <div className="relative flex-1 min-h-0 overflow-hidden">
                 {(result?.stacked_from?.length > 0 || result?.stack_map?.shared?.length || result?.stack_map?.conflicts?.length) && (
                   <div className="absolute left-[248px] top-16 z-20 max-w-sm panel p-3" data-testid="stack-map">
                     <div className="eyebrow mb-1">Stack map</div>
@@ -1634,6 +1616,27 @@ export default function Workspace() {
                   <button className="ue-btn ue-btn-primary !text-[12px] absolute bottom-32 right-4 z-20" onClick={copyForUnreal} title="Copies the graph in Unreal's clipboard format" data-testid="copy-for-unreal-button">
                     <ClipboardCopy size={13} /> Copy for Unreal
                   </button>
+                )}
+                </div>
+                {showChallenges(shell.helpLevel) && result?.learning && (
+                  <div className="shrink-0 max-h-40 overflow-auto border-t border-[var(--border-soft)] px-4 py-2 space-y-2" data-testid="learning-panel">
+                    {(result.learning.challenges || []).length > 0 && (
+                      <div data-testid="challenges">
+                        <div className="eyebrow mb-1">Challenges</div>
+                        {result.learning.challenges.map((item) => (
+                          <div key={item.title} className="text-[12px] text-[var(--text-secondary)]"><b className="text-[var(--text-primary)]">{item.title}.</b> {item.detail}</div>
+                        ))}
+                      </div>
+                    )}
+                    {showTraps(shell.helpLevel) && (result.learning.traps || []).length > 0 && (
+                      <div data-testid="common-traps">
+                        <div className="eyebrow mb-1">Common traps</div>
+                        {result.learning.traps.map((item) => (
+                          <div key={item.title} className="text-[12px] text-[var(--text-secondary)]"><b className="text-[var(--unreal-orange)]">{item.title}.</b> {item.detail}</div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             )}

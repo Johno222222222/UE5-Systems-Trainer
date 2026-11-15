@@ -138,3 +138,46 @@ test("lock warnings sit on the node, and the fallback explanation names what fir
   assert.match(text, /Tick fires/);
   assert.match(text, /Print String says "Hello"/);
 });
+
+test("a pointer drop connects palette nodes at different zoom levels, including a near miss and the node body", async () => {
+  const g = await graphLib();
+  let graph = g.emptyGraph();
+  graph = g.addNode(graph, g.createNode("begin-play", 40, 80, { id: "play" }));
+  graph = g.addNode(graph, g.createNode("print-string", 340, 80, { id: "print" }));
+  graph = g.addNode(graph, g.createNode("get-variable", 340, 220, { id: "amount", data: { variable: "Trace", varType: "float" } }));
+  const play = graph.nodes.find((node) => node.id === "play");
+  const print = graph.nodes.find((node) => node.id === "print");
+  const amount = graph.nodes.find((node) => node.id === "amount");
+  assert.ok(play.pins.some((pin) => pin.dir === "out" && pin.type === "exec" && pin.id === "out-exec"));
+  assert.ok(print.pins.some((pin) => pin.dir === "in" && pin.type === "exec" && pin.id === "in-exec"));
+  assert.ok(print.pins.some((pin) => pin.type === "string"));
+  const execOut = play.pins.find((pin) => pin.id === "out-exec");
+  const execIn = print.pins.find((pin) => pin.id === "in-exec");
+  const stringIn = print.pins.find((pin) => pin.id === "in-in-string");
+  const floatOut = amount.pins.find((pin) => pin.id === "out-value");
+
+  for (const zoom of [0.55, 1, 1.35]) {
+    const pan = { x: 30, y: 48 };
+    const rect = { left: 210, top: 120 };
+    const scrollX = 16;
+    const scrollY = 9;
+    const target = g.pinCenter(print, execIn);
+    const clientX = rect.left - scrollX + pan.x + target.x * zoom + 8;
+    const clientY = rect.top - scrollY + pan.y + target.y * zoom - 6;
+    const point = g.clientToGraphPoint({ clientX, clientY, rect, pan, zoom, scrollX, scrollY });
+    const hit = g.pickWireTarget(graph, "play", execOut.id, point, { zoom });
+    assert.equal(hit.ok, true, `zoom ${zoom}`);
+    assert.equal(hit.pinId, "in-exec");
+    assert.equal(g.tryWire(graph, "play", execOut.id, hit.nodeId, hit.pinId).ok, true);
+  }
+
+  const body = { x: print.x + 90, y: print.y + 16 };
+  const bodyHit = g.pickWireTarget(graph, "play", execOut.id, body, { zoom: 0.7 });
+  assert.equal(bodyHit.how, "body");
+  assert.equal(bodyHit.pinId, "in-exec");
+
+  const stringPoint = g.pinCenter(print, stringIn);
+  const mismatch = g.pickWireTarget(graph, "amount", floatOut.id, stringPoint, { zoom: 1 });
+  assert.equal(mismatch.ok, false);
+  assert.match(mismatch.reason, /Float does not connect to String/);
+});

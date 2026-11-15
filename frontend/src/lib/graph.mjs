@@ -338,6 +338,90 @@ function typeLabel(type) {
   return String(type || "value").slice(0, 1).toUpperCase() + String(type || "value").slice(1);
 }
 
+export const GRAPH_LAYOUT = {
+  nodeW: 210,
+  header: 28,
+  bodyPad: 8,
+  row: 22,
+  hitPx: 20,
+};
+
+export function nodeSize(node) {
+  const rows = Math.max(
+    (node?.pins || []).filter((item) => item.dir === "in").length,
+    (node?.pins || []).filter((item) => item.dir === "out").length,
+    1,
+  );
+  return { w: GRAPH_LAYOUT.nodeW, h: GRAPH_LAYOUT.header + GRAPH_LAYOUT.bodyPad + rows * GRAPH_LAYOUT.row + 8 };
+}
+
+export function pinCenter(node, pin) {
+  const list = (node.pins || []).filter((item) => item.dir === pin.dir);
+  const index = Math.max(0, list.findIndex((item) => item.id === pin.id));
+  return {
+    x: pin.dir === "in" ? node.x + 12 : node.x + GRAPH_LAYOUT.nodeW - 12,
+    y: node.y + GRAPH_LAYOUT.header + GRAPH_LAYOUT.bodyPad + index * GRAPH_LAYOUT.row + GRAPH_LAYOUT.row / 2,
+  };
+}
+
+// clientX/clientY and rect are viewport coordinates. scrollX/scrollY is the
+// canvas's own scroll, which matters when the window is not fullscreen.
+export function clientToGraphPoint({ clientX, clientY, rect, pan, zoom, scrollX = 0, scrollY = 0 }) {
+  const scale = zoom || 1;
+  return {
+    x: (Number(clientX) - Number(rect?.left || 0) + Number(scrollX || 0) - Number(pan?.x || 0)) / scale,
+    y: (Number(clientY) - Number(rect?.top || 0) + Number(scrollY || 0) - Number(pan?.y || 0)) / scale,
+  };
+}
+
+function firstCompatiblePin(graph, fromNode, fromPin, node) {
+  const source = findPin(graph, fromNode, fromPin);
+  if (!source) return null;
+  const want = source.dir === "out" ? "in" : "out";
+  const pins = (node.pins || []).filter((item) => item.dir === want);
+  const ordered = source.type === "exec" ? [...pins.filter((item) => item.type === "exec"), ...pins] : pins;
+  return ordered.find((item) => canConnect(graph, fromNode, fromPin, node.id, item.id).ok) || null;
+}
+
+export function pinUnderPoint(graph, point, zoom = 1, hitPx = GRAPH_LAYOUT.hitPx) {
+  const radius = hitPx / (zoom || 1);
+  let best = null;
+  for (const node of graph.nodes || []) {
+    for (const pin of node.pins || []) {
+      const center = pinCenter(node, pin);
+      const dist = Math.hypot(center.x - point.x, center.y - point.y);
+      if (dist > radius) continue;
+      if (!best || dist < best.dist) best = { nodeId: node.id, pinId: pin.id, dist };
+    }
+  }
+  return best;
+}
+
+export function nodeUnderPoint(graph, point) {
+  for (const node of graph.nodes || []) {
+    const size = nodeSize(node);
+    if (point.x >= node.x && point.y >= node.y && point.x <= node.x + size.w && point.y <= node.y + size.h) return node;
+  }
+  return null;
+}
+
+// A drop near a compatible pin wins. A drop on the node body uses its first compatible pin.
+export function pickWireTarget(graph, fromNode, fromPin, point, { zoom = 1, hitPx = GRAPH_LAYOUT.hitPx } = {}) {
+  const near = pinUnderPoint(graph, point, zoom, hitPx);
+  if (near && !(near.nodeId === fromNode && near.pinId === fromPin)) {
+    const check = canConnect(graph, fromNode, fromPin, near.nodeId, near.pinId);
+    if (check.ok) return { ok: true, nodeId: near.nodeId, pinId: near.pinId, how: "pin", hover: near };
+    return { ok: false, reason: check.reason, hover: near, how: "pin" };
+  }
+  const body = nodeUnderPoint(graph, point);
+  if (body && body.id !== fromNode) {
+    const pin = firstCompatiblePin(graph, fromNode, fromPin, body);
+    if (pin) return { ok: true, nodeId: body.id, pinId: pin.id, how: "body", hover: { nodeId: body.id, pinId: pin.id } };
+    return { ok: false, reason: "That node has no pin of the same type.", hover: null, how: "body" };
+  }
+  return { ok: false, reason: "Drop on a pin of the same type.", hover: near, how: "" };
+}
+
 export function tryWire(graph, fromNode, fromPin, toNode, toPin) {
   const check = canConnect(graph, fromNode, fromPin, toNode, toPin);
   if (!check.ok) return { graph, ok: false, reason: check.reason };

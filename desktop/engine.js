@@ -207,7 +207,13 @@ function commandFor(engineRoot, uplugin, outputDir, platform, scratchRoot) {
 
 function runProcess(spec, spawnImpl) {
   return new Promise((resolve) => {
-    const child = spawnImpl(spec.file, spec.args, { windowsHide: true, ...(spec.options || {}) });
+    let child;
+    try {
+      child = spawnImpl(spec.file, spec.args, { windowsHide: true, ...(spec.options || {}) });
+    } catch (exc) {
+      resolve({ code: 1, log: exc?.message || String(exc) });
+      return;
+    }
     let log = "";
     const take = (chunk) => { log += chunk.toString(); };
     child.stdout?.on("data", take);
@@ -232,7 +238,8 @@ async function compilePlugin({ system, engineRoot, platform, workDir, spawnImpl 
   const issues = parseCompilerOutput(result.log);
   const compilerLines = issues.filter((item) => item.line);
   if (result.code !== 0 && !compilerLines.length && !issues.some((item) => item.severity === "error")) {
-    const first = String(result.log || "").split(/\r?\n/).map((line) => line.trim()).find((line) => line && /error|exception|failed/i.test(line));
+    const lines = String(result.log || "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    const first = lines.find((line) => /error|exception|failed|not found|enoent/i.test(line)) || lines[0];
     issues.unshift({
       severity: "error",
       file: "",
@@ -254,7 +261,7 @@ async function compilePlugin({ system, engineRoot, platform, workDir, spawnImpl 
     log: fullLog.slice(-12000),
     message: result.code === 0 && errors === 0
       ? `UE ${detected.version} built this plugin.`
-      : `UE ${detected.version} reported ${errors} problem${errors === 1 ? "" : "s"}. The build log is below.`,
+      : `UE ${detected.version}: ${(issues.find((item) => item.severity === "error") || issues[0] || {}).message || "The build failed."}`,
   };
 }
 

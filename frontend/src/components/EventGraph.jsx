@@ -1,14 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import GlossaryText from "./GlossaryText";
 import {
-  addComment, addNode, canConnect, catalogGroups, commitHistory, createHistory, createNode,
-  duplicateParts, explainGraph, graphWarnings, pinColor, placeNodes, readEventGraph,
-  redoHistory, removeParts, setNodeData, snapValue, systemSymbols, tryWire, undoHistory,
+  addComment, addNode, catalogGroups, clientToGraphPoint, commitHistory, createHistory, createNode,
+  duplicateParts, explainGraph, GRAPH_LAYOUT, graphWarnings, pickWireTarget, pinCenter, pinColor,
+  placeNodes, readEventGraph, redoHistory, removeParts, setNodeData, snapValue, systemSymbols,
+  tryWire, undoHistory,
 } from "../lib/graph.mjs";
 
-const NODE_W = 210;
-const HEADER = 28;
-const PIN_H = 18;
+const NODE_W = GRAPH_LAYOUT.nodeW;
 
 function wirePath(x1, y1, x2, y2) {
   const dx = Math.max(48, Math.abs(x2 - x1) * 0.45);
@@ -24,14 +23,8 @@ function typingTarget(target) {
   return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || target?.isContentEditable;
 }
 
-function pinIndex(node, pin) {
-  return node.pins.filter((item) => item.dir === pin.dir).findIndex((item) => item.id === pin.id);
-}
-
 function anchorOf(node, pin) {
-  const index = Math.max(0, pinIndex(node, pin));
-  const y = node.y + HEADER + 10 + index * PIN_H;
-  return { x: pin.dir === "in" ? node.x : node.x + NODE_W, y };
+  return pinCenter(node, pin);
 }
 
 function nodeHeight(node) {
@@ -40,7 +33,7 @@ function nodeHeight(node) {
     node.pins.filter((item) => item.dir === "out").length,
     1,
   );
-  return HEADER + 12 + rows * PIN_H;
+  return GRAPH_LAYOUT.header + GRAPH_LAYOUT.bodyPad + rows * GRAPH_LAYOUT.row + 8;
 }
 
 export default function EventGraph({
@@ -58,6 +51,11 @@ export default function EventGraph({
   const [hint, setHint] = useState(null);
   const [summary, setSummary] = useState("");
   const [explainOpen, setExplainOpen] = useState(false);
+  const [explainState, setExplainState] = useState("");
+  const [explainError, setExplainError] = useState("");
+  const [armed, setArmed] = useState(null);
+  const [hotPin, setHotPin] = useState(null);
+  const dragRef = useRef(null);
   const clip = useRef(null);
   const graph = history.present;
   const warnings = useMemo(() => graphWarnings(graph, locks), [graph, locks]);
@@ -99,11 +97,25 @@ export default function EventGraph({
     onChange?.(next.present);
   };
 
-  const toGraph = (clientX, clientY) => {
-    const rect = canvasRef.current?.getBoundingClientRect();
-    if (!rect) return { x: 0, y: 0 };
-    return { x: (clientX - rect.left - pan.x) / zoom, y: (clientY - rect.top - pan.y) / zoom };
+  const rememberDrag = (next) => {
+    dragRef.current = next;
+    setDrag(next);
   };
+  const toGraph = (clientX, clientY) => {
+    const canvas = canvasRef.current;
+    const rect = canvas?.getBoundingClientRect();
+    if (!rect) return { x: 0, y: 0 };
+    return clientToGraphPoint({
+      clientX,
+      clientY,
+      rect,
+      pan,
+      zoom,
+      scrollX: canvas.scrollLeft || 0,
+      scrollY: canvas.scrollTop || 0,
+    });
+  };
+  const chromeTarget = (target) => Boolean(target?.closest?.("[data-graph-chrome], button, a, input, textarea, select"));
   const grid = (value) => snapValue(value, snap);
 
   const selectedNode = selection.nodes.length === 1 ? graph.nodes.find((node) => node.id === selection.nodes[0]) : null;
@@ -139,7 +151,7 @@ export default function EventGraph({
   };
 
   const startMove = (event, kind, id) => {
-    if (event.target.closest?.("[data-pin-id]")) return;
+    if (event.target.closest?.("[data-pin-id]") || chromeTarget(event.target)) return;
     if (!editable || event.button !== 0) return;
     event.stopPropagation();
     const already = kind === "node" ? selection.nodes.includes(id) : selection.comments.includes(id);
@@ -154,7 +166,7 @@ export default function EventGraph({
     const origins = {};
     graph.nodes.forEach((node) => { if (movingNodes.includes(node.id)) origins[node.id] = { x: node.x, y: node.y }; });
     graph.comments.forEach((comment) => { if (movingComments.includes(comment.id)) origins[comment.id] = { x: comment.x, y: comment.y, w: comment.w, h: comment.h }; });
-    setDrag({
+    rememberDrag({
       mode: "move", kind, id, startX: event.clientX, startY: event.clientY, origins, moved: false,
       nodes: movingNodes, comments: movingComments,
     });
@@ -162,63 +174,82 @@ export default function EventGraph({
   };
 
   const onCanvasDown = (event) => {
+    if (chromeTarget(event.target)) return;
     setMenu(null);
     if (!typingTarget(event.target)) canvasRef.current?.focus();
     const pinEl = event.target.closest?.("[data-pin-id]");
     if (pinEl && editable && event.button === 0 && !event.altKey) {
       event.stopPropagation();
       try { canvasRef.current?.setPointerCapture?.(event.pointerId); } catch { /* already released */ }
-      setDrag({ mode: "wire", nodeId: pinEl.dataset.pinNode, pinId: pinEl.dataset.pinId, x: event.clientX, y: event.clientY });
+      rememberDrag({ mode: "wire", nodeId: pinEl.dataset.pinNode, pinId: pinEl.dataset.pinId, x: event.clientX, y: event.clientY, startX: event.clientX, startY: event.clientY });
       return;
     }
     if (event.target.closest?.("[data-node-id]") || event.target.closest?.("[data-comment-id]") || event.target.closest?.("[data-pin-id]")) return;
     if (event.button === 1 || event.button === 2 || event.altKey) {
-      setDrag({ mode: "pan", startX: event.clientX, startY: event.clientY, panX: pan.x, panY: pan.y });
+      rememberDrag({ mode: "pan", startX: event.clientX, startY: event.clientY, panX: pan.x, panY: pan.y });
+      try { canvasRef.current?.setPointerCapture?.(event.pointerId); } catch { /* already released */ }
       return;
     }
     if (event.button !== 0) return;
     try { canvasRef.current?.setPointerCapture?.(event.pointerId); } catch { /* already released */ }
     const point = toGraph(event.clientX, event.clientY);
-    setDrag({ mode: "box", startX: event.clientX, startY: event.clientY, x: point.x, y: point.y, cx: point.x, cy: point.y, moved: false, shift: event.shiftKey });
+    rememberDrag({ mode: "box", startX: event.clientX, startY: event.clientY, x: point.x, y: point.y, cx: point.x, cy: point.y, moved: false, shift: event.shiftKey });
   };
 
   const onMove = (event) => {
-    if (!drag) return;
-    if (drag.mode === "pan") {
-      setPan({ x: drag.panX + (event.clientX - drag.startX), y: drag.panY + (event.clientY - drag.startY) });
+    const dragNow = dragRef.current;
+    if (!dragNow) return;
+    if (dragNow.mode === "pan") {
+      setPan({ x: dragNow.panX + (event.clientX - dragNow.startX), y: dragNow.panY + (event.clientY - dragNow.startY) });
       return;
     }
-    if (drag.mode === "wire") {
-      setDrag({ ...drag, x: event.clientX, y: event.clientY });
-      const pinEl = event.target.closest?.("[data-pin-id]");
-      if (!pinEl || (pinEl.dataset.pinNode === drag.nodeId && pinEl.dataset.pinId === drag.pinId)) { setHint(null); return; }
-      const check = canConnect(graph, drag.nodeId, drag.pinId, pinEl.dataset.pinNode, pinEl.dataset.pinId);
-      setHint(check.ok ? null : { x: event.clientX + 12, y: event.clientY + 12, text: check.reason });
-      return;
-    }
-    if (drag.mode === "box") {
+    if (dragNow.mode === "wire") {
+      rememberDrag({ ...dragNow, x: event.clientX, y: event.clientY });
       const point = toGraph(event.clientX, event.clientY);
-      const moved = Math.abs(event.clientX - drag.startX) > 4 || Math.abs(event.clientY - drag.startY) > 4;
-      setDrag({ ...drag, cx: point.x, cy: point.y, moved });
+      const hit = pickWireTarget(graph, dragNow.nodeId, dragNow.pinId, point, { zoom });
+      setHotPin(hit.hover || null);
+      setHint(hit.ok || !hit.hover ? null : { x: event.clientX + 14, y: event.clientY + 14, text: hit.reason });
       return;
     }
-    if (drag.mode === "move" || drag.mode === "resize") {
-      const dx = (event.clientX - drag.startX) / zoom;
-      const dy = (event.clientY - drag.startY) / zoom;
-      const moved = drag.moved || Math.abs(dx) > 2 || Math.abs(dy) > 2;
-      setDrag({ ...drag, dx, dy, moved });
+    if (dragNow.mode === "box") {
+      const point = toGraph(event.clientX, event.clientY);
+      const moved = Math.abs(event.clientX - dragNow.startX) > 4 || Math.abs(event.clientY - dragNow.startY) > 4;
+      rememberDrag({ ...dragNow, cx: point.x, cy: point.y, moved });
+      return;
+    }
+    if (dragNow.mode === "move" || dragNow.mode === "resize") {
+      const dx = (event.clientX - dragNow.startX) / zoom;
+      const dy = (event.clientY - dragNow.startY) / zoom;
+      const moved = dragNow.moved || Math.abs(dx) > 2 || Math.abs(dy) > 2;
+      rememberDrag({ ...dragNow, dx, dy, moved });
     }
   };
 
   const finish = (event) => {
+    const drag = dragRef.current;
     if (!drag) return;
     if (drag.mode === "wire") {
-      const pinEl = event.target.closest?.("[data-pin-id]");
-      if (editable && pinEl) {
-        const result = tryWire(graph, drag.nodeId, drag.pinId, pinEl.dataset.pinNode, pinEl.dataset.pinId);
-        if (result.ok) { commit(result.graph); setHint(null); }
-        else setHint({ x: event.clientX + 12, y: event.clientY + 12, text: result.reason });
-      } else setHint(null);
+      const moved = Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY);
+      if (moved < 5) {
+        if (armed && (armed.nodeId !== drag.nodeId || armed.pinId !== drag.pinId)) {
+          const result = tryWire(graph, armed.nodeId, armed.pinId, drag.nodeId, drag.pinId);
+          if (result.ok) { commit(result.graph); setHint(null); }
+          else setHint({ x: event.clientX + 14, y: event.clientY + 14, text: result.reason });
+          setArmed(null);
+        } else {
+          setArmed({ nodeId: drag.nodeId, pinId: drag.pinId });
+          setHint(null);
+        }
+      } else {
+        const point = toGraph(event.clientX, event.clientY);
+        const hit = pickWireTarget(graph, drag.nodeId, drag.pinId, point, { zoom });
+        if (hit.ok) {
+          const result = tryWire(graph, drag.nodeId, drag.pinId, hit.nodeId, hit.pinId);
+          if (result.ok) { commit(result.graph); setHint(null); setArmed(null); }
+          else setHint({ x: event.clientX + 14, y: event.clientY + 14, text: result.reason });
+        } else setHint({ x: event.clientX + 14, y: event.clientY + 14, text: hit.reason });
+      }
+      setHotPin(null);
     } else if (drag.mode === "box") {
       if (!drag.moved) {
         if (!drag.shift) setSelection({ nodes: [], wires: [], comments: [] });
@@ -251,7 +282,7 @@ export default function EventGraph({
       const origin = drag.origins[drag.id];
       commit(placeNodes(graph, { [drag.id]: { x: origin.x, y: origin.y, w: Math.max(120, origin.w + drag.dx), h: Math.max(72, origin.h + drag.dy) } }));
     }
-    setDrag((current) => (current?.mode === "wire" ? null : null));
+    rememberDrag(null);
   };
 
   const displayPos = (id, fallback) => {
@@ -278,28 +309,44 @@ export default function EventGraph({
     setSelection({ nodes: [node.id], wires: [], comments: [] });
   };
 
-  const commentAround = () => {
+  const commentAround = (event) => {
+    event?.stopPropagation?.();
+    let next;
     if (selection.nodes.length) {
       const picked = graph.nodes.filter((node) => selection.nodes.includes(node.id));
       const x = Math.min(...picked.map((node) => node.x)) - 28;
-      const y = Math.min(...picked.map((node) => node.y)) - 36;
+      const y = Math.min(...picked.map((node) => node.y)) - 40;
       const w = Math.max(...picked.map((node) => node.x)) + NODE_W + 28 - x;
       const h = Math.max(...picked.map((node) => node.y + nodeHeight(node))) + 28 - y;
-      commit(addComment(graph, { x, y, w, h, text: "Comment" }));
-      return;
+      next = addComment(graph, { x, y, w, h, text: "Comment" });
+    } else {
+      const rect = canvasRef.current?.getBoundingClientRect();
+      const point = rect ? toGraph(rect.left + rect.width / 2, rect.top + rect.height / 2) : { x: 80, y: 80 };
+      next = addComment(graph, { x: grid(point.x - 140), y: grid(point.y - 70), text: "Comment" });
     }
-    const rect = canvasRef.current?.getBoundingClientRect();
-    const point = rect ? toGraph(rect.left + rect.width / 2, rect.top + 160) : { x: 80, y: 80 };
-    commit(addComment(graph, { x: grid(point.x), y: grid(point.y), text: "Comment" }));
+    const added = next.comments.find((comment) => !graph.comments.some((item) => item.id === comment.id));
+    commit(next);
+    if (added) setSelection({ nodes: [], wires: [], comments: [added.id] });
   };
 
-  const runExplain = async () => {
+  const runExplain = async (event) => {
+    event?.stopPropagation?.();
     const fallback = explainGraph(graph);
-    setSummary(fallback);
     setExplainOpen(true);
-    if (!onExplain) return;
-    const next = await onExplain(graph, fallback);
-    if (next) setSummary(next);
+    setExplainError("");
+    setSummary(fallback);
+    setExplainState("loading");
+    if (!onExplain) { setExplainState("ready"); return; }
+    try {
+      const next = await onExplain(graph, fallback);
+      const text = typeof next === "string" ? next : next?.text;
+      setSummary(text || fallback);
+      setExplainState("ready");
+    } catch (err) {
+      setExplainError(err?.message || "Couldn't explain this graph.");
+      setSummary(fallback);
+      setExplainState("error");
+    }
   };
 
   const wirePreview = () => {
@@ -327,7 +374,7 @@ export default function EventGraph({
   const mapScale = Math.min(mapW / (spanX + 40), mapH / (spanY + 40));
 
   return (
-    <div className="flex h-full min-h-0" data-testid="event-graph">
+    <div className="flex h-full min-h-0 overflow-hidden" data-testid="event-graph">
       {editable && (
         <aside className="graph-palette" data-testid="graph-palette">
           <input className="graph-search" value={query} placeholder="Search events" aria-label="Search events" data-testid="graph-search" onChange={(event) => setQuery(event.target.value)} />
@@ -351,7 +398,7 @@ export default function EventGraph({
       )}
       <div
         ref={canvasRef}
-        className="bp-grid relative flex-1 min-w-0 outline-none"
+        className="bp-grid graph-canvas relative flex-1 min-w-0 min-h-0 overflow-hidden outline-none"
         tabIndex={0}
         data-testid="node-graph-canvas"
         onKeyDown={onKeyDown}
@@ -362,18 +409,18 @@ export default function EventGraph({
         onDrop={dropNode}
         onContextMenu={(event) => { if (event.target.dataset?.bg === "1") openMenu(event, {}); }}
       >
-        <div className="absolute left-3 top-3 z-20 flex flex-wrap items-center gap-2">
+        <div className="absolute left-3 top-3 z-20 flex flex-wrap items-center gap-2" data-graph-chrome onPointerDown={(event) => event.stopPropagation()}>
           <span className="eyebrow">Event graph · {Math.round(zoom * 100)}%</span>
           <button type="button" className={`ue-btn !py-1 !px-2 !text-[11px] ${snap ? "!border-[var(--unreal-orange)] !text-[var(--unreal-orange)]" : ""}`} data-testid="graph-snap" onClick={() => setSnap((value) => !value)}>Snap</button>
           <button type="button" className="ue-btn !py-1 !px-2 !text-[11px]" data-testid="graph-comment" onClick={commentAround}>Comment</button>
           <button type="button" className="ue-btn !py-1 !px-2 !text-[11px]" data-testid="graph-explain" onClick={runExplain}>Explain this graph</button>
         </div>
-        <div className="absolute right-3 top-3 z-20 flex gap-2">
+        <div className="absolute right-3 top-3 z-20 flex gap-2" data-graph-chrome onPointerDown={(event) => event.stopPropagation()}>
           <button type="button" className="ue-btn" aria-label="Zoom in" data-testid="graph-zoom-in" onClick={() => setZoom((value) => clampZoom(value + 0.1))}>+</button>
           <button type="button" className="ue-btn" aria-label="Zoom out" data-testid="graph-zoom-out" onClick={() => setZoom((value) => clampZoom(value - 0.1))}>−</button>
         </div>
         {system?.manual_cpp && (
-          <div className="absolute left-3 top-12 z-20 panel p-2 flex items-center gap-2 max-w-xl" data-testid="graph-manual-lock">
+          <div className="absolute left-3 top-12 z-20 panel p-2 flex items-center gap-2 max-w-xl" data-testid="graph-manual-lock" data-graph-chrome onPointerDown={(event) => event.stopPropagation()}>
             <span className="text-[12px] text-[var(--text-secondary)]">Manual edits are locked. The graph is saved, and the C++ was not overwritten.</span>
             <button type="button" className="ue-btn !py-1 !px-2 !text-[11px]" data-testid="graph-revert" onClick={onRevertManual}>Revert to generated</button>
           </div>
@@ -446,7 +493,7 @@ export default function EventGraph({
                   onPointerDown={(event) => event.stopPropagation()}
                   onBlur={(event) => { if (event.target.value !== comment.text) commit(placeNodes(graph, { [comment.id]: { x: comment.x, y: comment.y, w: comment.w, h: comment.h, text: event.target.value } })); }}
                 />
-                {editable && <div className="graph-comment-resize" onPointerDown={(event) => { event.stopPropagation(); setDrag({ mode: "resize", id: comment.id, startX: event.clientX, startY: event.clientY, origins: { [comment.id]: comment }, moved: false }); }} />}
+                {editable && <div className="graph-comment-resize" onPointerDown={(event) => { event.stopPropagation(); rememberDrag({ mode: "resize", id: comment.id, startX: event.clientX, startY: event.clientY, origins: { [comment.id]: comment }, moved: false }); }} />}
               </div>
             );
           })}
@@ -469,15 +516,15 @@ export default function EventGraph({
                 <div className="node-header"><span className="truncate">{node.label}</span></div>
                 <div className="node-body">
                   {Array.from({ length: rows }, (_, index) => (
-                    <div key={index} className="flex justify-between gap-2" style={{ minHeight: PIN_H }}>
+                    <div key={index} className="flex justify-between gap-2" style={{ minHeight: GRAPH_LAYOUT.row }}>
                       {inputs[index] ? (
-                        <div className="node-pin" data-pin-node={node.id} data-pin-id={inputs[index].id} data-testid={`pin-${node.id}-${inputs[index].id}`}>
+                        <div className={`node-pin ${(hotPin?.nodeId === node.id && hotPin?.pinId === inputs[index].id) || (armed?.nodeId === node.id && armed?.pinId === inputs[index].id) ? "is-hot" : ""}`} data-pin-node={node.id} data-pin-id={inputs[index].id} data-testid={`pin-${node.id}-${inputs[index].id}`}>
                           <span className="node-dot" style={{ background: pinColor(inputs[index].type) }} />
                           <span>{inputs[index].name}</span>
                         </div>
                       ) : <span />}
                       {outputs[index] ? (
-                        <div className="node-pin out" data-pin-node={node.id} data-pin-id={outputs[index].id} data-testid={`pin-${node.id}-${outputs[index].id}`}>
+                        <div className={`node-pin out ${(hotPin?.nodeId === node.id && hotPin?.pinId === outputs[index].id) || (armed?.nodeId === node.id && armed?.pinId === outputs[index].id) ? "is-hot" : ""}`} data-pin-node={node.id} data-pin-id={outputs[index].id} data-testid={`pin-${node.id}-${outputs[index].id}`}>
                           <span>{outputs[index].name}</span>
                           <span className="node-dot" style={{ background: pinColor(outputs[index].type) }} />
                         </div>
@@ -500,13 +547,13 @@ export default function EventGraph({
             {editable ? "Drag an event from the palette." : "— generate a system to populate the event graph —"}
           </div>
         )}
-        <svg className="graph-minimap" data-testid="graph-minimap" viewBox={`0 0 ${mapW} ${mapH}`} onPointerDown={(event) => event.stopPropagation()}>
+        <svg className="graph-minimap" data-testid="graph-minimap" data-graph-chrome viewBox={`0 0 ${mapW} ${mapH}`} onPointerDown={(event) => event.stopPropagation()}>
           {graph.nodes.map((node) => (
             <rect key={node.id} x={(node.x - bounds.minX) * mapScale + 8} y={(node.y - bounds.minY) * mapScale + 8} width={Math.max(4, NODE_W * mapScale)} height={Math.max(3, nodeHeight(node) * mapScale)} fill={node.kind === "event" ? "#ef4444" : "#0099ff"} />
           ))}
         </svg>
         {selectedNode && (
-          <div className="graph-inspector panel p-2" data-testid="graph-inspector" onPointerDown={(event) => event.stopPropagation()}>
+          <div className="graph-inspector panel p-2" data-testid="graph-inspector" data-graph-chrome onPointerDown={(event) => event.stopPropagation()}>
             <div className="text-[12px] font-semibold">{selectedNode.label}</div>
             {selectedNode.catalog === "print-string" && (
               <input className="graph-search mt-1" aria-label="Print text" key={`${selectedNode.id}-${selectedNode.data?.text || ""}`} defaultValue={selectedNode.data?.text || ""} onBlur={(event) => { if (event.target.value !== (selectedNode.data?.text || "")) commit(setNodeData(graph, selectedNode.id, { text: event.target.value })); }} />
@@ -534,9 +581,14 @@ export default function EventGraph({
             )}
           </div>
         )}
-        {explainOpen && summary && (
-          <div className="graph-explain panel p-3" data-testid="graph-explain-text" onPointerDown={(event) => event.stopPropagation()}>
-            <div className="eyebrow mb-1">What fires</div>
+        {explainOpen && (
+          <div className="graph-explain panel p-3" data-testid="graph-explain-text" data-graph-chrome onPointerDown={(event) => event.stopPropagation()}>
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <div className="eyebrow">What fires</div>
+              <button type="button" className="ue-btn !py-0.5 !px-1.5 !text-[10px]" data-testid="graph-explain-close" onClick={() => setExplainOpen(false)}>Close</button>
+            </div>
+            {explainState === "loading" && <p className="text-[12px] text-[var(--text-muted)]" data-testid="graph-explain-loading">Asking for a walkthrough…</p>}
+            {explainError && <p className="text-[12px] text-[var(--accent-red)] mb-1" data-testid="graph-explain-error">{explainError}</p>}
             <p className="text-[12.5px] text-[var(--text-secondary)]"><GlossaryText text={summary} /></p>
           </div>
         )}

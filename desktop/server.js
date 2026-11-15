@@ -639,6 +639,15 @@ async function startServer(options = {}) {
         workDir,
         spawnImpl: options.spawnImpl,
       });
+    } catch (exc) {
+      const message = String(exc?.message || exc || "Build failed");
+      return {
+        found: true,
+        ok: false,
+        issues: [{ severity: "error", file: "", line: null, message: message.slice(0, 500), fix: "This is the error from the app, before Unreal printed a compiler line." }],
+        log: String(exc?.stack || message).slice(0, 4000),
+        message: `Build with Unreal failed: ${message.slice(0, 400)}`,
+      };
     } finally {
       fs.rmSync(workDir, { recursive: true, force: true });
     }
