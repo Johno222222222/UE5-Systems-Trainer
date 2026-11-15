@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { showWhyDepth } from "../lib/learning.mjs";
 import { useShell } from "../shell/ShellContext";
+import GlossaryText from "./GlossaryText";
 
 export default function WhyNote({ note, level, testId, forceOpen = false }) {
   const shell = useShell();
@@ -11,7 +12,7 @@ export default function WhyNote({ note, level, testId, forceOpen = false }) {
   return (
     <div className="why-callout" data-testid={testId || `why-note-${note.id}`} id={`why-note-${note.id}`}>
       <div className="min-w-0">
-        <div><span className="why-label">Why</span>{note.one_line}</div>
+        <div><span className="why-label">Why</span><GlossaryText text={note.one_line} /></div>
         {deep && !forceOpen && (
           <button type="button" className="why-more" data-testid={`why-more-${note.id}`} aria-expanded={open} onClick={() => setOpen((value) => !value)}>
             {open ? "Hide the tradeoff" : "Tradeoff and common mistake"}
@@ -19,8 +20,8 @@ export default function WhyNote({ note, level, testId, forceOpen = false }) {
         )}
         {deep && shown && (
           <div className="mt-1" data-testid={`why-depth-${note.id}`}>
-            {note.tradeoff && <div><span className="why-label">Tradeoff</span>{note.tradeoff}</div>}
-            {note.common_mistake && <div className="mt-1"><span className="why-label">Mistake</span>{note.common_mistake}</div>}
+            {note.tradeoff && <div><span className="why-label">Tradeoff</span><GlossaryText text={note.tradeoff} /></div>}
+            {note.common_mistake && <div className="mt-1"><span className="why-label">Mistake</span><GlossaryText text={note.common_mistake} /></div>}
             <button
               type="button"
               className="why-concept"

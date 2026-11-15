@@ -1,6 +1,7 @@
 import React from "react";
 import { CheckCircle2 } from "lucide-react";
 import { WhyCallout } from "./AnnotatedPseudocode";
+import GlossaryText from "./GlossaryText";
 
 export default function SetupGuide({ steps, done = {}, onToggle }) {
   if (!steps?.length) {
@@ -25,7 +26,7 @@ export default function SetupGuide({ steps, done = {}, onToggle }) {
             </button>
             <div className="flex-1 min-w-0">
               <div className="font-sub font-semibold text-[13px] text-[var(--text-primary)]">{s.title}</div>
-              <div className="text-[12px] text-[var(--text-secondary)] leading-relaxed mt-0.5 font-mono">{s.detail}</div>
+              <div className="text-[12px] text-[var(--text-secondary)] leading-relaxed mt-0.5 font-mono"><GlossaryText text={s.detail} /></div>
               {s.why && <div className="mt-2"><WhyCallout text={s.why} testId={`why-note-step-${s.step}`} /></div>}
             </div>
           </div>

@@ -9,7 +9,7 @@ const { pathToFileURL } = require("url");
 const { checkConstraints } = require("../constraints");
 const { repairCommonCpp } = require("../repair");
 const { modulesFor } = require("../modules");
-const { parseCompilerOutput, quotedWindowsCommand } = require("../engine");
+const { parseCompilerOutput, windowsBuildLaunch, safePackageDir } = require("../engine");
 const { writePlugin } = require("../pluginFiles");
 
 test("No Tick ignores bCanEverTick = false and flags a real override", () => {
@@ -81,13 +81,26 @@ test("compiler output maps a header line and keeps the RunUAT error", () => {
   assert.ok(issues.some((item) => /LNK2019/.test(item.message) || /unresolved external/.test(item.message)));
 });
 
-test("the Windows build command quotes a path that contains spaces", () => {
-  const command = quotedWindowsCommand("C:/Program Files/Epic Games/UE_5.8/Engine/Build/BatchFiles/RunUAT.bat", [
-    "BuildPlugin",
-    "-Plugin=C:/Program Files/Game/Plugin.uplugin",
-  ]);
-  assert.match(command, /"C:\/Program Files\/Epic Games\/UE_5\.8\/Engine\/Build\/BatchFiles\/RunUAT\.bat"/);
-  assert.match(command, /"BuildPlugin"/);
+test("the Windows build command quotes plugin paths and does not call cmd /s", () => {
+  const plugin = "C:\\Unreal Projects\\Game\\Plugins\\Kit\\Kit.uplugin";
+  const launch = windowsBuildLaunch({
+    uat: "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Build\\BatchFiles\\RunUAT.bat",
+    pluginPath: plugin,
+    packageDir: "C:\\ue5tmp\\ue5-uat-out",
+  });
+  assert.equal(launch.options.shell, false);
+  assert.equal(launch.options.windowsVerbatimArguments, true);
+  assert.equal(launch.file.includes("cmd.exe"), false);
+  assert.equal(launch.args[0], "BuildPlugin");
+  assert.equal(launch.args[1], `-Plugin="${plugin}"`);
+  assert.equal(launch.args[2], "-Package=\"C:\\ue5tmp\\ue5-uat-out\"");
+  assert.equal(launch.args.join(" ").includes("/s"), false);
+  const packaged = safePackageDir("C:\\Unreal Projects\\out", "win32", "C:\\ue5tmp");
+  assert.equal(/\s/.test(packaged), false);
+  assert.equal(normalizeCheck(packaged), true);
+  function normalizeCheck(value) {
+    return !value.endsWith("\\") && !value.startsWith("\\\\");
+  }
 });
 
 test("a manual edit is remembered and can be reverted or discarded for synthesis", async () => {

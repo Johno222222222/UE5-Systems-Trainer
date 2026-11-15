@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.7.0
+
+- Lesson text, WHY notes, concepts, programs, courses, and setup steps underline glossary terms. Click or press Enter for a short definition. The first mention in each note is the one that is marked. Code, menus, buttons, and the C++ editor are left alone.
+- The glossary ships in the app next to the lesson packs and is read from the installed app path.
+- The header and source editors sit side by side again, and stack when the window is narrow.
+- When a fix is not applied and a line is known, Jump to line selects that line in the editor.
+- Build with Unreal no longer wraps RunUAT in `cmd /s /c`. Plugin and package paths are quoted on their own, and a package folder with spaces is moved to a path without spaces.
+
 ## 1.6.0
 
 Stage 6, trustworthy export and more models.

@@ -87,14 +87,54 @@ function shownFile(rawPath) {
   return "";
 }
 
-function quoteArg(value) {
+function normalizeBuildPath(value) {
+  let text = String(value || "").trim();
+  text = text.replace(/[\\/]+$/, "");
+  if (text.startsWith("\\\\") || text.startsWith("//")) return "";
+  return text;
+}
+
+function quoteValue(value) {
   return `"${String(value).replace(/"/g, "")}"`;
 }
 
-// One string for cmd.exe so a path with spaces still reaches RunUAT.bat.
-function quotedWindowsCommand(uat, buildArgs) {
-  const inner = [uat, ...buildArgs].map(quoteArg).join(" ");
-  return `"${inner}"`;
+function pathJoin(root, name) {
+  if (!root) return name;
+  const sep = root.includes("\\") ? "\\" : "/";
+  return `${root}${sep}${name}`;
+}
+
+// A package folder with spaces makes RunUAT split the argument. Prefer a
+// scratch folder that has none, then a short fallback.
+function safePackageDir(requested, platform, scratchRoot) {
+  const cleaned = normalizeBuildPath(requested);
+  if (cleaned && !/\s/.test(cleaned)) return cleaned;
+  const scratch = normalizeBuildPath(scratchRoot || "");
+  if (scratch && !/\s/.test(scratch)) return pathJoin(scratch, "ue5-uat-out");
+  if (platform === "win32") {
+    const drive = "C:";
+    return `${drive}\\ue5-uat-out`;
+  }
+  return "/tmp/ue5-uat-out";
+}
+
+// Spawn RunUAT.bat directly. Do not wrap the whole line in cmd /s /c.
+// That extra quote layer turns "C:\..." into a UNC-looking path and splits
+// -Plugin values that contain spaces.
+function windowsBuildLaunch({ uat, pluginPath, packageDir }) {
+  const bat = normalizeBuildPath(uat);
+  const plugin = normalizeBuildPath(pluginPath);
+  const out = normalizeBuildPath(packageDir);
+  return {
+    file: bat,
+    args: [
+      "BuildPlugin",
+      `-Plugin=${quoteValue(plugin)}`,
+      `-Package=${quoteValue(out)}`,
+      "-Rocket",
+    ],
+    options: { shell: false, windowsVerbatimArguments: true },
+  };
 }
 
 // MSVC: File.cpp(12): error C2065: 'Nope': undeclared identifier
@@ -151,19 +191,23 @@ function parseCompilerOutput(log) {
   return issues.slice(0, 40);
 }
 
-function commandFor(engineRoot, uplugin, outputDir, platform) {
+function commandFor(engineRoot, uplugin, outputDir, platform, scratchRoot) {
   const os = platform || process.platform;
   const uat = runUatFile(engineRoot, os);
-  const args = ["BuildPlugin", `-Plugin=${uplugin}`, `-Package=${outputDir}`, "-Rocket"];
+  const packaged = safePackageDir(outputDir, os, scratchRoot);
   if (os === "win32" && process.platform === "win32") {
-    return { file: "cmd.exe", args: ["/d", "/s", "/c", quotedWindowsCommand(uat, args)] };
+    return windowsBuildLaunch({ uat, pluginPath: uplugin, packageDir: packaged });
   }
-  return { file: uat, args };
+  return {
+    file: uat,
+    args: ["BuildPlugin", `-Plugin=${uplugin}`, `-Package=${packaged}`, "-Rocket"],
+    options: { shell: false },
+  };
 }
 
 function runProcess(spec, spawnImpl) {
   return new Promise((resolve) => {
-    const child = spawnImpl(spec.file, spec.args, { windowsHide: true });
+    const child = spawnImpl(spec.file, spec.args, { windowsHide: true, ...(spec.options || {}) });
     let log = "";
     const take = (chunk) => { log += chunk.toString(); };
     child.stdout?.on("data", take);
@@ -181,7 +225,7 @@ async function compilePlugin({ system, engineRoot, platform, workDir, spawnImpl 
   const outputDir = path.join(workDir, "packaged");
   fs.mkdirSync(pluginDir, { recursive: true });
   const written = writePlugin(pluginDir, system);
-  const spec = commandFor(detected.path, written.uplugin, outputDir, os);
+  const spec = commandFor(detected.path, written.uplugin, outputDir, os, workDir);
   const result = await runProcess(spec, spawnImpl || spawn);
   const command = `${spec.file} ${spec.args.join(" ")}`;
   const fullLog = `Command:\n${command}\n\n${result.log || "(no output)"}`;
@@ -221,6 +265,8 @@ module.exports = {
   commandFor,
   compilePlugin,
   runUatFile,
-  quotedWindowsCommand,
+  windowsBuildLaunch,
+  safePackageDir,
+  normalizeBuildPath,
   shownFile,
 };

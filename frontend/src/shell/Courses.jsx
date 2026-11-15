@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { api, errorText } from "../lib/api";
 import { choiceNote } from "../lib/choices.mjs";
 import ChoiceButton from "../components/ChoiceButton";
+import GlossaryText from "../components/GlossaryText";
 
 export default function Courses() {
   const [cards, setCards] = useState([]);
@@ -103,7 +104,7 @@ export default function Courses() {
               <div className="eyebrow mb-2">Review</div>
               {reviews.map((item) => (
                 <div key={item.id} className="mt-3">
-                  <div className="text-[13px]">{item.prompt}</div>
+                  <div className="text-[13px]"><GlossaryText text={item.prompt} /></div>
                   <div className="mt-2 flex flex-col gap-2">
                     {(item.choices || []).map((choice, index) => {
                       const note = reviewNotes[item.id];
@@ -121,7 +122,7 @@ export default function Courses() {
                       );
                     })}
                   </div>
-                  {reviewNotes[item.id] && <p className="mt-2 text-[13px] text-[var(--text-secondary)]" data-testid={`review-result-${item.id}`}>{reviewNotes[item.id].text}</p>}
+                  {reviewNotes[item.id] && <p className="mt-2 text-[13px] text-[var(--text-secondary)]" data-testid={`review-result-${item.id}`}><GlossaryText text={reviewNotes[item.id].text} /></p>}
                 </div>
               ))}
             </div>
@@ -160,7 +161,7 @@ export default function Courses() {
             <div className="mt-4 space-y-4">
               {(mod.quiz || []).map((question, qIndex) => (
                 <div key={question.id}>
-                  <div className="text-[13px] text-[var(--text-primary)]">{qIndex + 1}. {question.prompt}</div>
+                  <div className="text-[13px] text-[var(--text-primary)]">{qIndex + 1}. <GlossaryText text={question.prompt} /></div>
                   <div className="mt-2 flex flex-col gap-2">
                     {question.choices.map((choice, index) => (
                       <ChoiceButton
@@ -177,12 +178,12 @@ export default function Courses() {
                   </div>
                   {result && (
                     <p className="mt-2 text-[13px] text-[var(--text-secondary)]" data-testid={`quiz-note-${question.id}`}>
-                      {choiceNote({
+                      <GlossaryText text={choiceNote({
                         picked: answers[question.id],
                         correct: question.answer,
                         why: question.why,
                         revealed: true,
-                      })}
+                      })} />
                     </p>
                   )}
                 </div>
@@ -191,7 +192,7 @@ export default function Courses() {
             {mod.diff && (
               <div className="mt-5" data-testid="diff-quiz">
                 <div className="eyebrow mb-2">Diff</div>
-                <div className="text-[13px]">{mod.diff.prompt}</div>
+                <div className="text-[13px]"><GlossaryText text={mod.diff.prompt} /></div>
                 <div className="grid md:grid-cols-2 gap-3 mt-3">
                   {["left", "right"].map((side) => (
                     <ChoiceButton
@@ -212,7 +213,7 @@ export default function Courses() {
             )}
             <label className="block mt-5">
               <span className="eyebrow">Assignment</span>
-              <div className="mt-1 text-[13px] text-[var(--text-secondary)]">{mod.assignment?.prompt}</div>
+              <div className="mt-1 text-[13px] text-[var(--text-secondary)]"><GlossaryText text={mod.assignment?.prompt} /></div>
               <textarea className="mt-2 w-full min-h-[70px] bg-[var(--bg-main)] border border-[var(--border)] rounded px-2 py-1 text-[13px]" data-testid="course-assignment" value={assignment} onChange={(event) => setAssignment(event.target.value)} />
             </label>
             <button type="button" className="ue-btn ue-btn-primary mt-3" data-testid="course-submit" onClick={submit}>Submit module</button>
@@ -220,23 +221,23 @@ export default function Courses() {
               <div className="mt-4 text-[13px] text-[var(--text-secondary)]" data-testid="course-result">
                 <div data-testid="course-score">{result.percent}% · {result.passed ? "Pass" : "Not yet"}{result.assignment_ok ? " · assignment accepted" : " · assignment needs another look"}</div>
                 {(result.results || []).map((item) => (
-                  <div key={item.id} className="mt-2">{item.correct ? "Right." : "Not that one."} {item.why}</div>
+                  <div key={item.id} className="mt-2">{item.correct ? "Right." : "Not that one."} <GlossaryText text={item.why} /></div>
                 ))}
                 {result.diff_why && (
                   <div className="mt-2" data-testid="diff-note">
-                    {choiceNote({
+                    <GlossaryText text={choiceNote({
                       picked: diff,
                       correct: mod.diff.bug,
                       why: result.diff_why,
                       revealed: true,
                       rightText: "The diff is right.",
                       wrongText: `The diff is the other side. ${result.diff_why}`,
-                    })}
+                    })} />
                   </div>
                 )}
                 <div className="mt-3 panel p-3" data-testid="course-takeaway">
                   <div className="eyebrow mb-1">Takeaway</div>
-                  {result.takeaway}
+                  <GlossaryText text={result.takeaway} />
                 </div>
               </div>
             )}
