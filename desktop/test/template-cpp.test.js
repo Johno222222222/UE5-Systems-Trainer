@@ -65,6 +65,33 @@ test("every template inserts into a fresh system and an existing one without a s
   }
 });
 
+test("every template keeps its header first and avoids bare float suffixes", async () => {
+  const { graph } = await libs();
+  for (const id of ["pickup", "health", "door", "interact", "timer", "tactical-ammo"]) {
+    const { source } = await emit(fresh(), loadTemplate(id), "insert", "event");
+    assert.match(source, /^#include "Kit\.h"/, id);
+    assert.equal(/(?<![\d.])\d+f\b/.test(source), false, `${id} has a bare float suffix`);
+  }
+  const begin = graph.createNode("begin-play", 0, 0, { id: "begin" });
+  const once = graph.createNode("do-once", 200, 0, { id: "once" });
+  const gate = graph.createNode("gate", 400, 0, { id: "gate" });
+  const link = (from, to) => ({
+    id: `${from.id}-${to.id}`,
+    from: { node: from.id, pin: from.pins.find((pin) => pin.dir === "out" && pin.type === "exec").id },
+    to: { node: to.id, pin: to.pins.find((pin) => pin.dir === "in" && pin.type === "exec").id },
+  });
+  const doc = {
+    variables: [],
+    items: [{ id: "event", kind: "event", name: "Event Graph", nodes: [begin, once, gate], wires: [link(begin, once), link(once, gate)], comments: [] }],
+  };
+  const system = graph.commitDocument({ cpp_header: HEADER, cpp_source: SOURCE }, doc).system;
+  assert.match(system.cpp_header, /bool DoneOnce_once = false;/);
+  assert.match(system.cpp_header, /bool GateOpen_gate = false;/);
+  assert.match(system.cpp_source, /DoneOnce_once/);
+  assert.match(system.cpp_source, /GateOpen_gate/);
+  assert.match(system.cpp_source, /^#include "Kit\.h"/);
+});
+
 test("pickup adds one ammo, declares it, and binds a real overlap signature", async () => {
   const { source, header } = await emit(fresh(), loadTemplate("pickup"), "insert", "event");
   assert.match(source, /Ammo = \(Ammo \+ 1\);/);
@@ -78,8 +105,9 @@ test("pickup adds one ammo, declares it, and binds a real overlap signature", as
 
 test("the other five templates emit the math, the trace, and the timer they show", async () => {
   const health = await emit(fresh(), loadTemplate("health"), "insert", "event");
-  assert.match(health.source, /Health = FMath::Clamp\(\(Health - Damage\), 0f, MaxHealth\);/);
-  assert.match(health.source, /if \(\(Health == 0f\)\)/);
+  assert.match(health.source, /Health = FMath::Clamp\(\(Health - Damage\), 0\.f, MaxHealth\);/);
+  assert.match(health.source, /if \(\(Health == 0\.f\)\)/);
+  assert.equal(/(?<![\d.])\d+f\b/.test(health.source), false);
   assert.match(health.source, /OnTakeAnyDamage\.AddDynamic/);
   assert.match(health.header, /float Health = 100\.f;/);
 
@@ -87,6 +115,9 @@ test("the other five templates emit the math, the trace, and the timer they show
   assert.match(door.source, /IsOpen = true;/);
   assert.match(door.source, /IsOpen = false;/);
   assert.match(door.header, /bool IsOpen = false;/);
+  assert.match(door.header, /bool Flip_tpl_door_flip = false;/);
+  assert.match(door.source, /UTimelineComponent/);
+  assert.match(door.source, /^#include "Kit\.h"/);
 
   const interact = await emit(fresh(), loadTemplate("interact"), "insert", "event");
   assert.match(interact.source, /LineTraceSingleByChannel/);

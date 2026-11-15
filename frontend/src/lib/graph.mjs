@@ -726,7 +726,14 @@ function literalCpp(node) {
   if (type === "string") return `TEXT("${String(raw || "").replace(/["\\]/g, "")}")`;
   if (type === "name") return `FName(TEXT("${String(raw || "None").replace(/["\\]/g, "")}"))`;
   const n = Number.parseFloat(String(raw ?? "0").replace(/f$/i, ""));
-  return Number.isFinite(n) ? `${n}f` : "0.f";
+  return cppFloat(n);
+}
+
+function cppFloat(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return "0.f";
+  const text = String(n);
+  return text.includes(".") ? `${text}f` : `${text}.f`;
 }
 
 function exprFor(graph, node, seen = new Set(), outPin = null) {
@@ -809,8 +816,8 @@ function statementFor(node, graph) {
       const target = (graph.nodes || []).find((item) => item.catalog === "custom-event" && item.data?.name === eventName);
       const method = target ? functionBase(target) : "";
       const cls = graph.cppClass || "UKitComponent";
-      if (method) return `if (UWorld* World = GetWorld()) { FTimerHandle Timer_${id}; World->GetTimerManager().SetTimer(Timer_${id}, this, &${cls}::${method}, ${seconds}f, true); }`;
-      return `if (UWorld* World = GetWorld()) { FTimerHandle Timer_${id}; FTimerDelegate Delegate_${id}; Delegate_${id}.BindUFunction(this, TEXT("${eventName || "Timer"}")); World->GetTimerManager().SetTimer(Timer_${id}, Delegate_${id}, ${seconds}f, true); }`;
+      if (method) return `if (UWorld* World = GetWorld()) { FTimerHandle Timer_${id}; World->GetTimerManager().SetTimer(Timer_${id}, this, &${cls}::${method}, ${cppFloat(seconds)}, true); }`;
+      return `if (UWorld* World = GetWorld()) { FTimerHandle Timer_${id}; FTimerDelegate Delegate_${id}; Delegate_${id}.BindUFunction(this, TEXT("${eventName || "Timer"}")); World->GetTimerManager().SetTimer(Timer_${id}, Delegate_${id}, ${cppFloat(seconds)}, true); }`;
     }
     case "spawn-actor":
       return `if (UWorld* World = GetWorld()) { World->SpawnActor<${ident(node.data?.className || "AActor", "AActor")}>(${ident(node.data?.className || "AActor", "AActor")}::StaticClass()); }`;
@@ -819,9 +826,9 @@ function statementFor(node, graph) {
       return `if (${ident(node.data?.className || "AActor", "AActor")}* Cast_${id} = Cast<${ident(node.data?.className || "AActor", "AActor")}>(${wired})) { /* cast ok */ }`;
     }
     case "delay":
-      return `if (UWorld* World = GetWorld()) { FTimerHandle Delay_${id}; World->GetTimerManager().SetTimer(Delay_${id}, FTimerDelegate(), ${Number(node.data?.seconds) || 0.5}f, false); }`;
+      return `if (UWorld* World = GetWorld()) { FTimerHandle Delay_${id}; World->GetTimerManager().SetTimer(Delay_${id}, FTimerDelegate(), ${cppFloat(Number(node.data?.seconds) || 0.5)}, false); }`;
     case "timeline":
-      return `// Timeline ${ident(node.label, "Timeline")}`;
+      return `// TODO: a real Timeline needs a UTimelineComponent. ${ident(node.label, "Timeline")} does not play a curve here.`;
     case "has-authority":
       return "if (HasAuthority()) { /* authority */ }";
     case "dispatcher-call":
@@ -921,7 +928,11 @@ function cppForType(spec) {
 }
 
 function defaultLiteral(spec) {
-  if (spec?.default != null && spec.default !== "") return String(spec.default);
+  if (spec?.default != null && spec.default !== "") {
+    const raw = String(spec.default);
+    if (spec?.type === "float" && /^\d+f$/i.test(raw.trim())) return raw.trim().replace(/f$/i, ".f");
+    return raw;
+  }
   if (spec?.array) return "{}";
   if (spec?.type === "bool") return "false";
   if (spec?.type === "string") return "TEXT(\"\")";
@@ -1074,10 +1085,48 @@ export function syncCpp(system, graph) {
   const headerText = String(system?.cpp_header || "");
   for (const [pattern, include] of needs) {
     if (pattern.test(source) && !source.includes(include) && !headerText.includes(include)) {
-      source = `#include "${include}"\n${source}`;
+      source = insertCppInclude(source, include);
     }
   }
+  const stateLines = stateMembers(stateNodes(eventGraph, docItems));
+  if (stateLines.length) header = upsertRegion(header, "// graph:begin variables", "// graph:end variables", [...variableHeader, ...stateLines].join("\n"), true);
   return { cpp_header: header, cpp_source: source, lines: lineIndex(header, source) };
+}
+
+function insertCppInclude(source, include) {
+  if (String(source).includes(`"${include}"`)) return source;
+  const line = `#include "${include}"`;
+  const first = String(source).match(/^#include\s+.+$/m);
+  if (!first) return `${line}\n${source}`;
+  const at = first.index + first[0].length;
+  return `${source.slice(0, at)}\n${line}${source.slice(at)}`;
+}
+
+function stateNodes(eventGraph, items) {
+  const nodes = [...(eventGraph?.nodes || [])];
+  for (const item of items || []) {
+    if (Array.isArray(item?.nodes)) nodes.push(...item.nodes);
+  }
+  return nodes;
+}
+
+function stateMembers(nodes) {
+  const lines = [];
+  const seen = new Set();
+  for (const node of nodes) {
+    const member = node?.catalog === "flipflop"
+      ? `Flip_${ident(node.id, "Flip")}`
+      : node?.catalog === "do-once"
+        ? `DoneOnce_${ident(node.id, "Once")}`
+        : node?.catalog === "gate"
+          ? `GateOpen_${ident(node.id, "Gate")}`
+          : "";
+    if (!member || seen.has(member)) continue;
+    seen.add(member);
+    lines.push("\tUPROPERTY()");
+    lines.push(`\tbool ${member} = false;`);
+  }
+  return lines;
 }
 
 function spliceMarked(text, block, insideClass) {

@@ -8,6 +8,7 @@ const ENGINE_EXACT = new Set([
   "CoreMinimal.h",
   "Modules/ModuleManager.h",
   "TimerManager.h",
+  "CollisionQueryParams.h",
   "DrawDebugHelpers.h",
   "Blueprint/UserWidget.h",
   "EnhancedInputComponent.h",
@@ -17,6 +18,11 @@ const ENGINE_EXACT = new Set([
   "AbilitySystemComponent.h",
   "NiagaraFunctionLibrary.h",
   "NavigationSystem.h",
+]);
+
+// These look like engine paths but are not public headers in UE 5.8.
+const ABSENT_IN_UE58 = new Set([
+  "Engine/CollisionQueryParams.h",
 ]);
 
 const ENGINE_PREFIXES = [
@@ -38,7 +44,7 @@ const ENGINE_PREFIXES = [
 
 const SYMBOL_HEADERS = [
   [/\bFHitResult\b/, "Engine/HitResult.h"],
-  [/\bFCollisionQueryParams\b/, "Engine/CollisionQueryParams.h"],
+  [/\bFCollisionQueryParams\b/, "CollisionQueryParams.h"],
   [/\bFTimerHandle\b|\bGetTimerManager\s*\(/, "TimerManager.h"],
   [/\bAPawn\b/, "GameFramework/Pawn.h"],
   [/\bGetWorld\s*\(/, "Engine/World.h"],
@@ -54,6 +60,7 @@ function quotedIncludes(text) {
 }
 
 function isEngineHeader(header) {
+  if (ABSENT_IN_UE58.has(header)) return false;
   if (ENGINE_EXACT.has(header)) return true;
   return ENGINE_PREFIXES.some((prefix) => header.startsWith(prefix));
 }
@@ -170,7 +177,19 @@ function preparePluginSources(module, base, header, source) {
     if (new RegExp(`\\bclass\\s+(?:\\w+_API\\s+)?[UAFIE]${includeBase}\\b`).test(nextHeader)) continue;
     extras[include] = `#pragma once\n`;
   }
+  nextSource = ownHeaderFirst(nextSource, base);
   return { header: nextHeader, source: nextSource, extras };
+}
+
+function ownHeaderFirst(source, base) {
+  const own = `#include "${base}.h"`;
+  const lines = String(source || "").split("\n");
+  const index = lines.findIndex((line) => line.trim() === own);
+  if (index < 0) return String(source || "");
+  if (index === 0) return lines.join("\n");
+  const [line] = lines.splice(index, 1);
+  lines.unshift(line);
+  return lines.join("\n");
 }
 
 function unresolvedIncludes(files) {
@@ -199,6 +218,7 @@ function unresolvedIncludes(files) {
 module.exports = {
   ENGINE_EXACT,
   ENGINE_PREFIXES,
+  ABSENT_IN_UE58,
   quotedIncludes,
   isEngineHeader,
   preparePluginSources,

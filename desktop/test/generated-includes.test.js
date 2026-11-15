@@ -7,7 +7,7 @@ const path = require("path");
 const { pathToFileURL } = require("url");
 const { catalog } = require("../references");
 const { pluginFileMap } = require("../pluginFiles");
-const { unresolvedIncludes } = require("../generatedIncludes");
+const { unresolvedIncludes, isEngineHeader } = require("../generatedIncludes");
 
 function assertResolved(label, map) {
   const missing = unresolvedIncludes(map.files);
@@ -41,6 +41,9 @@ test("Character Interaction exports an Interactable interface and only resolvabl
   assert.match(iface, /#include "Interactable\.generated\.h"/);
   assert.match(iface, /void Interact\(AActor\* User\);/);
   const cpp = map.files["Source/CharacterInteractKit/Private/CharacterInteractComponent.cpp"];
+  assert.match(cpp, /^#include "CharacterInteractComponent\.h"/);
+  assert.match(cpp, /#include "CollisionQueryParams\.h"/);
+  assert.doesNotMatch(cpp, /Engine\/CollisionQueryParams\.h/);
   assert.match(cpp, /#include "Interactable\.h"/);
   const build = map.files["Source/CharacterInteractKit/CharacterInteractKit.Build.cs"];
   assert.match(build, /"Core"/);
@@ -50,6 +53,16 @@ test("Character Interaction exports an Interactable interface and only resolvabl
   const descriptor = JSON.parse(map.files["CharacterInteractKit.uplugin"]);
   assert.equal(descriptor.Modules[0].Type, "Runtime");
   assert.equal(descriptor.Modules[0].Name, "CharacterInteractKit");
+});
+
+test("CollisionQueryParams.h is the UE 5.8 header", () => {
+  assert.equal(isEngineHeader("CollisionQueryParams.h"), true);
+  assert.equal(isEngineHeader("Engine/CollisionQueryParams.h"), false);
+  const missing = unresolvedIncludes({
+    "Source/X/Public/X.h": "#include \"X.generated.h\"\n",
+    "Source/X/Private/X.cpp": "#include \"X.h\"\n#include \"Engine/CollisionQueryParams.h\"\n",
+  });
+  assert.ok(missing.some((item) => item.include === "Engine/CollisionQueryParams.h"));
 });
 
 test("every bundled example and every graph template exports includes that resolve", async () => {

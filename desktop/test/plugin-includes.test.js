@@ -47,6 +47,7 @@ const HEADER_MODULES = {
 // Paths that are not public headers in UE 5.8. Checked before the map, so listing one there still fails.
 const ABSENT_IN_UE58 = new Set([
   "Styling/SlateIcon.h",
+  "Engine/CollisionQueryParams.h",
 ]);
 
 function walk(dir) {
