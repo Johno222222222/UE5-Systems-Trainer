@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { api, errorText } from "../lib/api";
 import { choiceNote } from "../lib/choices.mjs";
 import ChoiceButton from "../components/ChoiceButton";
-import GlossaryText from "../components/GlossaryText";
+import GlossaryText, { GlossaryTags } from "../components/GlossaryText";
 
 export default function Courses() {
   const [cards, setCards] = useState([]);
@@ -142,6 +142,7 @@ export default function Courses() {
   }
 
   return (
+    <GlossaryTags.Provider value={course.glossary_tags || null}>
     <div className="home-screen" data-testid="course-screen">
       <div className="home-inner">
         <button type="button" className="why-concept !mt-0" onClick={() => { setCourse(null); setResult(null); loadList(); }}>All courses</button>
@@ -245,5 +246,6 @@ export default function Courses() {
         )}
       </div>
     </div>
+    </GlossaryTags.Provider>
   );
 }

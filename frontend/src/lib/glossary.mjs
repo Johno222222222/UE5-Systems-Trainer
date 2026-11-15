@@ -17,7 +17,11 @@ export function prepareGlossary(entries) {
       phrases.push({
         id: entry.id || entry.term,
         term: entry.term,
-        definition: entry.definition || "",
+        definition: entry.summary || entry.definition || "",
+        summary: entry.summary || entry.definition || "",
+        detail: entry.detail || "",
+        see: Array.isArray(entry.see) ? entry.see : [],
+        tags: Array.isArray(entry.tags) ? entry.tags : [],
         phrase: String(name),
         lower: String(name).toLowerCase(),
         capital: entry.match === "capital",
@@ -64,11 +68,32 @@ export function linkTerms(text, phrases) {
       text: found.slice,
       id: found.phrase.id,
       term: found.phrase.term,
-      definition: found.phrase.definition,
+      definition: found.phrase.summary || found.phrase.definition,
+      summary: found.phrase.summary || found.phrase.definition,
+      detail: found.phrase.detail,
+      see: found.phrase.see,
+      tags: found.phrase.tags,
     });
     i = found.end;
     plain = i;
   }
   flush(source.length);
   return parts;
+}
+
+export const GLOSSARY_REQUESTS_KEY = "ue5_architect_glossary_requests";
+
+export function addGlossaryRequest(list, word) {
+  const text = String(word || "").trim().replace(/\s+/g, " ").slice(0, 48);
+  if (text.length < 2) return Array.isArray(list) ? list : [];
+  const key = text.toLowerCase();
+  const next = (Array.isArray(list) ? list : []).filter((item) => String(item.word || "").toLowerCase() !== key);
+  next.unshift({ word: text, at: new Date().toISOString() });
+  return next.slice(0, 40);
+}
+
+export function phrasesForTags(phrases, tags) {
+  if (!Array.isArray(tags) || !tags.length) return phrases || [];
+  const wanted = new Set(tags);
+  return (phrases || []).filter((phrase) => (phrase.tags || []).some((tag) => wanted.has(tag)));
 }

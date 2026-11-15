@@ -19,6 +19,18 @@
       "detail": "The Community tab can list packs from a GitHub repo, but that download is off until a public repo is chosen. Local .bbpack import works now."
     },
     {
+      "id": "real-assets",
+      "title": "Real assets",
+      "status": "planned",
+      "detail": "Moves to 1.14.0. This stage does not ship meshes, sounds, or materials with a generated system."
+    },
+    {
+      "id": "learning-in-editor",
+      "title": "Learning in the editor",
+      "status": "planned",
+      "detail": "Moves to 1.15.0. The companion panel does not teach inside Unreal yet."
+    },
+    {
       "id": "linux-packages",
       "title": "Linux packages",
       "status": "in progress",

@@ -20,21 +20,20 @@ test("the glossary ships inside the packaged app", () => {
 
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "ue5-glossary-"));
   const appPath = path.join(root, "resources", "app.asar");
-  const bundled = path.join(appPath, "content", "glossary");
-  fs.mkdirSync(bundled, { recursive: true });
+  fs.mkdirSync(path.join(appPath, "content"), { recursive: true });
   fs.copyFileSync(
-    path.join(__dirname, "..", "..", "content", "glossary", "terms.json"),
-    path.join(bundled, "terms.json"),
+    path.join(__dirname, "..", "..", "content", "glossary.json"),
+    path.join(appPath, "content", "glossary.json"),
   );
   const candidates = glossaryCandidates({ appPath, resourcesPath: path.join(root, "resources") });
-  assert.equal(candidates[0], path.join(appPath, "content", "glossary", "terms.json"));
+  assert.equal(candidates[0], path.join(appPath, "content", "glossary.json"));
   assert.ok(candidates.some((file) => file.includes(`${path.sep}app.asar${path.sep}`)));
 
   const previous = process.cwd();
   process.chdir(os.tmpdir());
   try {
     const loaded = loadGlossary({ appPath, resourcesPath: path.join(root, "resources") });
-    assert.equal(loaded.file, path.join(appPath, "content", "glossary", "terms.json"));
+    assert.equal(loaded.file, path.join(appPath, "content", "glossary.json"));
     assert.ok(loaded.terms.some((term) => term.id === "game-instance-subsystem"));
     assert.deepEqual(loaded.problems, []);
   } finally {
@@ -43,8 +42,8 @@ test("the glossary ships inside the packaged app", () => {
 });
 
 test("glossary matches the longest whole term once, and skips noisy words", async () => {
-  const { prepareGlossary, linkTerms } = await matcher();
-  const terms = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "content", "glossary", "terms.json"), "utf8")).terms;
+  const { prepareGlossary, linkTerms, phrasesForTags } = await matcher();
+  const terms = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "content", "glossary.json"), "utf8")).terms;
   const phrases = prepareGlossary(terms);
   const subsystem = linkTerms("The Game Instance Subsystem outlives the Game Instance.", phrases);
   const hits = subsystem.filter((part) => part.type === "term").map((part) => part.id);
@@ -64,4 +63,22 @@ test("glossary matches the longest whole term once, and skips noisy words", asyn
 
   const soft = linkTerms("Use a Soft Pointer instead of a hard load.", phrases);
   assert.equal(soft.find((part) => part.type === "term").id, "soft-ref");
+
+  const replication = phrases.find((phrase) => phrase.id === "replication");
+  assert.ok(replication.summary.length > 20);
+  assert.ok(replication.see.includes("onrep"));
+  assert.ok(replication.see.includes("doreplifetime"));
+  const tagged = phrasesForTags(phrases, ["Motion Matching"]);
+  assert.ok(tagged.some((phrase) => phrase.id === "pose-search"));
+  assert.equal(tagged.some((phrase) => phrase.id === "replication"), false);
+});
+
+test("a requested word is stored once and capped", async () => {
+  const { addGlossaryRequest } = await matcher();
+  const first = addGlossaryRequest([], "Prediction");
+  const again = addGlossaryRequest(first, "prediction");
+  assert.equal(again.length, 1);
+  assert.equal(again[0].word, "prediction");
+  const many = Array.from({ length: 45 }, (_, index) => `Term${index}`).reduce((list, word) => addGlossaryRequest(list, word), []);
+  assert.equal(many.length, 40);
 });
