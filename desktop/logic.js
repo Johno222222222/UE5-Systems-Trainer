@@ -5,10 +5,14 @@
 // keeps getting the same kind of system, review, fix, and test replies.
 
 const crypto = require("crypto");
+const { constraintText, knownLocks } = require("./constraints");
 
 const ALLOWED_MODELS = {
   gemini: ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.8-flash", "gemini-3.1-pro-preview"],
   openai: ["gpt-4.1-mini", "gpt-4.1", "gpt-5-mini"],
+  anthropic: ["claude-sonnet-4-5", "claude-haiku-4-5"],
+  openrouter: ["anthropic/claude-sonnet-4.5", "openai/gpt-4.1-mini", "google/gemini-2.5-flash"],
+  ollama: ["llama3.2", "qwen2.5-coder", "mistral"],
 };
 
 const DEFAULT_PROVIDER = "gemini";
@@ -84,7 +88,9 @@ Respond with ONLY a single raw JSON object (no markdown, no code fences, no pros
   "node_graph_edges": [{"from_node":"n1","to_node":"n2","kind":"exec"}],
   "network_notes": "Short replication notes.",
   "applied_changes": ["One line per REQUESTED CHANGE stating exactly how it was applied"],
-  "shared_attributes": ["Only when stacking: attributes/interfaces shared between the stacked systems"]
+  "shared_attributes": ["Only when stacking: attributes/interfaces shared between the stacked systems"],
+  "confidence": "high",
+  "alternative": ""
 }
 
 Rules:
@@ -94,10 +100,12 @@ Rules:
 - 3-5 modules. Include any user-added names (included:true) and any user-removed names (included:false).
 - Never copy example text from this schema (e.g. the sample WHY line); every WHY must explain a decision specific to this system.
 - system_name is human-readable Title Case with spaces (e.g. "Health And Damage Component").
-- C++: use #include "CoreMinimal.h", GENERATED_BODY(), UCLASS(), UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="X"), UFUNCTION(BlueprintCallable). Each file must be 50-120 real lines (not counting blank lines): declare every tunable parameter as a UPROPERTY, every module's functions, delegates and events, and implement them fully in the .cpp. Add UPROPERTY(Replicated) + GetLifetimeReplicatedProps ONLY if network_replicated is true.
+- C++: use #include "CoreMinimal.h", GENERATED_BODY(), UCLASS(), UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="X"), UFUNCTION(BlueprintCallable). Each file must be 50-120 real lines (not counting blank lines): declare every tunable parameter as a UPROPERTY, every module's functions, delegates and events, and implement them fully in the .cpp. Add UPROPERTY(Replicated) + GetLifetimeReplicatedProps ONLY if network_replicated is true. Every BlueprintNativeEvent must have a matching Name_Implementation function defined in the .cpp. If the code calls GetWorld(), include "Engine/World.h" in the .cpp. A widget include means the module depends on UMG.
 - LEARNING ANNOTATIONS: in blueprint_pseudocode, after 3-5 key decisions add an indented line starting with "WHY:" (e.g. "WHY: Replicated because state must match across all clients", "WHY: Data Asset used so designers can tweak without recompiling"). Every setup_guide step gets a "why" (<= 110 chars).
 - If PROJECT CONTEXT is given, every design decision must fit it.
-- If a PREVIOUS SYSTEM and REQUESTED CHANGES are given: this is a revision. Keep everything from the previous system that is not affected, apply EVERY requested change exactly (parameter values, module removals/additions, dial shifts, designer notes), and list one applied_changes entry per requested change in the same order. Otherwise applied_changes is [].
+- If you are not sure the parent class, the replication choice, or an engine API is right, set confidence to "low" and put one other way to build it in alternative. Otherwise confidence is "high" and alternative is "".
+- If CONSTRAINT LOCKS are given, obey every lock. A "No Tick" lock means no Tick or TickComponent function and bCanEverTick is not true. bCanEverTick = false is allowed. A server-authority lock means state changes use HasAuthority or a Server RPC.
+- If a PREVIOUS SYSTEM and REQUESTED CHANGES are given: this is a revision. Keep everything from the previous system that is not affected, apply EVERY requested change exactly (parameter values, module removals/additions, dial shifts, designer notes), and list one applied_changes entry per requested change in the same order. Otherwise applied_changes is []. Keep every CONSTRAINT LOCK.
 - If STACKED SYSTEMS are given: each entry is a SUMMARY (names, parameters, modules, declarations), not the full source and not a chopped file. Merge them into ONE integrated system and write complete .h and .cpp files. Do not stop mid-function and do not copy a cut-off excerpt. Unify duplicated attributes into a single owner (e.g. one Health attribute used by both), route cross-system calls through interfaces or delegates, rename anything that collides, and list shared_attributes. Record each conflict resolved as an applied_changes entry starting with "Conflict resolved:". Otherwise shared_attributes is [].
 - Output raw JSON only, starting with { and ending with }.`;
 
@@ -372,6 +380,8 @@ function buildUserText(req, refs) {
   if (String(req.designer_notes || "").trim()) {
     sections.push(`DESIGNER NOTES: ${String(req.designer_notes).trim()}`);
   }
+  const locks = constraintText(req.locks);
+  if (locks) sections.push(locks);
   const prefix = sections.length ? sections.join("\n\n") + "\n\n" : "";
   return prefix + `User request:
 """${req.prompt}"""
@@ -450,6 +460,8 @@ function normalizeSystem(data, stackSystems) {
     network_notes: str(data.network_notes),
     applied_changes: Array.isArray(data.applied_changes) ? data.applied_changes.map((x) => str(x)) : [],
     shared_attributes: Array.isArray(data.shared_attributes) ? data.shared_attributes.map((x) => str(x)) : [],
+    confidence: data.confidence === "low" ? "low" : "high",
+    alternative: data.confidence === "low" ? str(data.alternative).slice(0, 400) : "",
     stacked_from: (stackSystems || []).map((s) => s?.system_name || ""),
     generated_at: new Date().toISOString(),
     tests: data.tests && typeof data.tests === "object" ? data.tests : undefined,
@@ -538,6 +550,7 @@ function normalizeGenerateRequest(body) {
     previous_system: body.previous_system && typeof body.previous_system === "object" ? body.previous_system : null,
     stack_systems: stack,
     reference_file_ids: asStringList(body.reference_file_ids, 5),
+    locks: knownLocks(body.locks),
   };
 }
 

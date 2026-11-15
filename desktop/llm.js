@@ -14,6 +14,9 @@ const { classifyError } = require("./logic");
 
 const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models";
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
+const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
+const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
+const OLLAMA_URL = "http://127.0.0.1:11434/api/chat";
 
 function requestFor({ provider, model, apiKey, system, user, images, maxTokens, stream }) {
   const imageParts = images || [];
@@ -68,6 +71,68 @@ function requestFor({ provider, model, apiKey, system, user, images, maxTokens, 
       body,
     };
   }
+  if (provider === "anthropic") {
+    const content = imageParts.length
+      ? [
+        ...imageParts.map((img) => ({
+          type: "image",
+          source: { type: "base64", media_type: img.mime, data: img.base64 },
+        })),
+        { type: "text", text: user },
+      ]
+      : user;
+    return {
+      url: ANTHROPIC_URL,
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+      },
+      body: {
+        model,
+        max_tokens: maxTokens,
+        temperature: 0.7,
+        system,
+        messages: [{ role: "user", content }],
+      },
+    };
+  }
+  if (provider === "openrouter") {
+    return {
+      url: OPENROUTER_URL,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+        "HTTP-Referer": "http://127.0.0.1",
+        "X-Title": "UE5 System Architect",
+      },
+      body: {
+        model,
+        stream: !!stream,
+        temperature: 0.7,
+        max_tokens: maxTokens,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: user },
+        ],
+      },
+    };
+  }
+  if (provider === "ollama") {
+    return {
+      url: OLLAMA_URL,
+      headers: { "Content-Type": "application/json" },
+      body: {
+        model,
+        stream: false,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: user },
+        ],
+        options: { temperature: 0.7, num_predict: maxTokens },
+      },
+    };
+  }
   const err = new Error(`Unknown AI provider "${provider}".`);
   err.status_code = 400;
   throw err;
@@ -78,6 +143,11 @@ function textFromJson(provider, data) {
     const parts = data?.candidates?.[0]?.content?.parts || [];
     return parts.map((p) => p.text || "").join("");
   }
+  if (provider === "anthropic") {
+    const blocks = Array.isArray(data?.content) ? data.content : [];
+    return blocks.map((block) => block.text || "").join("");
+  }
+  if (provider === "ollama") return data?.message?.content || "";
   const choice = data?.choices?.[0];
   const content = choice?.message?.content;
   if (typeof content === "string") return content;
@@ -89,6 +159,8 @@ function textFromJson(provider, data) {
 function finishReasonFrom(provider, data) {
   if (!data || typeof data !== "object") return "";
   if (provider === "gemini") return String(data.candidates?.[0]?.finishReason || "");
+  if (provider === "anthropic") return String(data.stop_reason || data.delta?.stop_reason || "");
+  if (provider === "ollama") return String(data.done_reason || "");
   return String(data.choices?.[0]?.finish_reason || "");
 }
 
@@ -110,6 +182,20 @@ const OUTPUT_TOKEN_LIMITS = {
     "gpt-4.1-mini": 32768,
     "gpt-4.1": 32768,
     "gpt-5-mini": 128000,
+  },
+  anthropic: {
+    "claude-sonnet-4-5": 64000,
+    "claude-haiku-4-5": 64000,
+  },
+  openrouter: {
+    "anthropic/claude-sonnet-4.5": 32768,
+    "openai/gpt-4.1-mini": 32768,
+    "google/gemini-2.5-flash": 32768,
+  },
+  ollama: {
+    "llama3.2": 8192,
+    "qwen2.5-coder": 8192,
+    "mistral": 8192,
   },
 };
 
@@ -145,6 +231,8 @@ function deltaFromEvent(provider, data) {
     const parts = data?.candidates?.[0]?.content?.parts || [];
     return parts.map((p) => p.text || "").join("");
   }
+  if (provider === "anthropic") return data?.delta?.text || "";
+  if (provider === "ollama") return data?.message?.content || "";
   return data?.choices?.[0]?.delta?.content || "";
 }
 
@@ -295,4 +383,7 @@ module.exports = {
   stubFetch,
   GEMINI_URL,
   OPENAI_URL,
+  ANTHROPIC_URL,
+  OPENROUTER_URL,
+  OLLAMA_URL,
 };

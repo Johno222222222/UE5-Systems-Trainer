@@ -17,7 +17,7 @@ export const codeHash = (s) => {
 
 export const testIssues = (system) => (system?.tests?.code ? checkTests(system.tests.code, baseName(system)) : []);
 
-export default function TestsPanel({ system, projectId, aiKey, canEdit, fixing, onNeedKey, onUsed, onTests, onFix, jump, onJump, unrealVersion }) {
+export default function TestsPanel({ system, projectId, aiKey, canEdit, fixing, onNeedKey, onUsed, onTests, onFix, jump, onJump, unrealVersion, beforeRequest }) {
   const [busy, setBusy] = useState(false);
   const tests = system.tests;
   const issues = useMemo(() => testIssues(system), [system]);
@@ -25,6 +25,7 @@ export default function TestsPanel({ system, projectId, aiKey, canEdit, fixing, 
 
   const generate = async () => {
     if (!aiKey) { onNeedKey(); return; }
+    if (beforeRequest && !(await beforeRequest())) return;
     const forId = system.id;
     setBusy(true);
     try {

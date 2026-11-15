@@ -3,7 +3,7 @@
 // Desktop shell. Starts the local API on 127.0.0.1 and opens the workspace.
 // The window never gets Node access. AI keys stay in the main process.
 
-const { app, BrowserWindow, shell, safeStorage } = require("electron");
+const { app, BrowserWindow, shell, safeStorage, dialog } = require("electron");
 const path = require("path");
 const fs = require("fs");
 const { startServer } = require("./server");
@@ -76,6 +76,16 @@ async function openWorkspace() {
     codec: codec(),
     appVersion: app.getVersion(),
     openPath: (folder) => shell.openPath(folder),
+    pickFile: async (filters) => {
+      const win = BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
+      const result = await dialog.showOpenDialog(win, {
+        title: "Choose an Unreal project",
+        properties: ["openFile"],
+        filters: Array.isArray(filters) && filters.length ? filters : [{ name: "Unreal project", extensions: ["uproject"] }],
+      });
+      if (result.canceled || !result.filePaths?.[0]) return "";
+      return result.filePaths[0];
+    },
   });
   console.log(`UE5_ARCHITECT_PORT=${serverHandle.port}`);
   console.log(`UE5_ARCHITECT_DATA=${serverHandle.dataDir}`);

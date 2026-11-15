@@ -49,6 +49,11 @@ const {
   GITHUB_REPO,
   releaseNotice,
 } = require("./logic");
+const { knownLocks, checkConstraints } = require("./constraints");
+const { repairCommonCpp } = require("./repair");
+const { stackMap } = require("./stackMap");
+const { detectEngine, compilePlugin } = require("./engine");
+const { moduleName, writePlugin } = require("./pluginFiles");
 
 const OWNER = "You";
 const REF_LIMIT = 10 * 1024 * 1024;
@@ -188,6 +193,7 @@ function summary(p) {
 function presentContext(context) {
   const ctx = { ...(context || {}) };
   ctx.unreal_version = normalizeUnrealVersion(ctx.unreal_version) || LEGACY_UNREAL_VERSION;
+  ctx.locks = knownLocks(ctx.locks);
   ctx.setup_done = Array.isArray(ctx.setup_done)
     ? ctx.setup_done.map((n) => Number(n)).filter((n) => Number.isInteger(n) && n > 0).slice(0, 40)
     : [];
@@ -288,8 +294,10 @@ function resolveLlm(headers, secrets) {
   const model = headers["x-llm-model"] || (provider === saved.provider ? saved.model : null) || (provider === "gemini" ? DEFAULT_MODEL : (ALLOWED_MODELS[provider] || [""])[0]);
   let key = headers["x-llm-key"];
   if (!key) key = secrets.getKey(provider);
-  if (!key || !String(key).trim()) {
-    throw new HttpError(400, "Add your Gemini or OpenAI API key in Settings before synthesizing.");
+  if (provider === "ollama") {
+    if (!key || !String(key).trim()) key = "local";
+  } else if (!key || !String(key).trim()) {
+    throw new HttpError(400, "Add your API key in Settings before synthesizing.");
   }
   if (!ALLOWED_MODELS[provider] || !ALLOWED_MODELS[provider].includes(model)) {
     throw new HttpError(400, "Pick a supported provider and model in Settings.");
@@ -461,7 +469,14 @@ async function startServer(options = {}) {
       return;
     }
     try {
-      const data = normalizeSystem(extractJson(raw), req.stack_systems);
+      const data = repairCommonCpp(normalizeSystem(extractJson(raw), req.stack_systems));
+      data.constraint_violations = checkConstraints(data, req.locks);
+      data.stack_map = stackMap(req.stack_systems);
+      for (const name of data.shared_attributes) {
+        if (name && !data.stack_map.shared.some((item) => item.name === name)) {
+          data.stack_map.shared.push({ kind: "shared", name, systems: data.stacked_from.filter(Boolean) });
+        }
+      }
       job.status = "done";
       job.chars = raw.length;
       job.result = data;
@@ -584,6 +599,7 @@ async function startServer(options = {}) {
     if (typeof body.key === "string" && body.key.trim()) {
       secrets.setKey(provider, body.key.trim());
     }
+    if (typeof body.engine_path === "string") secrets.setEnginePath(body.engine_path);
     if (!secrets.getKey(provider) && body.key) {
       throw new HttpError(500, "The key was saved but could not be read back. Try again.");
     }
@@ -595,6 +611,58 @@ async function startServer(options = {}) {
       await options.openPath(dataDir);
     }
     return { ok: true, path: dataDir };
+  });
+
+  route("GET", "/api/engine", async () => detectEngine({
+    override: secrets.publicView(dataDir).engine_path,
+  }));
+
+  route("POST", "/api/engine/compile", async (req) => {
+    const body = await readJson(req);
+    const system = body.system && typeof body.system === "object" ? body.system : body;
+    if (!system?.cpp_header || !system?.cpp_source) {
+      throw new HttpError(400, "Compile needs a header and a source file.");
+    }
+    const workDir = path.join(dataDir, "scratch", crypto.randomUUID());
+    fs.mkdirSync(workDir, { recursive: true });
+    try {
+      return await compilePlugin({
+        system,
+        engineRoot: secrets.publicView(dataDir).engine_path,
+        workDir,
+        spawnImpl: options.spawnImpl,
+      });
+    } finally {
+      fs.rmSync(workDir, { recursive: true, force: true });
+    }
+  });
+
+  route("POST", "/api/export/pick", async () => {
+    if (typeof options.pickFile !== "function") {
+      throw new HttpError(400, "Type the .uproject path. The file picker is available in the desktop app.");
+    }
+    const picked = await options.pickFile([{ name: "Unreal project", extensions: ["uproject"] }]);
+    return { path: typeof picked === "string" ? picked : "" };
+  });
+
+  route("POST", "/api/export/to-project", async (req) => {
+    const body = await readJson(req);
+    const system = body.system;
+    if (!system || typeof system !== "object" || !system.cpp_header || !system.cpp_source) {
+      throw new HttpError(400, "Export needs a generated system.");
+    }
+    const target = path.resolve(String(body.uproject || ""));
+    if (!target.toLowerCase().endsWith(".uproject") || !fs.existsSync(target) || !fs.statSync(target).isFile()) {
+      throw new HttpError(400, "Pick an Unreal project file that ends in .uproject.");
+    }
+    try {
+      JSON.parse(fs.readFileSync(target, "utf8"));
+    } catch {
+      throw new HttpError(400, "That .uproject could not be read.");
+    }
+    const dest = path.join(path.dirname(target), "Plugins", moduleName(system));
+    const written = writePlugin(dest, system);
+    return { plugin: written.module, path: dest, uproject: target };
   });
 
   route("GET", "/api/usage/today", async () => {
@@ -782,8 +850,9 @@ async function startServer(options = {}) {
     }
     const fileBase = String(body.file_base || "System").slice(0, 120);
     const version = normalizeUnrealVersion(body.unreal_version) || DEFAULT_UNREAL_VERSION;
-    const issues = issueList.map((t, i) => `${i + 1}. ${t.slice(0, 300)}`).join("\n");
-    const text = `Target Unreal version: UE ${version}\n\nISSUES:\n${issues}\n\n=== ${fileBase}.h ===\n${header.slice(0, 40000)}\n\n=== ${fileBase}.cpp ===\n${source.slice(0, 60000)}`;
+    const issues = issueList.map((t, i) => `${i + 1}. ${t.slice(0, 500)}`).join("\n");
+    const buildLog = String(body.build_log || "").slice(-4000);
+    const text = `Target Unreal version: UE ${version}\n\nISSUES:\n${issues}${buildLog ? `\n\nUNREAL BUILD LOG (tail):\n${buildLog}` : ""}\n\n=== ${fileBase}.h ===\n${header.slice(0, 40000)}\n\n=== ${fileBase}.cpp ===\n${source.slice(0, 60000)}`;
     const raw = await ask(llm, { system: promptsFor(version).fix, user: text, maxTokens: 12000, timeoutMs: 55000, kind: "fix" });
     const files = { ".h": header, ".cpp": source };
     let applied;
@@ -793,10 +862,10 @@ async function startServer(options = {}) {
       applied = applyEdits(files, edits.slice(0, 15));
     } catch (exc) {
       console.error(`Unusable fix patch: ${exc.message}`);
-      throw new HttpError(422, { code: "patch_failed", message: "The AI's patch didn't match the current code, so nothing was changed. Try again." });
+      throw new HttpError(422, { code: "patch_failed", message: "The patch did not match the current code, so nothing changed. Jump to the line in the C++ view and edit it, or try Fix again." });
     }
     if (!applied.length || (files[".h"] === header && files[".cpp"] === source)) {
-      throw new HttpError(422, { code: "no_changes", message: "The AI didn't propose any changes for these issues." });
+      throw new HttpError(422, { code: "no_changes", message: "The model did not change the code. Edit the line in the C++ view, or copy the build log and try Fix again." });
     }
     return { cpp_header: files[".h"], cpp_source: files[".cpp"], changes: applied, model: llm.model };
   });
