@@ -21,14 +21,14 @@
     {
       "id": "real-assets",
       "title": "Real assets",
-      "status": "planned",
-      "detail": "Moves to 1.14.0. This stage does not ship meshes, sounds, or materials with a generated system."
+      "status": "shipped",
+      "detail": "Shipped in 1.14.0. Create in Unreal makes a data table, a primary data asset, and a Blueprint stub in the open project."
     },
     {
       "id": "learning-in-editor",
       "title": "Learning in the editor",
       "status": "planned",
-      "detail": "Moves to 1.15.0. The companion panel does not teach inside Unreal yet."
+      "detail": "Next, in 1.15.0. The companion panel does not teach inside Unreal yet."
     },
     {
       "id": "linux-packages",

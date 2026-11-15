@@ -1,5 +1,6 @@
 #include "SArchitectPanel.h"
 #include "CompanionLink.h"
+#include "AssetCreate.h"
 #include "ProjectScan.h"
 #include "Misc/EngineVersion.h"
 #include "Misc/App.h"
@@ -212,14 +213,30 @@ void SArchitectPanel::Poll()
 {
 	if (Token.IsEmpty()) return;
 	const int32 PortNumber = FCString::Atoi(*Port);
-	FString CommandType;
-	FString Message;
-	if (!CompanionLink::TakePending(Host, PortNumber, Token, CommandType, Message)) return;
+	TSharedPtr<FJsonObject> Command;
+	if (!CompanionLink::TakePending(Host, PortNumber, Token, Command) || !Command.IsValid()) return;
+	const FString CommandType = Command->GetStringField(TEXT("type"));
+	FString Result;
+	TArray<FString> Assets;
+	TArray<FString> Conflicts;
+	bool bOk = true;
 	if (CommandType == TEXT("reload"))
 	{
-		const FString Result = CompanionLink::TryLiveCompile();
-		FString Ignored;
-		CompanionLink::PostResult(Host, PortNumber, Token, true, Result, Ignored);
-		SetStatus(Result);
+		Result = CompanionLink::TryLiveCompile();
 	}
+	else if (CommandType == TEXT("create-assets"))
+	{
+		bOk = AssetCreate::Create(Command.ToSharedRef(), Assets, Conflicts, Result);
+	}
+	else if (CommandType == TEXT("open-asset"))
+	{
+		bOk = AssetCreate::Open(Command->GetStringField(TEXT("asset")), Result);
+	}
+	else
+	{
+		return;
+	}
+	FString Ignored;
+	CompanionLink::PostResult(Host, PortNumber, Token, bOk, Result, Assets, Conflicts, Ignored);
+	SetStatus(Result.IsEmpty() ? TEXT("The editor finished the request.") : Result);
 }

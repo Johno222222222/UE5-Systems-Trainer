@@ -57,6 +57,7 @@ function pluginFileMap(system) {
   const base = baseName(system);
   const prepared = preparePluginSources(module, base, system?.cpp_header || "", system?.cpp_source || "");
   const deps = modulesFor([prepared.header, prepared.source, ...Object.values(prepared.extras)].join("\n"));
+  const { assetSources } = require("./realAssets");
   const files = {
     [`${module}.uplugin`]: uplugin(module, system, deps.plugins),
     [`Source/${module}/${module}.Build.cs`]: buildCs(module, deps.modules),
@@ -66,6 +67,9 @@ function pluginFileMap(system) {
   };
   for (const [include, body] of Object.entries(prepared.extras)) {
     files[`Source/${module}/Public/${include}`] = body;
+  }
+  for (const [rel, body] of Object.entries(assetSources({ ...system, cpp_header: prepared.header, cpp_source: prepared.source }))) {
+    files[`Source/${module}/${rel}`] = body;
   }
   return { module, files };
 }

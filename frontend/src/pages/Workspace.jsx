@@ -219,6 +219,7 @@ export default function Workspace() {
   const [manualPrompt, setManualPrompt] = useState(null);
   const [exportOpen, setExportOpen] = useState(false);
   const [exportPath, setExportPath] = useState("");
+  const [assetFolder, setAssetFolder] = useState("");
   const [exportNote, setExportNote] = useState("");
   const [companion, setCompanion] = useState(null);
   const costWait = useRef(null);
@@ -1467,7 +1468,34 @@ export default function Workspace() {
                   toast.error(errorText(err));
                 }
               }}>Use project classes</button>
-              {companion?.result?.message && <p className="mt-1 text-[10.5px] font-mono text-[var(--text-muted)]">{companion.result.message}</p>}
+              {companion?.result?.message && <p className="mt-1 text-[10.5px] font-mono text-[var(--text-muted)]" data-testid="companion-result">{companion.result.message}</p>}
+              {!!companion?.result?.conflicts?.length && companion.result.ok === false && (
+                <button type="button" className="ue-btn !py-1 !px-2 !text-[11px] mt-2" data-testid="replace-assets" onClick={async () => {
+                  try {
+                    const { data } = await api.post("/companion/assets", { system: result, folder: assetFolder, confirm: true });
+                    toast.success(data.message || "Asked Unreal to replace those assets");
+                  } catch (err) {
+                    toast.error(errorText(err));
+                  }
+                }}>Replace existing assets</button>
+              )}
+              {!!companion?.result?.assets?.length && (
+                <div className="mt-2" data-testid="companion-assets">
+                  {companion.result.assets.map((asset) => (
+                    <div key={asset} className="mt-1 flex items-center gap-2">
+                      <span className="min-w-0 flex-1 truncate text-[10.5px] font-mono text-[var(--text-secondary)]">{asset}</span>
+                      <button type="button" className="ue-btn !py-1 !px-2 !text-[11px] shrink-0" data-testid="open-in-unreal" onClick={async () => {
+                        try {
+                          const { data } = await api.post("/companion/open", { asset });
+                          toast.success(data.message || "Asked Unreal to open it");
+                        } catch (err) {
+                          toast.error(errorText(err));
+                        }
+                      }}>Open in Unreal</button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <button
               className="ue-btn ue-btn-primary w-full justify-center mt-3 whitespace-normal text-center"
@@ -1987,8 +2015,9 @@ export default function Workspace() {
       )}
       {exportOpen && (
         <Modal title="Copy into a UE project" onClose={() => setExportOpen(false)} testId="export-project-modal" width={480}>
-          <p className="text-[13px] text-[var(--text-secondary)]">Pick the project's .uproject file. The plugin is copied into its Plugins folder. This stays on this computer.</p>
+          <p className="text-[13px] text-[var(--text-secondary)]">Pick the project's .uproject file. The plugin is copied into its Plugins folder. Create in Unreal adds a data table, a primary data asset, and a Blueprint stub in the open project. Leave the folder blank for /Game/Architect and the system name. This stays on this computer.</p>
           <input className="mt-3 w-full bg-[var(--bg-main)] border border-[var(--border)] rounded px-2 py-1 text-[12px] font-mono" data-testid="export-project-path" value={exportPath} onChange={(event) => setExportPath(event.target.value)} placeholder="Path to the .uproject" />
+          <input className="mt-2 w-full bg-[var(--bg-main)] border border-[var(--border)] rounded px-2 py-1 text-[12px] font-mono" data-testid="asset-folder" value={assetFolder} onChange={(event) => setAssetFolder(event.target.value)} placeholder="/Game/Architect/SystemName" />
           <div className="mt-3 flex flex-wrap gap-2">
             <button type="button" className="ue-btn" data-testid="export-project-browse" onClick={async () => {
               try {
@@ -2044,6 +2073,21 @@ export default function Workspace() {
                 toast.error(errorText(err));
               }
             }}>Send to Unreal</button>
+            <button type="button" className="ue-btn ue-btn-primary" data-testid="create-in-unreal" onClick={async () => {
+              const create = async (confirm) => api.post("/companion/assets", { system: result, folder: assetFolder, confirm });
+              try {
+                const { data } = await create(false);
+                if (data.ok === false) {
+                  setExportNote(data.message || "Pair the Architect panel first.");
+                  return;
+                }
+                setExportNote(data.message);
+                toast.success(data.message || "Asked Unreal to create assets");
+              } catch (err) {
+                setExportNote(errorText(err));
+                toast.error(errorText(err));
+              }
+            }}>Create in Unreal</button>
           </div>
           {exportNote && <p className="mt-3 text-[12px] font-mono text-[var(--text-secondary)]" data-testid="export-project-result">{exportNote}</p>}
         </Modal>

@@ -124,6 +124,7 @@ function createCompanion() {
         get report() { return report; },
         get lastResult() { return lastResult; },
         summary() { return summarizeProject(report); },
+        clearResult() { lastResult = null; },
         queue(command) { pending = { id: crypto.randomBytes(4).toString("hex"), ...command }; return pending; },
         close: () => new Promise((done) => server.close(done)),
       });

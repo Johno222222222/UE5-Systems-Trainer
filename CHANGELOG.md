@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.14.0
+
+- Create in Unreal asks the paired Architect panel to make a data table, a primary data asset, and a Blueprint stub under `/Game/Architect/<SystemName>`.
+- The data table row and the primary data asset class are C++ in the generated plugin. If those types are not compiled yet, the editor says to Send to Unreal and compile first.
+- An existing asset is left alone until you confirm. The app lists the created paths and can ask the editor to open one.
+- Version is 1.14.0. Learning inside the editor is planned for 1.15.0.
+
 ## 1.13.0
 
 - The glossary lives in `content/glossary.json`. Each term has a one-line summary, an optional Unreal detail, tags, and see-also links. The dotted underline is unchanged.
