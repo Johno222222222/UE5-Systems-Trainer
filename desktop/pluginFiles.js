@@ -3,6 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const { modulesFor } = require("./modules");
+const { preparePluginSources } = require("./generatedIncludes");
 
 function baseName(system) {
   const gen = String(system?.cpp_header || "").match(/#include\s+"([\w]+)\.generated\.h"/);
@@ -54,17 +55,19 @@ function uplugin(module, system, plugins) {
 function pluginFileMap(system) {
   const module = moduleName(system);
   const base = baseName(system);
-  const deps = modulesFor(`${system?.cpp_header || ""}\n${system?.cpp_source || ""}`);
-  return {
-    module,
-    files: {
-      [`${module}.uplugin`]: uplugin(module, system, deps.plugins),
-      [`Source/${module}/${module}.Build.cs`]: buildCs(module, deps.modules),
-      [`Source/${module}/Private/${module}Module.cpp`]: `#include "Modules/ModuleManager.h"\n\nIMPLEMENT_MODULE(FDefaultModuleImpl, ${module})\n`,
-      [`Source/${module}/Public/${base}.h`]: system?.cpp_header || "",
-      [`Source/${module}/Private/${base}.cpp`]: system?.cpp_source || "",
-    },
+  const prepared = preparePluginSources(module, base, system?.cpp_header || "", system?.cpp_source || "");
+  const deps = modulesFor([prepared.header, prepared.source, ...Object.values(prepared.extras)].join("\n"));
+  const files = {
+    [`${module}.uplugin`]: uplugin(module, system, deps.plugins),
+    [`Source/${module}/${module}.Build.cs`]: buildCs(module, deps.modules),
+    [`Source/${module}/Private/${module}Module.cpp`]: `#include "Modules/ModuleManager.h"\n\nIMPLEMENT_MODULE(FDefaultModuleImpl, ${module})\n`,
+    [`Source/${module}/Public/${base}.h`]: prepared.header,
+    [`Source/${module}/Private/${base}.cpp`]: prepared.source,
   };
+  for (const [include, body] of Object.entries(prepared.extras)) {
+    files[`Source/${module}/Public/${include}`] = body;
+  }
+  return { module, files };
 }
 
 function changedFiles(dir, files) {

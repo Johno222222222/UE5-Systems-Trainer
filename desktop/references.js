@@ -293,7 +293,9 @@ protected:
 
   const source = `#include "CharacterInteractComponent.h"
 #include "Engine/World.h"
+#include "Interactable.h"
 #include "GameFramework/Pawn.h"
+#include "Engine/HitResult.h"
 
 UCharacterInteractComponent::UCharacterInteractComponent()
 {

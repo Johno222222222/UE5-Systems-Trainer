@@ -146,8 +146,8 @@ jobs:
         with:
           node-version: 22
 
-      - name: Check plugin includes against their engine modules
-        run: node --test desktop/test/plugin-includes.test.js
+      - name: Check plugin and generated includes against UE 5.8 headers
+        run: node --test desktop/test/plugin-includes.test.js desktop/test/generated-includes.test.js
 
   # One release step after the builds, so macOS and Linux never race to create the tag.
   release:
