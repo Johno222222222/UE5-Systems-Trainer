@@ -29,7 +29,7 @@
       {"from": "zero", "fromPin": "Value", "to": "clamp", "toPin": "Min"},
       {"from": "max", "fromPin": "Value", "to": "clamp", "toPin": "Max"},
       {"from": "clamp", "fromPin": "Result", "to": "set", "toPin": "Value"},
-      {"from": "clamp", "fromPin": "Result", "to": "eq", "toPin": "A"},
+      {"from": "get", "fromPin": "Value", "to": "eq", "toPin": "A"},
       {"from": "zero", "fromPin": "Value", "to": "eq", "toPin": "B"},
       {"from": "eq", "fromPin": "Result", "to": "branch", "toPin": "Condition"},
       {"from": "set", "fromPin": "Exec", "to": "branch", "toPin": "Exec"},
