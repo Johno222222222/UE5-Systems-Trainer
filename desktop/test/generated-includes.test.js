@@ -45,6 +45,8 @@ test("Character Interaction exports an Interactable interface and only resolvabl
   assert.match(cpp, /#include "CollisionQueryParams\.h"/);
   assert.doesNotMatch(cpp, /Engine\/CollisionQueryParams\.h/);
   assert.match(cpp, /#include "Interactable\.h"/);
+  assert.match(cpp, /Hit\.GetActor\(\)->GetClass\(\)->ImplementsInterface\(UInteractable::StaticClass\(\)\)/);
+  assert.doesNotMatch(cpp, /GetActor\(\)->ImplementsInterface\(/);
   const build = map.files["Source/CharacterInteractKit/CharacterInteractKit.Build.cs"];
   assert.match(build, /"Core"/);
   assert.match(build, /"CoreUObject"/);
@@ -53,6 +55,30 @@ test("Character Interaction exports an Interactable interface and only resolvabl
   const descriptor = JSON.parse(map.files["CharacterInteractKit.uplugin"]);
   assert.equal(descriptor.Modules[0].Type, "Runtime");
   assert.equal(descriptor.Modules[0].Name, "CharacterInteractKit");
+});
+
+test("no generator calls ImplementsInterface on the actor itself", () => {
+  const roots = ["desktop", "frontend/src", "content"].map((dir) => path.join(__dirname, "..", "..", dir));
+  const bad = [];
+  const walk = (dir) => {
+    for (const name of fs.readdirSync(dir)) {
+      const full = path.join(dir, name);
+      if (fs.statSync(full).isDirectory()) {
+        if (name === "test" || name === "node_modules") continue;
+        walk(full);
+        continue;
+      }
+      if (!/\.(js|mjs|json|h|cpp)$/.test(name)) continue;
+      const text = fs.readFileSync(full, "utf8");
+      text.split("\n").forEach((line, index) => {
+        if (line.includes("->ImplementsInterface(") && !line.includes("->GetClass()->ImplementsInterface(")) {
+          bad.push(`${path.relative(path.join(__dirname, "..", ".."), full)}:${index + 1}`);
+        }
+      });
+    }
+  };
+  for (const root of roots) walk(root);
+  assert.deepEqual(bad, []);
 });
 
 test("CollisionQueryParams.h is the UE 5.8 header", () => {
