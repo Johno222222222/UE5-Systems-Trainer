@@ -67,6 +67,38 @@
               "accept": [
                 "interface"
               ]
+            },
+            {
+              "id": "refactor-functions",
+              "title": "Two functions",
+              "reveal": {
+                "nodes": [
+                  "Timer Trace",
+                  "Call Interact"
+                ],
+                "functions": [
+                  "TraceForFocus",
+                  "TryInteract"
+                ]
+              },
+              "predict": {
+                "prompt": "The event graph traces and interacts in one chain. What should you do with it?",
+                "choices": [
+                  "Collapse it into two functions, one for the trace and one for the interact.",
+                  "Leave it as one long chain so the order stays obvious.",
+                  "Move both into Tick so they stay in sync."
+                ],
+                "answer": 0,
+                "why": "A function has one job. The event graph should call Trace, then call Interact. A macro would paste the same nodes back into every caller."
+              },
+              "why": "A function has one job. The event graph should call Trace, then call Interact. A macro would paste the same nodes back into every caller.",
+              "task": "Open the starter in Tools and collapse the trace and the interact into two functions. Then check.",
+              "graph_check": { "functions": 2 },
+              "accept": [
+                "trace",
+                "interact",
+                "function"
+              ]
             }
           ]
         },

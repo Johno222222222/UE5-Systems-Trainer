@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.9.0
+
+- My Blueprint lists the event graph, functions, macros, and variables. Add, rename, or delete them. Double-click a function or macro to open it beside the event graph.
+- A function has Entry and Return nodes, typed inputs and outputs, a Pure toggle, and BlueprintCallable. Call Function pins follow the signature. A variable has a type, a default, and replicated or RepNotify flags. Drag it on for Get or Set.
+- Flow nodes cover ForEach, ForLoop, While, Select, Switch, DoOnce, Gate, and FlipFlop, plus math and comparisons. Collapse a selection into a function or a macro. Macros are inlined into the generated C++. Functions become UFUNCTIONs and variables become UPROPERTY fields. Manual C++ edits are still left alone.
+- Loop-on-Tick, a costly Pure function used twice, a Cast inside a loop, and a While with no exit are flagged on the node. The tactical program asks you to split a messy graph into two functions and checks that you did.
+
 ## 1.8.0
 
 - The event graph is editable. Search a palette grouped like Unreal, drag nodes on, move them, box or shift select, and delete, duplicate, or copy and paste. Undo and redo use Ctrl+Z, Ctrl+Y, and Ctrl+Shift+Z.

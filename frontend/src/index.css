@@ -263,7 +263,11 @@ html, body, #root {
   font-size: 11.5px;
 }
 .node-header {
-  padding: 5px 9px;
+  box-sizing: border-box;
+  height: 28px;
+  padding: 0 9px;
+  display: flex;
+  align-items: center;
   font-weight: 700;
   font-size: 11px;
   color: #fff;
@@ -271,7 +275,7 @@ html, body, #root {
   text-transform: uppercase;
 }
 .node-body { padding: 8px 10px; color: var(--text-secondary); }
-.node-pin { display:flex; align-items:center; gap:6px; min-height: 22px; padding: 0 2px; cursor: crosshair; }
+.node-pin { display:flex; align-items:center; gap:6px; height: 22px; min-height: 22px; padding: 0 2px; cursor: crosshair; box-sizing: border-box; }
 .node-pin.out { justify-content: flex-end; }
 .node-pin.is-hot .node-dot { box-shadow: 0 0 0 3px #fff; }
 .node-dot { width: 18px; height: 18px; border-radius: 50%; display:inline-block; flex: 0 0 18px; box-shadow: 0 0 0 2px rgba(0,0,0,0.45); }
@@ -284,6 +288,35 @@ html, body, #root {
 .graph-node { overflow: visible; z-index: 2; }
 .graph-node.is-selected { outline: 1px solid var(--unreal-orange); outline-offset: 1px; }
 .node-warn { margin: 0 8px 8px; color: #f0a8a8; font-size: 10.5px; line-height: 1.35; }
+.graph-library {
+  width: 196px;
+  flex: 0 0 196px;
+  overflow: auto;
+  border-right: 1px solid var(--border-soft);
+  background: var(--bg-secondary);
+  padding: 10px;
+}
+.graph-lib-item, .graph-lib-name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  width: 100%;
+  margin-top: 4px;
+  padding: 4px 6px;
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+.graph-lib-item.is-on, .graph-lib-name { border-color: transparent; background: transparent; padding: 0; }
+.graph-lib-item.is-on { border-color: var(--unreal-orange); background: rgba(255, 107, 0, 0.08); padding: 4px 6px; }
+.graph-lib-add { border: 0; background: transparent; color: var(--text-secondary); cursor: pointer; font-size: 14px; }
+.graph-lib-meta { color: var(--text-muted); font-size: 10px; }
+.graph-signature { margin-top: 8px; }
 .graph-palette {
   width: 232px;
   flex: 0 0 232px;

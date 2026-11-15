@@ -4,6 +4,8 @@ import { api, errorText } from "../lib/api";
 import ChoiceButton from "../components/ChoiceButton";
 import GlossaryText from "../components/GlossaryText";
 import { useShell } from "./ShellContext";
+import { loadWorkspace } from "../lib/practice.mjs";
+import { refactorCheck } from "../lib/graph.mjs";
 
 const VIEWS = [
   ["steps", "Steps"],
@@ -107,7 +109,17 @@ export default function Programs() {
   const submitStep = async () => {
     if (!step) return;
     try {
-      const { data } = await api.post(`/programs/${program.id}/step`, { step_id: step.id, answer: taskText });
+      let graphOk = false;
+      if (step.graph_check) {
+        const saved = loadWorkspace(window.localStorage);
+        const checked = refactorCheck(saved?.draft?.result);
+        graphOk = checked.pass;
+        if (!checked.pass) {
+          setTaskNote(checked.detail);
+          return;
+        }
+      }
+      const { data } = await api.post(`/programs/${program.id}/step`, { step_id: step.id, answer: taskText, graph_ok: graphOk });
       setTaskNote(data.detail);
       setState((current) => ({ ...(current || {}), steps_done: data.steps_done }));
     } catch (err) {

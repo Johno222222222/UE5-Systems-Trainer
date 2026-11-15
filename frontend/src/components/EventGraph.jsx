@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import GlossaryText from "./GlossaryText";
 import {
-  addComment, addNode, catalogGroups, clientToGraphPoint, commitHistory, createHistory, createNode,
-  duplicateParts, explainGraph, GRAPH_LAYOUT, graphWarnings, pickWireTarget, pinCenter, pinColor,
-  placeNodes, readEventGraph, redoHistory, removeParts, setNodeData, snapValue, systemSymbols,
-  tryWire, undoHistory,
+  addComment, addFunction, addMacro, addNode, addVariable, catalogGroups, clientToGraphPoint, collapseSelection,
+  commitHistory, createHistory, createNode, deleteGraph, deleteVariable, duplicateParts, explainGraph,
+  GRAPH_LAYOUT, graphWarnings, pickWireTarget, pinCenter, pinColor, placeCall, placeNodes, readDocument,
+  readEventGraph, redoHistory, removeParts, renameGraph, setFunctionSignature, setNodeData, snapValue,
+  systemSymbols, tryWire, undoHistory, updateVariable, VALUE_TYPES, variableNode,
 } from "../lib/graph.mjs";
 
 const NODE_W = GRAPH_LAYOUT.nodeW;
@@ -16,6 +17,40 @@ function wirePath(x1, y1, x2, y2) {
 
 function clampZoom(value) {
   return Math.min(1.6, Math.max(0.35, value));
+}
+
+function parsePins(text) {
+  return String(text || "").split(",").map((part) => part.trim()).filter(Boolean).map((part) => {
+    const [name, type] = part.split(":").map((item) => item.trim());
+    return { name: name || "Value", type: type || "float" };
+  });
+}
+
+function LibraryRow({ item, active, testId, onOpen, onRename, onDelete }) {
+  return (
+    <div className={`graph-lib-item ${active ? "is-on" : ""}`} data-testid={testId} draggable onDragStart={(event) => event.dataTransfer.setData("text/plain", `graph:${item.id}`)} onDoubleClick={onOpen}>
+      <button type="button" className="graph-lib-name" onClick={onOpen}>{item.name}</button>
+      <button type="button" className="graph-lib-add" aria-label={`Rename ${item.name}`} onClick={() => { const name = window.prompt("Name", item.name); if (name) onRename(name); }}>✎</button>
+      <button type="button" className="graph-lib-add" aria-label={`Delete ${item.name}`} onClick={onDelete}>×</button>
+    </div>
+  );
+}
+
+function VariableEditor({ variable, onChange, onDelete }) {
+  if (!variable) return null;
+  return (
+    <div className="mt-2" data-testid="variable-editor">
+      <select className="graph-search" aria-label="Variable type" value={variable.type} onChange={(event) => onChange({ type: event.target.value })}>
+        {VALUE_TYPES.map((type) => <option key={type.id} value={type.id}>{type.label}</option>)}
+      </select>
+      <input className="graph-search mt-1" aria-label="Default value" defaultValue={variable.default || ""} onBlur={(event) => onChange({ default: event.target.value })} />
+      <label className="flex items-center gap-2 text-[11px] mt-1"><input type="checkbox" checked={!!variable.array} onChange={(event) => onChange({ array: event.target.checked })} /> Array</label>
+      <label className="flex items-center gap-2 text-[11px]"><input type="checkbox" checked={!!variable.replicated} onChange={(event) => onChange({ replicated: event.target.checked })} /> Replicated</label>
+      <label className="flex items-center gap-2 text-[11px]"><input type="checkbox" checked={!!variable.repNotify} onChange={(event) => onChange({ repNotify: event.target.checked, replicated: event.target.checked || variable.replicated })} /> RepNotify</label>
+      {variable.type === "enum" && <input className="graph-search mt-1" aria-label="Enum name" defaultValue={variable.enumName || ""} placeholder="Enum name" onBlur={(event) => onChange({ enumName: event.target.value })} />}
+      <button type="button" className="ue-btn !py-0.5 !px-1.5 !text-[10px] mt-1" onClick={() => onDelete(variable.id)}>Delete variable</button>
+    </div>
+  );
 }
 
 function typingTarget(target) {
@@ -37,7 +72,7 @@ function nodeHeight(node) {
 }
 
 export default function EventGraph({
-  system, editable = true, locks = [], whyByNode = {}, highlightIds = [], onChange, onShowCpp, onExplain, onRevertManual, children,
+  system, editable = true, locks = [], whyByNode = {}, highlightIds = [], onChange, onDocument, onShowCpp, onExplain, onRevertManual, children,
 }) {
   const canvasRef = useRef(null);
   const [history, setHistory] = useState(() => createHistory(readEventGraph(system)));
@@ -57,8 +92,13 @@ export default function EventGraph({
   const [hotPin, setHotPin] = useState(null);
   const dragRef = useRef(null);
   const clip = useRef(null);
-  const graph = history.present;
-  const warnings = useMemo(() => graphWarnings(graph, locks), [graph, locks]);
+  const doc = useMemo(() => readDocument(system), [system]);
+  const [openTabs, setOpenTabs] = useState(["event"]);
+  const [activeId, setActiveId] = useState("event");
+  const [varMenu, setVarMenu] = useState(null);
+  const activeMeta = doc.items.find((item) => item.id === activeId) || doc.items.find((item) => item.kind === "event");
+  const graph = history.present?.id === activeMeta?.id ? history.present : (activeMeta || history.present);
+  const warnings = useMemo(() => graphWarnings(graph, locks, { functions: doc.items.filter((item) => item.kind === "function") }), [graph, locks, doc]);
   const warningByNode = useMemo(() => {
     const map = {};
     warnings.forEach((item) => { (map[item.nodeId] = map[item.nodeId] || []).push(item); });
@@ -66,7 +106,7 @@ export default function EventGraph({
   }, [warnings]);
   const symbols = useMemo(() => systemSymbols(system), [system]);
 
-  const incoming = JSON.stringify(readEventGraph(system));
+  const incoming = JSON.stringify(activeMeta || readEventGraph(system));
   useEffect(() => {
     setHistory((current) => (JSON.stringify(current.present) === incoming ? current : createHistory(JSON.parse(incoming))));
   }, [incoming]);
@@ -82,9 +122,14 @@ export default function EventGraph({
     return () => el.removeEventListener("wheel", onWheel);
   }, []);
 
+  const publish = (nextDoc) => {
+    if (onDocument) onDocument(nextDoc);
+    else onChange?.(nextDoc.items.find((item) => item.kind === "event") || nextDoc.items[0]);
+  };
   const commit = (next) => {
-    setHistory((current) => commitHistory(current, next));
-    onChange?.(next);
+    const stored = { ...next, id: activeMeta?.id || next.id, kind: activeMeta?.kind || next.kind, name: activeMeta?.name || next.name, pure: activeMeta?.pure, callable: activeMeta?.callable, inputs: activeMeta?.inputs, outputs: activeMeta?.outputs };
+    setHistory((current) => commitHistory(current, stored));
+    publish({ ...doc, items: doc.items.map((item) => (item.id === stored.id ? stored : item)) });
   };
   const undo = () => {
     const next = undoHistory(history);
@@ -242,7 +287,13 @@ export default function EventGraph({
         }
       } else {
         const point = toGraph(event.clientX, event.clientY);
-        const hit = pickWireTarget(graph, drag.nodeId, drag.pinId, point, { zoom });
+        const stack = document.elementsFromPoint(event.clientX, event.clientY);
+        const pinEl = stack.map((el) => el.closest?.("[data-pin-id]")).find(Boolean);
+        const hit = pickWireTarget(graph, drag.nodeId, drag.pinId, point, {
+          zoom,
+          targetNode: pinEl?.dataset?.pinNode,
+          targetPin: pinEl?.dataset?.pinId,
+        });
         if (hit.ok) {
           const result = tryWire(graph, drag.nodeId, drag.pinId, hit.nodeId, hit.pinId);
           if (result.ok) { commit(result.graph); setHint(null); setArmed(null); }
@@ -302,8 +353,19 @@ export default function EventGraph({
     event.preventDefault();
     if (!editable) return;
     const raw = event.dataTransfer.getData("text/plain");
-    if (!raw.startsWith("node:")) return;
     const point = toGraph(event.clientX, event.clientY);
+    if (raw.startsWith("var:")) {
+      setVarMenu({ id: raw.slice(4), x: event.clientX, y: event.clientY, gx: grid(point.x), gy: grid(point.y) });
+      return;
+    }
+    if (raw.startsWith("graph:")) {
+      const node = placeCall(doc, raw.slice(6), grid(point.x), grid(point.y));
+      if (!node) return;
+      commit(addNode(graph, node));
+      setSelection({ nodes: [node.id], wires: [], comments: [] });
+      return;
+    }
+    if (!raw.startsWith("node:")) return;
     const node = createNode(raw.slice(5), grid(point.x), grid(point.y));
     commit(addNode(graph, node));
     setSelection({ nodes: [node.id], wires: [], comments: [] });
@@ -376,6 +438,46 @@ export default function EventGraph({
   return (
     <div className="flex h-full min-h-0 overflow-hidden" data-testid="event-graph">
       {editable && (
+        <aside className="graph-library" data-testid="blueprint-panel" data-graph-chrome onPointerDown={(event) => event.stopPropagation()}>
+          <div className="eyebrow">My Blueprint</div>
+          <div className="mt-2 eyebrow">Event Graph</div>
+          {doc.items.filter((item) => item.kind === "event").map((item) => (
+            <button key={item.id} type="button" className={`graph-lib-item ${activeMeta?.id === item.id ? "is-on" : ""}`} onDoubleClick={() => setActiveId(item.id)} onClick={() => setActiveId(item.id)}>{item.name}</button>
+          ))}
+          <div className="mt-3 flex items-center justify-between"><span className="eyebrow">Functions</span><button type="button" className="graph-lib-add" data-testid="add-function" onClick={() => { const next = addFunction(doc, "NewFunction"); publish(next); setActiveId(next.active); setOpenTabs((tabs) => [...tabs, next.active]); }}>+</button></div>
+          {doc.items.filter((item) => item.kind === "function").map((item) => (
+            <LibraryRow key={item.id} item={item} active={activeMeta?.id === item.id} testId={`function-${item.id}`} onOpen={() => { setOpenTabs((tabs) => (tabs.includes(item.id) ? tabs : [...tabs, item.id])); setActiveId(item.id); }} onRename={(name) => publish(renameGraph(doc, item.id, name))} onDelete={() => publish(deleteGraph(doc, item.id))} />
+          ))}
+          <div className="mt-3 flex items-center justify-between"><span className="eyebrow">Macros</span><button type="button" className="graph-lib-add" data-testid="add-macro" onClick={() => { const next = addMacro(doc, "NewMacro"); publish(next); setActiveId(next.active); setOpenTabs((tabs) => [...tabs, next.active]); }}>+</button></div>
+          {doc.items.filter((item) => item.kind === "macro").map((item) => (
+            <LibraryRow key={item.id} item={item} active={activeMeta?.id === item.id} testId={`macro-${item.id}`} onOpen={() => { setOpenTabs((tabs) => (tabs.includes(item.id) ? tabs : [...tabs, item.id])); setActiveId(item.id); }} onRename={(name) => publish(renameGraph(doc, item.id, name))} onDelete={() => publish(deleteGraph(doc, item.id))} />
+          ))}
+          <div className="mt-3 flex items-center justify-between"><span className="eyebrow">Variables</span><button type="button" className="graph-lib-add" data-testid="add-variable" onClick={() => publish(addVariable(doc, { name: "NewVar", type: "float" }))}>+</button></div>
+          {(activeMeta?.kind === "function" || activeMeta?.kind === "macro") && (
+            <div className="graph-signature" data-testid="signature-editor">
+              <div className="eyebrow mt-3">{activeMeta.kind}</div>
+              <label className="block text-[11px] mt-1">Inputs <input className="graph-search" aria-label="Inputs" defaultValue={(activeMeta.inputs || []).map((item) => `${item.name}:${item.type}`).join(", ")} onBlur={(event) => publish(setFunctionSignature(doc, activeMeta.id, { inputs: parsePins(event.target.value), outputs: activeMeta.outputs || [], pure: !!activeMeta.pure, callable: activeMeta.callable !== false }))} /></label>
+              <label className="block text-[11px] mt-1">Outputs <input className="graph-search" aria-label="Outputs" defaultValue={(activeMeta.outputs || []).map((item) => `${item.name}:${item.type}`).join(", ")} onBlur={(event) => publish(setFunctionSignature(doc, activeMeta.id, { inputs: activeMeta.inputs || [], outputs: parsePins(event.target.value), pure: !!activeMeta.pure, callable: activeMeta.callable !== false }))} /></label>
+              {activeMeta.kind === "function" && (
+                <label className="flex items-center gap-2 text-[12px] mt-1"><input type="checkbox" data-testid="pure-toggle" checked={!!activeMeta.pure} onChange={(event) => publish(setFunctionSignature(doc, activeMeta.id, { inputs: activeMeta.inputs || [], outputs: activeMeta.outputs || [], pure: event.target.checked, callable: activeMeta.callable !== false }))} /> Pure</label>
+              )}
+              {activeMeta.kind === "function" && (
+                <label className="flex items-center gap-2 text-[12px]"><input type="checkbox" data-testid="callable-toggle" checked={activeMeta.callable !== false} onChange={(event) => publish(setFunctionSignature(doc, activeMeta.id, { inputs: activeMeta.inputs || [], outputs: activeMeta.outputs || [], pure: !!activeMeta.pure, callable: event.target.checked }))} /> BlueprintCallable</label>
+              )}
+            </div>
+          )}
+          {(doc.variables || []).map((variable) => (
+            <div key={variable.id} className="graph-lib-item" draggable data-testid={`variable-${variable.id}`} onClick={() => setVarMenu({ edit: variable.id })} onDragStart={(event) => event.dataTransfer.setData("text/plain", `var:${variable.id}`)}>
+              <span>{variable.name}</span>
+              <span className="graph-lib-meta">{variable.array ? "array " : ""}{variable.type}</span>
+            </div>
+          ))}
+          {doc.variables?.[0] && (
+            <VariableEditor variable={doc.variables.find((item) => item.id === (varMenu?.edit || doc.variables[0].id)) || doc.variables[0]} onChange={(patch) => publish(updateVariable(doc, (varMenu?.edit || doc.variables[0].id), patch))} onDelete={(id) => publish(deleteVariable(doc, id))} onPick={(id) => setVarMenu({ edit: id })} />
+          )}
+        </aside>
+      )}
+      {editable && (
         <aside className="graph-palette" data-testid="graph-palette">
           <input className="graph-search" value={query} placeholder="Search events" aria-label="Search events" data-testid="graph-search" onChange={(event) => setQuery(event.target.value)} />
           {catalogGroups(query).map((group) => (
@@ -414,13 +516,21 @@ export default function EventGraph({
           <button type="button" className={`ue-btn !py-1 !px-2 !text-[11px] ${snap ? "!border-[var(--unreal-orange)] !text-[var(--unreal-orange)]" : ""}`} data-testid="graph-snap" onClick={() => setSnap((value) => !value)}>Snap</button>
           <button type="button" className="ue-btn !py-1 !px-2 !text-[11px]" data-testid="graph-comment" onClick={commentAround}>Comment</button>
           <button type="button" className="ue-btn !py-1 !px-2 !text-[11px]" data-testid="graph-explain" onClick={runExplain}>Explain this graph</button>
+          <button type="button" className="ue-btn !py-1 !px-2 !text-[11px]" data-testid="collapse-function" onClick={() => publish(collapseSelection(doc, activeMeta.id, selection.nodes, { kind: "function", name: "Collapsed" }))}>Collapse</button>
+        </div>
+        <div className="absolute left-3 top-12 z-20 flex flex-wrap gap-1" data-graph-chrome onPointerDown={(event) => event.stopPropagation()}>
+          {openTabs.map((id) => {
+            const item = doc.items.find((entry) => entry.id === id) || (id === "event" ? doc.items.find((entry) => entry.kind === "event") : null);
+            if (!item) return null;
+            return <button key={item.id} type="button" className={`chip ${activeMeta?.id === item.id ? "active" : ""}`} data-testid={`graph-tab-${item.kind}`} onClick={() => setActiveId(item.id)}>{item.name}</button>;
+          })}
         </div>
         <div className="absolute right-3 top-3 z-20 flex gap-2" data-graph-chrome onPointerDown={(event) => event.stopPropagation()}>
           <button type="button" className="ue-btn" aria-label="Zoom in" data-testid="graph-zoom-in" onClick={() => setZoom((value) => clampZoom(value + 0.1))}>+</button>
           <button type="button" className="ue-btn" aria-label="Zoom out" data-testid="graph-zoom-out" onClick={() => setZoom((value) => clampZoom(value - 0.1))}>−</button>
         </div>
         {system?.manual_cpp && (
-          <div className="absolute left-3 top-12 z-20 panel p-2 flex items-center gap-2 max-w-xl" data-testid="graph-manual-lock" data-graph-chrome onPointerDown={(event) => event.stopPropagation()}>
+          <div className="absolute left-3 top-24 z-20 panel p-2 flex items-center gap-2 max-w-xl" data-testid="graph-manual-lock" data-graph-chrome onPointerDown={(event) => event.stopPropagation()}>
             <span className="text-[12px] text-[var(--text-secondary)]">Manual edits are locked. The graph is saved, and the C++ was not overwritten.</span>
             <button type="button" className="ue-btn !py-1 !px-2 !text-[11px]" data-testid="graph-revert" onClick={onRevertManual}>Revert to generated</button>
           </div>
@@ -516,15 +626,15 @@ export default function EventGraph({
                 <div className="node-header"><span className="truncate">{node.label}</span></div>
                 <div className="node-body">
                   {Array.from({ length: rows }, (_, index) => (
-                    <div key={index} className="flex justify-between gap-2" style={{ minHeight: GRAPH_LAYOUT.row }}>
+                    <div key={index} className="flex justify-between gap-2" style={{ height: GRAPH_LAYOUT.row, minHeight: GRAPH_LAYOUT.row }}>
                       {inputs[index] ? (
-                        <div className={`node-pin ${(hotPin?.nodeId === node.id && hotPin?.pinId === inputs[index].id) || (armed?.nodeId === node.id && armed?.pinId === inputs[index].id) ? "is-hot" : ""}`} data-pin-node={node.id} data-pin-id={inputs[index].id} data-testid={`pin-${node.id}-${inputs[index].id}`}>
+                        <div className={`node-pin ${outputs[index] ? "" : "flex-1"} ${(hotPin?.nodeId === node.id && hotPin?.pinId === inputs[index].id) || (armed?.nodeId === node.id && armed?.pinId === inputs[index].id) ? "is-hot" : ""}`} data-pin-node={node.id} data-pin-id={inputs[index].id} data-testid={`pin-${node.id}-${inputs[index].id}`}>
                           <span className="node-dot" style={{ background: pinColor(inputs[index].type) }} />
                           <span>{inputs[index].name}</span>
                         </div>
                       ) : <span />}
                       {outputs[index] ? (
-                        <div className={`node-pin out ${(hotPin?.nodeId === node.id && hotPin?.pinId === outputs[index].id) || (armed?.nodeId === node.id && armed?.pinId === outputs[index].id) ? "is-hot" : ""}`} data-pin-node={node.id} data-pin-id={outputs[index].id} data-testid={`pin-${node.id}-${outputs[index].id}`}>
+                        <div className={`node-pin out ${inputs[index] ? "" : "flex-1"} ${(hotPin?.nodeId === node.id && hotPin?.pinId === outputs[index].id) || (armed?.nodeId === node.id && armed?.pinId === outputs[index].id) ? "is-hot" : ""}`} data-pin-node={node.id} data-pin-id={outputs[index].id} data-testid={`pin-${node.id}-${outputs[index].id}`}>
                           <span>{outputs[index].name}</span>
                           <span className="node-dot" style={{ background: pinColor(outputs[index].type) }} />
                         </div>
@@ -590,6 +700,12 @@ export default function EventGraph({
             {explainState === "loading" && <p className="text-[12px] text-[var(--text-muted)]" data-testid="graph-explain-loading">Asking for a walkthrough…</p>}
             {explainError && <p className="text-[12px] text-[var(--accent-red)] mb-1" data-testid="graph-explain-error">{explainError}</p>}
             <p className="text-[12.5px] text-[var(--text-secondary)]"><GlossaryText text={summary} /></p>
+          </div>
+        )}
+        {varMenu?.id && (
+          <div className="graph-menu panel" style={{ left: varMenu.x, top: varMenu.y }} data-testid="variable-drop-menu" data-graph-chrome>
+            <button type="button" className="graph-menu-item" onClick={() => { const variable = doc.variables.find((item) => item.id === varMenu.id); if (variable) commit(addNode(graph, variableNode(variable, "get", varMenu.gx, varMenu.gy))); setVarMenu(null); }}>Get</button>
+            <button type="button" className="graph-menu-item" onClick={() => { const variable = doc.variables.find((item) => item.id === varMenu.id); if (variable) commit(addNode(graph, variableNode(variable, "set", varMenu.gx, varMenu.gy))); setVarMenu(null); }}>Set</button>
           </div>
         )}
         {children}
