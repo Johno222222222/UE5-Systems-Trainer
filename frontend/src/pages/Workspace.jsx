@@ -38,6 +38,10 @@ import {
 import { APP_VERSION } from "../lib/shell.mjs";
 import { draftToSnapshotInput } from "../lib/workspaceSession.mjs";
 import { useShell } from "../shell/ShellContext";
+import {
+  moduleNote, parameterEffect, shouldRunLearningPass, showChallenges, showTraps, visibleWhyNotes, whyForCpp, whyForNode,
+} from "../lib/learning.mjs";
+import WhyNote from "../components/WhyNote";
 
 const LS_KEY = "ue5_architect_library_v1";
 const STOCK_PROMPT = "A third-person melee combat system with combo chains, directional attacks, hit reactions, and hitstop.";
@@ -203,6 +207,8 @@ export default function Workspace() {
   const [versions, setVersions] = useState([]);
   const [versionsReady, setVersionsReady] = useState(false);
   const [viewingVersion, setViewingVersion] = useState(null);
+  const [learningState, setLearningState] = useState(null);
+  const [whyFocus, setWhyFocus] = useState(null);
   const [compareBase, setCompareBase] = useState("previous"); // "previous" | version number
   const [baseSystem, setBaseSystem] = useState(null);
   const [usageTick, setUsageTick] = useState(0);
@@ -307,6 +313,8 @@ export default function Workspace() {
     setCompareBase("previous");
     setBaseSystem(null);
     setViewingVersion(null);
+    setLearningState(null);
+    setWhyFocus(null);
     setBaseline(blankSnapshot({ project_context: context, unreal_version: version }));
     toast.message("New project", { description: keepContext ? "Project context kept. The API key was not changed." : "Workspace cleared. The API key was not changed." });
   };
@@ -334,16 +342,21 @@ export default function Workspace() {
     }
     setPrompt(t.prompt);
     setBpClass(nextClass);
-    setResult(null);
     setPreviousResult(null);
     setNotes("");
     setExtra([]);
     setNewExtra("");
     setSetupDone({});
-    setTunable({});
     setTab("graph");
     setError(null);
     setJump(null);
+    setWhyFocus(null);
+    const starter = t.starter || null;
+    const params = {};
+    (starter?.tunable_parameters || []).forEach((p) => { params[p.key] = p.value; });
+    setTunable(params);
+    setResult(starter ? JSON.parse(JSON.stringify(starter)) : null);
+    setLearningState(starter?.learning ? "done" : null);
     setBaseline(workspaceSnapshot({
       prompt: t.prompt,
       blueprint_class: nextClass,
@@ -359,7 +372,7 @@ export default function Workspace() {
       references: nextRefs,
       setup_done: [],
       unreal_version: unrealVersion,
-      result_sig: "",
+      result_sig: starter ? resultSignature(starter, params) : "",
       project_id: detach ? null : (project?.project_id || null),
     }));
     setTemplateAsk(null);
@@ -373,9 +386,7 @@ export default function Workspace() {
       setTemplateAsk({ template: t });
       return;
     }
-    setPrompt(t.prompt);
-    setBpClass(t.default_class || "ActorComponent");
-    toast.message(`Loaded template: ${t.title}`);
+    applyTemplate(t, "new");
   };
 
   const clearRememberedContext = () => {
@@ -385,6 +396,28 @@ export default function Workspace() {
       setBaseline((current) => workspaceSnapshot({ ...current, project_context: "" }));
     }
     toast.success("Remembered project context cleared", { description: "Saved projects still have their own context." });
+  };
+
+  const runLearning = async (system) => {
+    if (!system || !shouldRunLearningPass(shell.helpLevel)) return;
+    if (!aiKey) {
+      setLearningState("failed");
+      return;
+    }
+    const epoch = epochRef.current;
+    const id = system.id;
+    setLearningState("running");
+    try {
+      const { data } = await api.post("/learn", { system, unreal_version: unrealVersion }, { headers: aiHeaders(aiKey) });
+      if (epochRef.current !== epoch) return;
+      setResult((current) => (current && current.id === id ? { ...current, learning: data.learning } : current));
+      setLearningState("done");
+    } catch {
+      if (epochRef.current !== epoch) return;
+      setLearningState("failed");
+    } finally {
+      setUsageTick((n) => n + 1);
+    }
   };
 
   const runSynthesis = async (body, context, successLabel, opts = {}) => {
@@ -420,11 +453,15 @@ export default function Workspace() {
       if (result) setPreviousResult(result);
       // Keep generated tests across regenerations; the Tests tab marks them out of date
       setViewingVersion(null);
-      setResult({ ...data, ...(result?.tests && !body.stack_systems ? { tests: result.tests } : {}), context: { ...context, project_context: projectContext, references, notes: body.designer_notes || "", unreal_version: unrealVersion }, baseline_modules: data.modules });
+      const shown = { ...data, ...(result?.tests && !body.stack_systems ? { tests: result.tests } : {}), context: { ...context, project_context: projectContext, references, notes: body.designer_notes || "", unreal_version: unrealVersion }, baseline_modules: data.modules };
+      setResult(shown);
+      setLearningState(null);
       setSetupDone({});
       setNotes((n) => (n === (body.designer_notes || "") ? "" : n));
       setTab(result ? "compare" : "graph");
+      setLoading(false);
       toast.success(successLabel(data), { description: `${data.node_graph_nodes?.length || 0} nodes · ${data.applied_changes?.length || 0} changes applied` });
+      if (shouldRunLearningPass(shell.helpLevel)) await runLearning(shown);
       return true;
     } catch (e) {
       if (e.message === "cancelled") return false;
@@ -965,6 +1002,7 @@ export default function Workspace() {
     const next = { ...result, cpp_header: data.cpp_header, cpp_source: data.cpp_source };
     setResult(next);
     setFix(null);
+    if (shouldRunLearningPass(shell.helpLevel)) runLearning(next);
     const entry = makeFixEntry(result, next, data);
     const note = fixNote(entry);
     setFixLog((l) => [...l, entry].slice(-20));
@@ -1223,6 +1261,14 @@ export default function Workspace() {
               <div className="text-[11px] font-mono text-[var(--text-secondary)] truncate mt-1">
                 {result?.summary || "Describe a system on the left, tune the dials, press Synthesize."}
               </div>
+              {learningState === "running" && (
+                <div className="mt-1 text-[11px] font-mono text-[var(--text-muted)]" data-testid="learning-pass-running">Writing teaching notes…</div>
+              )}
+              {learningState === "failed" && shouldRunLearningPass(shell.helpLevel) && (
+                <button type="button" className="ue-btn !py-1 !px-2 !text-[11px] mt-2" data-testid="retry-learning-pass" onClick={() => result && runLearning(result)}>
+                  Retry learning pass
+                </button>
+              )}
               {viewingVersion && (
                 <div className="mt-2 flex flex-wrap items-center gap-2" data-testid="viewing-version-banner">
                   <span className="text-[11px] font-mono text-[var(--unreal-orange)]">Viewing v{viewingVersion}. This is not the latest save.</span>
@@ -1307,7 +1353,35 @@ export default function Workspace() {
             )}
             {tab === "graph" && (
               <div className="relative h-full">
-                <NodeGraph nodes={result?.node_graph_nodes || []} edges={result?.node_graph_edges || []} />
+                {showChallenges(shell.helpLevel) && result?.learning && (
+                  <div className="absolute left-4 bottom-4 z-20 max-w-md space-y-2" data-testid="learning-panel">
+                    {(result.learning.challenges || []).length > 0 && (
+                      <div className="panel p-2.5" data-testid="challenges">
+                        <div className="eyebrow mb-1">Challenges</div>
+                        {result.learning.challenges.map((item) => (
+                          <div key={item.title} className="text-[12px] text-[var(--text-secondary)]"><b className="text-[var(--text-primary)]">{item.title}.</b> {item.detail}</div>
+                        ))}
+                      </div>
+                    )}
+                    {showTraps(shell.helpLevel) && (result.learning.traps || []).length > 0 && (
+                      <div className="panel p-2.5" data-testid="common-traps">
+                        <div className="eyebrow mb-1">Common traps</div>
+                        {result.learning.traps.map((item) => (
+                          <div key={item.title} className="text-[12px] text-[var(--text-secondary)]"><b className="text-[var(--unreal-orange)]">{item.title}.</b> {item.detail}</div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+                <NodeGraph
+                  nodes={result?.node_graph_nodes || []}
+                  edges={result?.node_graph_edges || []}
+                  whyByNode={Object.fromEntries((result?.node_graph_nodes || []).map((node) => {
+                    const notes = whyForNode(result, shell.helpLevel, node.id);
+                    return [node.id, notes[0]];
+                  }).filter(([, note]) => note))}
+                  onNodeClick={(nodeId) => { setWhyFocus(nodeId); setTab("blueprint"); }}
+                />
                 {result?.node_graph_nodes?.length > 0 && (
                   <button className="ue-btn ue-btn-primary !text-[12px] absolute bottom-4 right-4 z-20" onClick={copyForUnreal} title="Copies the graph in Unreal's clipboard format" data-testid="copy-for-unreal-button">
                     <ClipboardCopy size={13} /> Copy for Unreal
@@ -1323,7 +1397,12 @@ export default function Workspace() {
             )}
             {tab === "blueprint" && (
               <div className="p-5 h-full overflow-auto">
-                <AnnotatedPseudocode code={result?.blueprint_pseudocode} />
+                <AnnotatedPseudocode
+                  code={result?.blueprint_pseudocode}
+                  nodeNotes={visibleWhyNotes(result, shell.helpLevel).filter((note) => note.anchor?.kind === "node")}
+                  focusNodeId={whyFocus}
+                  level={shell.helpLevel}
+                />
               </div>
             )}
             {tab === "cpp" && (
@@ -1331,8 +1410,8 @@ export default function Workspace() {
                 {result && <CompileCheck issues={activeIssues} ignored={ignoredIssues} ai={aiReview} onReview={runAiReview} aiKey={aiKey} canEdit={!readOnly}
                   fixing={fix?.status === "running" || loading} onJump={jumpTo} onFix={(l) => runFix(l)} onRegenerate={fixRegenerate} onIgnore={ignoreIssue} onRestore={restoreIssue} onCopy={copyIssues} />}
                 <div className="grid md:grid-cols-2 gap-4">
-                  <CodeBox title={`${result ? baseName(result) : "System"}.h`} code={result?.cpp_header} lang="cpp" testId="cpp-header" target={jump?.file === ".h" ? jump : null} />
-                  <CodeBox title={`${result ? baseName(result) : "System"}.cpp`} code={result?.cpp_source} lang="cpp" testId="cpp-source" target={jump?.file === ".cpp" ? jump : null} />
+                  <CodeBox title={`${result ? baseName(result) : "System"}.h`} code={result?.cpp_header} lang="cpp" testId="cpp-header" target={jump?.file === ".h" ? jump : null} callouts={whyForCpp(result, shell.helpLevel, ".h")} renderCallout={(note) => <WhyNote note={note} level={shell.helpLevel} />} />
+                  <CodeBox title={`${result ? baseName(result) : "System"}.cpp`} code={result?.cpp_source} lang="cpp" testId="cpp-source" target={jump?.file === ".cpp" ? jump : null} callouts={whyForCpp(result, shell.helpLevel, ".cpp")} renderCallout={(note) => <WhyNote note={note} level={shell.helpLevel} />} />
                 </div>
               </div>
             )}
@@ -1380,19 +1459,24 @@ export default function Workspace() {
                 <span className="eyebrow">System Parameters</span>
               </div>
               <div className="space-y-3">
-                {result.tunable_parameters.map((p) => (
-                  <Slider
-                    key={p.key}
-                    label={p.label || p.key}
-                    value={tunable[p.key] ?? p.value}
-                    min={p.min ?? 0}
-                    max={p.max ?? 100}
-                    step={p.step ?? 1}
-                    unit={p.unit || ""}
-                    onChange={(v) => setTunable((t) => ({ ...t, [p.key]: v }))}
-                    testId={`param-${p.key}`}
-                  />
-                ))}
+                {result.tunable_parameters.map((p) => {
+                  const effect = parameterEffect(result, shell.helpLevel, p.key);
+                  return (
+                    <div key={p.key}>
+                      <Slider
+                        label={p.label || p.key}
+                        value={tunable[p.key] ?? p.value}
+                        min={p.min ?? 0}
+                        max={p.max ?? 100}
+                        step={p.step ?? 1}
+                        unit={p.unit || ""}
+                        onChange={(v) => setTunable((t) => ({ ...t, [p.key]: v }))}
+                        testId={`param-${p.key}`}
+                      />
+                      {effect && <div className="text-[10.5px] font-mono text-[var(--text-muted)] -mt-1" data-testid={`param-effect-${p.key}`}>{effect}</div>}
+                    </div>
+                  );
+                })}
               </div>
               <div className="mt-2 text-[10.5px] font-mono text-[var(--text-muted)]">Tuned values are baked into the code defaults on next Synthesize.</div>
             </div>
@@ -1411,7 +1495,7 @@ export default function Workspace() {
                     key={m.name}
                     onClick={() => toggleModule(m.name)}
                     className={`chip ${m.included ? "active" : "danger"}`}
-                    title={m.description}
+                    title={moduleNote(result, shell.helpLevel, m.name) || m.description}
                     data-testid={`module-chip-${m.name}`}
                   >
                     {m.included ? <CheckCircle2 size={11} /> : <Trash2 size={11} />} {m.name}

@@ -6,12 +6,14 @@ function wirePath(x1, y1, x2, y2) {
   return `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
 }
 
-export default function NodeGraph({ nodes = [], edges = [] }) {
+export default function NodeGraph({ nodes = [], edges = [], whyByNode = {}, onNodeClick }) {
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(0.85);
   const [dragging, setDragging] = useState(null);
+  const [openWhy, setOpenWhy] = useState(null);
   const [positions, setPositions] = useState({});
   const svgRef = useRef(null);
+  const moved = useRef(false);
 
   const pos = useMemo(() => {
     const p = {};
@@ -41,6 +43,7 @@ export default function NodeGraph({ nodes = [], edges = [] }) {
   };
   const onNodeDown = (e, id) => {
     e.stopPropagation();
+    moved.current = false;
     setDragging({ type: "node", id, startX: e.clientX, startY: e.clientY, nx: pos[id].x, ny: pos[id].y });
   };
   const onMove = (e) => {
@@ -48,12 +51,22 @@ export default function NodeGraph({ nodes = [], edges = [] }) {
     if (dragging.type === "pan") {
       setPan({ x: dragging.panX + (e.clientX - dragging.startX), y: dragging.panY + (e.clientY - dragging.startY) });
     } else if (dragging.type === "node") {
-      const nx = dragging.nx + (e.clientX - dragging.startX) / zoom;
-      const ny = dragging.ny + (e.clientY - dragging.startY) / zoom;
+      const dx = e.clientX - dragging.startX;
+      const dy = e.clientY - dragging.startY;
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved.current = true;
+      const nx = dragging.nx + dx / zoom;
+      const ny = dragging.ny + dy / zoom;
       setPositions((prev) => ({ ...prev, [dragging.id]: { x: nx, y: ny } }));
     }
   };
-  const onUp = () => setDragging(null);
+  const onUp = (e) => {
+    if (dragging?.type === "node" && e) {
+      const dx = Math.abs(e.clientX - dragging.startX);
+      const dy = Math.abs(e.clientY - dragging.startY);
+      if (dx < 5 && dy < 5) onNodeClick?.(dragging.id);
+    }
+    setDragging(null);
+  };
 
   const nodeTypeClass = (t) => {
     switch (t) {
@@ -130,8 +143,31 @@ export default function NodeGraph({ nodes = [], edges = [] }) {
               style={{ left: p.x, top: p.y, width: nodeWidth, pointerEvents: "auto" }}
               onPointerDown={(e) => onNodeDown(e, n.id)}
               data-testid={`graph-node-${n.id}`}
+              onClick={() => { if (!moved.current) onNodeClick?.(n.id); }}
             >
-              <div className="node-header">{n.label}</div>
+              <div className="node-header flex items-center justify-between gap-2">
+                <span className="truncate">{n.label}</span>
+                {whyByNode[n.id] && (
+                  <button
+                    type="button"
+                    className="why-badge"
+                    data-testid={`why-badge-${n.id}`}
+                    title={whyByNode[n.id].one_line}
+                    onPointerDown={(event) => event.stopPropagation()}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setOpenWhy((current) => (current === n.id ? null : n.id));
+                    }}
+                  >
+                    WHY
+                  </button>
+                )}
+              </div>
+              {openWhy === n.id && whyByNode[n.id] && (
+                <div className="why-pop" data-testid={`why-pop-${n.id}`} onPointerDown={(event) => event.stopPropagation()}>
+                  {whyByNode[n.id].one_line}
+                </div>
+              )}
               <div className="node-body">
                 <div className="flex justify-between gap-2">
                   <div className="flex flex-col gap-1">

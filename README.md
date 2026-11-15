@@ -40,7 +40,8 @@ You can save one Gemini key and one OpenAI key and switch between them. Changing
 - Ticks on the Setup Guide are saved with the project.
 - Settings has **Clear remembered project context**. That forgets the box on this computer. Saved projects keep their own context.
 - **Feedback** opens a new GitHub issue with the app version and a category. Nothing is emailed.
-- Describe a system on the left and press **Synthesize**. Templates are starting points.
+- Describe a system on the left and press **Synthesize**. The system shows as soon as it is ready. Teaching notes arrive just after, unless Help is set to Minimal. Templates already include their notes.
+- **Help** in the top bar is Learning, Standard, or Minimal. Learning is the default and is remembered on this computer. Minimal hides the WHY notes.
 - Edit sliders, modules, and notes, then regenerate. The Compare tab shows what changed.
 - **Save project** keeps a version. **Versions**, next to the project name in Tools, lists every save: the number, the time, and a short summary. Open one to look at it, Compare to put it next to what is on screen, or Restore to make it the current version. Restoring adds a new version, so older ones stay. On Home, **vN · versions** on a project card opens that list. The card itself still opens the latest save.
 - **JSON** downloads the system you are looking at. **Backup** in the Projects list downloads every project, its version history, and bundle presets as one file. **Import** accepts either kind of file.

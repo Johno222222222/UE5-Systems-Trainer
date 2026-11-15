@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { openInTargets, visibleSections } from "../lib/shell.mjs";
+import { HELP_LEVELS } from "../lib/learning.mjs";
 import { useShell } from "./ShellContext";
 
 export default function SectionBar() {
@@ -42,6 +43,20 @@ export default function SectionBar() {
           );
         })}
       </nav>
+      <div className="help-switch" role="group" aria-label="Help level" data-testid="help-level-switch">
+        {HELP_LEVELS.map((level) => (
+          <button
+            key={level}
+            type="button"
+            className={shell.helpLevel === level ? "active" : ""}
+            aria-pressed={shell.helpLevel === level}
+            data-testid={`help-level-${level}`}
+            onClick={() => shell.setHelpLevel(level)}
+          >
+            {level}
+          </button>
+        ))}
+      </div>
       <div className="system-chip-wrap" ref={menuRef}>
         <div className="chip system-chip !cursor-default" data-testid="current-system-chip" title={chip.name}>
           {chip.unsaved && <span className="unsaved-dot" data-testid="unsaved-dot" title="Unsaved changes" />}

@@ -366,6 +366,65 @@ html, body, #root {
   border-color: rgba(255, 107, 0, 0.55);
   background: rgba(255, 107, 0, 0.08);
 }
+.help-switch {
+  display: inline-flex;
+  flex: 0 0 auto;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  max-width: 100%;
+}
+.help-switch button {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+.help-switch button.active {
+  background: rgba(255, 107, 0, 0.14);
+  color: var(--unreal-orange);
+}
+.why-badge {
+  border: 1px solid var(--unreal-orange);
+  background: rgba(255, 107, 0, 0.16);
+  color: var(--unreal-orange);
+  border-radius: 999px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 1px 5px;
+  cursor: pointer;
+}
+.why-pop {
+  margin: 6px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: #10151f;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-family: "Inter", sans-serif;
+  font-size: 11px;
+  line-height: 1.4;
+  white-space: normal;
+}
+.why-more, .why-concept {
+  display: inline-block;
+  margin-top: 4px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--unreal-orange);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10.5px;
+  cursor: pointer;
+  text-decoration: none;
+}
 .system-chip-wrap {
   margin-left: auto;
   max-width: 100%;

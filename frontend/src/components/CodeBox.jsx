@@ -7,7 +7,7 @@ const LINE_PX = 20;
 const PAD_PX = 18;
 
 // target: {line, nonce} scrolls to and pulses that line
-export function CodeBox({ title, code, lang = "cpp", testId, target }) {
+export function CodeBox({ title, code, lang = "cpp", testId, target, callouts = null, renderCallout = null }) {
   const html = useMemo(() => (lang === "cpp" ? highlightCpp(code) : highlightBlueprint(code)), [code, lang]);
   const count = (code || "").split("\n").length;
   const markRef = useRef(null);
@@ -41,6 +41,28 @@ export function CodeBox({ title, code, lang = "cpp", testId, target }) {
           <button className="ue-btn !py-1 !px-2 !text-[11px]" onClick={download} data-testid={`download-${testId}`}><Download size={12} /> .{ext}</button>
         </div>
       </div>
+      {Array.isArray(callouts) && callouts.length > 0 ? (
+        <div className="code-lines">
+          {(code || "").split("\n").map((line, index) => {
+            const lineNo = index + 1;
+            const notes = callouts.filter((note) => note.anchor?.line === lineNo);
+            const lineHtml = lang === "cpp" ? highlightCpp(line || " ") : highlightBlueprint(line || " ");
+            return (
+              <div key={lineNo} data-testid={`${testId}-line-${lineNo}`}>
+                <div className={`flex ${target?.line === lineNo ? "code-line-mark" : ""}`} style={{ lineHeight: `${LINE_PX}px` }} data-line={lineNo}>
+                  <div className="select-none text-right pr-3 pl-3 font-mono text-[11px] text-[var(--text-muted)] border-r border-[var(--border-soft)] shrink-0 w-10">{lineNo}</div>
+                  <pre className="flex-1 !m-0 !px-4 !py-0" dangerouslySetInnerHTML={{ __html: lineHtml }} />
+                </div>
+                {notes.map((note) => (
+                  <div key={note.id} className="px-4 py-1" data-testid={`cpp-callout-${note.id}`}>
+                    {renderCallout ? renderCallout(note) : null}
+                  </div>
+                ))}
+              </div>
+            );
+          })}
+        </div>
+      ) : (
       <div className="relative flex">
         {code && (
           <div className="select-none text-right pr-3 pl-3 font-mono text-[11px] text-[var(--text-muted)] border-r border-[var(--border-soft)] shrink-0" style={{ paddingTop: PAD_PX, paddingBottom: PAD_PX, lineHeight: `${LINE_PX}px` }} aria-hidden="true">
@@ -52,6 +74,7 @@ export function CodeBox({ title, code, lang = "cpp", testId, target }) {
         )}
         <pre className="flex-1 !pl-4" style={{ lineHeight: `${LINE_PX}px` }} dangerouslySetInnerHTML={{ __html: html || `<span class="tok-com">// awaiting generation…</span>` }} />
       </div>
+      )}
     </div>
   );
 }
