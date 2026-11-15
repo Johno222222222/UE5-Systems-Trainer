@@ -66,6 +66,15 @@ export default function Community() {
     }
   };
 
+  const importListed = async (id) => {
+    try {
+      const { data } = await api.get(`/community/packs/${id}`);
+      await stage(data.base64);
+    } catch (err) {
+      toast.error(errorText(err));
+    }
+  };
+
   const importPack = async (mode) => {
     try {
       const { data } = await api.post("/packs/import", { data: pending, mode });
@@ -136,8 +145,10 @@ export default function Community() {
             <h2 className="font-sub font-semibold text-[18px] mt-1">{selected.title}</h2>
             <p className="mt-1 text-[12px] text-[var(--text-secondary)]">{selected.summary}</p>
             <p className="mt-1 text-[11px] font-mono text-[var(--text-muted)]">{selected.author} · {selected.file}</p>
-            <p className="mt-2 text-[12px] text-[var(--text-secondary)]">Import from the file button if you already have this pack. A repo download reads the file only after you turn the list on.</p>
-            <button type="button" className="ue-btn mt-3" onClick={() => setSelected(null)}>Close</button>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button type="button" className="ue-btn ue-btn-primary" data-testid="community-import-listed" onClick={() => importListed(selected.id)}>Import this pack</button>
+              <button type="button" className="ue-btn" onClick={() => setSelected(null)}>Close</button>
+            </div>
           </div>
         )}
 

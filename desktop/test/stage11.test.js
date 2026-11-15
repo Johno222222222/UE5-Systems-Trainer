@@ -126,6 +126,9 @@ test("the community index is bundled, off by default, and a fixture folder parse
     const off = await (await fetch(`http://127.0.0.1:${handle.port}/api/community`)).json();
     assert.equal(off.enabled, false);
     assert.equal(off.source, "bundled");
+    const sample = await (await fetch(`http://127.0.0.1:${handle.port}/api/community/packs/sample-notes`)).json();
+    assert.match(sample.filename, /sample-notes\.bbpack/);
+    assert.ok(sample.base64.length > 20);
     const saved = await (await fetch(`http://127.0.0.1:${handle.port}/api/community/settings`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },

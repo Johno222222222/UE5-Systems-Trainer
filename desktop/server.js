@@ -702,6 +702,31 @@ async function startServer(options = {}) {
     return writeSettings(dataDir, { enabled: body.enabled, repo: body.repo, path: body.path });
   });
 
+  route("GET", "/api/community/packs/:id", async (_req, params) => {
+    const settings = readSettings(dataDir);
+    const bundled = loadCommunityIndex({ appPath: options.appPath, resourcesPath: options.resourcesPath, dir: options.communityDir });
+    const local = bundled.packs.find((item) => item.id === params.id);
+    const readLocal = () => {
+      const root = path.resolve(bundled.dir);
+      const file = path.resolve(root, local.file);
+      if (file !== root && !file.startsWith(`${root}${path.sep}`)) throw new HttpError(400, "That pack path is not allowed.");
+      return { filename: local.file, base64: fs.readFileSync(file).toString("base64") };
+    };
+    if (!settings.enabled && local) return readLocal();
+    if (settings.enabled && settings.repo) {
+      const remote = await githubListing(settings);
+      const pack = remote.packs.find((item) => item.id === params.id);
+      if (!pack?.download_url) throw new HttpError(404, "That pack is not in the repo listing.");
+      const fetchImpl = options.fetchImpl || fetch;
+      const response = await fetchImpl(pack.download_url, { headers: { "User-Agent": "blueprint-builder" } });
+      if (!response.ok) throw new HttpError(502, "GitHub did not return that pack.");
+      const bytes = Buffer.from(await response.arrayBuffer());
+      return { filename: pack.file, base64: bytes.toString("base64") };
+    }
+    if (local) return readLocal();
+    throw new HttpError(404, "That pack isn't available.");
+  });
+
   function catalogForConflicts() {
     const projects = (store.data?.projects || []).filter((item) => !item.is_deleted);
     const templates = graphTemplateList().templates;
