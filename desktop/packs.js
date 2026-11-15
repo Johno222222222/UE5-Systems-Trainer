@@ -65,12 +65,42 @@ function problemsForCourse(course, file) {
   return problems;
 }
 
+function existsDir(dir) {
+  try { return !!(dir && fs.existsSync(dir) && fs.statSync(dir).isDirectory()); }
+  catch { return false; }
+}
+
+// A packaged app keeps the shipped packs inside the app (asar or resources).
+// Dev and tests still find them next to this file. process.cwd() is never used.
+function bundledPackCandidates({ appPath, resourcesPath } = {}) {
+  const candidates = [];
+  if (appPath) candidates.push(path.join(appPath, "content", "packs"));
+  if (resourcesPath) {
+    candidates.push(path.join(resourcesPath, "app.asar", "content", "packs"));
+    candidates.push(path.join(resourcesPath, "app", "content", "packs"));
+  }
+  candidates.push(DEFAULT_PACKS_DIR);
+  return candidates;
+}
+
+function userPackDir(userData) {
+  return userData ? path.join(userData, "packs") : null;
+}
+
 function loadPacks(dir = DEFAULT_PACKS_DIR) {
   const programs = [];
   const courses = [];
   const files = [];
   const problems = [];
-  if (!dir || !fs.existsSync(dir)) return { programs, courses, files, problems, dir };
+  if (!existsDir(dir)) {
+    return {
+      programs,
+      courses,
+      files,
+      problems: [`Lesson packs folder was not found: ${dir || "(none)"}`],
+      dir: dir || null,
+    };
+  }
   const names = fs.readdirSync(dir).filter((name) => name.endsWith(".json")).sort();
   for (const name of names) {
     const full = path.join(dir, name);
@@ -98,6 +128,41 @@ function loadPacks(dir = DEFAULT_PACKS_DIR) {
   return { programs, courses, files, problems, dir };
 }
 
+function loadPackSources({ appPath, resourcesPath, userData, packsDir } = {}) {
+  if (packsDir) return { ...loadPacks(packsDir), dirs: [packsDir] };
+  const candidates = bundledPackCandidates({ appPath, resourcesPath });
+  const bundled = candidates.find((dir) => existsDir(dir)) || null;
+  const dirs = [];
+  if (bundled) dirs.push(bundled);
+  const user = userPackDir(userData);
+  if (user && existsDir(user)) dirs.push(user);
+  if (!dirs.length) {
+    return {
+      programs: [],
+      courses: [],
+      files: [],
+      problems: [`No lesson packs folder was found. Looked in: ${candidates.join("; ")}`],
+      dir: null,
+      dirs: candidates,
+    };
+  }
+  const merged = { programs: [], courses: [], files: [], problems: [], dir: dirs[0], dirs };
+  for (const dir of dirs) {
+    const one = loadPacks(dir);
+    merged.problems.push(...one.problems);
+    for (const name of one.files) merged.files.push(name);
+    for (const program of one.programs) {
+      if (merged.programs.some((item) => item.id === program.id)) merged.problems.push(`Repeats program ${program.id}`);
+      else merged.programs.push(program);
+    }
+    for (const course of one.courses) {
+      if (merged.courses.some((item) => item.id === course.id)) merged.problems.push(`Repeats course ${course.id}`);
+      else merged.courses.push(course);
+    }
+  }
+  return merged;
+}
+
 function programById(catalog, id) {
   return catalog.programs.find((item) => item.id === id) || null;
 }
@@ -112,7 +177,10 @@ function taskById(program, id) {
 
 module.exports = {
   DEFAULT_PACKS_DIR,
+  bundledPackCandidates,
+  userPackDir,
   loadPacks,
+  loadPackSources,
   programById,
   courseById,
   taskById,

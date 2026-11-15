@@ -2,6 +2,8 @@
 
 A lesson pack is one JSON file in this folder. The app reads every `*.json` file here when it starts. Add a file, restart the app, and the new program or course shows up. You do not change any code.
 
+The Windows install ships this folder inside the app. It does not read the folder you cloned. Extra packs you add yourself go in the `packs` folder next to your projects (the same folder Settings calls **Open folder**). Restart after you add a file. A pack that is missing or is not valid JSON is named on the Programs and Courses pages instead of leaving those pages blank.
+
 Files that do not end in `.json` (this note, for example) are ignored. Files are read in alphabetical order. The first program or course with a given `id` wins. A later file that repeats an id is skipped and reported.
 
 ## Top of the file

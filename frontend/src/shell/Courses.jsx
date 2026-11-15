@@ -12,11 +12,15 @@ export default function Courses() {
   const [assignment, setAssignment] = useState("");
   const [result, setResult] = useState(null);
   const [reviewNotes, setReviewNotes] = useState({});
+  const [loadError, setLoadError] = useState("");
+  const [packProblems, setPackProblems] = useState([]);
 
   const loadList = () => api.get("/study").then((r) => {
     setCards(r.data?.courses || []);
     setReviews(r.data?.reviews || []);
-  }).catch(() => {});
+    setPackProblems(r.data?.problems || []);
+    setLoadError("");
+  }).catch((err) => setLoadError(errorText(err)));
 
   useEffect(() => { loadList(); }, []);
 
@@ -65,6 +69,26 @@ export default function Courses() {
           <p className="mt-2 text-[13px] text-[var(--text-secondary)] max-w-xl">
             A course is a scored path. Quizzes, a diff, a short assignment, and a takeaway. Scores stay on this computer. You can retake any module.
           </p>
+          {loadError && <p className="mt-3 text-[12px] font-mono text-[var(--accent-red)]" data-testid="courses-load-error">{loadError}</p>}
+          {!cards.length && (
+            <div className="panel p-4 mt-5" data-testid="courses-empty">
+              <div className="eyebrow mb-2">No courses loaded</div>
+              <p className="text-[13px] text-[var(--text-secondary)]">
+                The lesson packs did not load, so there is nothing to open. The install should include them. You can also add a JSON pack in the packs folder next to your projects, then restart.
+              </p>
+              {packProblems.map((problem) => (
+                <p key={problem} className="mt-2 text-[12px] font-mono text-[var(--accent-red)]">{problem}</p>
+              ))}
+            </div>
+          )}
+          {cards.length > 0 && packProblems.length > 0 && (
+            <div className="panel p-3 mt-4" data-testid="courses-pack-problems">
+              <div className="eyebrow mb-1">A pack could not be read</div>
+              {packProblems.map((problem) => (
+                <p key={problem} className="text-[12px] font-mono text-[var(--accent-red)]">{problem}</p>
+              ))}
+            </div>
+          )}
           {reviews.length > 0 && (
             <div className="panel p-4 mt-5" data-testid="spaced-review">
               <div className="eyebrow mb-2">Review</div>

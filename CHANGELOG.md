@@ -13,6 +13,7 @@ Stage 5, programs and courses.
 - The first course has four modules. Each one has a scored quiz, a diff that asks which side has the bug, a short assignment, and a takeaway. The pass mark is 70. Scores stay on this computer, and a retake replaces the saved score.
 - A quiz you get wrong comes back in the next three sessions, in different words. It does not repeat in the session you missed it.
 - Programs and courses are JSON files in `content/packs`. The app reads that folder when it starts. Add a file, restart, and it shows up. The file shape is in `content/packs/FORMAT.md`.
+- The Windows install includes those packs. If a pack is missing or cannot be read, Programs and Courses say so. Extra JSON packs can go in the packs folder next to your projects.
 - A project saved before this version still opens.
 
 ## 1.4.0

@@ -13,7 +13,7 @@ const { LEARNING_PROMPT, learningGaps, fillLearning, learningUserText } = requir
 const { attachStarters } = require("./templateLearning");
 const { recordAnswer, emptyProgress } = require("./practice");
 const { catalog, forkPayload } = require("./references");
-const { loadPacks, programById, courseById, taskById, DEFAULT_PACKS_DIR } = require("./packs");
+const { loadPacks, loadPackSources, programById, courseById, taskById } = require("./packs");
 const {
   ensureStudy,
   checkTask,
@@ -336,7 +336,18 @@ async function startServer(options = {}) {
   const fetchImpl = options.fetchImpl || (process.env.UE5_STUB_LLM === "1" ? stubFetch : undefined);
   const clock = options.now || (() => new Date());
   const staticDir = options.staticDir ? path.resolve(options.staticDir) : null;
-  const lessonPacks = loadPacks(options.packsDir || DEFAULT_PACKS_DIR);
+  const lessonPacks = options.packsDir
+    ? loadPacks(options.packsDir)
+    : loadPackSources({
+      appPath: options.appPath,
+      resourcesPath: options.resourcesPath,
+      userData: dataDir,
+    });
+  if (lessonPacks.problems.length) {
+    console.error(`Lesson packs: ${lessonPacks.problems.join(" | ")}`);
+  } else {
+    console.log(`Lesson packs: ${(lessonPacks.files || []).join(", ") || "(none)"}`);
+  }
 
   function filePath(fileId) {
     return path.join(dataDir, "files", fileId);
@@ -1047,6 +1058,7 @@ async function startServer(options = {}) {
     return {
       session: study.session,
       packs: lessonPacks.files,
+      problems: lessonPacks.problems || [],
       programs: lessonPacks.programs.map((program) => programCard(program, study)),
       courses: lessonPacks.courses.map((course) => courseCard(course, study)),
       reviews: dueReviews(study, study.session).map(publicReview),

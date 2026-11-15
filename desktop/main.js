@@ -65,9 +65,13 @@ async function openWorkspace() {
   if (!fs.existsSync(path.join(ui, "index.html"))) {
     console.error(`The workspace UI is missing at ${ui}. Build the frontend first.`);
   }
+  const dataDir = app.getPath("userData");
+  fs.mkdirSync(path.join(dataDir, "packs"), { recursive: true });
   serverHandle = await startServer({
-    dataDir: app.getPath("userData"),
+    dataDir,
     staticDir: ui,
+    appPath: app.getAppPath(),
+    resourcesPath: process.resourcesPath,
     port: process.env.UE5_PORT || 0,
     codec: codec(),
     appVersion: app.getVersion(),

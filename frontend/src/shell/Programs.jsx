@@ -70,8 +70,12 @@ export default function Programs() {
   const [modifyNote, setModifyNote] = useState(null);
   const [mapId, setMapId] = useState("interaction");
   const [error, setError] = useState("");
+  const [packProblems, setPackProblems] = useState([]);
 
-  const refreshCards = () => api.get("/study").then((r) => setCards(r.data?.programs || [])).catch(() => {});
+  const refreshCards = () => api.get("/study").then((r) => {
+    setCards(r.data?.programs || []);
+    setPackProblems(r.data?.problems || []);
+  }).catch((err) => setError(errorText(err)));
 
   useEffect(() => { refreshCards(); }, []);
 
@@ -139,7 +143,26 @@ export default function Programs() {
           <p className="mt-2 text-[13px] text-[var(--text-secondary)] max-w-xl">
             A program walks a genre from the first trace to a starter project in Tools. Nothing here calls the model.
           </p>
-          {error && <p className="mt-3 text-[12px] font-mono text-[var(--accent-red)]">{error}</p>}
+          {error && <p className="mt-3 text-[12px] font-mono text-[var(--accent-red)]" data-testid="programs-load-error">{error}</p>}
+          {!cards.length && (
+            <div className="panel p-4 mt-5" data-testid="programs-empty">
+              <div className="eyebrow mb-2">No programs loaded</div>
+              <p className="text-[13px] text-[var(--text-secondary)]">
+                The lesson packs did not load, so there is nothing to open. The install should include them. You can also add a JSON pack in the packs folder next to your projects, then restart.
+              </p>
+              {packProblems.map((problem) => (
+                <p key={problem} className="mt-2 text-[12px] font-mono text-[var(--accent-red)]">{problem}</p>
+              ))}
+            </div>
+          )}
+          {cards.length > 0 && packProblems.length > 0 && (
+            <div className="panel p-3 mt-4" data-testid="programs-pack-problems">
+              <div className="eyebrow mb-1">A pack could not be read</div>
+              {packProblems.map((problem) => (
+                <p key={problem} className="text-[12px] font-mono text-[var(--accent-red)]">{problem}</p>
+              ))}
+            </div>
+          )}
           <div className="home-grid mt-6">
             {cards.map((card) => (
               <button key={card.id} type="button" className="panel home-card text-left" data-testid={`program-card-${card.id}`} onClick={() => openProgram(card.id)}>

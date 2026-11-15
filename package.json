@@ -34,6 +34,7 @@
       "desktop/**/*",
       "!desktop/test/**",
       "frontend/build/**/*",
+      "content/packs/**/*",
       "package.json"
     ],
     "asar": true,
