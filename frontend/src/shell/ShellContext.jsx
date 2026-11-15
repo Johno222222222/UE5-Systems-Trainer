@@ -24,6 +24,7 @@ export function ShellProvider({ children }) {
   const [draftTick, setDraftTick] = useState(0);
   const [reveal, setReveal] = useState(() => loadWorkspace(window.localStorage)?.reveal || null);
   const [learnIndex, setLearnIndex] = useState(() => Number(loadWorkspace(window.localStorage)?.learnIndex) || 0);
+  const [libraryFocus, setLibraryFocus] = useState({ view: "reading", exampleId: "start-here", conceptId: null });
   const revealRef = useRef(reveal);
   revealRef.current = reveal;
   const learnIndexRef = useRef(learnIndex);
@@ -96,6 +97,16 @@ export function ShellProvider({ children }) {
     return current;
   }, []);
 
+  const openReference = useCallback((exampleId = "start-here") => {
+    setLibraryFocus((current) => ({ ...current, view: "reading", exampleId: exampleId || "start-here" }));
+    setSection("references");
+  }, []);
+
+  const openConcept = useCallback((conceptId) => {
+    setLibraryFocus((current) => ({ ...current, view: "concepts", conceptId: conceptId || current.conceptId }));
+    setSection("references");
+  }, []);
+
   const sendToSection = useCallback((sectionId) => {
     const item = openItemFromDraft(session.get());
     if (item) setMemory((prev) => rememberOpen(prev, sectionId, item));
@@ -104,6 +115,14 @@ export function ShellProvider({ children }) {
       if (projectId) issue({ type: "open-project", id: projectId });
       else setSection("tools");
       return;
+    }
+    if (sectionId === "references") {
+      const hasSystem = !!session.get()?.result;
+      setLibraryFocus((current) => ({
+        ...current,
+        view: "reading",
+        exampleId: hasSystem ? "workspace" : (current.exampleId || "start-here"),
+      }));
     }
     setSection(sectionId);
   }, [issue, session]);
@@ -134,7 +153,10 @@ export function ShellProvider({ children }) {
     setReveal,
     learnIndex,
     setLearnIndex,
-  }), [session, section, memory, toolsOpen, homeFocus, appInfo, chip, commandNonce, go, issue, takeCommand, sendToSection, draftTick, helpLevel, reveal, learnIndex]);
+    libraryFocus,
+    openReference,
+    openConcept,
+  }), [session, section, memory, toolsOpen, homeFocus, appInfo, chip, commandNonce, go, issue, takeCommand, sendToSection, draftTick, helpLevel, reveal, learnIndex, libraryFocus, openReference, openConcept]);
 
   return <ShellContext.Provider value={value}>{children}</ShellContext.Provider>;
 }

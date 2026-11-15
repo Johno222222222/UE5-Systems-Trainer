@@ -347,28 +347,33 @@ const PACKS = [
   },
 ];
 
+function generatedHeader(pack) {
+  const header = [
+    "#pragma once",
+    "#include \"CoreMinimal.h\"",
+    "#include \"Components/ActorComponent.h\"",
+    `#include "${pack.cls}.generated.h"`,
+    "UCLASS(ClassGroup=(Game), meta=(BlueprintSpawnableComponent))",
+    `class U${pack.cls} : public UActorComponent {`,
+    "  GENERATED_BODY()",
+    "public:",
+    "  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=\"Game\")",
+    "  float Tunable = 1.f;",
+    "};",
+  ];
+  if (pack.id === "combat") header[9] = "  float ComboWindow = 0.35f;";
+  return header;
+}
+
+function systemFromPack(pack) {
+  const header = pack.header || generatedHeader(pack);
+  const source = pack.source || SOURCE(pack.cls, pack.body);
+  return build({ ...pack, header, source });
+}
+
 function attachStarters(templates) {
-  const byId = new Map(PACKS.map((pack) => {
-    const header = [
-      "#pragma once",
-      "#include \"CoreMinimal.h\"",
-      "#include \"Components/ActorComponent.h\"",
-      `#include "${pack.cls}.generated.h"`,
-      "UCLASS(ClassGroup=(Game), meta=(BlueprintSpawnableComponent))",
-      `class U${pack.cls} : public UActorComponent {`,
-      "  GENERATED_BODY()",
-      "public:",
-      "  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=\"Game\")",
-      `  float ${pack.params[0][0] === "combo_window" ? "ComboWindow" : "Tunable"} = 1.f;`,
-      "};",
-    ];
-    // Keep the declared line numbers honest for every pack.
-    header[9] = pack.id === "combat" ? "  float ComboWindow = 0.35f;" : header[9];
-    const source = SOURCE(pack.cls, pack.body);
-    const system = build({ ...pack, header, source });
-    return [pack.id, system];
-  }));
+  const byId = new Map(PACKS.map((pack) => [pack.id, systemFromPack(pack)]));
   return templates.map((template) => ({ ...template, starter: byId.get(template.id) || null }));
 }
 
-module.exports = { attachStarters, PACKS };
+module.exports = { attachStarters, PACKS, systemFromPack };

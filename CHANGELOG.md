@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.4.0
+
+Stage 4, references.
+
+- Start Here is a Character Interaction module that ships with the app. You can open the graph, the pseudocode, and the C++, answer a question, and move a slider with no API key.
+- A short note on first run and in About says what the app is, and that it is not a full game generator. The code still needs review before you ship it.
+- References is in the top bar. It is a read-only look at a system with every WHY note open, plus the key decisions. It works for the bundled example and for a system you already have open.
+- Fork copies a bundled example or a template into your projects. The original stays as it was.
+- Concepts is a library of ten cards. Each one has a short explanation, a challenge that does not call the model, and a link to an example or a template. WHY notes open the matching card.
+- Examples and templates show complexity, prerequisites, and Inspired by links. Those links go to Epic's Unreal documentation.
+
 ## 1.3.0
 
 Stage 3, practice.

@@ -11,6 +11,7 @@ const { createSecrets } = require("./secrets");
 const { complete, joinModelText, outputTokenLimit, stubFetch } = require("./llm");
 const { LEARNING_PROMPT, learningGaps, fillLearning, learningUserText } = require("./learning");
 const { attachStarters } = require("./templateLearning");
+const { concepts, examples, forkSource, withTemplateMeta, ABOUT } = require("./content");
 const { recordAnswer, emptyProgress } = require("./practice");
 const {
   ALLOWED_MODELS,
@@ -535,7 +536,25 @@ async function startServer(options = {}) {
     update: await loadUpdate(),
   }));
 
-  route("GET", "/api/templates", async () => ({ templates: attachStarters(TEMPLATES) }));
+  route("GET", "/api/templates", async () => ({ templates: withTemplateMeta(attachStarters(TEMPLATES)) }));
+
+  route("GET", "/api/examples", async () => ({ examples: examples(), about: ABOUT }));
+
+  route("GET", "/api/concepts", async () => ({ concepts: concepts() }));
+
+  route("POST", "/api/library/fork", async (req) => {
+    const body = await readJson(req);
+    const found = forkSource(body?.source, body?.id);
+    if (!found) throw new HttpError(404, "That example is not in the library.");
+    const system = JSON.parse(JSON.stringify(found.system));
+    system.id = newId("sys");
+    return store.update((data) => createProject(data, {
+      name: found.title || system.system_name,
+      system,
+      context: { unreal_version: "5.8", forked_from: { source: body.source, id: body.id } },
+      note: "Forked from the library",
+    }));
+  });
 
   route("GET", "/api/settings", async () => secrets.publicView(dataDir));
 

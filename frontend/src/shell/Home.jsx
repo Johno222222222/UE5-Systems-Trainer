@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
   Boxes, Car, FilePlus, FolderOpen, Hand, HardDrive, History, Layers, MessagesSquare, Package, Shield, Sparkles, Swords,
 } from "lucide-react";
 import { api } from "../lib/api";
 import { rankProjects } from "../lib/shell.mjs";
 import { useShell } from "./ShellContext";
+import AboutCopy from "./AboutCopy";
 
 const ICONS = {
   swords: Swords,
@@ -34,7 +36,20 @@ export default function Home() {
   const [loadError, setLoadError] = useState("");
   const [showRest, setShowRest] = useState(false);
   const [continueCards, setContinueCards] = useState([]);
+  const [startHere, setStartHere] = useState(null);
+  const [aboutOpen, setAboutOpen] = useState(false);
   const ranked = rankProjects(projects);
+
+  const reloadProjects = () => api.get("/projects").then((r) => setProjects(r.data?.mine || [])).catch(() => {});
+  const forkLibrary = async (source, id, title) => {
+    try {
+      await api.post("/library/fork", { source, id });
+      await reloadProjects();
+      toast.success(`Forked ${title}`, { description: "It is an editable project. The original is unchanged." });
+    } catch {
+      toast.error("Couldn't fork that");
+    }
+  };
 
   useEffect(() => {
     let alive = true;
@@ -43,6 +58,9 @@ export default function Home() {
       .catch(() => { if (alive) setLoadError("Couldn't load saved projects."); });
     api.get("/templates")
       .then((r) => { if (alive) setTemplates(r.data?.templates || []); })
+      .catch(() => {});
+    api.get("/examples")
+      .then((r) => { if (alive) setStartHere(r.data?.examples?.[0] || null); })
       .catch(() => {});
     api.get("/progress")
       .then((r) => {
@@ -112,6 +130,22 @@ export default function Home() {
             </>
           )}
         </div>
+
+        <section className="mt-8" data-testid="home-start-here">
+          <div className="eyebrow mb-2">Start here</div>
+          <div className="panel p-4">
+            <div className="font-sub font-semibold text-[16px]">{startHere?.title || "Character Interaction"}</div>
+            <p className="mt-1 text-[12px] text-[var(--text-secondary)] max-w-xl">{startHere?.tagline || "A look trace, a prompt, and Interact. No API key."}</p>
+            <div className="mt-2 flex flex-wrap gap-1">
+              {startHere?.complexity && <span className="chip !cursor-default">{startHere.complexity}</span>}
+              {(startHere?.prerequisites || []).map((item) => <span key={item} className="chip !cursor-default">{item}</span>)}
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button type="button" className="ue-btn ue-btn-primary" data-testid="home-open-start-here" onClick={() => shell.openReference("start-here")}>Open</button>
+              <button type="button" className="ue-btn" data-testid="home-fork-start-here" onClick={() => forkLibrary("example", "start-here", "Character Interaction")}>Fork</button>
+            </div>
+          </div>
+        </section>
 
         <section className="mt-8" data-testid="home-recent" id="home-recent">
           <div className="flex items-center gap-2 mb-3">
@@ -198,21 +232,29 @@ export default function Home() {
             {templates.map((tpl) => {
               const Icon = ICONS[tpl.icon] || Boxes;
               return (
-                <button
-                  key={tpl.id}
-                  type="button"
-                  className="panel home-card home-template text-left"
-                  data-testid={`home-template-${tpl.id}`}
-                  onClick={() => shell.issue({ type: "template", template: tpl })}
-                >
-                  <div className="flex items-start gap-2">
-                    <span className="home-template-icon"><Icon size={14} /></span>
-                    <span className="min-w-0">
-                      <span className="block font-sub font-semibold text-[13px] leading-tight">{tpl.title}</span>
-                      <span className="block mt-0.5 text-[11px] font-mono text-[var(--text-muted)] truncate">{tpl.tagline}</span>
-                    </span>
+                <div key={tpl.id} className="panel home-card home-template text-left">
+                  <button
+                    type="button"
+                    className="block w-full text-left bg-transparent border-0 p-0 text-inherit cursor-pointer"
+                    data-testid={`home-template-${tpl.id}`}
+                    onClick={() => shell.issue({ type: "template", template: tpl })}
+                  >
+                    <div className="flex items-start gap-2">
+                      <span className="home-template-icon"><Icon size={14} /></span>
+                      <span className="min-w-0">
+                        <span className="block font-sub font-semibold text-[13px] leading-tight">{tpl.title}</span>
+                        <span className="block mt-0.5 text-[11px] font-mono text-[var(--text-muted)] truncate">{tpl.tagline}</span>
+                      </span>
+                    </div>
+                  </button>
+                  <div className="mt-2 flex flex-wrap items-center gap-1">
+                    {tpl.complexity && <span className="chip !py-0 !text-[10px] !cursor-default">{tpl.complexity}</span>}
+                    <button type="button" className="text-[11px] font-mono text-[var(--unreal-orange)] bg-transparent border-0 p-0 cursor-pointer" data-testid={`home-fork-${tpl.id}`} onClick={() => forkLibrary("template", tpl.id, tpl.title)}>Fork</button>
+                    {(tpl.learn_more || []).slice(0, 1).map((link) => (
+                      <a key={link.url} className="text-[11px] font-mono text-[var(--text-muted)] hover:text-[var(--unreal-orange)]" href={link.url} target="_blank" rel="noreferrer">Learn more</a>
+                    ))}
                   </div>
-                </button>
+                </div>
               );
             })}
           </div>
@@ -223,7 +265,18 @@ export default function Home() {
 
         <footer className="home-footer" data-testid="app-version">
           UE5 System Architect <span data-testid="app-version-number">{shell.version}</span>
+          <button type="button" className="ml-3 text-[var(--unreal-orange)] bg-transparent border-0 p-0 cursor-pointer" data-testid="open-about" onClick={() => setAboutOpen(true)}>About</button>
         </footer>
+        {aboutOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(5,7,11,0.72)] p-4" data-testid="about-dialog">
+            <div className="panel w-full max-w-lg p-5">
+              <div className="eyebrow">About</div>
+              <h2 className="font-display text-[26px] font-extrabold uppercase tracking-wider mt-1">UE5 System Architect</h2>
+              <div className="mt-3"><AboutCopy /></div>
+              <button type="button" className="ue-btn mt-4" data-testid="about-close" onClick={() => setAboutOpen(false)}>Close</button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
