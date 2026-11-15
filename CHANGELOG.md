@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.1
+
+- Quiz options, Predict choices, concept questions, and spaced-review choices are buttons you can click. The one you pick is highlighted. After the answer is checked, the right option turns green and a wrong pick turns red, with a line that says why.
+
 ## 1.5.0
 
 Stage 5, programs and courses.

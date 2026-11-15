@@ -12,16 +12,16 @@ UE5 System Architect uses `MAJOR.MINOR.PATCH` in the root `package.json`. That n
 ## Releasing
 
 1. Merge the stage (or the fix) to `main`.
-2. Check `package.json` `"version"` is the number you want to ship. This branch sets it to `1.5.0`.
+2. Check `package.json` `"version"` is the number you want to ship. This branch sets it to `1.5.1`.
 3. Tag that commit and push the tag. Do not tag from an unmerged branch.
 
 ```powershell
 git checkout main
 git pull
-git tag v1.5.0
-git push origin v1.5.0
+git tag v1.5.1
+git push origin v1.5.1
 ```
 
-The tag must look like `v1.5.0` (a `v`, then the same three numbers as `package.json`). GitHub Actions builds the Windows installer and attaches it to a GitHub Release for that tag. The app asks GitHub for the latest release on startup and shows an Update chip only when that release is newer than the running version.
+The tag must look like `v1.5.1` (a `v`, then the same three numbers as `package.json`). GitHub Actions builds the Windows installer and attaches it to a GitHub Release for that tag. The app asks GitHub for the latest release on startup and shows an Update chip only when that release is newer than the running version.
 
 This file does not create a tag. Tagging is the owner's step after review.

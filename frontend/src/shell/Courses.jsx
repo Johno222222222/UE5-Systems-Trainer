@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { api, errorText } from "../lib/api";
+import { choiceNote } from "../lib/choices.mjs";
+import ChoiceButton from "../components/ChoiceButton";
 
 export default function Courses() {
   const [cards, setCards] = useState([]);
@@ -53,7 +55,14 @@ export default function Courses() {
   const answerReview = async (id, choice) => {
     try {
       const { data } = await api.post("/study/review", { id, choice });
-      setReviewNotes((current) => ({ ...current, [id]: data.correct ? "That's the one." : (data.why || "Not this time. It will come back.") }));
+      setReviewNotes((current) => ({
+        ...current,
+        [id]: {
+          picked: choice,
+          correctIndex: data.correct ? choice : -1,
+          text: data.correct ? "That's the one." : (data.why || "Not this time. It will come back."),
+        },
+      }));
       if (data.correct) setReviews((current) => current.filter((item) => item.id !== id));
     } catch (err) {
       toast.error(errorText(err));
@@ -96,11 +105,23 @@ export default function Courses() {
                 <div key={item.id} className="mt-3">
                   <div className="text-[13px]">{item.prompt}</div>
                   <div className="mt-2 flex flex-col gap-2">
-                    {(item.choices || []).map((choice, index) => (
-                      <button key={choice} type="button" className="ue-btn justify-start" onClick={() => answerReview(item.id, index)}>{choice}</button>
-                    ))}
+                    {(item.choices || []).map((choice, index) => {
+                      const note = reviewNotes[item.id];
+                      return (
+                        <ChoiceButton
+                          key={`${item.id}-${index}`}
+                          id={index}
+                          label={choice}
+                          picked={note ? note.picked : null}
+                          correct={note ? note.correctIndex : null}
+                          revealed={!!note}
+                          onPick={(choiceId) => answerReview(item.id, choiceId)}
+                          testId={`review-choice-${item.id}-${index}`}
+                        />
+                      );
+                    })}
                   </div>
-                  {reviewNotes[item.id] && <p className="mt-2 text-[13px] text-[var(--text-secondary)]">{reviewNotes[item.id]}</p>}
+                  {reviewNotes[item.id] && <p className="mt-2 text-[13px] text-[var(--text-secondary)]" data-testid={`review-result-${item.id}`}>{reviewNotes[item.id].text}</p>}
                 </div>
               ))}
             </div>
@@ -142,11 +163,28 @@ export default function Courses() {
                   <div className="text-[13px] text-[var(--text-primary)]">{qIndex + 1}. {question.prompt}</div>
                   <div className="mt-2 flex flex-col gap-2">
                     {question.choices.map((choice, index) => (
-                      <button key={choice} type="button" className={`ue-btn justify-start whitespace-normal text-left ${answers[question.id] === index ? "!border-[var(--unreal-orange)]" : ""}`} data-testid={`quiz-choice-${question.id}-${index}`} onClick={() => setAnswers((current) => ({ ...current, [question.id]: index }))}>
-                        {choice}
-                      </button>
+                      <ChoiceButton
+                        key={`${question.id}-${index}`}
+                        id={index}
+                        label={choice}
+                        picked={answers[question.id]}
+                        correct={question.answer}
+                        revealed={!!result}
+                        onPick={(choiceId) => setAnswers((current) => ({ ...current, [question.id]: choiceId }))}
+                        testId={`quiz-choice-${question.id}-${index}`}
+                      />
                     ))}
                   </div>
+                  {result && (
+                    <p className="mt-2 text-[13px] text-[var(--text-secondary)]" data-testid={`quiz-note-${question.id}`}>
+                      {choiceNote({
+                        picked: answers[question.id],
+                        correct: question.answer,
+                        why: question.why,
+                        revealed: true,
+                      })}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
@@ -156,10 +194,18 @@ export default function Courses() {
                 <div className="text-[13px]">{mod.diff.prompt}</div>
                 <div className="grid md:grid-cols-2 gap-3 mt-3">
                   {["left", "right"].map((side) => (
-                    <button key={side} type="button" className={`panel p-3 text-left ${diff === side ? "border-[var(--unreal-orange)]" : ""}`} data-testid={`diff-side-${side}`} onClick={() => setDiff(side)}>
-                      <div className="font-mono text-[11px] text-[var(--unreal-orange)]">{mod.diff[side].label}</div>
-                      <pre className="mt-2 whitespace-pre-wrap text-[12px] font-mono text-[var(--text-secondary)]">{mod.diff[side].code}</pre>
-                    </button>
+                    <ChoiceButton
+                      key={side}
+                      id={side}
+                      picked={diff}
+                      correct={mod.diff.bug}
+                      revealed={!!result}
+                      onPick={setDiff}
+                      testId={`diff-side-${side}`}
+                    >
+                      <span className="block font-mono text-[11px] text-[var(--unreal-orange)]">{mod.diff[side].label}</span>
+                      <span className="choice-code">{mod.diff[side].code}</span>
+                    </ChoiceButton>
                   ))}
                 </div>
               </div>
@@ -176,7 +222,18 @@ export default function Courses() {
                 {(result.results || []).map((item) => (
                   <div key={item.id} className="mt-2">{item.correct ? "Right." : "Not that one."} {item.why}</div>
                 ))}
-                {result.diff_why && <div className="mt-2">{result.diff_correct ? "The diff is right." : "The diff is the other side."} {result.diff_why}</div>}
+                {result.diff_why && (
+                  <div className="mt-2" data-testid="diff-note">
+                    {choiceNote({
+                      picked: diff,
+                      correct: mod.diff.bug,
+                      why: result.diff_why,
+                      revealed: true,
+                      rightText: "The diff is right.",
+                      wrongText: `The diff is the other side. ${result.diff_why}`,
+                    })}
+                  </div>
+                )}
                 <div className="mt-3 panel p-3" data-testid="course-takeaway">
                   <div className="eyebrow mb-1">Takeaway</div>
                   {result.takeaway}

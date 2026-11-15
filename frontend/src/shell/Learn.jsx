@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { api } from "../lib/api";
 import { challengesOf, readyChallenge } from "../lib/practice.mjs";
+import ChoiceButton from "../components/ChoiceButton";
 import { useShell } from "./ShellContext";
 
 export default function Learn() {
@@ -64,15 +65,16 @@ export default function Learn() {
             <div className="font-sub font-semibold text-[16px]">{challenge.prompt || challenge.title}</div>
             <div className="mt-3 flex flex-col gap-2">
               {(challenge.choices || []).map((choice, choiceIndex) => (
-                <button
-                  key={choice}
-                  type="button"
-                  className="ue-btn justify-start whitespace-normal text-left"
-                  data-testid={`learn-choice-${choiceIndex}`}
-                  onClick={() => answer(choiceIndex)}
-                >
-                  {choice}
-                </button>
+                <ChoiceButton
+                  key={`${index}-${choiceIndex}`}
+                  id={choiceIndex}
+                  label={choice}
+                  picked={picked}
+                  correct={challenge.answer}
+                  revealed={picked !== null}
+                  onPick={answer}
+                  testId={`learn-choice-${choiceIndex}`}
+                />
               ))}
             </div>
             {picked !== null && (

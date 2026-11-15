@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { api, errorText } from "../lib/api";
 import { keyDecisions, resolveConcept } from "../lib/references.mjs";
 import WhyNote from "../components/WhyNote";
+import ChoiceButton from "../components/ChoiceButton";
 import NodeGraph from "../components/NodeGraph";
 import { useShell } from "./ShellContext";
 
@@ -40,15 +41,16 @@ function ConceptStudy({ card, examples, onExample }) {
         <div className="font-sub font-semibold text-[15px]">{task.prompt}</div>
         <div className="mt-3 flex flex-col gap-2">
           {(task.choices || []).map((label, index) => (
-            <button
-              key={label}
-              type="button"
-              className="ue-btn justify-start whitespace-normal text-left"
-              data-testid={`concept-choice-${card.id}-${index}`}
-              onClick={() => setChoice(index)}
-            >
-              {label}
-            </button>
+            <ChoiceButton
+              key={`${card.id}-${index}`}
+              id={index}
+              label={label}
+              picked={choice}
+              correct={task.answer}
+              revealed={answered}
+              onPick={setChoice}
+              testId={`concept-choice-${card.id}-${index}`}
+            />
           ))}
         </div>
         {answered && (

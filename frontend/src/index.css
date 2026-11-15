@@ -179,6 +179,56 @@ html, body, #root {
   border-radius: 8px;
 }
 
+/* Quiz and predict options. These styles come after .ue-btn and .panel so a
+   selected answer stays visible. The body does not eat the click. */
+.choice {
+  display: flex;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+  cursor: pointer;
+  user-select: none;
+  text-align: left;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: "Outfit", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+.choice:hover { border-color: var(--unreal-orange); background: var(--surface-hover); }
+.choice:focus-visible { outline: 2px solid var(--unreal-orange); outline-offset: 2px; }
+.choice.selected {
+  border-color: var(--unreal-orange);
+  background: rgba(255, 107, 0, 0.16);
+  box-shadow: inset 3px 0 0 var(--unreal-orange);
+}
+.choice.correct {
+  border-color: var(--cpp-green);
+  background: rgba(0, 230, 118, 0.12);
+  box-shadow: inset 3px 0 0 var(--cpp-green);
+}
+.choice.incorrect {
+  border-color: var(--accent-red);
+  background: rgba(239, 68, 68, 0.12);
+  box-shadow: inset 3px 0 0 var(--accent-red);
+}
+.choice-body { pointer-events: none; min-width: 0; white-space: normal; display: block; width: 100%; }
+.choice-code {
+  display: block;
+  margin-top: 8px;
+  white-space: pre-wrap;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
 .chip {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 5px 10px;
