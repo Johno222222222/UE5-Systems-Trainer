@@ -113,7 +113,7 @@ static bool PackageAssets(const FString& PackageName, TArray<FAssetData>& Out)
 	return Registry.Get().GetAssetsByPackageName(*PackageName, Out) && Out.Num() > 0;
 }
 
-static FString PinCategory(const FString& Type)
+static FName PinCategory(const FString& Type)
 {
 	if (Type == TEXT("bool")) return UEdGraphSchema_K2::PC_Boolean;
 	if (Type == TEXT("float")) return UEdGraphSchema_K2::PC_Real;
