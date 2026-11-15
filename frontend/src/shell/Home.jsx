@@ -48,6 +48,7 @@ export default function Home() {
   const [loadError, setLoadError] = useState("");
   const [showRest, setShowRest] = useState(false);
   const [continueCards, setContinueCards] = useState([]);
+  const [studyPrograms, setStudyPrograms] = useState([]);
   const [introOn, setIntroOn] = useState(() => {
     try { return !introSeen(window.localStorage); }
     catch { return false; }
@@ -78,6 +79,9 @@ export default function Home() {
       .catch(() => {});
     api.get("/references")
       .then((r) => { if (alive) setExamples(r.data?.examples || []); })
+      .catch(() => {});
+    api.get("/study")
+      .then((r) => { if (alive) setStudyPrograms(r.data?.programs || []); })
       .catch(() => {});
     api.get("/progress")
       .then((r) => {
@@ -152,6 +156,26 @@ export default function Home() {
                   Read the notes
                 </button>
               </div>
+            </div>
+          </section>
+        )}
+
+        {studyPrograms.some((item) => item.complete) && (
+          <section className="mt-6" data-testid="program-complete-slot">
+            <div className="eyebrow mb-2">Program complete</div>
+            <div className="home-grid">
+              {studyPrograms.filter((item) => item.complete).map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className="panel home-card text-left"
+                  data-testid={`program-complete-${item.id}`}
+                  onClick={() => item.project_id && shell.issue({ type: "open-project", id: item.project_id })}
+                >
+                  <div className="font-sub font-semibold text-[14px]">{item.title}</div>
+                  <div className="mt-1 text-[11px] font-mono text-[var(--text-muted)]">Starter project is in your list</div>
+                </button>
+              ))}
             </div>
           </section>
         )}

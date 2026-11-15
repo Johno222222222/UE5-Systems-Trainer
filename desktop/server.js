@@ -13,6 +13,17 @@ const { LEARNING_PROMPT, learningGaps, fillLearning, learningUserText } = requir
 const { attachStarters } = require("./templateLearning");
 const { recordAnswer, emptyProgress } = require("./practice");
 const { catalog, forkPayload } = require("./references");
+const { loadPacks, loadPackSources, programById, courseById, taskById } = require("./packs");
+const {
+  ensureStudy,
+  checkTask,
+  acceptText,
+  scoreAttempt,
+  bumpSession,
+  queueReviews,
+  dueReviews,
+  answerReview,
+} = require("./study");
 const {
   ALLOWED_MODELS,
   DEFAULT_MODEL,
@@ -325,6 +336,18 @@ async function startServer(options = {}) {
   const fetchImpl = options.fetchImpl || (process.env.UE5_STUB_LLM === "1" ? stubFetch : undefined);
   const clock = options.now || (() => new Date());
   const staticDir = options.staticDir ? path.resolve(options.staticDir) : null;
+  const lessonPacks = options.packsDir
+    ? loadPacks(options.packsDir)
+    : loadPackSources({
+      appPath: options.appPath,
+      resourcesPath: options.resourcesPath,
+      userData: dataDir,
+    });
+  if (lessonPacks.problems.length) {
+    console.error(`Lesson packs: ${lessonPacks.problems.join(" | ")}`);
+  } else {
+    console.log(`Lesson packs: ${(lessonPacks.files || []).join(", ") || "(none)"}`);
+  }
 
   function filePath(fileId) {
     return path.join(dataDir, "files", fileId);
@@ -955,6 +978,10 @@ async function startServer(options = {}) {
           if (data.progress.practiced.some((row) => row.system_name === item.system_name)) continue;
           data.progress.practiced.unshift(item);
         }
+        if (saved.study && typeof saved.study === "object" && !Array.isArray(saved.study)) {
+          data.progress = ensureStudy(data.progress);
+          data.progress.study = saved.study;
+        }
       }
       return { imported: count, presets, progress: data.progress.answered.length };
     });
@@ -967,6 +994,207 @@ async function startServer(options = {}) {
     return store.update((data) => {
       data.progress = recordAnswer(data.progress, body || {});
       return data.progress;
+    });
+  });
+
+  function liveStudy() {
+    return ensureStudy(structuredClone(store.data.progress || {})).study;
+  }
+
+  function publicReview(item) {
+    return {
+      id: item.id,
+      prompt: item.prompt,
+      choices: item.choices,
+      show_from: item.show_from,
+      show_until: item.show_until,
+    };
+  }
+
+  function programState(study, id) {
+    return study.programs[id] || { complete: false, project_id: null, steps_done: [], tasks_passed: [] };
+  }
+
+  function programCard(program, study) {
+    const state = programState(study, program.id);
+    return {
+      id: program.id,
+      title: program.title,
+      summary: program.summary,
+      modules: (program.modules || []).map((mod) => ({ id: mod.id, title: mod.title, steps: (mod.steps || []).length })),
+      task_count: (program.modify_tasks || []).length,
+      complete: !!state.complete,
+      project_id: state.project_id || null,
+      steps_done: state.steps_done || [],
+      tasks_passed: state.tasks_passed || [],
+    };
+  }
+
+  function courseCard(course, study) {
+    const saved = study.courses[course.id] || { modules: {} };
+    return {
+      id: course.id,
+      title: course.title,
+      summary: course.summary,
+      pass_mark: course.pass_mark,
+      modules: (course.modules || []).map((mod) => ({
+        id: mod.id,
+        title: mod.title,
+        score: saved.modules?.[mod.id] || null,
+      })),
+    };
+  }
+
+  function findStep(program, stepId) {
+    for (const mod of program.modules || []) {
+      const step = (mod.steps || []).find((item) => item.id === stepId);
+      if (step) return step;
+    }
+    return null;
+  }
+
+  route("GET", "/api/study", async () => {
+    const study = liveStudy();
+    return {
+      session: study.session,
+      packs: lessonPacks.files,
+      problems: lessonPacks.problems || [],
+      programs: lessonPacks.programs.map((program) => programCard(program, study)),
+      courses: lessonPacks.courses.map((course) => courseCard(course, study)),
+      reviews: dueReviews(study, study.session).map(publicReview),
+    };
+  });
+
+  route("POST", "/api/study/session", async (req) => {
+    const body = await readJson(req);
+    return store.update((data) => {
+      data.progress = ensureStudy(data.progress);
+      const study = data.progress.study;
+      bumpSession(study, body.launch_id);
+      return { session: study.session, reviews: dueReviews(study, study.session).map(publicReview) };
+    });
+  });
+
+  route("POST", "/api/study/review", async (req) => {
+    const body = await readJson(req);
+    return store.update((data) => {
+      data.progress = ensureStudy(data.progress);
+      const study = data.progress.study;
+      const result = answerReview(study, body.id, body.choice);
+      return { correct: result.correct, found: result.found, why: result.correct || result.found ? result.why : "" };
+    });
+  });
+
+  route("GET", "/api/programs/:id", async (_req, params) => {
+    const program = programById(lessonPacks, params.id);
+    if (!program) throw new HttpError(404, "That program isn't in the packs.");
+    const study = liveStudy();
+    return { program, state: programState(study, program.id) };
+  });
+
+  route("POST", "/api/programs/:id/step", async (req, params) => {
+    const program = programById(lessonPacks, params.id);
+    if (!program) throw new HttpError(404, "That program isn't in the packs.");
+    const body = await readJson(req);
+    const step = findStep(program, body.step_id);
+    if (!step) throw new HttpError(404, "That step isn't in the program.");
+    const pass = acceptText(step.accept, body.answer);
+    return store.update((data) => {
+      data.progress = ensureStudy(data.progress);
+      const study = data.progress.study;
+      const state = programState(study, program.id);
+      if (pass && !(state.steps_done || []).includes(step.id)) state.steps_done = [...(state.steps_done || []), step.id];
+      study.programs[program.id] = state;
+      return { pass, detail: pass ? "That's the step." : "Not the answer this step is looking for.", steps_done: state.steps_done };
+    });
+  });
+
+  route("POST", "/api/programs/:id/tasks/:task_id/check", async (req, params) => {
+    const program = programById(lessonPacks, params.id);
+    if (!program) throw new HttpError(404, "That program isn't in the packs.");
+    const task = taskById(program, params.task_id);
+    if (!task) throw new HttpError(404, "That task isn't in the program.");
+    const body = await readJson(req);
+    const result = checkTask(task, body.settings || {});
+    return store.update((data) => {
+      data.progress = ensureStudy(data.progress);
+      const study = data.progress.study;
+      const state = programState(study, program.id);
+      if (result.pass && !(state.tasks_passed || []).includes(task.id)) {
+        state.tasks_passed = [...(state.tasks_passed || []), task.id];
+      }
+      study.programs[program.id] = state;
+      return { ...result, tasks_passed: state.tasks_passed };
+    });
+  });
+
+  route("POST", "/api/programs/:id/complete", async (_req, params) => {
+    const program = programById(lessonPacks, params.id);
+    if (!program?.starter?.system_name) throw new HttpError(404, "That program has no starter project.");
+    return store.update((data) => {
+      data.progress = ensureStudy(data.progress);
+      const study = data.progress.study;
+      const state = programState(study, program.id);
+      const existing = state.project_id ? findProject(data, state.project_id) : null;
+      const project = existing || createProject(data, {
+        name: program.title,
+        system: structuredClone(program.starter),
+        context: {
+          prompt: program.summary || "",
+          blueprint_class: "ActorComponent",
+          unreal_version: "5.8",
+          project_context: "",
+          references: [],
+          setup_done: [],
+        },
+        note: "Starter project from the program",
+      });
+      state.complete = true;
+      state.project_id = project.project_id;
+      study.programs[program.id] = state;
+      return { ...project, complete: true };
+    });
+  });
+
+  route("GET", "/api/courses/:id", async (_req, params) => {
+    const course = courseById(lessonPacks, params.id);
+    if (!course) throw new HttpError(404, "That course isn't in the packs.");
+    const study = liveStudy();
+    return { course, state: study.courses[course.id] || { modules: {} } };
+  });
+
+  route("POST", "/api/courses/:id/modules/:module_id/attempt", async (req, params) => {
+    const course = courseById(lessonPacks, params.id);
+    if (!course) throw new HttpError(404, "That course isn't in the packs.");
+    const mod = (course.modules || []).find((item) => item.id === params.module_id);
+    if (!mod) throw new HttpError(404, "That module isn't in the course.");
+    const body = await readJson(req);
+    const scored = scoreAttempt(mod, body || {}, course.pass_mark);
+    return store.update((data) => {
+      data.progress = ensureStudy(data.progress);
+      const study = data.progress.study;
+      if (scored.wrong.length) queueReviews(study, study.session, scored.wrong);
+      if (!study.courses[course.id]) study.courses[course.id] = { modules: {} };
+      const record = {
+        correct: scored.correct,
+        total: scored.total,
+        percent: scored.percent,
+        passed: scored.passed,
+        assignment_ok: scored.assignment_ok,
+        at: nowIso(),
+      };
+      study.courses[course.id].modules[mod.id] = record;
+      return {
+        ...record,
+        takeaway: mod.takeaway,
+        results: (mod.quiz || []).map((question) => ({
+          id: question.id,
+          correct: Number((body.answers || {})[question.id]) === question.answer,
+          why: question.why,
+        })),
+        diff_correct: body.diff === mod.diff?.bug,
+        diff_why: mod.diff?.why || "",
+      };
     });
   });
 

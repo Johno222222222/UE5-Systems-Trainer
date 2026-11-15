@@ -1,0 +1,980 @@
+{
+  "format": "ue5-architect-pack",
+  "version": 1,
+  "programs": [
+    {
+      "id": "tactical-fps",
+      "title": "Tactical FPS foundation",
+      "summary": "Interaction, inventory, weapon wear, and replication. You study the pieces, then load a starter project you can build on.",
+      "modules": [
+        {
+          "id": "interaction",
+          "title": "Interaction",
+          "steps": [
+            {
+              "id": "look-timer",
+              "title": "Look with a timer",
+              "reveal": {
+                "nodes": [
+                  "Timer Trace"
+                ],
+                "functions": [
+                  "BeginPlay",
+                  "TraceForFocus"
+                ]
+              },
+              "predict": {
+                "prompt": "When should this foundation look for an actor?",
+                "choices": [
+                  "On a timer, about ten times a second.",
+                  "On Tick, every frame.",
+                  "Once, in the constructor."
+                ],
+                "answer": 0,
+                "why": "A timer sleeps between looks. Tick would keep tracing while you stand still."
+              },
+              "why": "A timer sleeps between looks. Tick would keep tracing while you stand still.",
+              "task": "Which function starts the timer?",
+              "accept": [
+                "beginplay",
+                "begin play"
+              ]
+            },
+            {
+              "id": "call-interface",
+              "title": "One interface",
+              "reveal": {
+                "nodes": [
+                  "Call Interact"
+                ],
+                "functions": [
+                  "TryInteract",
+                  "ServerTryInteract"
+                ]
+              },
+              "predict": {
+                "prompt": "How does interact reach a door and a dropped weapon?",
+                "choices": [
+                  "Both implement one interface.",
+                  "The graph casts to each Blueprint.",
+                  "The character subclasses the door."
+                ],
+                "answer": 0,
+                "why": "A cast chain grows every time you add something the player can use."
+              },
+              "why": "A cast chain grows every time you add something the player can use.",
+              "task": "What does the component call instead of a cast?",
+              "accept": [
+                "interface"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "inventory",
+          "title": "Inventory",
+          "steps": [
+            {
+              "id": "stack-home",
+              "title": "The stack lives on the item",
+              "reveal": {
+                "nodes": [
+                  "Add Item"
+                ],
+                "functions": [
+                  "AddItem"
+                ]
+              },
+              "predict": {
+                "prompt": "Where does the max stack live?",
+                "choices": [
+                  "On the item data.",
+                  "In the widget click.",
+                  "On a new inventory subclass for each item."
+                ],
+                "answer": 0,
+                "why": "The widget draws slots. It does not own the rule, or the next item drifts."
+              },
+              "why": "The widget draws slots. It does not own the rule, or the next item drifts.",
+              "task": "Type the kind of asset the stack size is read from.",
+              "accept": [
+                "data asset",
+                "item data"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "weapon-wear",
+          "title": "Weapon wear",
+          "steps": [
+            {
+              "id": "wear-value",
+              "title": "Replicate the wear, not the mesh",
+              "reveal": {
+                "nodes": [
+                  "Apply Wear"
+                ],
+                "functions": [
+                  "AddWear",
+                  "OnRep_Wear"
+                ]
+              },
+              "predict": {
+                "prompt": "What should replicate when the gun wears?",
+                "choices": [
+                  "The wear value, with OnRep.",
+                  "The weapon mesh pointer.",
+                  "Nothing. Each client wears its own gun."
+                ],
+                "answer": 0,
+                "why": "The mesh is already on the weapon. Other machines need the number, then they play the scuff."
+              },
+              "why": "The mesh is already on the weapon. Other machines need the number, then they play the scuff.",
+              "task": "Type the name of the value that replicates.",
+              "accept": [
+                "wear"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "replication",
+          "title": "Replication notes",
+          "steps": [
+            {
+              "id": "damage-authority",
+              "title": "The server owns the change",
+              "reveal": {
+                "nodes": [
+                  "Apply Damage"
+                ],
+                "functions": [
+                  "ApplyDamage",
+                  "ServerTryInteract"
+                ]
+              },
+              "predict": {
+                "prompt": "A client presses fire and something loses health. Where does the damage run?",
+                "choices": [
+                  "On the authority.",
+                  "On the client that pressed fire.",
+                  "On Tick, on every machine."
+                ],
+                "answer": 0,
+                "why": "The client can ask. The server decides the health that everyone else sees."
+              },
+              "why": "The client can ask. The server decides the health that everyone else sees.",
+              "task": "Type where ApplyDamage is allowed to change health.",
+              "accept": [
+                "authority",
+                "server"
+              ]
+            }
+          ]
+        }
+      ],
+      "modify_tasks": [
+        {
+          "id": "trace-500-ignore",
+          "title": "A 500 cm trace that ignores the player",
+          "prompt": "Set the look trace to 500 cm and make it ignore the player who is looking.",
+          "fields": [
+            {
+              "key": "trace_distance",
+              "label": "Trace distance",
+              "kind": "number",
+              "unit": "cm"
+            },
+            {
+              "key": "ignore_player",
+              "label": "Ignore the player",
+              "kind": "bool"
+            }
+          ],
+          "pass": {
+            "all": [
+              {
+                "key": "trace_distance",
+                "eq": 500
+              },
+              {
+                "key": "ignore_player",
+                "eq": true
+              }
+            ]
+          },
+          "hints": [
+            {
+              "key": "trace_distance",
+              "text": "The trace length is not the one this task asks for."
+            },
+            {
+              "key": "ignore_player",
+              "text": "The trace still considers the player."
+            }
+          ],
+          "pass_detail": "500 cm, and the player is ignored.",
+          "fail_detail": "Those settings do not pass this task."
+        },
+        {
+          "id": "timer-not-tick",
+          "title": "Timer, not Tick",
+          "prompt": "The look check should run on a timer of about a tenth of a second. Tick stays off.",
+          "fields": [
+            {
+              "key": "use_tick",
+              "label": "Run the check on Tick",
+              "kind": "bool"
+            },
+            {
+              "key": "trace_interval",
+              "label": "Timer period",
+              "kind": "number",
+              "unit": "s"
+            }
+          ],
+          "pass": {
+            "all": [
+              {
+                "key": "use_tick",
+                "eq": false
+              },
+              {
+                "key": "trace_interval",
+                "gte": 0.05
+              },
+              {
+                "key": "trace_interval",
+                "lte": 0.2
+              }
+            ]
+          },
+          "hints": [
+            {
+              "key": "use_tick",
+              "text": "Tick is still doing the look check."
+            },
+            {
+              "key": "trace_interval",
+              "text": "The timer period is outside the range this task allows."
+            }
+          ],
+          "pass_detail": "Tick is off, and the timer period is about a tenth of a second.",
+          "fail_detail": "Those settings do not pass this task."
+        },
+        {
+          "id": "stack-on-data",
+          "title": "Stack size on the item data",
+          "prompt": "A bandage stacks to 10. The number lives on the item data, not in the widget.",
+          "fields": [
+            {
+              "key": "max_stack",
+              "label": "Max stack",
+              "kind": "number"
+            },
+            {
+              "key": "stored_on",
+              "label": "The number lives on",
+              "kind": "choice",
+              "options": [
+                {
+                  "value": "data_asset",
+                  "label": "Item data"
+                },
+                {
+                  "value": "widget",
+                  "label": "Widget click"
+                },
+                {
+                  "value": "subclass",
+                  "label": "A subclass per item"
+                }
+              ]
+            }
+          ],
+          "pass": {
+            "all": [
+              {
+                "key": "max_stack",
+                "eq": 10
+              },
+              {
+                "key": "stored_on",
+                "eq": "data_asset"
+              }
+            ]
+          },
+          "hints": [
+            {
+              "key": "max_stack",
+              "text": "The stack size is not the one this task asks for."
+            },
+            {
+              "key": "stored_on",
+              "text": "The stack size is still owned by the wrong place."
+            }
+          ],
+          "pass_detail": "Max stack is 10, on the item data.",
+          "fail_detail": "Those settings do not pass this task."
+        },
+        {
+          "id": "wear-repnotify",
+          "title": "Replicate wear, not the mesh",
+          "prompt": "Other players should see the gun wear down. Do not replicate the mesh pointer.",
+          "fields": [
+            {
+              "key": "replicate_wear",
+              "label": "Replicate the wear value",
+              "kind": "bool"
+            },
+            {
+              "key": "replicate_mesh",
+              "label": "Replicate the mesh pointer",
+              "kind": "bool"
+            }
+          ],
+          "pass": {
+            "all": [
+              {
+                "key": "replicate_wear",
+                "eq": true
+              },
+              {
+                "key": "replicate_mesh",
+                "eq": false
+              }
+            ]
+          },
+          "hints": [
+            {
+              "key": "replicate_wear",
+              "text": "The wear value is not replicated."
+            },
+            {
+              "key": "replicate_mesh",
+              "text": "The mesh pointer should stay local."
+            }
+          ],
+          "pass_detail": "Wear replicates. The mesh does not.",
+          "fail_detail": "Those settings do not pass this task."
+        },
+        {
+          "id": "damage-on-authority",
+          "title": "Damage on the authority",
+          "prompt": "Health may change in one place. Pick where ApplyDamage runs.",
+          "fields": [
+            {
+              "key": "run_on",
+              "label": "ApplyDamage runs",
+              "kind": "choice",
+              "options": [
+                {
+                  "value": "authority",
+                  "label": "On the authority"
+                },
+                {
+                  "value": "client",
+                  "label": "On the firing client"
+                },
+                {
+                  "value": "tick",
+                  "label": "On Tick, on every machine"
+                }
+              ]
+            }
+          ],
+          "pass": {
+            "all": [
+              {
+                "key": "run_on",
+                "eq": "authority"
+              }
+            ]
+          },
+          "hints": [
+            {
+              "key": "run_on",
+              "text": "Damage is still running in the wrong place."
+            }
+          ],
+          "pass_detail": "Damage runs on the authority.",
+          "fail_detail": "Those settings do not pass this task."
+        },
+        {
+          "id": "ui-listens",
+          "title": "The prompt listens",
+          "prompt": "The interact prompt should update when focus changes. It should not poll.",
+          "fields": [
+            {
+              "key": "ui_mode",
+              "label": "The prompt updates",
+              "kind": "choice",
+              "options": [
+                {
+                  "value": "event",
+                  "label": "When On Focus Changed fires"
+                },
+                {
+                  "value": "tick",
+                  "label": "On Tick, by reading focus"
+                }
+              ]
+            }
+          ],
+          "pass": {
+            "all": [
+              {
+                "key": "ui_mode",
+                "eq": "event"
+              }
+            ]
+          },
+          "hints": [
+            {
+              "key": "ui_mode",
+              "text": "The prompt is still polling."
+            }
+          ],
+          "pass_detail": "The prompt listens for the focus event.",
+          "fail_detail": "Those settings do not pass this task."
+        }
+      ],
+      "compares": [
+        {
+          "id": "blueprint-vs-cpp",
+          "title": "Blueprint actor or C++ component",
+          "feature": "Who owns the look trace",
+          "note": "The foundation uses a component. Any pawn can gain interaction without a new character class.",
+          "left": {
+            "label": "Blueprint actor",
+            "body": "A new BP_Interactor is placed in the level.\nThe character casts to it to trace.\nA second character needs a second actor, or a child of the first character."
+          },
+          "right": {
+            "label": "C++ component",
+            "body": "UTacticalInteractComponent sits on the pawn.\nBeginPlay starts the timer.\nThe character does not subclass for this, and the door only implements the interface."
+          }
+        },
+        {
+          "id": "tick-vs-event",
+          "title": "Tick or an event",
+          "feature": "How the look check and the prompt run",
+          "note": "The foundation uses a timer for the trace and a delegate for the prompt. Tick stays off.",
+          "left": {
+            "label": "Tick",
+            "body": "TickComponent calls TraceForFocus every frame.\nThe widget also reads FocusedActor on Tick.\nBoth keep running while the player stands still."
+          },
+          "right": {
+            "label": "Event-driven",
+            "body": "BeginPlay sets a timer for TraceForFocus.\nOnFocusChanged.Broadcast tells the prompt.\nTick is left off."
+          }
+        }
+      ],
+      "map": {
+        "nodes": [
+          {
+            "id": "input",
+            "title": "Input",
+            "detail": "The key press calls Try Interact. It does not trace, and it does not change health."
+          },
+          {
+            "id": "interaction",
+            "title": "Interaction",
+            "detail": "A timer traces 500 cm from the camera, ignores the player, and calls the interface on the authority."
+          },
+          {
+            "id": "health",
+            "title": "Health",
+            "detail": "ApplyDamage runs on the authority. Health replicates with OnRep so the UI can play the hit."
+          },
+          {
+            "id": "ui",
+            "title": "UI",
+            "detail": "The prompt and the health readout listen to events. They do not tick, and they do not decide the rules."
+          },
+          {
+            "id": "inventory",
+            "title": "Inventory",
+            "detail": "AddItem reads MaxStack from the item data. The widget only draws what the component already stored."
+          },
+          {
+            "id": "weapon",
+            "title": "Weapon wear",
+            "detail": "AddWear changes a replicated float. The mesh stays on the weapon."
+          }
+        ],
+        "edges": [
+          {
+            "from": "input",
+            "to": "interaction"
+          },
+          {
+            "from": "interaction",
+            "to": "health"
+          },
+          {
+            "from": "interaction",
+            "to": "inventory"
+          },
+          {
+            "from": "interaction",
+            "to": "ui"
+          },
+          {
+            "from": "health",
+            "to": "ui"
+          },
+          {
+            "from": "weapon",
+            "to": "ui"
+          }
+        ]
+      },
+      "starter": {
+        "id": "tactical-fps-foundation",
+        "system_name": "Tactical FPS Foundation",
+        "summary": "Interaction, inventory, weapon wear, and health for a blank UE 5.8 C++ project. The same code builds on 5.7. Tick stays off.",
+        "tunable_parameters": [
+          {
+            "key": "trace_distance",
+            "label": "Trace Distance",
+            "value": 500,
+            "min": 50,
+            "max": 800,
+            "step": 10,
+            "unit": "cm"
+          },
+          {
+            "key": "trace_interval",
+            "label": "Trace Interval",
+            "value": 0.1,
+            "min": 0.05,
+            "max": 0.5,
+            "step": 0.05,
+            "unit": "s"
+          },
+          {
+            "key": "wear_per_shot",
+            "label": "Wear Per Shot",
+            "value": 2,
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "unit": "%"
+          }
+        ],
+        "modules": [
+          {
+            "name": "Interaction",
+            "included": true,
+            "description": "Timer trace, ignore the player, interface call on the authority."
+          },
+          {
+            "name": "Inventory",
+            "included": true,
+            "description": "AddItem reads MaxStack from UTacticalItemData."
+          },
+          {
+            "name": "Weapon Wear",
+            "included": true,
+            "description": "A replicated wear float with OnRep. The mesh is not replicated."
+          },
+          {
+            "name": "Health",
+            "included": true,
+            "description": "ApplyDamage runs only with authority."
+          }
+        ],
+        "blueprint_pseudocode": "Event BeginPlay\n  Set Timer (Trace For Focus, Trace Interval, looping)\nWHY: Tick stays off. The timer is enough for a look prompt.\n\nFunction Trace For Focus\n  Line trace from the camera by Trace Distance\n  Ignore the player\n  If the hit implements Interact, set Focus and broadcast\nWHY: The prompt listens. It does not poll.\n\nFunction Try Interact\n  If no authority, Server Try Interact\n  Else call Interact on the focused actor\nWHY: The interface runs where the server can see it.\n\nFunction Add Item\n  Read Max Stack from the item data\n  Reject the add when the stack is full\nWHY: The widget does not own the number.\n\nFunction Add Wear\n  If authority, add Wear Per Shot and replicate Wear\nWHY: OnRep plays the scuff. The mesh stays put.\n\nFunction Apply Damage\n  If authority, subtract from Health\nWHY: A client asking is not the same as the client deciding.",
+        "cpp_header": "#pragma once\n\n#include \"CoreMinimal.h\"\n#include \"Components/ActorComponent.h\"\n#include \"Engine/DataAsset.h\"\n#include \"Net/UnrealNetwork.h\"\n#include \"TacticalFPSFoundation.generated.h\"\n\nUCLASS(BlueprintType)\nclass UTacticalItemData : public UDataAsset\n{\n  GENERATED_BODY()\npublic:\n  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=\"Item\")\n  FName ItemId;\n\n  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=\"Item\")\n  int32 MaxStack = 10;\n};\n\nUINTERFACE(BlueprintType)\nclass UTacticalInteractable : public UInterface\n{\n  GENERATED_BODY()\n};\n\nclass ITacticalInteractable\n{\n  GENERATED_BODY()\npublic:\n  virtual void Interact(AActor* User) = 0;\n};\n\nDECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTacticalFocusChanged, AActor*, Focused);\n\nUCLASS(ClassGroup=(Game), meta=(BlueprintSpawnableComponent))\nclass UTacticalInteractComponent : public UActorComponent\n{\n  GENERATED_BODY()\npublic:\n  UTacticalInteractComponent();\n  virtual void BeginPlay() override;\n\n  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=\"Interact\")\n  float TraceDistance = 500.f;\n\n  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=\"Interact\")\n  float TraceInterval = 0.1f;\n\n  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=\"Interact\")\n  bool bIgnorePlayer = true;\n\n  UPROPERTY(BlueprintAssignable, Category=\"Interact\")\n  FTacticalFocusChanged OnFocusChanged;\n\n  UFUNCTION(BlueprintCallable, Category=\"Interact\")\n  void TryInteract();\n\n  UFUNCTION(Server, Reliable)\n  void ServerTryInteract();\n\nprotected:\n  UPROPERTY(ReplicatedUsing=OnRep_LastInteractId)\n  int32 LastInteractId = 0;\n\n  UFUNCTION()\n  void OnRep_LastInteractId();\n\n  void TraceForFocus();\n\n  virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;\n\n  FTimerHandle TraceTimer;\n  TWeakObjectPtr<AActor> FocusedActor;\n};\n\nUCLASS(ClassGroup=(Game), meta=(BlueprintSpawnableComponent))\nclass UTacticalInventoryComponent : public UActorComponent\n{\n  GENERATED_BODY()\npublic:\n  UFUNCTION(BlueprintCallable, Category=\"Inventory\")\n  bool AddItem(UTacticalItemData* Item);\n\nprotected:\n  UPROPERTY()\n  TArray<UTacticalItemData*> Items;\n};\n\nUCLASS(ClassGroup=(Game), meta=(BlueprintSpawnableComponent))\nclass UTacticalWeaponWearComponent : public UActorComponent\n{\n  GENERATED_BODY()\npublic:\n  UTacticalWeaponWearComponent();\n\n  UFUNCTION(BlueprintCallable, Category=\"Weapon\")\n  void AddWear(float Amount);\n\n  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=\"Weapon\")\n  float WearPerShot = 0.02f;\n\nprotected:\n  UPROPERTY(ReplicatedUsing=OnRep_Wear)\n  float Wear = 0.f;\n\n  UFUNCTION()\n  void OnRep_Wear();\n\n  virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;\n};\n\nUCLASS(ClassGroup=(Game), meta=(BlueprintSpawnableComponent))\nclass UTacticalHealthComponent : public UActorComponent\n{\n  GENERATED_BODY()\npublic:\n  UTacticalHealthComponent();\n\n  UFUNCTION(BlueprintCallable, Category=\"Health\")\n  void ApplyDamage(float Amount);\n\nprotected:\n  UPROPERTY(ReplicatedUsing=OnRep_Health)\n  float Health = 100.f;\n\n  UFUNCTION()\n  void OnRep_Health();\n\n  virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;\n};\n",
+        "cpp_source": "#include \"TacticalFPSFoundation.h\"\n#include \"Engine/World.h\"\n#include \"GameFramework/Pawn.h\"\n\nUTacticalInteractComponent::UTacticalInteractComponent()\n{\n  SetIsReplicatedByDefault(true);\n  PrimaryComponentTick.bCanEverTick = false;\n}\n\nvoid UTacticalInteractComponent::BeginPlay()\n{\n  Super::BeginPlay();\n  const float Period = TraceInterval > 0.f ? TraceInterval : 0.1f;\n  GetWorld()->GetTimerManager().SetTimer(TraceTimer, this, &UTacticalInteractComponent::TraceForFocus, Period, true);\n}\n\nvoid UTacticalInteractComponent::TraceForFocus()\n{\n  APawn* OwnerPawn = Cast<APawn>(GetOwner());\n  if (!OwnerPawn) return;\n  const FVector Start = OwnerPawn->GetPawnViewLocation();\n  const FVector End = Start + OwnerPawn->GetControlRotation().Vector() * TraceDistance;\n  FCollisionQueryParams Params(SCENE_QUERY_STAT(TacticalInteract), false);\n  if (bIgnorePlayer) Params.AddIgnoredActor(OwnerPawn);\n  FHitResult Hit;\n  const bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params);\n  AActor* Next = nullptr;\n  if (bHit && Hit.GetActor() && Hit.GetActor()->GetClass()->ImplementsInterface(UTacticalInteractable::StaticClass()))\n  {\n    Next = Hit.GetActor();\n  }\n  if (Next == FocusedActor.Get()) return;\n  FocusedActor = Next;\n  OnFocusChanged.Broadcast(Next);\n}\n\nvoid UTacticalInteractComponent::TryInteract()\n{\n  if (!FocusedActor.IsValid() || !GetOwner()) return;\n  if (GetOwner()->HasAuthority()) ServerTryInteract_Implementation();\n  else ServerTryInteract();\n}\n\nvoid UTacticalInteractComponent::ServerTryInteract_Implementation()\n{\n  AActor* Target = FocusedActor.Get();\n  if (!Target || !GetOwner() || !GetOwner()->HasAuthority()) return;\n  if (ITacticalInteractable* Interactable = Cast<ITacticalInteractable>(Target))\n  {\n    Interactable->Interact(GetOwner());\n    LastInteractId++;\n  }\n}\n\nvoid UTacticalInteractComponent::OnRep_LastInteractId()\n{\n  if (LastInteractId > 0) OnFocusChanged.Broadcast(FocusedActor.Get());\n}\n\nvoid UTacticalInteractComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const\n{\n  Super::GetLifetimeReplicatedProps(OutLifetimeProps);\n  DOREPLIFETIME(UTacticalInteractComponent, LastInteractId);\n}\n\nbool UTacticalInventoryComponent::AddItem(UTacticalItemData* Item)\n{\n  if (!Item || !GetOwner() || !GetOwner()->HasAuthority()) return false;\n  int32 Count = 0;\n  for (UTacticalItemData* Existing : Items)\n  {\n    if (Existing && Existing->ItemId == Item->ItemId) Count++;\n  }\n  if (Count >= Item->MaxStack) return false;\n  Items.Add(Item);\n  return true;\n}\n\nUTacticalWeaponWearComponent::UTacticalWeaponWearComponent()\n{\n  SetIsReplicatedByDefault(true);\n  PrimaryComponentTick.bCanEverTick = false;\n}\n\nvoid UTacticalWeaponWearComponent::AddWear(float Amount)\n{\n  if (!GetOwner() || !GetOwner()->HasAuthority()) return;\n  Wear = FMath::Clamp(Wear + (Amount > 0.f ? Amount : WearPerShot), 0.f, 1.f);\n}\n\nvoid UTacticalWeaponWearComponent::OnRep_Wear()\n{\n  Wear = FMath::Clamp(Wear, 0.f, 1.f);\n}\n\nvoid UTacticalWeaponWearComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const\n{\n  Super::GetLifetimeReplicatedProps(OutLifetimeProps);\n  DOREPLIFETIME(UTacticalWeaponWearComponent, Wear);\n}\n\nUTacticalHealthComponent::UTacticalHealthComponent()\n{\n  SetIsReplicatedByDefault(true);\n  PrimaryComponentTick.bCanEverTick = false;\n}\n\nvoid UTacticalHealthComponent::ApplyDamage(float Amount)\n{\n  if (!GetOwner() || !GetOwner()->HasAuthority()) return;\n  Health = FMath::Clamp(Health - Amount, 0.f, 100.f);\n}\n\nvoid UTacticalHealthComponent::OnRep_Health()\n{\n  Health = FMath::Clamp(Health, 0.f, 100.f);\n}\n\nvoid UTacticalHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const\n{\n  Super::GetLifetimeReplicatedProps(OutLifetimeProps);\n  DOREPLIFETIME(UTacticalHealthComponent, Health);\n}\n",
+        "setup_guide": [
+          {
+            "step": 1,
+            "title": "Drop the two files into your game module",
+            "detail": "Put TacticalFPSFoundation.h and .cpp in Source/<YourGame>. A blank C++ project already depends on Engine.",
+            "why": "No extra plugin is required. The code stays on Engine types that 5.7 and 5.8 share."
+          },
+          {
+            "step": 2,
+            "title": "Add the components to the character",
+            "detail": "Add interaction, inventory, weapon wear, and health to the player character.",
+            "why": "The character does not subclass for each system."
+          },
+          {
+            "step": 3,
+            "title": "Implement the interface on usable actors",
+            "detail": "Doors and pickups implement ITacticalInteractable.",
+            "why": "One call covers the next usable actor."
+          },
+          {
+            "step": 4,
+            "title": "Bind the prompt to On Focus Changed",
+            "detail": "The widget shows while focus is set.",
+            "why": "The UI listens. It does not tick."
+          }
+        ],
+        "node_graph_nodes": [
+          {
+            "id": "n1",
+            "label": "Timer Trace",
+            "node_type": "event",
+            "x": 40,
+            "y": 120,
+            "inputs": [],
+            "outputs": [
+              "exec"
+            ]
+          },
+          {
+            "id": "n2",
+            "label": "Call Interact",
+            "node_type": "function",
+            "x": 280,
+            "y": 120,
+            "inputs": [
+              "exec"
+            ],
+            "outputs": [
+              "exec"
+            ]
+          },
+          {
+            "id": "n3",
+            "label": "Add Item",
+            "node_type": "function",
+            "x": 520,
+            "y": 120,
+            "inputs": [
+              "exec"
+            ],
+            "outputs": [
+              "exec"
+            ]
+          },
+          {
+            "id": "n4",
+            "label": "Apply Wear",
+            "node_type": "function",
+            "x": 760,
+            "y": 40,
+            "inputs": [
+              "exec"
+            ],
+            "outputs": [
+              "exec"
+            ]
+          },
+          {
+            "id": "n5",
+            "label": "Apply Damage",
+            "node_type": "function",
+            "x": 760,
+            "y": 220,
+            "inputs": [
+              "exec"
+            ],
+            "outputs": [
+              "exec"
+            ]
+          }
+        ],
+        "node_graph_edges": [
+          {
+            "from_node": "n1",
+            "to_node": "n2",
+            "kind": "exec"
+          },
+          {
+            "from_node": "n2",
+            "to_node": "n3",
+            "kind": "exec"
+          },
+          {
+            "from_node": "n3",
+            "to_node": "n4",
+            "kind": "exec"
+          },
+          {
+            "from_node": "n3",
+            "to_node": "n5",
+            "kind": "exec"
+          }
+        ],
+        "network_notes": "Focus stays local. Interact, wear, and health change on the authority and replicate with OnRep. Built for a blank UE 5.8 C++ project and the same code on 5.7.",
+        "applied_changes": [],
+        "shared_attributes": []
+      }
+    }
+  ],
+  "courses": [
+    {
+      "id": "tactical-fps-course",
+      "title": "Tactical FPS, first course",
+      "summary": "Four short modules. A quiz, a diff, a practical line, and a takeaway in each one.",
+      "pass_mark": 70,
+      "modules": [
+        {
+          "id": "look",
+          "title": "Looking at the world",
+          "takeaway": "Trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking.",
+          "assignment": {
+            "prompt": "In one line, say how far the trace is and that it ignores the player.",
+            "accept": [
+              "500",
+              "ignore"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "look-when",
+              "prompt": "What runs the look trace?",
+              "choices": [
+                "A timer.",
+                "Tick.",
+                "The constructor."
+              ],
+              "answer": 0,
+              "why": "Tick would run while the player stands still.",
+              "review_prompt": "How is the look check scheduled?"
+            },
+            {
+              "id": "look-far",
+              "prompt": "How far is the foundation trace?",
+              "choices": [
+                "500 cm.",
+                "50 cm.",
+                "The whole level."
+              ],
+              "answer": 0,
+              "why": "500 cm reaches a door without scanning the map.",
+              "review_prompt": "What distance does this course use for the look trace?"
+            },
+            {
+              "id": "look-self",
+              "prompt": "Should the trace hit the player holding the camera?",
+              "choices": [
+                "No. The player is ignored.",
+                "Yes. The player is a valid target.",
+                "Only on Tick."
+              ],
+              "answer": 0,
+              "why": "Ignoring the owner stops the prompt sticking to your own capsule.",
+              "review_prompt": "Does the foundation trace include the owner?"
+            }
+          ],
+          "diff": {
+            "id": "look-diff",
+            "prompt": "Which version has the bug?",
+            "review_prompt": "One of these look checks is the broken one. Which side?",
+            "why": "The right-hand check runs every frame and can hit the player.",
+            "bug": "right",
+            "left": {
+              "label": "Timer, player ignored",
+              "code": "SetTimer(TraceForFocus, 0.1, loop);\nParams.AddIgnoredActor(Owner);"
+            },
+            "right": {
+              "label": "Tick, player included",
+              "code": "void Tick() { TraceForFocus(); }\n// owner is a valid hit"
+            }
+          }
+        },
+        {
+          "id": "carry",
+          "title": "What the player carries",
+          "takeaway": "The item data owns the stack size. The widget only draws the slots the component already decided.",
+          "assignment": {
+            "prompt": "Name where Max Stack lives, in a few words.",
+            "accept": [
+              "data asset",
+              "item data"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "carry-where",
+              "prompt": "Where does the max stack live?",
+              "choices": [
+                "On the item data.",
+                "In the widget click.",
+                "On a subclass per item."
+              ],
+              "answer": 0,
+              "why": "A number in the click drifts from the next item.",
+              "review_prompt": "Who owns the stack limit?"
+            },
+            {
+              "id": "carry-widget",
+              "prompt": "What should the widget do?",
+              "choices": [
+                "Draw the slots.",
+                "Decide the max stack.",
+                "Trace for pickups."
+              ],
+              "answer": 0,
+              "why": "The widget is a view.",
+              "review_prompt": "The inventory widget's job is to do what?"
+            },
+            {
+              "id": "carry-who",
+              "prompt": "Who may add an item?",
+              "choices": [
+                "The authority.",
+                "Any client, locally.",
+                "Tick."
+              ],
+              "answer": 0,
+              "why": "A local add desyncs the other machines.",
+              "review_prompt": "An item add has to run where?"
+            }
+          ],
+          "diff": {
+            "id": "carry-diff",
+            "prompt": "Which version has the bug?",
+            "review_prompt": "One stack rule is in the wrong place. Which side?",
+            "why": "Hardcoding 99 in the click ignores the item data.",
+            "bug": "right",
+            "left": {
+              "label": "Read the data",
+              "code": "if (Count >= Item->MaxStack) return false;"
+            },
+            "right": {
+              "label": "Hardcode the click",
+              "code": "if (WidgetCount >= 99) return;\n// click handler"
+            }
+          }
+        },
+        {
+          "id": "wear",
+          "title": "Wear and replication",
+          "takeaway": "Replicate the wear value. OnRep plays the scuff. Leave the mesh where it is.",
+          "assignment": {
+            "prompt": "Name the replicated value and the function that runs when it arrives.",
+            "accept": [
+              "wear",
+              "onrep"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "wear-what",
+              "prompt": "What replicates when the gun wears?",
+              "choices": [
+                "The wear value.",
+                "The mesh pointer.",
+                "The whole weapon actor, every frame."
+              ],
+              "answer": 0,
+              "why": "Clients need the number, not a second mesh.",
+              "review_prompt": "Which property should the wear system replicate?"
+            },
+            {
+              "id": "wear-onrep",
+              "prompt": "What is OnRep for?",
+              "choices": [
+                "To play the local reaction after the value arrives.",
+                "To trace again.",
+                "To tick the wear down."
+              ],
+              "answer": 0,
+              "why": "OnRep runs on the machines that received the new value.",
+              "review_prompt": "After wear replicates, which function should react?"
+            },
+            {
+              "id": "wear-mesh",
+              "prompt": "Should the mesh pointer replicate?",
+              "choices": [
+                "No.",
+                "Yes.",
+                "Only on Tick."
+              ],
+              "answer": 0,
+              "why": "The mesh is already on the weapon.",
+              "review_prompt": "Does the wear system replicate the mesh?"
+            }
+          ],
+          "diff": {
+            "id": "wear-diff",
+            "prompt": "Which version has the bug?",
+            "review_prompt": "One of these replication lines is the wrong property. Which side?",
+            "why": "Replicating the mesh shares a pointer. Wear is the value that changed.",
+            "bug": "right",
+            "left": {
+              "label": "Wear",
+              "code": "DOREPLIFETIME(UTacticalWeaponWearComponent, Wear);"
+            },
+            "right": {
+              "label": "Mesh",
+              "code": "DOREPLIFETIME(UTacticalWeaponWearComponent, WeaponMesh);"
+            }
+          }
+        },
+        {
+          "id": "connect",
+          "title": "How the systems connect",
+          "takeaway": "Input asks. Interaction decides. Health and inventory change on the authority. UI listens.",
+          "assignment": {
+            "prompt": "Say what input calls, and how the prompt hears about focus.",
+            "accept": [
+              "interact",
+              "event"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "connect-input",
+              "prompt": "What should input call?",
+              "choices": [
+                "Try Interact.",
+                "Trace For Focus.",
+                "Apply Damage, directly."
+              ],
+              "answer": 0,
+              "why": "Input is a request. The interaction component does the trace.",
+              "review_prompt": "The interact key should call which function?"
+            },
+            {
+              "id": "connect-ui",
+              "prompt": "How does the prompt update?",
+              "choices": [
+                "It binds to On Focus Changed.",
+                "It reads focus on Tick.",
+                "It casts to every door."
+              ],
+              "answer": 0,
+              "why": "The event fires when focus actually changes.",
+              "review_prompt": "The prompt should update by doing what?"
+            },
+            {
+              "id": "connect-health",
+              "prompt": "Who changes health?",
+              "choices": [
+                "The authority.",
+                "The widget.",
+                "Every client on Tick."
+              ],
+              "answer": 0,
+              "why": "The UI shows health. It does not subtract it.",
+              "review_prompt": "Health is allowed to change where?"
+            }
+          ],
+          "diff": {
+            "id": "connect-diff",
+            "prompt": "Which version has the bug?",
+            "review_prompt": "One prompt update is the broken one. Which side?",
+            "why": "Reading focus on Tick keeps the widget awake and hides the moment focus changed.",
+            "bug": "right",
+            "left": {
+              "label": "Listen",
+              "code": "OnFocusChanged.AddDynamic(this, &UPrompt::HandleFocus);"
+            },
+            "right": {
+              "label": "Poll",
+              "code": "void Tick() { Prompt->SetActor(Component->FocusedActor); }"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
