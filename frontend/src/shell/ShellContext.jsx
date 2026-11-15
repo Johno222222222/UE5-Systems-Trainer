@@ -64,6 +64,14 @@ export function ShellProvider({ children }) {
     api.get("/app").then((r) => {
       if (r.data?.version) setAppInfo(r.data);
     }).catch(() => {});
+    try {
+      let launch = window.sessionStorage.getItem("ue5_architect_launch");
+      if (!launch) {
+        launch = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        window.sessionStorage.setItem("ue5_architect_launch", launch);
+      }
+      api.post("/study/session", { launch_id: launch }).catch(() => {});
+    } catch { /* a blocked session store should not stop the shell */ }
   }, []);
 
   // An older browser library still needs the Tools migration question.

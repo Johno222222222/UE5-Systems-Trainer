@@ -7,6 +7,8 @@ import EmptySection from "./EmptySection";
 import Workspace from "../pages/Workspace";
 import Learn from "./Learn";
 import References from "./References";
+import Programs from "./Programs";
+import Courses from "./Courses";
 
 export default function AppShell() {
   const shell = useShell();
@@ -40,6 +42,8 @@ export default function AppShell() {
         </div>
         {screen === "learn" && <Learn />}
         {screen === "references" && <References />}
+        {screen === "programs" && <Programs />}
+        {screen === "courses" && <Courses />}
         {screen === "empty" && <EmptySection section={section} onAction={onEmptyAction} />}
         {screen === "remembered" && (
           <EmptySection section={section} open={shell.memory[section.id]} onAction={onEmptyAction} />

@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.5.0
+
+Stage 5, programs and courses.
+
+- Programs and Courses are in the top bar. A program walks you from studying a system to loading one you can build on. The first program is the Tactical FPS foundation: interaction, inventory, weapon wear, and replication notes.
+- Each guided step shows the functions or nodes it is about, asks you to predict the outcome, shows the WHY, then gives a small task. Checking the task does not call the model.
+- Modify Without Docs is a set of settings checks. A 500 cm trace that ignores the player is one of them. A task passes only with the settings it asks for. There are six, and none of them call the model.
+- Finishing the program loads its starter project into Tools, with interaction, inventory, weapon wear, and health together. Home marks the program complete. The C++ is written for a blank UE 5.8 game module, and the same files build on 5.7.
+- Compare Approaches puts the same feature side by side: a Blueprint actor against a C++ component, and Tick against an event.
+- The system map is a clickable picture of how input, interaction, health, and UI connect.
+- The first course has four modules. Each one has a scored quiz, a diff that asks which side has the bug, a short assignment, and a takeaway. The pass mark is 70. Scores stay on this computer, and a retake replaces the saved score.
+- A quiz you get wrong comes back in the next three sessions, in different words. It does not repeat in the session you missed it.
+- Programs and courses are JSON files in `content/packs`. The app reads that folder when it starts. Add a file, restart, and it shows up. The file shape is in `content/packs/FORMAT.md`.
+- A project saved before this version still opens.
+
 ## 1.4.0
 
 Stage 4, references.
