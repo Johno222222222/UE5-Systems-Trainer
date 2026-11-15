@@ -17,6 +17,7 @@ private:
 	FReply SendProject();
 	void Poll();
 	void SetStatus(const FString& Text);
+	void AcceptPairingText(const FString& Raw, int32 Field);
 
 	FString Host = TEXT("127.0.0.1");
 	FString Port = TEXT("0");

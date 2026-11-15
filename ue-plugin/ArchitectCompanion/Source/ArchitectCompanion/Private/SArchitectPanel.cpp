@@ -9,6 +9,81 @@
 #include "Widgets/Layout/SScrollBox.h"
 #include "Widgets/SBoxPanel.h"
 
+static bool DigitsOnly(const FString& Text)
+{
+	if (Text.IsEmpty()) return false;
+	for (const TCHAR Ch : Text)
+	{
+		if (Ch < TEXT('0') || Ch > TEXT('9')) return false;
+	}
+	return true;
+}
+
+static bool SplitHostPort(const FString& Token, FString& OutHost, FString& OutPort)
+{
+	int32 Colon = INDEX_NONE;
+	if (!Token.FindChar(TEXT(':'), Colon) || Colon <= 0 || Colon >= Token.Len() - 1) return false;
+	const FString MaybeHost = Token.Left(Colon).TrimStartAndEnd();
+	const FString MaybePort = Token.Mid(Colon + 1).TrimStartAndEnd();
+	if (MaybeHost.IsEmpty() || !DigitsOnly(MaybePort)) return false;
+	OutHost = MaybeHost;
+	OutPort = MaybePort;
+	return true;
+}
+
+void SArchitectPanel::AcceptPairingText(const FString& Raw, int32 Field)
+{
+	FString Text = Raw.TrimStartAndEnd();
+	Text.ReplaceInline(TEXT("\u00B7"), TEXT(" "));
+	TArray<FString> Parts;
+	Text.ParseIntoArrayWS(Parts);
+	FString NextHost;
+	FString NextPort;
+	FString NextCode;
+	bool bEndpoint = false;
+	bool bCode = false;
+	for (const FString& Part : Parts)
+	{
+		if (Part.Equals(TEXT("paired"), ESearchCase::IgnoreCase) || Part.Equals(TEXT("not"), ESearchCase::IgnoreCase)) continue;
+		FString HostPart;
+		FString PortPart;
+		if (SplitHostPort(Part, HostPart, PortPart))
+		{
+			NextHost = HostPart;
+			NextPort = PortPart;
+			bEndpoint = true;
+			continue;
+		}
+		bool bToken = Part.Len() >= 4;
+		for (const TCHAR Ch : Part)
+		{
+			const bool bOk = (Ch >= TEXT('0') && Ch <= TEXT('9')) || (Ch >= TEXT('A') && Ch <= TEXT('Z')) || (Ch >= TEXT('a') && Ch <= TEXT('z'));
+			if (!bOk) { bToken = false; break; }
+		}
+		if (bToken)
+		{
+			NextCode = Part;
+			bCode = true;
+		}
+	}
+	if (bEndpoint && bCode)
+	{
+		Host = NextHost;
+		Port = NextPort;
+		Code = NextCode;
+		return;
+	}
+	if (bEndpoint)
+	{
+		Host = NextHost;
+		Port = NextPort;
+		return;
+	}
+	if (Field == 0) Host = Text;
+	else if (Field == 1) Port = Text;
+	else Code = Text;
+}
+
 void SArchitectPanel::Construct(const FArguments& InArgs)
 {
 	ProjectName = FApp::GetProjectName();
@@ -44,7 +119,7 @@ void SArchitectPanel::Construct(const FArguments& InArgs)
 			[
 				SNew(SEditableTextBox)
 				.Text_Lambda([this]() { return FText::FromString(Host); })
-				.OnTextCommitted_Lambda([this](const FText& Value, ETextCommit::Type) { Host = Value.ToString(); })
+				.OnTextCommitted_Lambda([this](const FText& Value, ETextCommit::Type) { AcceptPairingText(Value.ToString(), 0); })
 			]
 			+ SVerticalBox::Slot().AutoHeight().Padding(0.f, 8.f, 0.f, 0.f)
 			[
@@ -54,7 +129,7 @@ void SArchitectPanel::Construct(const FArguments& InArgs)
 			[
 				SNew(SEditableTextBox)
 				.Text_Lambda([this]() { return FText::FromString(Port); })
-				.OnTextCommitted_Lambda([this](const FText& Value, ETextCommit::Type) { Port = Value.ToString(); })
+				.OnTextCommitted_Lambda([this](const FText& Value, ETextCommit::Type) { AcceptPairingText(Value.ToString(), 1); })
 			]
 			+ SVerticalBox::Slot().AutoHeight().Padding(0.f, 8.f, 0.f, 0.f)
 			[
@@ -64,7 +139,12 @@ void SArchitectPanel::Construct(const FArguments& InArgs)
 			[
 				SNew(SEditableTextBox)
 				.HintText(FText::FromString(TEXT("Pairing code")))
-				.OnTextCommitted_Lambda([this](const FText& Value, ETextCommit::Type) { Code = Value.ToString(); })
+				.Text_Lambda([this]() { return FText::FromString(Code); })
+				.OnTextCommitted_Lambda([this](const FText& Value, ETextCommit::Type) { AcceptPairingText(Value.ToString(), 2); })
+			]
+			+ SVerticalBox::Slot().AutoHeight().Padding(0.f, 6.f, 0.f, 2.f)
+			[
+				SNew(STextBlock).Text(FText::FromString(TEXT("Paste the line from the app's Architect box"))).AutoWrapText(true)
 			]
 			+ SVerticalBox::Slot().AutoHeight().Padding(0.f, 8.f)
 			[
@@ -95,6 +175,9 @@ void SArchitectPanel::SetStatus(const FString& Text)
 
 FReply SArchitectPanel::Pair()
 {
+	AcceptPairingText(Code, 2);
+	AcceptPairingText(Host, 0);
+	AcceptPairingText(Port, 1);
 	const int32 PortNumber = FCString::Atoi(*Port);
 	FString NewToken;
 	FString Error;

@@ -1437,10 +1437,21 @@ export default function Workspace() {
             </div>
             <div className="mt-3 panel p-2" data-testid="companion-card">
               <div className="eyebrow">Architect</div>
-              <p className="mt-1 text-[11px] font-mono text-[var(--text-secondary)]" data-testid="companion-code">
-                {companion ? `127.0.0.1:${companion.port} · ${companion.code}` : "Starting the local link"}
-                {companion?.paired ? " · paired" : " · not paired"}
-              </p>
+              <div className="mt-1 flex items-center gap-2">
+                <p className="text-[11px] font-mono text-[var(--text-secondary)] flex-1" data-testid="companion-code">
+                  {companion ? `127.0.0.1:${companion.port} · ${companion.code}` : "Starting the local link"}
+                  {companion?.paired ? " · paired" : " · not paired"}
+                </p>
+                <button type="button" className="ue-btn !py-1 !px-2 !text-[11px] shrink-0" data-testid="companion-copy" disabled={!companion} onClick={async () => {
+                  const line = `127.0.0.1:${companion.port} · ${companion.code}`;
+                  try {
+                    await navigator.clipboard.writeText(line);
+                    toast.success("Pairing line copied");
+                  } catch (err) {
+                    toast.error(errorText(err));
+                  }
+                }}><Copy size={12} /> Copy</button>
+              </div>
               {companion?.project && <p className="mt-1 text-[11px] text-[var(--text-secondary)]" data-testid="companion-project">{companion.project} · {companion.engine}</p>}
               {!!companion?.classes?.length && (
                 <p className="mt-1 text-[10.5px] font-mono text-[var(--text-muted)]" data-testid="companion-classes">
