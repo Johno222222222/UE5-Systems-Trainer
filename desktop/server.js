@@ -49,6 +49,10 @@ const {
   GITHUB_REPO,
   releaseNotice,
 } = require("./logic");
+const { knownLocks, checkConstraints } = require("./constraints");
+const { stackMap } = require("./stackMap");
+const { detectEngine, compilePlugin } = require("./engine");
+const { moduleName, writePlugin } = require("./pluginFiles");
 
 const OWNER = "You";
 const REF_LIMIT = 10 * 1024 * 1024;
@@ -188,6 +192,7 @@ function summary(p) {
 function presentContext(context) {
   const ctx = { ...(context || {}) };
   ctx.unreal_version = normalizeUnrealVersion(ctx.unreal_version) || LEGACY_UNREAL_VERSION;
+  ctx.locks = knownLocks(ctx.locks);
   ctx.setup_done = Array.isArray(ctx.setup_done)
     ? ctx.setup_done.map((n) => Number(n)).filter((n) => Number.isInteger(n) && n > 0).slice(0, 40)
     : [];
@@ -288,8 +293,10 @@ function resolveLlm(headers, secrets) {
   const model = headers["x-llm-model"] || (provider === saved.provider ? saved.model : null) || (provider === "gemini" ? DEFAULT_MODEL : (ALLOWED_MODELS[provider] || [""])[0]);
   let key = headers["x-llm-key"];
   if (!key) key = secrets.getKey(provider);
-  if (!key || !String(key).trim()) {
-    throw new HttpError(400, "Add your Gemini or OpenAI API key in Settings before synthesizing.");
+  if (provider === "ollama") {
+    if (!key || !String(key).trim()) key = "local";
+  } else if (!key || !String(key).trim()) {
+    throw new HttpError(400, "Add your API key in Settings before synthesizing.");
   }
   if (!ALLOWED_MODELS[provider] || !ALLOWED_MODELS[provider].includes(model)) {
     throw new HttpError(400, "Pick a supported provider and model in Settings.");
@@ -462,6 +469,13 @@ async function startServer(options = {}) {
     }
     try {
       const data = normalizeSystem(extractJson(raw), req.stack_systems);
+      data.constraint_violations = checkConstraints(data, req.locks);
+      data.stack_map = stackMap(req.stack_systems);
+      for (const name of data.shared_attributes) {
+        if (name && !data.stack_map.shared.some((item) => item.name === name)) {
+          data.stack_map.shared.push({ kind: "shared", name, systems: data.stacked_from.filter(Boolean) });
+        }
+      }
       job.status = "done";
       job.chars = raw.length;
       job.result = data;
@@ -584,6 +598,7 @@ async function startServer(options = {}) {
     if (typeof body.key === "string" && body.key.trim()) {
       secrets.setKey(provider, body.key.trim());
     }
+    if (typeof body.engine_path === "string") secrets.setEnginePath(body.engine_path);
     if (!secrets.getKey(provider) && body.key) {
       throw new HttpError(500, "The key was saved but could not be read back. Try again.");
     }
@@ -595,6 +610,58 @@ async function startServer(options = {}) {
       await options.openPath(dataDir);
     }
     return { ok: true, path: dataDir };
+  });
+
+  route("GET", "/api/engine", async () => detectEngine({
+    override: secrets.publicView(dataDir).engine_path,
+  }));
+
+  route("POST", "/api/engine/compile", async (req) => {
+    const body = await readJson(req);
+    const system = body.system && typeof body.system === "object" ? body.system : body;
+    if (!system?.cpp_header || !system?.cpp_source) {
+      throw new HttpError(400, "Compile needs a header and a source file.");
+    }
+    const workDir = path.join(dataDir, "scratch", crypto.randomUUID());
+    fs.mkdirSync(workDir, { recursive: true });
+    try {
+      return await compilePlugin({
+        system,
+        engineRoot: secrets.publicView(dataDir).engine_path,
+        workDir,
+        spawnImpl: options.spawnImpl,
+      });
+    } finally {
+      fs.rmSync(workDir, { recursive: true, force: true });
+    }
+  });
+
+  route("POST", "/api/export/pick", async () => {
+    if (typeof options.pickFile !== "function") {
+      throw new HttpError(400, "Type the .uproject path. The file picker is available in the desktop app.");
+    }
+    const picked = await options.pickFile([{ name: "Unreal project", extensions: ["uproject"] }]);
+    return { path: typeof picked === "string" ? picked : "" };
+  });
+
+  route("POST", "/api/export/to-project", async (req) => {
+    const body = await readJson(req);
+    const system = body.system;
+    if (!system || typeof system !== "object" || !system.cpp_header || !system.cpp_source) {
+      throw new HttpError(400, "Export needs a generated system.");
+    }
+    const target = path.resolve(String(body.uproject || ""));
+    if (!target.toLowerCase().endsWith(".uproject") || !fs.existsSync(target) || !fs.statSync(target).isFile()) {
+      throw new HttpError(400, "Pick an Unreal project file that ends in .uproject.");
+    }
+    try {
+      JSON.parse(fs.readFileSync(target, "utf8"));
+    } catch {
+      throw new HttpError(400, "That .uproject could not be read.");
+    }
+    const dest = path.join(path.dirname(target), "Plugins", moduleName(system));
+    const written = writePlugin(dest, system);
+    return { plugin: written.module, path: dest, uproject: target };
   });
 
   route("GET", "/api/usage/today", async () => {

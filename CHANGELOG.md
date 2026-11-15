@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.6.0
+
+Stage 6, trustworthy export and more models.
+
+- If Unreal is installed, Compile check can build the exported plugin with Unreal's build tool and show the compiler errors. Fix still takes those errors. The app looks for UE 5.8, then UE 5.7. Settings can point at the engine folder. If no engine is found, the panel says so. The build-tool call is behind a platform check.
+- UE5 .zip can copy the plugin straight into a project's Plugins folder. Pick the .uproject in the desktop app, or paste the path.
+- A project can lock "Must stay server-authoritative" or "No Tick". The lock is saved with the project, goes into the next synthesis, and a reply that breaks it is flagged.
+- Stacking draws shared interfaces and attributes, and class-name clashes, on the System Map.
+- The plugin README now says what to expect in Unreal, how to set up a minimal test map, and the usual first errors.
+- Settings adds Anthropic, OpenRouter, and Ollama. Ollama runs on this computer and does not need a key or the internet. Keys for the paid providers are stored the same way as Gemini and OpenAI.
+- A paid model shows an estimate next to the usage chip, and again before the request is sent. Nothing is sent until you continue.
+- When the model is unsure, the system is marked low confidence and offers one alternative.
+- The eight template starters pass the in-app C++ pattern check, including a declared `Run()`. That is not a substitute for Unreal's compiler. On a machine with UE 5.8, open a template, press Build with Unreal, and read the compiler lines.
+
 ## 1.5.1
 
 - Quiz options, Predict choices, concept questions, and spaced-review choices are buttons you can click. The one you pick is highlighted. After the answer is checked, the right option turns green and a wrong pick turns red, with a line that says why.

@@ -17,6 +17,7 @@ function createSecrets(file, keyFile, codec) {
     provider: DEFAULT_PROVIDER,
     model: DEFAULT_MODEL,
     keys: {},
+    engine_path: "",
   };
   if (fs.existsSync(file)) {
     try {
@@ -25,6 +26,7 @@ function createSecrets(file, keyFile, codec) {
         provider: parsed.provider || DEFAULT_PROVIDER,
         model: parsed.model || DEFAULT_MODEL,
         keys: parsed.keys && typeof parsed.keys === "object" ? parsed.keys : {},
+        engine_path: typeof parsed.engine_path === "string" ? parsed.engine_path : "",
       };
     } catch (exc) {
       console.error(`Settings file could not be read. Starting without saved keys. ${exc.message}`);
@@ -76,7 +78,12 @@ function createSecrets(file, keyFile, codec) {
 
   function save() {
     const tmp = `${file}.tmp`;
-    fs.writeFileSync(tmp, JSON.stringify({ provider: state.provider, model: state.model, keys: state.keys }), { mode: 0o600 });
+    fs.writeFileSync(tmp, JSON.stringify({
+      provider: state.provider,
+      model: state.model,
+      keys: state.keys,
+      engine_path: state.engine_path || "",
+    }), { mode: 0o600 });
     fs.renameSync(tmp, file);
     try { fs.chmodSync(file, 0o600); } catch { /* Windows ignores this */ }
   }
@@ -95,6 +102,7 @@ function createSecrets(file, keyFile, codec) {
       keys,
       key_storage: keyStorage(),
       data_dir: dataDir,
+      engine_path: state.engine_path || "",
     };
   }
 
@@ -135,7 +143,12 @@ function createSecrets(file, keyFile, codec) {
     save();
   }
 
-  return { publicView, getKey, setSelection, setKey, clearKey, keyStorage };
+  function setEnginePath(value) {
+    state.engine_path = String(value || "").trim().slice(0, 400);
+    save();
+  }
+
+  return { publicView, getKey, setSelection, setKey, clearKey, keyStorage, setEnginePath };
 }
 
 module.exports = { createSecrets };

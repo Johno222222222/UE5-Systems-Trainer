@@ -36,6 +36,12 @@ import {
   resultSignature, saveRequest, setupDoneList, setupDoneMap, UNREAL_VERSIONS, workspaceSnapshot,
 } from "../lib/stage0.mjs";
 import { APP_VERSION } from "../lib/shell.mjs";
+import { estimateCost } from "../lib/cost.mjs";
+
+const LOCK_CHOICES = [
+  ["server_authority", "Must stay server-authoritative"],
+  ["no_tick", "No Tick"],
+];
 import { draftToSnapshotInput } from "../lib/workspaceSession.mjs";
 import { useShell } from "../shell/ShellContext";
 import {
@@ -203,6 +209,12 @@ export default function Workspace() {
   const [migration, setMigration] = useState(null);
   const readOnly = project?.my_role === "viewer";
   const [aiKey, setAiKey] = useState(null);
+  const [locks, setLocks] = useState([]);
+  const [costGate, setCostGate] = useState(null);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exportPath, setExportPath] = useState("");
+  const [exportNote, setExportNote] = useState("");
+  const costWait = useRef(null);
   const [keyModal, setKeyModal] = useState(null); // null | "edit" | "required"
   const [saving, setSaving] = useState(false);
   const [versions, setVersions] = useState([]);
@@ -303,6 +315,7 @@ export default function Workspace() {
     setReferences([]);
     setSetupDone({});
     setUnrealVersion(version);
+    setLocks([]);
     setProject(null);
     setIgnores([]);
     setFixNotes([]);
@@ -410,6 +423,7 @@ export default function Workspace() {
       setLearningState("failed");
       return system;
     }
+    if (!(await askCost("learning"))) return system;
     const epoch = epochRef.current;
     const id = system.id;
     setLearningState("running");
@@ -447,6 +461,15 @@ export default function Workspace() {
     }
   };
 
+  const askCost = (kind) => {
+    const estimate = estimateCost(aiKey?.model, kind);
+    if (!estimate) return Promise.resolve(true);
+    return new Promise((resolve) => {
+      costWait.current = resolve;
+      setCostGate(estimate);
+    });
+  };
+
   const runSynthesis = async (body, context, successLabel, opts = {}) => {
     const key = opts.key || aiKey;
     if (!key) {
@@ -454,6 +477,7 @@ export default function Workspace() {
       toast.error("Add your AI key to synthesize");
       return false;
     }
+    if (!(await askCost("synthesis"))) return false;
     if (!opts.skipLimit) {
       const { used, limit } = modelUsage(usage, key.provider, key.model);
       // a synthesis can take up to 3 requests when the model is busy
@@ -527,7 +551,7 @@ export default function Workspace() {
     if (ok && p.body.stack_systems) { setPrompt(p.body.prompt); setExtra([]); setProject(null); setIgnores([]); }
   };
 
-  const currentInputs = { prompt, blueprint_class: bpClass, complexity, modularity, performance_vs_flexibility: perfFlex, tick_rate: tickRate, network_replicated: replicated, unreal_version: unrealVersion };
+  const currentInputs = { prompt, blueprint_class: bpClass, complexity, modularity, performance_vs_flexibility: perfFlex, tick_rate: tickRate, network_replicated: replicated, unreal_version: unrealVersion, locks };
 
   const generate = async (extraRequests = []) => {
     if (prompt.trim().length < 5) {
@@ -596,6 +620,7 @@ export default function Workspace() {
         project_context: projectContext,
         setup_done: setupDoneList(setupDone),
         unreal_version: unrealVersion,
+        locks,
       },
     };
   };
@@ -673,6 +698,7 @@ export default function Workspace() {
     const params = {};
     (system?.tunable_parameters || []).forEach((p) => { params[p.key] = p.value; });
     setUnrealVersion(version);
+    setLocks(Array.isArray(c.locks) ? c.locks : []);
     setSetupDone(ticks);
     setTunable(params);
     setReferences(c.references || []);
@@ -994,6 +1020,7 @@ export default function Workspace() {
   };
   const runFix = async (list, thenExport = null, target = "code") => {
     if (!aiKey) { setKeyModal("required"); toast.error("Add your AI key to fix issues"); return; }
+    if (!(await askCost("fix"))) return;
     const { used, limit } = modelUsage(usage, aiKey.provider, aiKey.model);
     if (limit && used + 1 > limit * 0.85 && !window.confirm(`You've used about ${used} of ~${limit} free ${aiKey.model} requests today. Fix anyway?`)) return;
     const tests = target === "tests";
@@ -1158,6 +1185,10 @@ export default function Workspace() {
                 <div className="font-sub text-[13px] font-semibold">Unreal plugin <span className="chip active !py-0 !text-[9.5px] ml-1">RECOMMENDED</span></div>
                 <div className="text-[10.5px] font-mono text-[var(--text-muted)]">Drop into Plugins/ and build. No code edits.</div>
               </button>
+              <button className="w-full text-left px-2.5 py-2 rounded hover:bg-[var(--surface-hover)]" onClick={() => { setZipMenu(false); setExportOpen(true); setExportNote(""); }} data-testid="export-to-project">
+                <div className="font-sub text-[13px] font-semibold">Copy into a UE project</div>
+                <div className="text-[10.5px] font-mono text-[var(--text-muted)]">Pick a .uproject. The plugin goes in its Plugins folder.</div>
+              </button>
               <button className="w-full text-left px-2.5 py-2 rounded hover:bg-[var(--surface-hover)]" onClick={() => exportZip("source")} data-testid="export-source-zip">
                 <div className="font-sub text-[13px] font-semibold">Source files only</div>
                 <div className="text-[10.5px] font-mono text-[var(--text-muted)]">.h/.cpp to add to your own game module</div>
@@ -1222,6 +1253,24 @@ export default function Workspace() {
               className="w-full bg-[var(--bg-main)] border border-[var(--border)] rounded-md p-3 text-[13px] font-mono text-[var(--text-primary)] outline-none focus:border-[var(--unreal-orange)] resize-none"
             />
             <div className="text-right text-[10px] font-mono text-[var(--text-muted)]" data-testid="prompt-char-count">{prompt.length}/2000</div>
+            <div className="mt-2" data-testid="constraint-locks">
+              <div className="eyebrow mb-1">Locks</div>
+              <div className="flex flex-wrap gap-2">
+                {LOCK_CHOICES.map(([id, label]) => (
+                  <button
+                    key={id}
+                    type="button"
+                    className={`chip ${locks.includes(id) ? "active" : ""}`}
+                    aria-pressed={locks.includes(id)}
+                    data-testid={`lock-${id}`}
+                    onClick={() => setLocks((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]))}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <p className="mt-1 text-[10.5px] font-mono text-[var(--text-muted)]">Saved with the project. A re-synthesis keeps them, and a broken one is flagged.</p>
+            </div>
             <ReferencesBar references={references} onChange={setReferences} projectId={project && !readOnly ? project.project_id : null} disabled={readOnly} />
             <label className="mt-2 block">
               <span className="eyebrow">Target Unreal</span>
@@ -1435,6 +1484,35 @@ export default function Workspace() {
                     )}
                   </div>
                 )}
+                {(result?.stacked_from?.length > 0 || result?.stack_map?.shared?.length || result?.stack_map?.conflicts?.length) && (
+                  <div className="absolute left-4 top-4 z-20 max-w-sm panel p-3" data-testid="stack-map">
+                    <div className="eyebrow mb-1">Stack map</div>
+                    {(result.stack_map?.shared || []).map((item) => (
+                      <div key={`${item.kind}-${item.name}`} className="text-[12px] text-[var(--text-secondary)]" data-testid={`stack-shared-${item.name}`}>
+                        Shared {item.kind}: {item.name}{(item.systems || []).length ? ` · ${item.systems.join(", ")}` : ""}
+                      </div>
+                    ))}
+                    {(result.stack_map?.conflicts || []).map((item) => (
+                      <div key={item.name} className="text-[12px] text-[var(--accent-red)]" data-testid={`stack-conflict-${item.name}`}>{item.message}</div>
+                    ))}
+                    {!result.stack_map?.shared?.length && !result.stack_map?.conflicts?.length && (
+                      <div className="text-[12px] text-[var(--text-secondary)]">No shared interface or class clash was found in the stacked sources.</div>
+                    )}
+                  </div>
+                )}
+                {result?.confidence === "low" && (
+                  <div className="absolute right-4 top-4 z-20 max-w-sm panel p-3 border-[var(--unreal-orange)]" data-testid="low-confidence">
+                    <div className="eyebrow mb-1">Low confidence</div>
+                    <p className="text-[12px] text-[var(--text-secondary)]">{result.alternative || "The model was not sure about this shape. Try the other approach, or lock the constraint you care about and regenerate."}</p>
+                  </div>
+                )}
+                {(result?.constraint_violations || []).length > 0 && (
+                  <div className="absolute left-4 bottom-24 z-20 max-w-sm panel p-3 border-[var(--accent-red)]" data-testid="constraint-violations">
+                    {(result.constraint_violations || []).map((item) => (
+                      <div key={item.id} className="text-[12px] text-[var(--accent-red)]">{item.message}</div>
+                    ))}
+                  </div>
+                )}
                 <NodeGraph
                   nodes={result?.node_graph_nodes || []}
                   edges={result?.node_graph_edges || []}
@@ -1453,7 +1531,7 @@ export default function Workspace() {
               </div>
             )}
             {tab === "tests" && result && (
-              <TestsPanel system={result} projectId={project?.project_id} aiKey={aiKey} canEdit={!readOnly} fixing={fix?.status === "running"} unrealVersion={unrealVersion}
+              <TestsPanel system={result} projectId={project?.project_id} aiKey={aiKey} canEdit={!readOnly} fixing={fix?.status === "running"} unrealVersion={unrealVersion} beforeRequest={() => askCost("tests")}
                 onNeedKey={() => setKeyModal("required")} onUsed={() => setUsageTick((n) => n + 1)}
                 onTests={(id, t) => setResult((r) => (r?.id === id ? { ...r, tests: t } : r))}
                 onFix={(l) => runFix(l, null, "tests")} jump={jump} onJump={(i) => setJump({ file: "tests", line: i.line || 1, nonce: Date.now() })} />
@@ -1470,7 +1548,7 @@ export default function Workspace() {
             )}
             {tab === "cpp" && (
               <div className="p-5 h-full overflow-auto">
-                {result && <CompileCheck issues={activeIssues} ignored={ignoredIssues} ai={aiReview} onReview={runAiReview} aiKey={aiKey} canEdit={!readOnly}
+                {result && <CompileCheck issues={activeIssues} ignored={ignoredIssues} ai={aiReview} onReview={async () => { if (await askCost("review")) runAiReview(); }} aiKey={aiKey} canEdit={!readOnly} system={result}
                   fixing={fix?.status === "running" || loading} onJump={jumpTo} onFix={(l) => runFix(l)} onRegenerate={fixRegenerate} onIgnore={ignoreIssue} onRestore={restoreIssue} onCopy={copyIssues} />}
                 {shell.helpLevel !== "minimal" && whatIfsOf(result).map((item, itemIndex) => (
                   <div key={item.title || itemIndex} className="panel p-3 mb-4" data-testid={itemIndex === 0 ? "what-if" : `what-if-${itemIndex}`}>
@@ -1714,6 +1792,43 @@ export default function Workspace() {
             <button type="button" className="ue-btn mt-4" data-testid="predict-skip" onClick={() => revealSystem(pendingReveal.system, null, pendingReveal.outcome)}>Skip</button>
           </div>
         </div>
+      )}
+      {costGate && (
+        <Modal title="Paid request" onClose={() => { costWait.current?.(false); costWait.current = null; setCostGate(null); }} testId="cost-modal" width={420}>
+          <p className="text-[13px] text-[var(--text-secondary)]" data-testid="cost-modal-text">{costGate.text}</p>
+          <p className="mt-2 text-[12px] font-mono text-[var(--text-muted)]">Nothing is sent until you continue. Ollama and the free Gemini models skip this.</p>
+          <div className="mt-4 flex justify-end gap-2">
+            <button type="button" className="ue-btn" data-testid="cost-cancel" onClick={() => { costWait.current?.(false); costWait.current = null; setCostGate(null); }}>Cancel</button>
+            <button type="button" className="ue-btn ue-btn-primary" data-testid="cost-send" onClick={() => { const go = costWait.current; costWait.current = null; setCostGate(null); go?.(true); }}>Send request</button>
+          </div>
+        </Modal>
+      )}
+      {exportOpen && (
+        <Modal title="Copy into a UE project" onClose={() => setExportOpen(false)} testId="export-project-modal" width={480}>
+          <p className="text-[13px] text-[var(--text-secondary)]">Pick the project's .uproject file. The plugin is copied into its Plugins folder. This stays on this computer.</p>
+          <input className="mt-3 w-full bg-[var(--bg-main)] border border-[var(--border)] rounded px-2 py-1 text-[12px] font-mono" data-testid="export-project-path" value={exportPath} onChange={(event) => setExportPath(event.target.value)} placeholder="Path to the .uproject" />
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button type="button" className="ue-btn" data-testid="export-project-browse" onClick={async () => {
+              try {
+                const { data } = await api.post("/export/pick");
+                if (data.path) setExportPath(data.path);
+              } catch (err) {
+                toast.message(errorText(err));
+              }
+            }}>Browse</button>
+            <button type="button" className="ue-btn ue-btn-primary" data-testid="export-project-copy" onClick={async () => {
+              try {
+                const { data } = await api.post("/export/to-project", { uproject: exportPath, system: result });
+                setExportNote(`Copied ${data.plugin} to ${data.path}`);
+                toast.success("Plugin copied into the project");
+              } catch (err) {
+                setExportNote(errorText(err));
+                toast.error(errorText(err));
+              }
+            }}>Copy plugin</button>
+          </div>
+          {exportNote && <p className="mt-3 text-[12px] font-mono text-[var(--text-secondary)]" data-testid="export-project-result">{exportNote}</p>}
+        </Modal>
       )}
       {keyModal && (
         <AiKeyModal current={aiKey} required={keyModal === "required"} onClearProjectContext={clearRememberedContext} onClose={() => { setKeyModal(null); setUsageTick((n) => n + 1); }}

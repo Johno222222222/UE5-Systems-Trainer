@@ -360,6 +360,7 @@ function attachStarters(templates) {
       "public:",
       "  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=\"Game\")",
       `  float ${pack.params[0][0] === "combo_window" ? "ComboWindow" : "Tunable"} = 1.f;`,
+      "  void Run();",
       "};",
     ];
     // Keep the declared line numbers honest for every pack.

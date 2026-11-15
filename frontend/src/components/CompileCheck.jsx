@@ -60,9 +60,29 @@ export function useAiReview(system, issues, aiKey, onNeedKey, onUsed, unrealVers
   return [state && state.id === system?.id ? state : null, review];
 }
 
-export default function CompileCheck({ issues, ignored, ai, onReview, aiKey, canEdit, fixing, onJump, onFix, onRegenerate, onIgnore, onRestore, onCopy }) {
+export default function CompileCheck({ issues, ignored, ai, onReview, aiKey, canEdit, fixing, onJump, onFix, onRegenerate, onIgnore, onRestore, onCopy, system }) {
   const [open, setOpen] = useState(true);
   const [showIgnored, setShowIgnored] = useState(false);
+  const [engine, setEngine] = useState(null);
+  const [building, setBuilding] = useState(false);
+  const [build, setBuild] = useState(null);
+  useEffect(() => {
+    api.get("/engine").then((r) => setEngine(r.data)).catch(() => setEngine(null));
+  }, [system?.id]);
+  const buildWithEngine = async () => {
+    if (!system?.cpp_header) return;
+    setBuilding(true);
+    setBuild(null);
+    try {
+      const { data } = await api.post("/engine/compile", { system });
+      setBuild(data);
+      setEngine(data);
+    } catch (err) {
+      setBuild({ found: false, message: errorText(err), issues: [] });
+    } finally {
+      setBuilding(false);
+    }
+  };
   const running = ai?.status === "running";
   const aiIssues = ai?.status === "done" ? ai.issues : [];
   const fixable = issues.length + aiIssues.length;
@@ -93,6 +113,9 @@ export default function CompileCheck({ issues, ignored, ai, onReview, aiKey, can
           </button>
         )}
         <button className="ue-btn !py-1 !px-2 !text-[11px] shrink-0" onClick={() => onCopy([...issues, ...aiIssues])} disabled={!fixable} data-testid="copy-issues-button"><ClipboardCopy size={12} /> Copy issues</button>
+        <button className="ue-btn !py-1 !px-2 !text-[11px] shrink-0" onClick={buildWithEngine} disabled={building || !system} data-testid="engine-build-button">
+          {building ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />} {building ? "Building…" : "Build with Unreal"}
+        </button>
         <button className="ue-btn !py-1 !px-2 !text-[11px] shrink-0" onClick={onReview} disabled={running} data-testid="ai-review-button">
           {running ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />} {running ? "Reviewing…" : "AI review"}
         </button>
@@ -109,6 +132,19 @@ export default function CompileCheck({ issues, ignored, ai, onReview, aiKey, can
               {showIgnored && <div className="mt-2 opacity-70"><IssueList issues={ignored} testId="ignored-issues" onJump={onJump} onRestore={canEdit ? onRestore : null} /></div>}
             </div>
           )}
+          {(system?.constraint_violations || []).length > 0 && (
+            <div data-testid="compile-constraint-violations">
+              {system.constraint_violations.map((item) => (
+                <div key={item.id} className="text-[12px] font-mono text-[var(--accent-red)]">{item.message}</div>
+              ))}
+            </div>
+          )}
+          <div className="panel p-3" data-testid="engine-build-result">
+            <div className="eyebrow mb-1">Unreal build</div>
+            {!build && <p className="text-[12px] text-[var(--text-secondary)]" data-testid="engine-build-idle">{engine?.message || "Checking for UE 5.8, then 5.7."}</p>}
+            {build && <p className={`text-[12px] ${build.ok ? "text-[var(--cpp-green)]" : "text-[var(--text-secondary)]"}`} data-testid="engine-build-message">{build.message}</p>}
+            {build?.issues?.length > 0 && <div className="mt-2"><IssueList issues={build.issues} testId="engine-issues" onJump={onJump} onFix={canEdit && !fixing && onFix ? (i) => onFix([i]) : null} /></div>}
+          </div>
           <div className="text-[10.5px] font-mono text-[var(--text-muted)]">
             Click an issue to see its line. Instant pattern check: catches common mistakes, not every compiler error. AI review and Fix use your key ({aiKey?.model || "no key yet"}), 1 request each.
           </div>

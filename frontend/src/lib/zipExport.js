@@ -1,5 +1,6 @@
 import JSZip from "jszip";
 import { blueprintClipboard, tuningFiles } from "./unrealExtras";
+import { unrealHandoff } from "./unrealHandoff.mjs";
 
 const WHY_RE = /^(\s*)(?:\/\/\s*)?WHY:\s*(.*)$/i;
 
@@ -55,6 +56,8 @@ function readme(name, system, files, apiMacro, deps) {
       : "3. No extra modules are needed beyond Core, CoreUObject and Engine.",
     "4. Right-click your .uproject → Generate Visual Studio project files, then build.",
     "5. Follow SETUP.md for the editor steps.",
+    "",
+    unrealHandoff(),
     "",
     "## In this folder",
     "- `SETUP.md`: step-by-step editor setup, with the reason for each step",
@@ -227,6 +230,8 @@ function pluginReadme(name, system, plugin, files, deps, enginePlugins, issues) 
     "2. Right-click your .uproject → Generate Visual Studio project files, then build. (Blueprint-only project? Opening it will offer to build the plugin.)",
     "3. The plugin is enabled by default. Check Edit → Plugins → Gameplay if you want to confirm.",
     `4. Follow SETUP.md. The classes from \`${files.h}\` show up in the editor like any other C++ class.`,
+    "",
+    unrealHandoff(),
     "",
     "## What's inside",
     `- \`${plugin}.uplugin\`: plugin descriptor${enginePlugins.length ? ` (enables ${enginePlugins.join(", ")})` : ""}`,

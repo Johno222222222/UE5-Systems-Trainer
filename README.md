@@ -2,7 +2,7 @@
 
 A desktop app for designing Unreal Engine 5 gameplay systems. You describe a system, and it builds an editable node graph, Blueprint pseudocode with WHY notes, C++ header and source, a setup guide, tuning sliders, a compile check, version history, and Unreal plugin export.
 
-It runs on your computer. The only time it uses the internet is when it asks Gemini or OpenAI to generate or review something, using a key you provide.
+It runs on your computer. It uses the internet when it asks Gemini, OpenAI, Anthropic, or OpenRouter to generate or review something, using a key you provide. Ollama stays on this computer and works with the internet off.
 
 ## Install on Windows
 
@@ -19,17 +19,34 @@ Your projects are stored on this PC, in the app data folder. Open **Settings** (
 ## Add an API key
 
 1. Click **Add AI key** (it becomes **Settings** after a key is saved).
-2. Pick **Google Gemini** or **OpenAI**, then a model.
+2. Pick **Google Gemini**, **OpenAI**, **Anthropic**, **OpenRouter**, or **Ollama**, then a model.
    - A free Gemini key is the easiest start. Gemini 3.5 Flash-Lite is the recommended model.
-   - OpenAI models need a paid key or credits.
-3. Paste the key.
+   - OpenAI, Anthropic, and OpenRouter models are paid. The usage chip shows an estimate, and the app asks before it sends that request.
+   - Ollama runs a model already installed on this computer. It does not need a key.
+3. Paste the key, unless you picked Ollama.
    - Gemini keys come from [Google AI Studio](https://aistudio.google.com/app/apikey).
    - OpenAI keys come from [platform.openai.com/api-keys](https://platform.openai.com/api-keys).
+   - Anthropic keys come from [console.anthropic.com](https://console.anthropic.com/settings/keys).
+   - OpenRouter keys come from [openrouter.ai/keys](https://openrouter.ai/keys).
+   - Ollama is installed from [ollama.com](https://ollama.com/download).
 4. Click **Test key**, then **Save**.
 
 The key stays on this computer. When Windows can protect it, the app uses Windows data protection (tied to your Windows user). It is not put inside project files, and it is not sent anywhere except to the provider you picked, from this app.
 
-You can save one Gemini key and one OpenAI key and switch between them. Changing the model does not require pasting the key again.
+You can save one key per provider and switch between them. Changing the model does not require pasting the key again. Ollama has no key.
+
+## Build the plugin in Unreal
+
+The pattern check in the app is not Unreal's compiler. On a PC with Unreal installed:
+
+1. Open **Settings** and set **Unreal engine** if the app did not find UE 5.8 (it also accepts 5.7). The folder is the one that contains `Engine/Build/BatchFiles`.
+2. Open a system. On the C++ tab, press **Build with Unreal**.
+3. Compiler errors show in that panel. **Fix** sends them to the model.
+4. If no engine is installed, the panel says so and does not pretend the pattern check was a compile.
+
+**UE5 .zip → Copy into a UE project** asks for a `.uproject` and copies the plugin into that project's `Plugins` folder.
+
+The eight built-in templates pass the in-app pattern check. To see a real UE 5.8 result, open one, export the plugin or copy it into a blank C++ project, and press **Build with Unreal**.
 
 ## Everyday use
 
@@ -52,7 +69,8 @@ You can save one Gemini key and one OpenAI key and switch between them. Changing
 - **JSON** downloads the system you are looking at. **Backup** in the Projects list downloads every project, its version history, bundle presets, and practice progress as one file. **Import** accepts either kind of file and brings that progress back.
 - **UE5 .zip** builds an Unreal plugin (recommended) or source files only. Copy for Unreal, tests, and Data Table tuning files are in that export.
 - Tick two or more projects to **Stack** them into one system, or **Bundle** them as one plugin. Bundle presets remember a group.
-- The number on the usage chip is a local estimate of today's requests for the free Gemini models. It is not a bill, and it does not see use of the same key outside this app.
+- The number on the usage chip is a local estimate of today's requests for the free Gemini models. It is not a bill, and it does not see use of the same key outside this app. Paid models also show an approximate cost before the request is sent.
+- **Locks** under the description stay with the project. **No Tick** and **Must stay server-authoritative** are checked again after each synthesis.
 
 Copying the data folder to another PC copies your projects. A key protected by Windows does not unlock on a different PC or Windows user, so enter the key again there. Uploaded reference files live in that folder and are not inside the JSON backup.
 
