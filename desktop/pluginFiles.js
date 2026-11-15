@@ -130,11 +130,11 @@ function copyTree(sourceRoot, destRoot, { confirm = false } = {}) {
 function enablePlugin(uprojectPath, pluginName) {
   const parsed = JSON.parse(fs.readFileSync(uprojectPath, "utf8"));
   const plugins = Array.isArray(parsed.Plugins) ? parsed.Plugins : [];
-  if (!plugins.some((item) => item && item.Name === pluginName)) {
-    plugins.push({ Name: pluginName, Enabled: true });
-    parsed.Plugins = plugins;
-    fs.writeFileSync(uprojectPath, JSON.stringify(parsed, null, 2));
-  }
+  const existing = plugins.find((item) => item && item.Name === pluginName);
+  if (existing) existing.Enabled = true;
+  else plugins.push({ Name: pluginName, Enabled: true });
+  parsed.Plugins = plugins;
+  fs.writeFileSync(uprojectPath, JSON.stringify(parsed, null, 2));
   return parsed;
 }
 

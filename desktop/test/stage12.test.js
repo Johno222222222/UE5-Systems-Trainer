@@ -7,6 +7,7 @@ const os = require("os");
 const path = require("path");
 const { startServer } = require("../server");
 const { summarizeProject } = require("../companion");
+const { normalizeGenerateRequest, buildUserText } = require("../logic");
 
 const SYSTEM = {
   system_name: "Health And Damage",
@@ -116,6 +117,24 @@ test("send to unreal writes the module, refuses an edited file, and queues a rel
   } finally {
     await handle.close();
   }
+});
+
+test("a project class summary is what synthesis reads", () => {
+  const summary = summarizeProject({
+    project: "Game",
+    engine: "5.8.0",
+    plugins: ["EnhancedInput"],
+    classes: [
+      { name: "AHero", parent: "ACharacter", kind: "C++" },
+      { name: "BP_Enemy", parent: "AActor", kind: "Blueprint" },
+    ],
+  });
+  const req = normalizeGenerateRequest({ prompt: "A health component that uses the hero", project_context: summary });
+  assert.equal(req.project_context, summary);
+  const text = buildUserText(req);
+  assert.match(text, /AHero/);
+  assert.match(text, /BP_Enemy/);
+  assert.match(text, /PROJECT CONTEXT/);
 });
 
 test("install copies the companion plugin and enables it on the uproject", async () => {

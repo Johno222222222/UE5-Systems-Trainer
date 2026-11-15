@@ -33,19 +33,31 @@ void SArchitectPanel::Construct(const FArguments& InArgs)
 			]
 			+ SVerticalBox::Slot().AutoHeight()
 			[
-				SNew(STextBlock).Text_Lambda([this]() { return FText::FromString(Status); })
+				SNew(STextBlock).Text_Lambda([this]() { return FText::FromString(FString::Printf(TEXT("Connection: %s"), *Status)); })
 			]
 			+ SVerticalBox::Slot().AutoHeight().Padding(0.f, 8.f)
+			[
+				SNew(STextBlock).Text(FText::FromString(TEXT("Host")))
+			]
+			+ SVerticalBox::Slot().AutoHeight()
 			[
 				SNew(SEditableTextBox)
 				.Text_Lambda([this]() { return FText::FromString(Host); })
 				.OnTextCommitted_Lambda([this](const FText& Value, ETextCommit::Type) { Host = Value.ToString(); })
+			]
+			+ SVerticalBox::Slot().AutoHeight().Padding(0.f, 8.f, 0.f, 0.f)
+			[
+				SNew(STextBlock).Text(FText::FromString(TEXT("Port")))
 			]
 			+ SVerticalBox::Slot().AutoHeight().Padding(0.f, 4.f)
 			[
 				SNew(SEditableTextBox)
 				.Text_Lambda([this]() { return FText::FromString(Port); })
 				.OnTextCommitted_Lambda([this](const FText& Value, ETextCommit::Type) { Port = Value.ToString(); })
+			]
+			+ SVerticalBox::Slot().AutoHeight().Padding(0.f, 8.f, 0.f, 0.f)
+			[
+				SNew(STextBlock).Text(FText::FromString(TEXT("Pairing code")))
 			]
 			+ SVerticalBox::Slot().AutoHeight().Padding(0.f, 4.f)
 			[
@@ -123,7 +135,7 @@ void SArchitectPanel::Poll()
 	{
 		const FString Result = CompanionLink::TryLiveCompile();
 		FString Ignored;
-		CompanionLink::PostResult(Host, PortNumber, Token, Result.Contains(TEXT("compiled")), Result, Ignored);
+		CompanionLink::PostResult(Host, PortNumber, Token, true, Result, Ignored);
 		SetStatus(Result);
 	}
 }

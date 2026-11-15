@@ -49,8 +49,8 @@ function summarizeProject(report, limit = 700) {
   const plugins = (Array.isArray(body.plugins) ? body.plugins : []).slice(0, 12);
   const parts = [
     `Engine ${body.engine || "unknown"}. Project ${body.project || "unknown"}.`,
-    plugins.length ? `Plugins: ${plugins.join(", ")}.` : "",
     classes.length ? `Classes: ${classes.map((item) => `${item.name}${item.parent ? ` (${item.parent})` : ""}`).join(", ")}.` : "",
+    plugins.length ? `Plugins: ${plugins.join(", ")}.` : "",
   ].filter(Boolean);
   const text = parts.join(" ");
   return text.length > limit ? `${text.slice(0, limit - 1)}…` : text;
