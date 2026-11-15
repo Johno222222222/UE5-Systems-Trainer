@@ -189,7 +189,8 @@ test("graph templates load, teach, and simulate", async () => {
   const ammo = loaded.templates.find((item) => item.id === "tactical-ammo");
   const ammoGraph = templates.realizeTemplate(ammo).graph;
   const ammoRun = sim.runSimulation({ variables: ammo.variables, items: [ammoGraph] }, ammoGraph);
-  assert.equal(ammoRun.state.variables.Mag, 30);
+  assert.equal(ammoRun.state.variables.Magazine, 30);
+  assert.equal(ammoRun.state.variables.Needed, 20);
   assert.equal(ammoRun.state.variables.Reserve, 70);
   assert.equal(ammoRun.trace.some((step) => step.branch?.taken === "Then"), true);
 
@@ -201,6 +202,69 @@ test("graph templates load, teach, and simulate", async () => {
   const opened = templates.applyTemplate(doc, ammo, { mode: "new" });
   assert.equal(opened.doc.items.some((item) => item.kind === "function" && item.name === "Reload"), true);
   assert.ok(opened.doc.items.find((item) => item.id === opened.graphId).nodes.some((node) => node.catalog === "enhanced-input"));
+});
+
+test("reload caches Needed so Magazine and Reserve share one pure result", async () => {
+  const g = await lib("graph.mjs");
+  const templates = await lib("templates.mjs");
+  const sim = await lib("simulate.mjs");
+  const ammo = loadGraphTemplates().templates.find((item) => item.id === "tactical-ammo");
+  const graph = templates.realizeTemplate(ammo).graph;
+  const variables = ammo.variables.map((item) => ({ ...item }));
+  variables.find((item) => item.name === "Magazine").default = "5";
+  variables.find((item) => item.name === "Reserve").default = "60";
+  const ran = sim.runSimulation({ variables, items: [graph] }, graph);
+  assert.equal(ran.state.variables.Magazine, 30);
+  assert.equal(ran.state.variables.Reserve, 35);
+  assert.equal(ran.state.variables.Needed, 25);
+
+  const header = `#pragma once
+#include "CoreMinimal.h"
+#include "Components/ActorComponent.h"
+#include "Kit.generated.h"
+
+UCLASS()
+class KIT_API UKitComponent : public UActorComponent
+{
+	GENERATED_BODY()
+public:
+	void Interact();
+};
+`;
+  const applied = g.commitDocument({ cpp_header: header, cpp_source: "#include \"Kit.h\"\nvoid UKitComponent::Interact() {}\n" }, {
+    variables,
+    items: [{ ...graph, id: "event", kind: "event", name: "Event Graph" }],
+  });
+  const source = applied.system.cpp_source;
+  assert.match(source, /Needed = FMath::Clamp\(Reserve, 0, \(MagSize - Magazine\)\);/);
+  assert.match(source, /Magazine = \(Magazine \+ Needed\);/);
+  assert.match(source, /Reserve = \(Reserve - Needed\);/);
+  const neededAt = source.indexOf("Needed = FMath::Clamp");
+  const magAt = source.indexOf("Magazine = (Magazine + Needed)");
+  const reserveAt = source.indexOf("Reserve = (Reserve - Needed)");
+  assert.ok(neededAt >= 0 && neededAt < magAt && magAt < reserveAt);
+
+  let shared = g.emptyGraph();
+  const begin = g.createNode("begin-play", 0, 0, { id: "begin" });
+  const read = g.createNode("get-variable", 0, 140, { id: "read", data: { variable: "Magazine", varType: "int" } });
+  const one = g.createNode("literal", 0, 240, { id: "one", data: { varType: "int", value: "1" } });
+  const add = g.createNode("add", 220, 140, { id: "add" });
+  add.pins = add.pins.map((pin) => (pin.type === "float" ? { ...pin, type: "int" } : pin));
+  const first = g.createNode("set-variable", 460, 0, { id: "first", data: { variable: "Magazine", varType: "int" } });
+  const second = g.createNode("set-variable", 720, 0, { id: "second", data: { variable: "Copy", varType: "int" } });
+  shared = [begin, read, one, add, first, second].reduce((acc, node) => g.addNode(acc, node), shared);
+  shared = wire(g, shared, "begin", "Exec", "first", "Exec");
+  shared = wire(g, shared, "first", "Exec", "second", "Exec");
+  shared = wire(g, shared, "read", "Value", "add", "A");
+  shared = wire(g, shared, "one", "Value", "add", "B");
+  shared = wire(g, shared, "add", "Result", "first", "Value");
+  shared = wire(g, shared, "add", "Result", "second", "Value");
+  const again = sim.runSimulation({
+    variables: [{ name: "Magazine", type: "int", default: "5" }, { name: "Copy", type: "int", default: "0" }],
+    items: [shared],
+  }, shared);
+  assert.equal(again.state.variables.Magazine, 6);
+  assert.equal(again.state.variables.Copy, 7);
 });
 
 test("blueprint text round-trips supported nodes and keeps unknown nodes", async () => {

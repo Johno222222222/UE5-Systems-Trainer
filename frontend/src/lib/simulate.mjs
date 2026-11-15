@@ -131,6 +131,8 @@ function valueInto(state, graph, node, pinName) {
   const hit = incoming(graph, node, pinName);
   if (!hit?.pin) return 0;
   if (!hit.source || !hit.sourcePin) return defaultFor(hit.pin.type);
+  // Each impure node walks pure inputs again. A value that must survive the next
+  // Set has to be stored in a variable first, the same way Unreal re-runs pure nodes.
   return evalOut(state, graph, hit.source, hit.sourcePin, new Set());
 }
 

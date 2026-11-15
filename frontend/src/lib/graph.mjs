@@ -715,16 +715,54 @@ function outgoing(graph, node, pinId) {
   return graph.nodes.find((item) => item.id === wire.to.node) || null;
 }
 
-function incomingValue(graph, node, pinName) {
+function literalCpp(node) {
+  const type = node.data?.varType || "float";
+  const raw = node.data?.value;
+  if (type === "bool") return /^(true|1)$/i.test(String(raw || "")) ? "true" : "false";
+  if (type === "int") {
+    const n = Number.parseInt(String(raw ?? "0").replace(/[^0-9-]/g, ""), 10);
+    return Number.isFinite(n) ? String(n) : "0";
+  }
+  if (type === "string") return `TEXT("${String(raw || "").replace(/["\\]/g, "")}")`;
+  if (type === "name") return `FName(TEXT("${String(raw || "None").replace(/["\\]/g, "")}"))`;
+  const n = Number.parseFloat(String(raw ?? "0").replace(/f$/i, ""));
+  return Number.isFinite(n) ? `${n}f` : "0.f";
+}
+
+function exprFor(graph, node, seen = new Set()) {
+  if (!node || seen.has(node.id)) return "0";
+  const next = new Set(seen);
+  next.add(node.id);
+  const arg = (name, fallback) => incomingValue(graph, node, name, next) || fallback;
+  switch (node.catalog) {
+    case "get-variable": return ident(node.data?.variable || "Value");
+    case "literal": return literalCpp(node);
+    case "has-authority": return "HasAuthority()";
+    case "add": return `(${arg("A", "0")} + ${arg("B", "0")})`;
+    case "subtract": return `(${arg("A", "0")} - ${arg("B", "0")})`;
+    case "multiply": return `(${arg("A", "0")} * ${arg("B", "0")})`;
+    case "divide": return `(${arg("A", "1")} / ${arg("B", "1")})`;
+    case "clamp": return `FMath::Clamp(${arg("Value", "0")}, ${arg("Min", "0")}, ${arg("Max", "0")})`;
+    case "lerp": return `FMath::Lerp(${arg("A", "0")}, ${arg("B", "0")}, ${arg("Alpha", "0")})`;
+    case "equal": return `(${arg("A", "0")} == ${arg("B", "0")})`;
+    case "greater": return `(${arg("A", "0")} > ${arg("B", "0")})`;
+    case "less": return `(${arg("A", "0")} < ${arg("B", "0")})`;
+    case "and": return `(${arg("A", "false")} && ${arg("B", "false")})`;
+    case "or": return `(${arg("A", "false")} || ${arg("B", "false")})`;
+    case "not": return `(!${arg("A", "false")})`;
+    case "select": return `(${arg("Pick", "true")} ? ${arg("A", "0")} : ${arg("B", "0")})`;
+    default: return ident(node.label, "Value");
+  }
+}
+
+function incomingValue(graph, node, pinName, seen = new Set()) {
   const pinItem = node.pins.find((item) => item.dir === "in" && item.name === pinName);
   if (!pinItem) return "";
   const wire = graph.wires.find((item) => item.to.node === node.id && item.to.pin === pinItem.id);
   if (!wire) return "";
   const source = graph.nodes.find((item) => item.id === wire.from.node);
   if (!source) return "";
-  if (source.catalog === "get-variable") return ident(source.data?.variable || "Value");
-  if (source.catalog === "has-authority") return "HasAuthority()";
-  return ident(source.label, "Value");
+  return exprFor(graph, source, seen);
 }
 
 function statementFor(node, graph) {

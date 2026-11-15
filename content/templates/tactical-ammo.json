@@ -3,29 +3,32 @@
   "title": "Tactical FPS: Ammo & Reload",
   "summary": "Reload fills the magazine from reserve, or refuses when it cannot.",
   "variables": [
-    {"name": "Mag", "type": "int", "default": "10"},
+    {"name": "Magazine", "type": "int", "default": "10"},
     {"name": "MagSize", "type": "int", "default": "30"},
-    {"name": "Reserve", "type": "int", "default": "90"}
+    {"name": "Reserve", "type": "int", "default": "90"},
+    {"name": "Needed", "type": "int", "default": "0"}
   ],
   "graph": {
     "kind": "event",
     "name": "Reload",
     "nodes": [
       {"key": "input", "catalog": "enhanced-input", "x": 40, "y": 40, "data": {"action": "IA_Reload"}, "note": "IA_Reload is the key. The magazine and the reserve live on the weapon component, not in the widget."},
-      {"key": "mag", "catalog": "get-variable", "x": 40, "y": 200, "data": {"variable": "Mag", "varType": "int"}, "note": "Rounds currently in the gun."},
+      {"key": "mag", "catalog": "get-variable", "x": 40, "y": 200, "data": {"variable": "Magazine", "varType": "int"}, "note": "Rounds currently in the gun. Read this before any Set, because a later Get sees the new value."},
       {"key": "size", "catalog": "get-variable", "x": 40, "y": 300, "data": {"variable": "MagSize", "varType": "int"}, "note": "How many rounds the magazine holds when it is full."},
       {"key": "less", "catalog": "less", "x": 280, "y": 180, "pinType": "int", "note": "Reload only if the magazine is not already full."},
       {"key": "reserve", "catalog": "get-variable", "x": 40, "y": 420, "data": {"variable": "Reserve", "varType": "int"}, "note": "Rounds still in the pack. This is what a reload spends."},
       {"key": "zero", "catalog": "literal", "x": 40, "y": 540, "data": {"varType": "int", "value": "0"}, "note": "Zero reserve means there is nothing to move."},
       {"key": "more", "catalog": "greater", "x": 280, "y": 400, "pinType": "int", "note": "Reserve must be above zero."},
-      {"key": "both", "catalog": "and", "x": 520, "y": 280, "note": "Both questions have to pass. A full mag or an empty pack takes the Else path."},
+      {"key": "both", "catalog": "and", "x": 520, "y": 280, "note": "Both questions have to pass. A full magazine or an empty pack takes the Else path."},
       {"key": "branch", "catalog": "branch", "x": 760, "y": 40, "note": "Then moves rounds. Else tells the player the reload cannot happen."},
       {"key": "missing", "catalog": "subtract", "x": 760, "y": 220, "pinType": "int", "note": "Mag size minus what is already loaded. That is how many rounds would fill the gun."},
-      {"key": "moved", "catalog": "clamp", "x": 1000, "y": 220, "pinType": "int", "note": "Take the smaller of the gap and the reserve. Clamp reserve between 0 and the gap."},
-      {"key": "sum", "catalog": "add", "x": 1240, "y": 160, "pinType": "int", "note": "New magazine count is the old count plus the rounds that moved."},
-      {"key": "setmag", "catalog": "set-variable", "x": 1480, "y": 40, "data": {"variable": "Mag", "varType": "int"}, "note": "Write the magazine. Do this on the server before you play the reload montage."},
-      {"key": "left", "catalog": "subtract", "x": 1240, "y": 360, "pinType": "int", "note": "Reserve loses the same number of rounds the magazine gained."},
-      {"key": "setres", "catalog": "set-variable", "x": 1720, "y": 40, "data": {"variable": "Reserve", "varType": "int"}, "note": "Write the reserve. The HUD reads both numbers. It does not decide them."},
+      {"key": "moved", "catalog": "clamp", "x": 1000, "y": 220, "pinType": "int", "note": "Needed is the smaller of the gap and the reserve. Clamp reserve between 0 and the gap."},
+      {"key": "setneed", "catalog": "set-variable", "x": 1240, "y": 40, "data": {"variable": "Needed", "varType": "int"}, "note": "Save Needed before either other Set. Pure math runs again for the next Set, so both Sets must read this cached count."},
+      {"key": "got", "catalog": "get-variable", "x": 1240, "y": 200, "data": {"variable": "Needed", "varType": "int"}, "note": "The cached count. Magazine and Reserve both add or subtract this same number."},
+      {"key": "sum", "catalog": "add", "x": 1480, "y": 180, "pinType": "int", "note": "New magazine count is the old count plus Needed."},
+      {"key": "setmag", "catalog": "set-variable", "x": 1720, "y": 40, "data": {"variable": "Magazine", "varType": "int"}, "note": "Write the magazine from the cached Needed. Do this on the server before you play the reload montage."},
+      {"key": "left", "catalog": "subtract", "x": 1480, "y": 340, "pinType": "int", "note": "Reserve loses the same cached Needed. Do not clamp again here, or a full reload would see a gap of zero."},
+      {"key": "setres", "catalog": "set-variable", "x": 1960, "y": 40, "data": {"variable": "Reserve", "varType": "int"}, "note": "Write the reserve from that same Needed. The HUD reads both numbers. It does not decide them."},
       {"key": "nope", "catalog": "print-string", "x": 1040, "y": 40, "data": {"text": "Cannot reload"}, "note": "Else is a full magazine or an empty reserve. A sound is enough. Do not zero the magazine here."}
     ],
     "wires": [
@@ -42,14 +45,16 @@
       {"from": "reserve", "fromPin": "Value", "to": "moved", "toPin": "Value"},
       {"from": "zero", "fromPin": "Value", "to": "moved", "toPin": "Min"},
       {"from": "missing", "fromPin": "Result", "to": "moved", "toPin": "Max"},
+      {"from": "moved", "fromPin": "Result", "to": "setneed", "toPin": "Value"},
       {"from": "mag", "fromPin": "Value", "to": "sum", "toPin": "A"},
-      {"from": "moved", "fromPin": "Result", "to": "sum", "toPin": "B"},
+      {"from": "got", "fromPin": "Value", "to": "sum", "toPin": "B"},
       {"from": "sum", "fromPin": "Result", "to": "setmag", "toPin": "Value"},
       {"from": "reserve", "fromPin": "Value", "to": "left", "toPin": "A"},
-      {"from": "moved", "fromPin": "Result", "to": "left", "toPin": "B"},
+      {"from": "got", "fromPin": "Value", "to": "left", "toPin": "B"},
       {"from": "left", "fromPin": "Result", "to": "setres", "toPin": "Value"},
-      {"from": "branch", "fromPin": "Then", "to": "setres", "toPin": "Exec"},
-      {"from": "setres", "fromPin": "Exec", "to": "setmag", "toPin": "Exec"},
+      {"from": "branch", "fromPin": "Then", "to": "setneed", "toPin": "Exec"},
+      {"from": "setneed", "fromPin": "Exec", "to": "setmag", "toPin": "Exec"},
+      {"from": "setmag", "fromPin": "Exec", "to": "setres", "toPin": "Exec"},
       {"from": "branch", "fromPin": "Else", "to": "nope", "toPin": "Exec"}
     ]
   }
