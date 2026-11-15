@@ -263,7 +263,11 @@ html, body, #root {
   font-size: 11.5px;
 }
 .node-header {
-  padding: 5px 9px;
+  box-sizing: border-box;
+  height: 28px;
+  padding: 0 9px;
+  display: flex;
+  align-items: center;
   font-weight: 700;
   font-size: 11px;
   color: #fff;
@@ -271,7 +275,7 @@ html, body, #root {
   text-transform: uppercase;
 }
 .node-body { padding: 8px 10px; color: var(--text-secondary); }
-.node-pin { display:flex; align-items:center; gap:6px; min-height: 22px; padding: 0 2px; cursor: crosshair; }
+.node-pin { display:flex; align-items:center; gap:6px; height: 22px; min-height: 22px; padding: 0 2px; cursor: crosshair; box-sizing: border-box; }
 .node-pin.out { justify-content: flex-end; }
 .node-pin.is-hot .node-dot { box-shadow: 0 0 0 3px #fff; }
 .node-dot { width: 18px; height: 18px; border-radius: 50%; display:inline-block; flex: 0 0 18px; box-shadow: 0 0 0 2px rgba(0,0,0,0.45); }

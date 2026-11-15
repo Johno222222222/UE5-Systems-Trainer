@@ -5,7 +5,7 @@ export const PIN_COLORS = {
   exec: "#ffffff",
   bool: "#e02424",
   int: "#1fd4c8",
-  float: "#9ae600",
+  float: "#e6d24a",
   string: "#e040a0",
   name: "#c44bd4",
   object: "#2f7dff",
@@ -436,37 +436,37 @@ function firstCompatiblePin(graph, fromNode, fromPin, node) {
   return ordered.find((item) => canConnect(graph, fromNode, fromPin, node.id, item.id).ok) || null;
 }
 
-function pinRowRect(node, pin) {
-  const list = (node.pins || []).filter((item) => item.dir === pin.dir);
-  const index = Math.max(0, list.findIndex((item) => item.id === pin.id));
-  const top = node.y + GRAPH_LAYOUT.header + GRAPH_LAYOUT.bodyPad + index * GRAPH_LAYOUT.row;
-  const pad = 10;
-  return {
-    x: node.x - pad,
-    y: top - 4,
-    w: GRAPH_LAYOUT.nodeW + pad * 2,
-    h: GRAPH_LAYOUT.row + 8,
-  };
+function rowPins(node) {
+  const inputs = (node?.pins || []).filter((item) => item.dir === "in");
+  const outputs = (node?.pins || []).filter((item) => item.dir === "out");
+  const count = Math.max(inputs.length, outputs.length, 1);
+  const rows = [];
+  for (let index = 0; index < count; index += 1) rows.push({ input: inputs[index] || null, output: outputs[index] || null });
+  return rows;
 }
 
-function pointInRect(point, rect) {
-  return point.x >= rect.x && point.y >= rect.y && point.x <= rect.x + rect.w && point.y <= rect.y + rect.h;
+// One visual row. A row with only a Value pin targets that pin on either side,
+// so a drop cannot fall through onto the Exec row above it.
+export function pinAtPoint(node, point) {
+  if (!node) return null;
+  const rows = rowPins(node);
+  const top = node.y + GRAPH_LAYOUT.header + GRAPH_LAYOUT.bodyPad;
+  const bottom = top + rows.length * GRAPH_LAYOUT.row;
+  if (point.y < top || point.y >= bottom) return null;
+  if (point.x < node.x - 12 || point.x > node.x + GRAPH_LAYOUT.nodeW + 12) return null;
+  const index = Math.min(rows.length - 1, Math.max(0, Math.floor((point.y - top) / GRAPH_LAYOUT.row)));
+  const row = rows[index];
+  if (row.input && !row.output) return row.input;
+  if (row.output && !row.input) return row.output;
+  return point.x < node.x + GRAPH_LAYOUT.nodeW / 2 ? row.input : row.output;
 }
 
-export function pinUnderPoint(graph, point, zoom = 1, hitPx = GRAPH_LAYOUT.hitPx) {
-  const radius = hitPx / (zoom || 1);
-  let best = null;
+export function pinUnderPoint(graph, point) {
   for (const node of graph.nodes || []) {
-    for (const pin of node.pins || []) {
-      const row = pinRowRect(node, pin);
-      const center = pinCenter(node, pin);
-      const dist = Math.hypot(center.x - point.x, center.y - point.y);
-      if (!pointInRect(point, row) && dist > radius) continue;
-      const score = pointInRect(point, row) ? dist * 0.25 : dist;
-      if (!best || score < best.score) best = { nodeId: node.id, pinId: pin.id, dist, score };
-    }
+    const pin = pinAtPoint(node, point);
+    if (pin) return { nodeId: node.id, pinId: pin.id, dist: 0, score: 0 };
   }
-  return best;
+  return null;
 }
 
 export function nodeUnderPoint(graph, point) {
@@ -489,39 +489,19 @@ function compatibleOnNode(graph, fromNode, fromPin, node) {
   return ordered.find((item) => canConnect(graph, fromNode, fromPin, node.id, item.id).ok) || null;
 }
 
-export function pickWireTarget(graph, fromNode, fromPin, point, { zoom = 1, hitPx = GRAPH_LAYOUT.hitPx, targetNode, targetPin } = {}) {
+export function pickWireTarget(graph, fromNode, fromPin, point, { targetNode, targetPin } = {}) {
   const source = findPin(graph, fromNode, fromPin);
-  if (targetNode && targetPin && !(targetNode === fromNode && targetPin === fromPin)) {
-    const node = (graph.nodes || []).find((item) => item.id === targetNode);
-    const pin = findPin(graph, targetNode, targetPin);
-    if (pin && source && ((source.type === "exec") === (pin.type === "exec"))) {
-      const check = canConnect(graph, fromNode, fromPin, targetNode, targetPin);
-      if (check.ok) return { ok: true, nodeId: targetNode, pinId: targetPin, how: "pin", hover: { nodeId: targetNode, pinId: targetPin } };
-      return { ok: false, reason: check.reason, how: "pin", hover: { nodeId: targetNode, pinId: targetPin } };
-    }
-    const better = compatibleOnNode(graph, fromNode, fromPin, node);
-    if (better) return { ok: true, nodeId: node.id, pinId: better.id, how: "pin", hover: { nodeId: node.id, pinId: better.id } };
-    if (pin) {
-      const check = canConnect(graph, fromNode, fromPin, targetNode, targetPin);
-      return { ok: false, reason: check.reason, how: "pin", hover: { nodeId: targetNode, pinId: targetPin } };
-    }
-  }
-  const near = pinUnderPoint(graph, point, zoom, hitPx);
-  if (near && !(near.nodeId === fromNode && near.pinId === fromPin)) {
-    const node = (graph.nodes || []).find((item) => item.id === near.nodeId);
-    const nearPin = findPin(graph, near.nodeId, near.pinId);
-    const sameKind = source && nearPin && ((source.type === "exec") === (nearPin.type === "exec"));
-    if (sameKind) {
-      const check = canConnect(graph, fromNode, fromPin, near.nodeId, near.pinId);
-      if (check.ok) return { ok: true, nodeId: near.nodeId, pinId: near.pinId, how: "pin", hover: near };
-      return { ok: false, reason: check.reason, hover: near, how: "pin" };
-    }
-    const better = compatibleOnNode(graph, fromNode, fromPin, node);
-    if (better) return { ok: true, nodeId: node.id, pinId: better.id, how: "pin", hover: { nodeId: node.id, pinId: better.id } };
-    if (nearPin) {
-      const check = canConnect(graph, fromNode, fromPin, near.nodeId, near.pinId);
-      return { ok: false, reason: check.reason, hover: near, how: "pin" };
-    }
+  const near = pinUnderPoint(graph, point);
+  const onRow = near && !(near.nodeId === fromNode && near.pinId === fromPin) ? near : null;
+  const explicit = !onRow && targetNode && targetPin && !(targetNode === fromNode && targetPin === fromPin)
+    ? { nodeId: targetNode, pinId: targetPin }
+    : null;
+  const chosen = onRow || explicit;
+  if (chosen) {
+    const check = canConnect(graph, fromNode, fromPin, chosen.nodeId, chosen.pinId);
+    const hover = { nodeId: chosen.nodeId, pinId: chosen.pinId };
+    if (check.ok) return { ok: true, nodeId: chosen.nodeId, pinId: chosen.pinId, how: "pin", hover };
+    return { ok: false, reason: check.reason, how: "pin", nodeId: chosen.nodeId, pinId: chosen.pinId, hover };
   }
   const body = nodeUnderPoint(graph, point);
   if (body && body.id !== fromNode) {
@@ -543,9 +523,10 @@ export function tryWire(graph, fromNode, fromPin, toNode, toPin) {
   if (!check.ok) return { graph, ok: false, reason: check.reason };
   let wires = graph.wires.filter((wire) => !(wire.from.node === check.from.node && wire.from.pin === check.from.pin && wire.to.node === check.to.node && wire.to.pin === check.to.pin));
   if (check.exec) {
+    // An exec output has one wire. An exec input keeps every incoming wire.
     wires = wires.filter((wire) => !(wire.from.node === check.from.node && wire.from.pin === check.from.pin));
-    wires = wires.filter((wire) => !(wire.to.node === check.to.node && wire.to.pin === check.to.pin));
   } else {
+    // A data input has one wire. A data output can fan out.
     wires = wires.filter((wire) => !(wire.to.node === check.to.node && wire.to.pin === check.to.pin));
   }
   wires = [...wires, { id: uid("w"), from: check.from, to: check.to }];
@@ -812,11 +793,11 @@ function emitBody(graph, node, indent, seen, out) {
     const cond = incomingValue(graph, node, "Condition") || "true";
     out.push(`${indent}if (${cond}) // node:${node.id}`);
     out.push(`${indent}{`);
-    emitBody(graph, outgoing(graph, node, execOut.find((item) => item.name === "Then")?.id), `${indent}\t`, nextSeen, out);
+    emitBody(graph, outgoing(graph, node, execOut.find((item) => item.name === "Then")?.id), `${indent}\t`, new Set(nextSeen), out);
     out.push(`${indent}}`);
     out.push(`${indent}else`);
     out.push(`${indent}{`);
-    emitBody(graph, outgoing(graph, node, execOut.find((item) => item.name === "Else")?.id), `${indent}\t`, nextSeen, out);
+    emitBody(graph, outgoing(graph, node, execOut.find((item) => item.name === "Else")?.id), `${indent}\t`, new Set(nextSeen), out);
     out.push(`${indent}}`);
     return;
   }
@@ -829,9 +810,9 @@ function emitBody(graph, node, indent, seen, out) {
         : `while (${incomingValue(graph, node, "Condition") || "true"})`;
     out.push(`${indent}${head} // node:${node.id}`);
     out.push(`${indent}{`);
-    emitBody(graph, outgoing(graph, node, node.pins.find((item) => item.name === "Loop Body")?.id), `${indent}\t`, nextSeen, out);
+    emitBody(graph, outgoing(graph, node, node.pins.find((item) => item.name === "Loop Body")?.id), `${indent}\t`, new Set(nextSeen), out);
     out.push(`${indent}}`);
-    emitBody(graph, outgoing(graph, node, node.pins.find((item) => item.name === "Completed")?.id), indent, nextSeen, out);
+    emitBody(graph, outgoing(graph, node, node.pins.find((item) => item.name === "Completed")?.id), indent, new Set(nextSeen), out);
     return;
   }
   if (node.catalog === "call-macro") {
@@ -850,7 +831,7 @@ function emitBody(graph, node, indent, seen, out) {
     execOut.forEach((item) => {
       out.push(`${indent}// ${item.name}`);
       out.push(`${indent}{`);
-      emitBody(graph, outgoing(graph, node, item.id), `${indent}\t`, nextSeen, out);
+      emitBody(graph, outgoing(graph, node, item.id), `${indent}\t`, new Set(nextSeen), out);
       out.push(`${indent}}`);
     });
     return;
@@ -1240,12 +1221,12 @@ export function readDocument(system) {
   const stored = Array.isArray(system?.graphs?.items) ? system.graphs.items : [];
   const items = stored.map((item) => normalizeGraph(item));
   if (!items.some((item) => item.kind === "event" || item.id === "event")) items.unshift(readEventGraph(system));
-  return {
+  return applyVariableTypes({
     schema: 1,
     active: system?.graphs?.active || items[0]?.id || "event",
     variables: Array.isArray(system?.graphs?.variables) ? system.graphs.variables.map((item) => ({ ...item })) : [],
     items,
-  };
+  });
 }
 
 export function writeDocument(system, doc) {
@@ -1344,13 +1325,56 @@ export function addVariable(doc, patch = {}) {
   return { ...doc, variables: [...(doc.variables || []), variable] };
 }
 
+function variablePinType(variable) {
+  return canonicalType(variable?.type === "actor" ? "object" : (variable?.type || "float"), "");
+}
+
+function applyVariableTypes(doc) {
+  const variables = doc.variables || [];
+  const byId = new Map(variables.map((item) => [item.id, item]));
+  const byName = new Map(variables.map((item) => [item.name, item]));
+  return {
+    ...doc,
+    items: (doc.items || []).map((graph) => {
+      const nodes = (graph.nodes || []).map((node) => {
+        if (node.catalog !== "get-variable" && node.catalog !== "set-variable") return node;
+        const variable = byId.get(node.data?.variableId) || byName.get(node.data?.variable);
+        if (!variable) return node;
+        const type = variablePinType(variable);
+        return {
+          ...node,
+          label: node.catalog === "set-variable" ? `Set ${variable.name}` : `Get ${variable.name}`,
+          data: { ...node.data, variable: variable.name, varType: type, variableId: variable.id },
+          pins: (node.pins || []).map((pin) => (pin.name === "Value" ? { ...pin, type } : pin)),
+        };
+      });
+      const next = { ...graph, nodes };
+      return {
+        ...next,
+        wires: (graph.wires || []).filter((wire) => canConnect(next, wire.from.node, wire.from.pin, wire.to.node, wire.to.pin).ok),
+      };
+    }),
+  };
+}
+
 export function updateVariable(doc, id, patch) {
   const nextName = patch.name != null ? String(patch.name).trim() : null;
   if (nextName) {
     const clash = (doc.variables || []).some((item) => item.id !== id && String(item.name || "").toLowerCase() === nextName.toLowerCase());
     if (clash) return doc;
   }
-  return { ...doc, variables: (doc.variables || []).map((item) => (item.id === id ? { ...item, ...patch, ...(nextName ? { name: nextName } : {}) } : item)) };
+  const previous = (doc.variables || []).find((item) => item.id === id);
+  const variables = (doc.variables || []).map((item) => (item.id === id ? { ...item, ...patch, ...(nextName ? { name: nextName } : {}) } : item));
+  const renamed = variables.find((item) => item.id === id);
+  const items = (doc.items || []).map((graph) => ({
+    ...graph,
+    nodes: (graph.nodes || []).map((node) => {
+      const owns = node.data?.variableId === id || (previous && node.data?.variable === previous.name);
+      if (!owns || (node.catalog !== "get-variable" && node.catalog !== "set-variable")) return node;
+      return { ...node, data: { ...node.data, variable: renamed.name, variableId: id } };
+    }),
+  }));
+  return applyVariableTypes({ ...doc, variables, items });
 }
 
 export function deleteVariable(doc, id) {
@@ -1358,7 +1382,7 @@ export function deleteVariable(doc, id) {
 }
 
 export function variableNode(variable, kind, x, y) {
-  const type = canonicalType(variable.type === "actor" ? "object" : (variable.type || "float"), "");
+  const type = variablePinType(variable);
   return createNode(kind === "set" ? "set-variable" : "get-variable", x, y, {
     data: { variable: variable.name, varType: type, variableId: variable.id },
   });

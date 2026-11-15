@@ -626,15 +626,15 @@ export default function EventGraph({
                 <div className="node-header"><span className="truncate">{node.label}</span></div>
                 <div className="node-body">
                   {Array.from({ length: rows }, (_, index) => (
-                    <div key={index} className="flex justify-between gap-2" style={{ minHeight: GRAPH_LAYOUT.row }}>
+                    <div key={index} className="flex justify-between gap-2" style={{ height: GRAPH_LAYOUT.row, minHeight: GRAPH_LAYOUT.row }}>
                       {inputs[index] ? (
-                        <div className={`node-pin ${(hotPin?.nodeId === node.id && hotPin?.pinId === inputs[index].id) || (armed?.nodeId === node.id && armed?.pinId === inputs[index].id) ? "is-hot" : ""}`} data-pin-node={node.id} data-pin-id={inputs[index].id} data-testid={`pin-${node.id}-${inputs[index].id}`}>
+                        <div className={`node-pin ${outputs[index] ? "" : "flex-1"} ${(hotPin?.nodeId === node.id && hotPin?.pinId === inputs[index].id) || (armed?.nodeId === node.id && armed?.pinId === inputs[index].id) ? "is-hot" : ""}`} data-pin-node={node.id} data-pin-id={inputs[index].id} data-testid={`pin-${node.id}-${inputs[index].id}`}>
                           <span className="node-dot" style={{ background: pinColor(inputs[index].type) }} />
                           <span>{inputs[index].name}</span>
                         </div>
                       ) : <span />}
                       {outputs[index] ? (
-                        <div className={`node-pin out ${(hotPin?.nodeId === node.id && hotPin?.pinId === outputs[index].id) || (armed?.nodeId === node.id && armed?.pinId === outputs[index].id) ? "is-hot" : ""}`} data-pin-node={node.id} data-pin-id={outputs[index].id} data-testid={`pin-${node.id}-${outputs[index].id}`}>
+                        <div className={`node-pin out ${inputs[index] ? "" : "flex-1"} ${(hotPin?.nodeId === node.id && hotPin?.pinId === outputs[index].id) || (armed?.nodeId === node.id && armed?.pinId === outputs[index].id) ? "is-hot" : ""}`} data-pin-node={node.id} data-pin-id={outputs[index].id} data-testid={`pin-${node.id}-${outputs[index].id}`}>
                           <span>{outputs[index].name}</span>
                           <span className="node-dot" style={{ background: pinColor(outputs[index].type) }} />
                         </div>
