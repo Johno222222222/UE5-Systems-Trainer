@@ -287,7 +287,13 @@ export default function EventGraph({
         }
       } else {
         const point = toGraph(event.clientX, event.clientY);
-        const hit = pickWireTarget(graph, drag.nodeId, drag.pinId, point, { zoom });
+        const stack = document.elementsFromPoint(event.clientX, event.clientY);
+        const pinEl = stack.map((el) => el.closest?.("[data-pin-id]")).find(Boolean);
+        const hit = pickWireTarget(graph, drag.nodeId, drag.pinId, point, {
+          zoom,
+          targetNode: pinEl?.dataset?.pinNode,
+          targetPin: pinEl?.dataset?.pinId,
+        });
         if (hit.ok) {
           const result = tryWire(graph, drag.nodeId, drag.pinId, hit.nodeId, hit.pinId);
           if (result.ok) { commit(result.graph); setHint(null); setArmed(null); }
@@ -447,6 +453,19 @@ export default function EventGraph({
             <LibraryRow key={item.id} item={item} active={activeMeta?.id === item.id} testId={`macro-${item.id}`} onOpen={() => { setOpenTabs((tabs) => (tabs.includes(item.id) ? tabs : [...tabs, item.id])); setActiveId(item.id); }} onRename={(name) => publish(renameGraph(doc, item.id, name))} onDelete={() => publish(deleteGraph(doc, item.id))} />
           ))}
           <div className="mt-3 flex items-center justify-between"><span className="eyebrow">Variables</span><button type="button" className="graph-lib-add" data-testid="add-variable" onClick={() => publish(addVariable(doc, { name: "NewVar", type: "float" }))}>+</button></div>
+          {(activeMeta?.kind === "function" || activeMeta?.kind === "macro") && (
+            <div className="graph-signature" data-testid="signature-editor">
+              <div className="eyebrow mt-3">{activeMeta.kind}</div>
+              <label className="block text-[11px] mt-1">Inputs <input className="graph-search" aria-label="Inputs" defaultValue={(activeMeta.inputs || []).map((item) => `${item.name}:${item.type}`).join(", ")} onBlur={(event) => publish(setFunctionSignature(doc, activeMeta.id, { inputs: parsePins(event.target.value), outputs: activeMeta.outputs || [], pure: !!activeMeta.pure, callable: activeMeta.callable !== false }))} /></label>
+              <label className="block text-[11px] mt-1">Outputs <input className="graph-search" aria-label="Outputs" defaultValue={(activeMeta.outputs || []).map((item) => `${item.name}:${item.type}`).join(", ")} onBlur={(event) => publish(setFunctionSignature(doc, activeMeta.id, { inputs: activeMeta.inputs || [], outputs: parsePins(event.target.value), pure: !!activeMeta.pure, callable: activeMeta.callable !== false }))} /></label>
+              {activeMeta.kind === "function" && (
+                <label className="flex items-center gap-2 text-[12px] mt-1"><input type="checkbox" data-testid="pure-toggle" checked={!!activeMeta.pure} onChange={(event) => publish(setFunctionSignature(doc, activeMeta.id, { inputs: activeMeta.inputs || [], outputs: activeMeta.outputs || [], pure: event.target.checked, callable: activeMeta.callable !== false }))} /> Pure</label>
+              )}
+              {activeMeta.kind === "function" && (
+                <label className="flex items-center gap-2 text-[12px]"><input type="checkbox" data-testid="callable-toggle" checked={activeMeta.callable !== false} onChange={(event) => publish(setFunctionSignature(doc, activeMeta.id, { inputs: activeMeta.inputs || [], outputs: activeMeta.outputs || [], pure: !!activeMeta.pure, callable: event.target.checked }))} /> BlueprintCallable</label>
+              )}
+            </div>
+          )}
           {(doc.variables || []).map((variable) => (
             <div key={variable.id} className="graph-lib-item" draggable data-testid={`variable-${variable.id}`} onClick={() => setVarMenu({ edit: variable.id })} onDragStart={(event) => event.dataTransfer.setData("text/plain", `var:${variable.id}`)}>
               <span>{variable.name}</span>
@@ -681,19 +700,6 @@ export default function EventGraph({
             {explainState === "loading" && <p className="text-[12px] text-[var(--text-muted)]" data-testid="graph-explain-loading">Asking for a walkthrough…</p>}
             {explainError && <p className="text-[12px] text-[var(--accent-red)] mb-1" data-testid="graph-explain-error">{explainError}</p>}
             <p className="text-[12.5px] text-[var(--text-secondary)]"><GlossaryText text={summary} /></p>
-          </div>
-        )}
-        {(activeMeta?.kind === "function" || activeMeta?.kind === "macro") && (
-          <div className="graph-signature panel p-2" data-testid="signature-editor" data-graph-chrome onPointerDown={(event) => event.stopPropagation()}>
-            <div className="eyebrow">{activeMeta.kind}</div>
-            <label className="block text-[11px] mt-1">Inputs <input className="graph-search" aria-label="Inputs" defaultValue={(activeMeta.inputs || []).map((item) => `${item.name}:${item.type}`).join(", ")} onBlur={(event) => publish(setFunctionSignature(doc, activeMeta.id, { inputs: parsePins(event.target.value), outputs: activeMeta.outputs || [], pure: !!activeMeta.pure, callable: activeMeta.callable !== false }))} /></label>
-            <label className="block text-[11px] mt-1">Outputs <input className="graph-search" aria-label="Outputs" defaultValue={(activeMeta.outputs || []).map((item) => `${item.name}:${item.type}`).join(", ")} onBlur={(event) => publish(setFunctionSignature(doc, activeMeta.id, { inputs: activeMeta.inputs || [], outputs: parsePins(event.target.value), pure: !!activeMeta.pure, callable: activeMeta.callable !== false }))} /></label>
-            {activeMeta.kind === "function" && (
-              <label className="flex items-center gap-2 text-[12px] mt-1"><input type="checkbox" data-testid="pure-toggle" checked={!!activeMeta.pure} onChange={(event) => publish(setFunctionSignature(doc, activeMeta.id, { inputs: activeMeta.inputs || [], outputs: activeMeta.outputs || [], pure: event.target.checked, callable: activeMeta.callable !== false }))} /> Pure</label>
-            )}
-            {activeMeta.kind === "function" && (
-              <label className="flex items-center gap-2 text-[12px]"><input type="checkbox" data-testid="callable-toggle" checked={activeMeta.callable !== false} onChange={(event) => publish(setFunctionSignature(doc, activeMeta.id, { inputs: activeMeta.inputs || [], outputs: activeMeta.outputs || [], pure: !!activeMeta.pure, callable: event.target.checked }))} /> BlueprintCallable</label>
-            )}
           </div>
         )}
         {varMenu?.id && (

@@ -224,3 +224,67 @@ test("functions, macros, variables, and collapse generate C++", async () => {
   assert.ok(warns.some((item) => item.lock === "cast-loop"));
   assert.equal(g.refactorCheck(applied.system).pass, true);
 });
+
+test("entry exec wires to return exec, a float does not, and generated functions stay outside the event block", async () => {
+  const g = await graphLib();
+  let doc = g.readDocument({ cpp_header: HEADER, cpp_source: SOURCE, node_graph_nodes: [], node_graph_edges: [] });
+  doc = g.addFunction(doc, "NewFunction");
+  doc = g.addFunction(doc, "NewFunction");
+  const names = doc.items.filter((item) => item.kind === "function").map((item) => item.name);
+  assert.deepEqual(names, ["NewFunction", "NewFunction_1"]);
+  assert.equal(g.renameGraph(doc, doc.items.find((item) => item.name === "NewFunction_1").id, "NewFunction").items.filter((item) => item.name === "NewFunction").length, 1);
+
+  doc = g.addMacro(doc, "NewMacro");
+  doc = g.addVariable(doc, { name: "NewVar", type: "float" });
+  doc = g.addVariable(doc, { name: "NewVar", type: "bool" });
+  assert.deepEqual(doc.variables.map((item) => item.name), ["NewVar", "NewVar_1"]);
+  const renamed = g.updateVariable(doc, doc.variables[1].id, { name: "NewVar" });
+  assert.equal(renamed.variables[1].name, "NewVar_1");
+
+  const fn = doc.items.find((item) => item.name === "NewFunction");
+  const entry = fn.nodes.find((node) => node.catalog === "entry");
+  const ret = fn.nodes.find((node) => node.catalog === "return");
+  const execHit = g.pickWireTarget(fn, entry.id, "out-exec", g.pinCenter(ret, ret.pins[0]), { zoom: 0.85 });
+  assert.equal(execHit.ok, true);
+  assert.equal(execHit.pinId, "in-exec");
+  const get = g.variableNode(doc.variables[0], "get", ret.x - 160, ret.y);
+  fn.nodes.push(get);
+  const floatPin = get.pins.find((pin) => pin.name === "Value");
+  const bad = g.pickWireTarget(fn, get.id, floatPin.id, g.pinCenter(ret, ret.pins[0]), { zoom: 1, targetNode: ret.id, targetPin: "in-exec" });
+  assert.equal(bad.ok, false);
+  assert.match(bad.reason, /does not connect to Execution|Execution/);
+
+  const macro = doc.items.find((item) => item.kind === "macro");
+  const inputs = macro.nodes.find((node) => node.catalog === "macro-in");
+  const outputs = macro.nodes.find((node) => node.catalog === "macro-out");
+  const macroHit = g.pickWireTarget(macro, inputs.id, "out-exec", { x: outputs.x + 20, y: outputs.y + 40 }, { zoom: 1 });
+  assert.equal(macroHit.ok, true);
+  assert.equal(macroHit.pinId, "in-exec");
+
+  const sets = [
+    ["set", "NewVar", "float", 200],
+    ["setb", "Flag", "bool", 280],
+    ["setv", "Pos", "vector", 360],
+    ["seto", "Actor", "object", 440],
+  ];
+  let previous = { node: entry.id, pin: "out-exec" };
+  for (const [id, variable, varType, y] of sets) {
+    fn.nodes.push(g.createNode("set-variable", 240, y, { id, data: { variable, varType } }));
+    fn.wires.push({ id: `w-${id}`, from: previous, to: { node: id, pin: "in-exec" } });
+    previous = { node: id, pin: "out-exec" };
+  }
+  const applied = g.commitDocument({ cpp_header: HEADER, cpp_source: SOURCE }, doc);
+  assert.match(applied.system.cpp_source, /NewVar = 0\.f;/);
+  assert.doesNotMatch(applied.system.cpp_source, /NewVar = NewVar/);
+  assert.match(applied.system.cpp_source, /Flag = false;/);
+  assert.match(applied.system.cpp_source, /Pos = FVector::ZeroVector;/);
+  assert.match(applied.system.cpp_source, /Actor = nullptr;/);
+  const eventStart = applied.system.cpp_source.indexOf("// graph:begin event");
+  const eventEnd = applied.system.cpp_source.indexOf("// graph:end event");
+  const fnAt = applied.system.cpp_source.indexOf("void UKitComponent::NewFunction");
+  assert.ok(fnAt > eventEnd || fnAt < eventStart);
+  assert.match(applied.system.cpp_source, /\/\/ graph:begin function NewFunction/);
+  assert.match(applied.system.cpp_header, /UFUNCTION\(BlueprintCallable, Category="Graph"\)/);
+  const twice = g.commitDocument(applied.system, doc);
+  assert.equal((twice.system.cpp_source.match(/void UKitComponent::NewFunction\(/g) || []).length, 1);
+});

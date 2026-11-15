@@ -191,6 +191,16 @@ export function normalizeGraph(graph) {
   };
 }
 
+function canonicalType(type, name) {
+  if (/^exec$/i.test(String(name || ""))) return "exec";
+  const raw = String(type || "float").toLowerCase();
+  const map = {
+    int32: "int", integer: "int", boolean: "bool", fstring: "string", fname: "name",
+    fvector: "vector", frotator: "rotator", actor: "object",
+  };
+  return map[raw] || raw;
+}
+
 function normalizeNode(node) {
   const catalog = BY_ID.get(node?.catalog);
   const data = { ...(node?.data || {}) };
@@ -199,7 +209,7 @@ function normalizeNode(node) {
       id: item.id || pinSlug(item.dir || "out", item.name || index),
       name: String(item.name || "Pin"),
       dir: item.dir === "in" ? "in" : "out",
-      type: item.type || "wildcard",
+      type: canonicalType(item.type, item.name),
     }))
     : (catalog ? pinsFromSpec(catalog, data) : []);
   return {
@@ -426,15 +436,34 @@ function firstCompatiblePin(graph, fromNode, fromPin, node) {
   return ordered.find((item) => canConnect(graph, fromNode, fromPin, node.id, item.id).ok) || null;
 }
 
+function pinRowRect(node, pin) {
+  const list = (node.pins || []).filter((item) => item.dir === pin.dir);
+  const index = Math.max(0, list.findIndex((item) => item.id === pin.id));
+  const top = node.y + GRAPH_LAYOUT.header + GRAPH_LAYOUT.bodyPad + index * GRAPH_LAYOUT.row;
+  const pad = 10;
+  return {
+    x: node.x - pad,
+    y: top - 4,
+    w: GRAPH_LAYOUT.nodeW + pad * 2,
+    h: GRAPH_LAYOUT.row + 8,
+  };
+}
+
+function pointInRect(point, rect) {
+  return point.x >= rect.x && point.y >= rect.y && point.x <= rect.x + rect.w && point.y <= rect.y + rect.h;
+}
+
 export function pinUnderPoint(graph, point, zoom = 1, hitPx = GRAPH_LAYOUT.hitPx) {
   const radius = hitPx / (zoom || 1);
   let best = null;
   for (const node of graph.nodes || []) {
     for (const pin of node.pins || []) {
+      const row = pinRowRect(node, pin);
       const center = pinCenter(node, pin);
       const dist = Math.hypot(center.x - point.x, center.y - point.y);
-      if (dist > radius) continue;
-      if (!best || dist < best.dist) best = { nodeId: node.id, pinId: pin.id, dist };
+      if (!pointInRect(point, row) && dist > radius) continue;
+      const score = pointInRect(point, row) ? dist * 0.25 : dist;
+      if (!best || score < best.score) best = { nodeId: node.id, pinId: pin.id, dist, score };
     }
   }
   return best;
@@ -449,16 +478,60 @@ export function nodeUnderPoint(graph, point) {
 }
 
 // A drop near a compatible pin wins. A drop on the node body uses its first compatible pin.
-export function pickWireTarget(graph, fromNode, fromPin, point, { zoom = 1, hitPx = GRAPH_LAYOUT.hitPx } = {}) {
+function compatibleOnNode(graph, fromNode, fromPin, node) {
+  const source = findPin(graph, fromNode, fromPin);
+  if (!source || !node || node.id === fromNode) return null;
+  const want = source.dir === "out" ? "in" : "out";
+  const pins = (node.pins || []).filter((item) => item.dir === want);
+  const ordered = source.type === "exec"
+    ? pins.filter((item) => item.type === "exec")
+    : pins.filter((item) => item.type !== "exec");
+  return ordered.find((item) => canConnect(graph, fromNode, fromPin, node.id, item.id).ok) || null;
+}
+
+export function pickWireTarget(graph, fromNode, fromPin, point, { zoom = 1, hitPx = GRAPH_LAYOUT.hitPx, targetNode, targetPin } = {}) {
+  const source = findPin(graph, fromNode, fromPin);
+  if (targetNode && targetPin && !(targetNode === fromNode && targetPin === fromPin)) {
+    const node = (graph.nodes || []).find((item) => item.id === targetNode);
+    const pin = findPin(graph, targetNode, targetPin);
+    if (pin && source && ((source.type === "exec") === (pin.type === "exec"))) {
+      const check = canConnect(graph, fromNode, fromPin, targetNode, targetPin);
+      if (check.ok) return { ok: true, nodeId: targetNode, pinId: targetPin, how: "pin", hover: { nodeId: targetNode, pinId: targetPin } };
+      return { ok: false, reason: check.reason, how: "pin", hover: { nodeId: targetNode, pinId: targetPin } };
+    }
+    const better = compatibleOnNode(graph, fromNode, fromPin, node);
+    if (better) return { ok: true, nodeId: node.id, pinId: better.id, how: "pin", hover: { nodeId: node.id, pinId: better.id } };
+    if (pin) {
+      const check = canConnect(graph, fromNode, fromPin, targetNode, targetPin);
+      return { ok: false, reason: check.reason, how: "pin", hover: { nodeId: targetNode, pinId: targetPin } };
+    }
+  }
   const near = pinUnderPoint(graph, point, zoom, hitPx);
   if (near && !(near.nodeId === fromNode && near.pinId === fromPin)) {
-    const check = canConnect(graph, fromNode, fromPin, near.nodeId, near.pinId);
-    if (check.ok) return { ok: true, nodeId: near.nodeId, pinId: near.pinId, how: "pin", hover: near };
-    return { ok: false, reason: check.reason, hover: near, how: "pin" };
+    const node = (graph.nodes || []).find((item) => item.id === near.nodeId);
+    const nearPin = findPin(graph, near.nodeId, near.pinId);
+    const sameKind = source && nearPin && ((source.type === "exec") === (nearPin.type === "exec"));
+    if (sameKind) {
+      const check = canConnect(graph, fromNode, fromPin, near.nodeId, near.pinId);
+      if (check.ok) return { ok: true, nodeId: near.nodeId, pinId: near.pinId, how: "pin", hover: near };
+      return { ok: false, reason: check.reason, hover: near, how: "pin" };
+    }
+    const better = compatibleOnNode(graph, fromNode, fromPin, node);
+    if (better) return { ok: true, nodeId: node.id, pinId: better.id, how: "pin", hover: { nodeId: node.id, pinId: better.id } };
+    if (nearPin) {
+      const check = canConnect(graph, fromNode, fromPin, near.nodeId, near.pinId);
+      return { ok: false, reason: check.reason, hover: near, how: "pin" };
+    }
   }
   const body = nodeUnderPoint(graph, point);
   if (body && body.id !== fromNode) {
-    const pin = firstCompatiblePin(graph, fromNode, fromPin, body);
+    const pin = compatibleOnNode(graph, fromNode, fromPin, body) || firstCompatiblePin(graph, fromNode, fromPin, body);
+    if (pin && pin.type !== "exec" && source?.type === "exec") {
+      return { ok: false, reason: "Execution only connects to execution.", hover: null, how: "body" };
+    }
+    if (pin && source?.type !== "exec" && pin.type === "exec") {
+      return { ok: false, reason: `${typeLabel(source?.type)} does not connect to Execution.`, hover: null, how: "body" };
+    }
     if (pin) return { ok: true, nodeId: body.id, pinId: pin.id, how: "body", hover: { nodeId: body.id, pinId: pin.id } };
     return { ok: false, reason: "That node has no pin of the same type.", hover: null, how: "body" };
   }
@@ -677,8 +750,9 @@ function statementFor(node, graph) {
     case "set-variable": {
       const name = ident(node.data?.variable || "Value");
       const wired = incomingValue(graph, node, "Value");
-      const fallback = node.data?.varType === "bool" ? "false" : node.data?.varType === "string" ? 'TEXT("")' : "0";
-      return `${name} = ${wired || fallback};`;
+      const fallback = defaultLiteral({ type: node.data?.varType || "float" });
+      const value = wired && wired !== name ? wired : fallback;
+      return `${name} = ${value};`;
     }
     case "call-function":
       return `${ident(node.data?.function || "Function", "Function")}();`;
@@ -801,6 +875,8 @@ function defaultLiteral(spec) {
   if (spec?.type === "vector") return "FVector::ZeroVector";
   if (spec?.type === "rotator") return "FRotator::ZeroRotator";
   if (spec?.type === "object" || spec?.type === "actor") return "nullptr";
+  if (spec?.type === "int") return "0";
+  if (spec?.type === "float") return "0.f";
   return "0";
 }
 
@@ -836,34 +912,31 @@ export function syncCpp(system, graph) {
     sourceLines.push("");
   }
   const variables = Array.isArray(system?.graphs?.variables) ? system.graphs.variables : [];
+  const variableHeader = [];
+  const variableSource = [];
   for (const variable of variables) {
     const name = ident(variable.name, "Value");
     const flags = variable.replicated
       ? (variable.repNotify ? `ReplicatedUsing=OnRep_${name}` : "Replicated")
       : "EditAnywhere, BlueprintReadWrite";
-    headerLines.push(`\tUPROPERTY(${flags}, Category="Graph")`);
-    headerLines.push(`\t${cppForType(variable)} ${name} = ${defaultLiteral(variable)};`);
+    variableHeader.push(`\tUPROPERTY(${flags}, Category="Graph")`);
+    variableHeader.push(`\t${cppForType(variable)} ${name} = ${defaultLiteral(variable)};`);
     if (variable.repNotify) {
-      headerLines.push(`\tUFUNCTION()`);
-      headerLines.push(`\tvoid OnRep_${name}();`);
-      sourceLines.push(`void ${cls}::OnRep_${name}()`);
-      sourceLines.push(`{`);
-      sourceLines.push(`}`);
-      sourceLines.push("");
+      variableHeader.push(`\tUFUNCTION()`);
+      variableHeader.push(`\tvoid OnRep_${name}();`);
+      variableSource.push(`void ${cls}::OnRep_${name}()`, "{", "}", "");
     }
   }
   if (variables.some((variable) => variable.replicated)) {
-    headerLines.push(`\tvirtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;`);
-    sourceLines.push(`void ${cls}::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const`);
-    sourceLines.push(`{`);
-    sourceLines.push(`\tSuper::GetLifetimeReplicatedProps(OutLifetimeProps);`);
+    variableHeader.push(`\tvirtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;`);
+    variableSource.push(`void ${cls}::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const`, "{", "\tSuper::GetLifetimeReplicatedProps(OutLifetimeProps);");
     for (const variable of variables.filter((item) => item.replicated)) {
-      sourceLines.push(`\tDOREPLIFETIME(${cls}, ${ident(variable.name, "Value")});`);
+      variableSource.push(`\tDOREPLIFETIME(${cls}, ${ident(variable.name, "Value")});`);
     }
-    sourceLines.push(`}`);
-    sourceLines.push("");
+    variableSource.push("}", "");
   }
-  for (const fn of docItems.filter((item) => item && item.kind === "function")) {
+  const functions = docItems.filter((item) => item && item.kind === "function");
+  const functionBlocks = functions.map((fn) => {
     const inputs = Array.isArray(fn.inputs) ? fn.inputs : [];
     const outputs = Array.isArray(fn.outputs) ? fn.outputs : [];
     const params = inputs.map((item) => `${cppForType(item)} ${ident(item.name, "In")}`).join(", ");
@@ -872,18 +945,26 @@ export function syncCpp(system, graph) {
     const name = ident(fn.name, "Function");
     const macro = fn.pure ? `UFUNCTION(BlueprintPure, Category="Graph")` : (fn.callable === false ? `UFUNCTION(Category="Graph")` : `UFUNCTION(BlueprintCallable, Category="Graph")`);
     const entry = (fn.nodes || []).find((node) => node.catalog === "entry");
-    headerLines.push(`\t${macro}`);
-    headerLines.push(`\t${retType} ${name}(${params})${fn.pure ? " const" : ""};${entry ? ` // node:${entry.id}` : ""}`);
-    sourceLines.push(`${retType} ${cls}::${name}(${params})${fn.pure ? " const" : ""}`);
-    sourceLines.push(`{`);
+    const header = [`\t${macro}`, `\t${retType} ${name}(${params})${fn.pure ? " const" : ""};${entry ? ` // node:${entry.id}` : ""}`].join("\n");
+    const body = [];
+    body.push(`${retType} ${cls}::${name}(${params})${fn.pure ? " const" : ""}`);
+    body.push("{");
     const startPin = entry?.pins?.find((item) => item.dir === "out" && item.type === "exec");
-    emitBody({ ...fn, macros: eventGraph.macros }, entry && startPin ? outgoing(fn, entry, startPin.id) : null, "\t", new Set(entry ? [entry.id] : []), sourceLines);
-    if (ret) sourceLines.push(`\treturn ${defaultLiteral(ret)};`);
-    sourceLines.push(`}`);
-    sourceLines.push("");
-  }
-  const header = spliceMarked(system?.cpp_header || "", headerLines.join("\n"), true);
+    emitBody({ ...fn, macros: eventGraph.macros }, entry && startPin ? outgoing(fn, entry, startPin.id) : null, "\t", new Set(entry ? [entry.id] : []), body);
+    if (ret) body.push(`\treturn ${defaultLiteral(ret)};`);
+    body.push("}");
+    return { name: fn.name, header, source: body.join("\n") };
+  });
+  let header = spliceMarked(system?.cpp_header || "", headerLines.join("\n"), true);
   let source = spliceMarked(system?.cpp_source || "", sourceLines.join("\n").trimEnd(), false);
+  header = stripNamedRegions(header, "function");
+  source = stripNamedRegions(source, "function");
+  header = upsertRegion(header, "// graph:begin variables", "// graph:end variables", variableHeader.join("\n") || "\t// No graph variables.", true);
+  source = upsertRegion(source, "// graph:begin variables", "// graph:end variables", variableSource.join("\n").trim() || "// No graph variables.", false);
+  for (const block of functionBlocks) {
+    header = upsertRegion(header, `// graph:begin function ${block.name}`, `// graph:end function ${block.name}`, block.header, true);
+    source = upsertRegion(source, `// graph:begin function ${block.name}`, `// graph:end function ${block.name}`, block.source, false);
+  }
   if (/GetWorld\s*\(/.test(source) && !source.includes("Engine/World.h") && !String(system?.cpp_header || "").includes("Engine/World.h")) {
     source = `#include "Engine/World.h"\n${source}`;
   }
@@ -891,16 +972,25 @@ export function syncCpp(system, graph) {
 }
 
 function spliceMarked(text, block, insideClass) {
+  return upsertRegion(text, MARKER_BEGIN, MARKER_END, block, insideClass);
+}
+
+function upsertRegion(text, begin, end, block, insideClass) {
   const source = String(text || "");
-  const wrapped = `${MARKER_BEGIN}\n${block}\n${MARKER_END}`;
-  const begin = source.indexOf(MARKER_BEGIN);
-  const end = source.indexOf(MARKER_END);
-  if (begin >= 0 && end > begin) return `${source.slice(0, begin)}${wrapped}${source.slice(end + MARKER_END.length)}`;
+  const wrapped = `${begin}\n${block}\n${end}`;
+  const start = source.indexOf(begin);
+  const stop = source.indexOf(end);
+  if (start >= 0 && stop > start) return `${source.slice(0, start)}${wrapped}${source.slice(stop + end.length)}`;
   if (insideClass) {
     const close = source.lastIndexOf("};");
     if (close >= 0) return `${source.slice(0, close)}${wrapped}\n${source.slice(close)}`;
   }
   return `${source.replace(/\s*$/, "")}\n\n${wrapped}\n`;
+}
+
+function stripNamedRegions(text, kind) {
+  const re = new RegExp(`// graph:begin ${kind} [^\\n]*\\n[\\s\\S]*?// graph:end ${kind} [^\\n]*\\n?`, "g");
+  return String(text || "").replace(re, "");
 }
 
 function lineIndex(header, source) {
@@ -1106,9 +1196,19 @@ function dataPins(list, dir, exec) {
   const pins = [];
   if (exec) pins.push({ id: pinSlug(dir, "Exec"), name: "Exec", dir, type: "exec" });
   for (const item of list || []) {
-    pins.push({ id: pinSlug(dir, item.name || "Value"), name: item.name || "Value", dir, type: item.type === "int" ? "int" : (item.type || "float") });
+    const name = item.name || "Value";
+    if (/^exec$/i.test(name)) continue;
+    pins.push({ id: pinSlug(dir, name), name, dir, type: canonicalType(item.type, name) });
   }
   return pins;
+}
+
+function takenName(names, base) {
+  const used = new Set(names.map((name) => String(name || "").toLowerCase()));
+  if (!used.has(base.toLowerCase())) return base;
+  let index = 1;
+  while (used.has(`${base}_${index}`.toLowerCase())) index += 1;
+  return `${base}_${index}`;
 }
 
 function tunnelNodes(kind, spec) {
@@ -1171,7 +1271,8 @@ function replaceItem(doc, graph) {
 
 export function addFunction(doc, name = "NewFunction") {
   const id = uid("fn");
-  const graph = emptyGraph({ kind: "function", id, name });
+  const unique = takenName((doc.items || []).map((item) => item.name), name);
+  const graph = emptyGraph({ kind: "function", id, name: unique });
   graph.pure = false;
   graph.callable = true;
   graph.inputs = [];
@@ -1182,7 +1283,8 @@ export function addFunction(doc, name = "NewFunction") {
 
 export function addMacro(doc, name = "NewMacro") {
   const id = uid("mac");
-  const graph = emptyGraph({ kind: "macro", id, name });
+  const unique = takenName((doc.items || []).map((item) => item.name), name);
+  const graph = emptyGraph({ kind: "macro", id, name: unique });
   graph.inputs = [];
   graph.outputs = [];
   graph.nodes = tunnelNodes("macro", graph);
@@ -1190,7 +1292,11 @@ export function addMacro(doc, name = "NewMacro") {
 }
 
 export function renameGraph(doc, id, name) {
-  const next = String(name || "").trim() || "Graph";
+  const next = String(name || "").trim();
+  if (!next) return doc;
+  const clash = (doc.items || []).some((item) => item.id !== id && String(item.name || "").toLowerCase() === next.toLowerCase())
+    || (doc.variables || []).some((item) => String(item.name || "").toLowerCase() === next.toLowerCase());
+  if (clash) return doc;
   return {
     ...doc,
     items: doc.items.map((item) => (item.id === id ? { ...item, name: next, label: next } : item)),
@@ -1227,7 +1333,7 @@ export function setFunctionSignature(doc, id, patch) {
 export function addVariable(doc, patch = {}) {
   const variable = {
     id: patch.id || uid("var"),
-    name: patch.name || "NewVar",
+    name: takenName((doc.variables || []).map((item) => item.name), patch.name || "NewVar"),
     type: patch.type || "float",
     array: !!patch.array,
     enumName: patch.enumName || "",
@@ -1239,7 +1345,12 @@ export function addVariable(doc, patch = {}) {
 }
 
 export function updateVariable(doc, id, patch) {
-  return { ...doc, variables: (doc.variables || []).map((item) => (item.id === id ? { ...item, ...patch } : item)) };
+  const nextName = patch.name != null ? String(patch.name).trim() : null;
+  if (nextName) {
+    const clash = (doc.variables || []).some((item) => item.id !== id && String(item.name || "").toLowerCase() === nextName.toLowerCase());
+    if (clash) return doc;
+  }
+  return { ...doc, variables: (doc.variables || []).map((item) => (item.id === id ? { ...item, ...patch, ...(nextName ? { name: nextName } : {}) } : item)) };
 }
 
 export function deleteVariable(doc, id) {
@@ -1247,7 +1358,7 @@ export function deleteVariable(doc, id) {
 }
 
 export function variableNode(variable, kind, x, y) {
-  const type = variable.type === "int" ? "int" : (variable.type === "bool" ? "bool" : (variable.type === "string" || variable.type === "name" ? "string" : "float"));
+  const type = canonicalType(variable.type === "actor" ? "object" : (variable.type || "float"), "");
   return createNode(kind === "set" ? "set-variable" : "get-variable", x, y, {
     data: { variable: variable.name, varType: type, variableId: variable.id },
   });

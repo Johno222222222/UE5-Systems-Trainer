@@ -312,7 +312,7 @@ html, body, #root {
 .graph-lib-item.is-on { border-color: var(--unreal-orange); background: rgba(255, 107, 0, 0.08); padding: 4px 6px; }
 .graph-lib-add { border: 0; background: transparent; color: var(--text-secondary); cursor: pointer; font-size: 14px; }
 .graph-lib-meta { color: var(--text-muted); font-size: 10px; }
-.graph-signature { position: absolute; left: 12px; bottom: 128px; width: 220px; z-index: 21; }
+.graph-signature { margin-top: 8px; }
 .graph-palette {
   width: 232px;
   flex: 0 0 232px;
