@@ -171,7 +171,11 @@ test("the installer workflow builds macOS and Linux apart from Windows", () => {
   assert.match(text, /electron-builder --mac dmg zip/);
   assert.match(text, /electron-builder --linux AppImage deb/);
   assert.match(text, /name: GitHub Release/);
-  assert.match(text, /gh release create/);
+  assert.match(text, /actions\/checkout@v5/);
+  assert.match(text, /GH_REPO: \$\{\{ github\.repository \}\}/);
+  assert.match(text, /gh release view "\$tag" --repo "\$GH_REPO"/);
+  assert.match(text, /gh release upload "\$tag" out\/\* --clobber --repo "\$GH_REPO"/);
+  assert.match(text, /gh release create "\$tag" out\/\* --title "\$tag" --generate-notes --verify-tag --repo "\$GH_REPO"/);
   assert.equal(/windows:[\s\S]*?needs:\s*\[macos/.test(text), false);
   const pkg = require("../../package.json");
   assert.ok(pkg.build.files.some((item) => String(item).includes("content/community")));
