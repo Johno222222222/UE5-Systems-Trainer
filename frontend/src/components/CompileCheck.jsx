@@ -66,6 +66,7 @@ export default function CompileCheck({ issues, ignored, ai, onReview, aiKey, can
   const [engine, setEngine] = useState(null);
   const [building, setBuilding] = useState(false);
   const [build, setBuild] = useState(null);
+  const [logOpen, setLogOpen] = useState(false);
   useEffect(() => {
     api.get("/engine").then((r) => setEngine(r.data)).catch(() => setEngine(null));
   }, [system?.id]);
@@ -132,6 +133,9 @@ export default function CompileCheck({ issues, ignored, ai, onReview, aiKey, can
               {showIgnored && <div className="mt-2 opacity-70"><IssueList issues={ignored} testId="ignored-issues" onJump={onJump} onRestore={canEdit ? onRestore : null} /></div>}
             </div>
           )}
+          {(system?.repair_notes || []).length > 0 && (
+            <p className="text-[12px] font-mono text-[var(--text-secondary)]" data-testid="repair-notes">{system.repair_notes.join(" ")}</p>
+          )}
           {(system?.constraint_violations || []).length > 0 && (
             <div data-testid="compile-constraint-violations">
               {system.constraint_violations.map((item) => (
@@ -143,7 +147,29 @@ export default function CompileCheck({ issues, ignored, ai, onReview, aiKey, can
             <div className="eyebrow mb-1">Unreal build</div>
             {!build && <p className="text-[12px] text-[var(--text-secondary)]" data-testid="engine-build-idle">{engine?.message || "Checking for UE 5.8, then 5.7."}</p>}
             {build && <p className={`text-[12px] ${build.ok ? "text-[var(--cpp-green)]" : "text-[var(--text-secondary)]"}`} data-testid="engine-build-message">{build.message}</p>}
-            {build?.issues?.length > 0 && <div className="mt-2"><IssueList issues={build.issues} testId="engine-issues" onJump={onJump} onFix={canEdit && !fixing && onFix ? (i) => onFix([i]) : null} /></div>}
+            {build?.issues?.length > 0 && (
+              <div className="mt-2">
+                <IssueList
+                  issues={build.issues}
+                  testId="engine-issues"
+                  onJump={onJump}
+                  onFix={canEdit && !fixing && onFix ? (item) => onFix([item], build.log) : null}
+                />
+              </div>
+            )}
+            {build?.log && (
+              <div className="mt-2">
+                <div className="flex items-center gap-2">
+                  <button type="button" className="eyebrow flex items-center gap-1.5 hover:text-[var(--text-primary)]" onClick={() => setLogOpen((value) => !value)} aria-expanded={logOpen} data-testid="engine-log-toggle">
+                    Build log <ChevronDown size={11} className={logOpen ? "rotate-180" : ""} />
+                  </button>
+                  <button type="button" className="ue-btn !py-0.5 !px-1.5 !text-[10px]" data-testid="engine-log-copy" onClick={() => navigator.clipboard?.writeText(build.log).catch(() => {})}>Copy log</button>
+                </div>
+                {logOpen && (
+                  <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap text-[11px] font-mono text-[var(--text-secondary)]" data-testid="engine-log">{build.log}</pre>
+                )}
+              </div>
+            )}
           </div>
           <div className="text-[10.5px] font-mono text-[var(--text-muted)]">
             Click an issue to see its line. Instant pattern check: catches common mistakes, not every compiler error. AI review and Fix use your key ({aiKey?.model || "no key yet"}), 1 request each.

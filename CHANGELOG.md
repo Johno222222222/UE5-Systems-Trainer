@@ -4,6 +4,12 @@
 
 Stage 6, trustworthy export and more models.
 
+- The UE, network, and model chips in the Tools header open a picker. The project badge that says Local explains that the project stays on this computer. Each chip has a tooltip.
+- The C++ view is an editor. Edits are marked, saved with the project, and used by the pattern check, Build with Unreal, export, Fix, and AI review. A new synthesis asks before it replaces them. Revert to generated puts the last generated code back. A compile issue selects that line.
+- Build with Unreal shows the RunUAT log, and a path with spaces is quoted. Compiler, linker, and Unreal Header Tool lines keep their file and line. Widget code adds UMG to the generated Build.cs.
+- No Tick no longer flags `bCanEverTick = false`. It flags a Tick or TickComponent function, or `bCanEverTick = true`.
+- A new synthesis adds a missing `Name_Implementation` for a BlueprintNativeEvent and `#include "Engine/World.h"` when the code calls GetWorld.
+
 - If Unreal is installed, Compile check can build the exported plugin with Unreal's build tool and show the compiler errors. Fix still takes those errors. The app looks for UE 5.8, then UE 5.7. Settings can point at the engine folder. If no engine is found, the panel says so. The build-tool call is behind a platform check.
 - UE5 .zip can copy the plugin straight into a project's Plugins folder. Pick the .uproject in the desktop app, or paste the path.
 - A project can lock "Must stay server-authoritative" or "No Tick". The lock is saved with the project, goes into the next synthesis, and a reply that breaks it is flagged.

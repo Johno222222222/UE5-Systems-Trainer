@@ -50,6 +50,7 @@ const {
   releaseNotice,
 } = require("./logic");
 const { knownLocks, checkConstraints } = require("./constraints");
+const { repairCommonCpp } = require("./repair");
 const { stackMap } = require("./stackMap");
 const { detectEngine, compilePlugin } = require("./engine");
 const { moduleName, writePlugin } = require("./pluginFiles");
@@ -468,7 +469,7 @@ async function startServer(options = {}) {
       return;
     }
     try {
-      const data = normalizeSystem(extractJson(raw), req.stack_systems);
+      const data = repairCommonCpp(normalizeSystem(extractJson(raw), req.stack_systems));
       data.constraint_violations = checkConstraints(data, req.locks);
       data.stack_map = stackMap(req.stack_systems);
       for (const name of data.shared_attributes) {
@@ -849,8 +850,9 @@ async function startServer(options = {}) {
     }
     const fileBase = String(body.file_base || "System").slice(0, 120);
     const version = normalizeUnrealVersion(body.unreal_version) || DEFAULT_UNREAL_VERSION;
-    const issues = issueList.map((t, i) => `${i + 1}. ${t.slice(0, 300)}`).join("\n");
-    const text = `Target Unreal version: UE ${version}\n\nISSUES:\n${issues}\n\n=== ${fileBase}.h ===\n${header.slice(0, 40000)}\n\n=== ${fileBase}.cpp ===\n${source.slice(0, 60000)}`;
+    const issues = issueList.map((t, i) => `${i + 1}. ${t.slice(0, 500)}`).join("\n");
+    const buildLog = String(body.build_log || "").slice(-4000);
+    const text = `Target Unreal version: UE ${version}\n\nISSUES:\n${issues}${buildLog ? `\n\nUNREAL BUILD LOG (tail):\n${buildLog}` : ""}\n\n=== ${fileBase}.h ===\n${header.slice(0, 40000)}\n\n=== ${fileBase}.cpp ===\n${source.slice(0, 60000)}`;
     const raw = await ask(llm, { system: promptsFor(version).fix, user: text, maxTokens: 12000, timeoutMs: 55000, kind: "fix" });
     const files = { ".h": header, ".cpp": source };
     let applied;
@@ -860,10 +862,10 @@ async function startServer(options = {}) {
       applied = applyEdits(files, edits.slice(0, 15));
     } catch (exc) {
       console.error(`Unusable fix patch: ${exc.message}`);
-      throw new HttpError(422, { code: "patch_failed", message: "The AI's patch didn't match the current code, so nothing was changed. Try again." });
+      throw new HttpError(422, { code: "patch_failed", message: "The patch did not match the current code, so nothing changed. Jump to the line in the C++ view and edit it, or try Fix again." });
     }
     if (!applied.length || (files[".h"] === header && files[".cpp"] === source)) {
-      throw new HttpError(422, { code: "no_changes", message: "The AI didn't propose any changes for these issues." });
+      throw new HttpError(422, { code: "no_changes", message: "The model did not change the code. Edit the line in the C++ view, or copy the build log and try Fix again." });
     }
     return { cpp_header: files[".h"], cpp_source: files[".cpp"], changes: applied, model: llm.model };
   });

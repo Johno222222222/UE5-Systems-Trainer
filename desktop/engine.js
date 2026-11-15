@@ -80,30 +80,75 @@ function detectEngine({ platform, env, override, exists, readdir } = {}) {
   };
 }
 
+function shownFile(rawPath) {
+  const name = path.basename(String(rawPath || "").replace(/\\/g, "/")).toLowerCase();
+  if (name.endsWith(".h")) return ".h";
+  if (name.endsWith(".cpp") || name.endsWith(".c")) return ".cpp";
+  return "";
+}
+
+function quoteArg(value) {
+  return `"${String(value).replace(/"/g, "")}"`;
+}
+
+// One string for cmd.exe so a path with spaces still reaches RunUAT.bat.
+function quotedWindowsCommand(uat, buildArgs) {
+  const inner = [uat, ...buildArgs].map(quoteArg).join(" ");
+  return `"${inner}"`;
+}
+
 // MSVC: File.cpp(12): error C2065: 'Nope': undeclared identifier
 // Clang: File.cpp:12:3: error: use of undeclared identifier
+// UHT: File.h(8): Error: missing implementation
+// Linker: error LNK2019
 function parseCompilerOutput(log) {
   const issues = [];
   const seen = new Set();
-  for (const line of String(log || "").split(/\r?\n/)) {
-    const msvc = line.match(/^(.*?)\((\d+)(?:,\d+)?\):\s*(error|warning)\s+[^:]+:\s*(.*)$/i);
-    const clang = line.match(/^(.*?):(\d+):\d+:\s*(error|warning):\s*(.*)$/i);
-    const hit = msvc || clang;
-    if (!hit) continue;
-    const file = path.basename(hit[1].trim());
-    const item = {
-      severity: hit[3].toLowerCase() === "warning" ? "warning" : "error",
-      file: file.endsWith(".h") ? ".h" : ".cpp",
-      line: Number(hit[2]),
-      message: hit[4].trim(),
-      fix: "This came from Unreal's compiler. Use Fix to patch it, then build again.",
-    };
+  const push = (item) => {
     const key = `${item.file}:${item.line}:${item.message}`;
-    if (seen.has(key)) continue;
+    if (seen.has(key) || !item.message) return;
     seen.add(key);
     issues.push(item);
+  };
+  for (const line of String(log || "").split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    const msvc = trimmed.match(/^(.*?)\((\d+)(?:,\d+)?\):\s*(error|warning)\s*:?\s*(.*)$/i);
+    const clang = trimmed.match(/^(.*?):(\d+):\d+:\s*(error|warning):\s*(.*)$/i);
+    const link = trimmed.match(/error\s+LNK\d+:\s*(.*)$/i);
+    const hit = msvc || clang;
+    if (hit) {
+      const where = shownFile(hit[1]);
+      push({
+        severity: hit[3].toLowerCase() === "warning" ? "warning" : "error",
+        file: where || path.basename(String(hit[1]).replace(/\\/g, "/")),
+        line: where ? Number(hit[2]) : null,
+        message: hit[4].trim() || trimmed.slice(0, 300),
+        fix: "This came from Unreal's compiler. Use Fix, or edit that line in the C++ view.",
+      });
+      continue;
+    }
+    if (link) {
+      push({
+        severity: "error",
+        file: ".cpp",
+        line: null,
+        message: link[1].trim(),
+        fix: "A linker error. The function is declared and not defined, or a module is missing from Build.cs.",
+      });
+      continue;
+    }
+    if (/^ERROR:/i.test(trimmed)) {
+      push({
+        severity: "error",
+        file: "",
+        line: null,
+        message: trimmed.replace(/^ERROR:\s*/i, "").slice(0, 400),
+        fix: "This is from RunUAT, before the compiler. The log below has the rest.",
+      });
+    }
   }
-  return issues;
+  return issues.slice(0, 40);
 }
 
 function commandFor(engineRoot, uplugin, outputDir, platform) {
@@ -111,7 +156,7 @@ function commandFor(engineRoot, uplugin, outputDir, platform) {
   const uat = runUatFile(engineRoot, os);
   const args = ["BuildPlugin", `-Plugin=${uplugin}`, `-Package=${outputDir}`, "-Rocket"];
   if (os === "win32" && process.platform === "win32") {
-    return { file: "cmd.exe", args: ["/d", "/s", "/c", uat, ...args] };
+    return { file: "cmd.exe", args: ["/d", "/s", "/c", quotedWindowsCommand(uat, args)] };
   }
   return { file: uat, args };
 }
@@ -138,14 +183,20 @@ async function compilePlugin({ system, engineRoot, platform, workDir, spawnImpl 
   const written = writePlugin(pluginDir, system);
   const spec = commandFor(detected.path, written.uplugin, outputDir, os);
   const result = await runProcess(spec, spawnImpl || spawn);
+  const command = `${spec.file} ${spec.args.join(" ")}`;
+  const fullLog = `Command:\n${command}\n\n${result.log || "(no output)"}`;
   const issues = parseCompilerOutput(result.log);
-  if (result.code !== 0 && !issues.some((item) => item.severity === "error")) {
+  const compilerLines = issues.filter((item) => item.line);
+  if (result.code !== 0 && !compilerLines.length && !issues.some((item) => item.severity === "error")) {
+    const first = String(result.log || "").split(/\r?\n/).map((line) => line.trim()).find((line) => line && /error|exception|failed/i.test(line));
     issues.unshift({
       severity: "error",
-      file: ".cpp",
+      file: "",
       line: null,
-      message: "Unreal's build tool failed before it printed a compiler line.",
-      fix: "Read the log tail in this panel. A missing engine module is the usual cause.",
+      message: first
+        ? `Unreal's build tool failed: ${first.slice(0, 300)}`
+        : "Unreal's build tool failed and printed no compiler line. The log is below.",
+      fix: "Open the build log. A path with spaces, a missing module, or RunUAT exiting first are the usual causes.",
     });
   }
   const errors = issues.filter((item) => item.severity === "error").length;
@@ -155,10 +206,11 @@ async function compilePlugin({ system, engineRoot, platform, workDir, spawnImpl 
     path: detected.path,
     ok: result.code === 0 && errors === 0,
     issues,
-    log: result.log.slice(-4000),
+    command,
+    log: fullLog.slice(-12000),
     message: result.code === 0 && errors === 0
       ? `UE ${detected.version} built this plugin.`
-      : `UE ${detected.version} reported ${errors} compiler error${errors === 1 ? "" : "s"}.`,
+      : `UE ${detected.version} reported ${errors} problem${errors === 1 ? "" : "s"}. The build log is below.`,
   };
 }
 
@@ -169,4 +221,6 @@ module.exports = {
   commandFor,
   compilePlugin,
   runUatFile,
+  quotedWindowsCommand,
+  shownFile,
 };

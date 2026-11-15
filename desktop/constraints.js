@@ -12,7 +12,7 @@ const LOCKS = [
   {
     id: "no_tick",
     label: "No Tick",
-    rule: "Do not declare or define Tick or TickComponent. Do not set bCanEverTick. Drive the system with events, notifies, and timers only. Ignore tick_rate.",
+    rule: "Do not declare or define Tick or TickComponent, and do not set bCanEverTick = true. Setting bCanEverTick = false is allowed. Drive the system with events, notifies, and timers. Ignore tick_rate.",
   },
 ];
 
@@ -47,10 +47,9 @@ function strip(code) {
 function hasTick(header, source) {
   const h = strip(header);
   const c = strip(source);
-  return /\bTickComponent\s*\(/.test(h + c)
-    || /\bvoid\s+Tick\s*\(/.test(h)
-    || /::Tick\s*\(/.test(c)
-    || /\bbCanEverTick\b/.test(c);
+  const override = /\bvoid\s+Tick\s*\(|\bvoid\s+TickComponent\s*\(|::Tick\s*\(|::TickComponent\s*\(/;
+  const enabled = /\bbCanEverTick\s*=\s*true\b/;
+  return override.test(h) || override.test(c) || enabled.test(h) || enabled.test(c);
 }
 
 function hasAuthority(header, source) {

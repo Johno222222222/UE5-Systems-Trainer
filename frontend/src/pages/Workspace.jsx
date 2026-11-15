@@ -20,8 +20,8 @@ import Modal from "../components/Modal";
 import { ReferencesBar, ProjectFiles } from "../components/Files";
 import UsageChip, { modelUsage, useUsage } from "../components/UsageChip";
 import { baseName, buildPluginZip, buildProjectZip } from "../lib/zipExport";
-import AiKeyModal, { DEFAULT_MODEL, aiHeaders, saveAiKey, settingsToKey } from "../components/AiKeyModal";
-import { CodeBox } from "../components/CodeBox";
+import AiKeyModal, { DEFAULT_MODEL, PROVIDERS, aiHeaders, saveAiKey, settingsToKey } from "../components/AiKeyModal";
+import CppEditor from "../components/CppEditor";
 import TestsPanel, { testIssues } from "../components/TestsPanel";
 import { blueprintClipboard, compileReport, reportSection } from "../lib/unrealExtras";
 import CompileCheck, { IssueList, useAiReview } from "../components/CompileCheck";
@@ -37,6 +37,7 @@ import {
 } from "../lib/stage0.mjs";
 import { APP_VERSION } from "../lib/shell.mjs";
 import { estimateCost } from "../lib/cost.mjs";
+import { applyManualEdit, revertManualEdit, synthesisAfterManual } from "../lib/manualEdit.mjs";
 
 const LOCK_CHOICES = [
   ["server_authority", "Must stay server-authoritative"],
@@ -211,6 +212,9 @@ export default function Workspace() {
   const [aiKey, setAiKey] = useState(null);
   const [locks, setLocks] = useState([]);
   const [costGate, setCostGate] = useState(null);
+  const [chipMenu, setChipMenu] = useState("");
+  const [engineInfo, setEngineInfo] = useState(null);
+  const [manualPrompt, setManualPrompt] = useState(null);
   const [exportOpen, setExportOpen] = useState(false);
   const [exportPath, setExportPath] = useState("");
   const [exportNote, setExportNote] = useState("");
@@ -477,6 +481,12 @@ export default function Workspace() {
       toast.error("Add your AI key to synthesize");
       return false;
     }
+    if (result?.manual_cpp && !opts.manualChoice) {
+      setManualPrompt({ body, context, successLabel, opts });
+      return false;
+    }
+    const nextBody = opts.manualChoice ? synthesisAfterManual(body, result, opts.manualChoice) : body;
+    body = nextBody;
     if (!(await askCost("synthesis"))) return false;
     if (!opts.skipLimit) {
       const { used, limit } = modelUsage(usage, key.provider, key.model);
@@ -1018,7 +1028,7 @@ export default function Workspace() {
     const ok = await generate(list.map((i) => `Fix compile issue: ${issueText(i)}${i.fix ? ` (suggested: ${i.fix})` : ""}`));
     if (ok) setFixNotes((n) => [...n, `Regenerated to fix ${list.length} compile issue${list.length === 1 ? "" : "s"}`]);
   };
-  const runFix = async (list, thenExport = null, target = "code") => {
+  const runFix = async (list, thenExport = null, target = "code", buildLog = "") => {
     if (!aiKey) { setKeyModal("required"); toast.error("Add your AI key to fix issues"); return; }
     if (!(await askCost("fix"))) return;
     const { used, limit } = modelUsage(usage, aiKey.provider, aiKey.model);
@@ -1031,6 +1041,7 @@ export default function Workspace() {
         file_base: tests ? `${baseName(result)} (header, read-only) and its automation test file` : baseName(result), cpp_header: before.h, cpp_source: before.c, project_id: project?.project_id || null,
         unreal_version: unrealVersion,
         issues: list.slice(0, 40).map((i) => `${issueText(i)}${i.fix ? ` (suggested fix: ${i.fix})` : ""}`),
+        build_log: buildLog || "",
       }, { headers: aiHeaders(aiKey) });
       setFix((f) => (f?.list === list ? { ...f, status: "review", data } : f));
     } catch (e) {
@@ -1145,9 +1156,9 @@ export default function Workspace() {
               <button className="font-sub font-semibold text-[14px] truncate max-w-[260px] flex items-center gap-1.5 hover:text-[var(--unreal-orange)] disabled:hover:text-inherit" onClick={renameProject} disabled={readOnly} title={readOnly ? project.name : "Rename project"} data-testid="project-name">
                 {project.name} {!readOnly && <Pencil size={11} className="opacity-60" />}
               </button>
-              <span className={`chip !py-0.5 !cursor-default uppercase !text-[10px] ${readOnly ? "!text-[var(--accent-cyan)] !border-[rgba(0,240,255,0.4)]" : "active"}`} data-testid="project-role-badge">
+              <button type="button" className={`chip !py-0.5 uppercase !text-[10px] ${readOnly ? "!text-[var(--accent-cyan)] !border-[rgba(0,240,255,0.4)]" : "active"}`} data-testid="project-role-badge" title="This project is stored on this computer. Click to see the folder." onClick={() => setChipMenu(chipMenu === "storage" ? "" : "storage")}>
                 {readOnly ? <><Eye size={10} /> View only</> : "Local"}
-              </span>
+              </button>
               <span className="hidden lg:inline text-[10.5px] font-mono text-[var(--text-muted)] truncate" data-testid="project-last-saved">saved by {project.updated_by_name} · {new Date(project.updated_at).toLocaleString()}</span>
               {result && (
                 <button className="ue-btn !py-1 !px-2 !text-[11px] shrink-0" onClick={() => shell.go("learn")} data-testid="open-in-learn">Open in Learn</button>
@@ -1166,11 +1177,76 @@ export default function Workspace() {
           )}
         </div>
         <div className="header-actions">
-        <span className="chip !cursor-default shrink-0" data-testid="unreal-version-badge"><Zap size={11} /> UE {unrealVersion}</span>
-        <div className="hidden min-[1280px]:flex items-center gap-2">
-          <span className="chip"><Network size={11} /> {replicated ? "Replicated" : "Local"}</span>
-          <span className="chip"><Terminal size={11} /> {aiKey ? aiKey.model : "No AI key"}</span>
+        <div className="relative">
+          <button type="button" className="chip shrink-0" data-testid="unreal-version-badge" title="Target Unreal version. Click to change it. Build with Unreal uses 5.8, then 5.7." aria-expanded={chipMenu === "version"} onClick={() => { setChipMenu(chipMenu === "version" ? "" : "version"); api.get("/engine").then((r) => setEngineInfo(r.data)).catch(() => {}); }}>
+            <Zap size={11} /> UE {unrealVersion}
+          </button>
+          {chipMenu === "version" && (
+            <div className="menu-pop absolute right-0 top-full mt-1 z-40 panel w-[280px] p-2 shadow-2xl" data-testid="version-menu">
+              <div className="eyebrow mb-1">Target Unreal</div>
+              {UNREAL_VERSIONS.map((version) => (
+                <button key={version} type="button" className={`w-full text-left px-2 py-1.5 rounded text-[12px] font-mono ${version === unrealVersion ? "text-[var(--unreal-orange)]" : ""}`} data-testid={`version-option-${version}`} onClick={() => { setUnrealVersion(version); localStorage.setItem(LS_UNREAL_VERSION, version); setChipMenu(""); }}>
+                  UE {version}{version === "5.8" || version === "5.7" ? " · build target" : ""}
+                </button>
+              ))}
+              <p className="mt-2 text-[11px] text-[var(--text-secondary)]" data-testid="version-engine-note">
+                {engineInfo?.found ? `Installed engine: UE ${engineInfo.version}. ${engineInfo.path}` : (engineInfo?.message || "Looking for an installed engine.")}
+              </p>
+              <button type="button" className="ue-btn mt-2 !py-1 !px-2 !text-[11px]" data-testid="version-open-settings" onClick={() => { setChipMenu(""); setKeyModal("edit"); }}>Engine folder in Settings</button>
+            </div>
+          )}
         </div>
+        <div className="relative">
+          <button type="button" className="chip shrink-0" data-testid="network-chip" title={replicated ? "Network: this system replicates. Click to change." : "Network: local means it does not replicate. Click to change."} aria-expanded={chipMenu === "network"} onClick={() => setChipMenu(chipMenu === "network" ? "" : "network")}>
+            <Network size={11} /> {replicated ? "Replicated" : "Local"}
+          </button>
+          {chipMenu === "network" && (
+            <div className="menu-pop absolute right-0 top-full mt-1 z-40 panel w-[260px] p-3 shadow-2xl" data-testid="network-menu">
+              <div className="eyebrow mb-1">Network</div>
+              <p className="text-[12px] text-[var(--text-secondary)]">Local means the system stays on one machine. Replicated asks the next synthesis to mark state for the server.</p>
+              <button type="button" className="ue-btn mt-2 !py-1 !px-2 !text-[11px]" data-testid="network-toggle" onClick={() => { setReplicated((value) => !value); setChipMenu(""); }}>
+                {replicated ? "Make it local" : "Make it replicated"}
+              </button>
+            </div>
+          )}
+        </div>
+        <div className="relative">
+          <button type="button" className="chip shrink-0 max-w-[180px]" data-testid="model-chip" title={aiKey ? `Active model: ${aiKey.model}. Click to switch.` : "No model selected. Click to choose one."} aria-expanded={chipMenu === "model"} onClick={() => setChipMenu(chipMenu === "model" ? "" : "model")}>
+            <Terminal size={11} /> <span className="truncate">{aiKey ? aiKey.model : "No AI key"}</span>
+          </button>
+          {chipMenu === "model" && (
+            <div className="menu-pop absolute right-0 top-full mt-1 z-40 panel w-[280px] p-2 shadow-2xl max-h-80 overflow-auto" data-testid="model-menu">
+              <div className="eyebrow mb-1">Model</div>
+              {Object.entries(PROVIDERS).map(([id, provider]) => (
+                <div key={id} className="mt-2">
+                  <div className="text-[10px] font-mono text-[var(--text-muted)]">{provider.label}</div>
+                  {provider.models.map(([model]) => (
+                    <button key={model} type="button" className={`w-full text-left px-2 py-1 rounded text-[12px] font-mono ${aiKey?.model === model ? "text-[var(--unreal-orange)]" : ""}`} data-testid={`model-option-${model.replace(/[^\w.-]/g, "-")}`} onClick={async () => {
+                      setChipMenu("");
+                      try {
+                        const settings = await api.get("/settings");
+                        const ready = id === "ollama" || settings.data?.keys?.[id];
+                        if (!ready) { setKeyModal("edit"); toast.message(`Add a ${provider.label} key in Settings`); return; }
+                        const saved = await saveAiKey({ provider: id, model });
+                        setAiKey(saved);
+                        toast.success(`Using ${model}`);
+                      } catch (err) {
+                        toast.error(errorText(err));
+                      }
+                    }}>{model}</button>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        {chipMenu === "storage" && (
+          <div className="menu-pop absolute right-4 top-14 z-40 panel w-[280px] p-3 shadow-2xl" data-testid="storage-menu">
+            <div className="eyebrow mb-1">On this computer</div>
+            <p className="text-[12px] text-[var(--text-secondary)]">Local means the project file stays in the app data folder. It is not uploaded.</p>
+            <button type="button" className="ue-btn mt-2 !py-1 !px-2 !text-[11px]" data-testid="storage-open-folder" onClick={() => { setChipMenu(""); api.post("/app/open-data-dir").catch((err) => toast.error(errorText(err))); }}>Open data folder</button>
+          </div>
+        )}
         {appInfo.update?.version && (
           <a className="chip shrink-0" href={appInfo.update.url} target="_blank" rel="noreferrer" data-testid="update-available" title="A newer release is on GitHub">Update {appInfo.update.version}</a>
         )}
@@ -1549,7 +1625,7 @@ export default function Workspace() {
             {tab === "cpp" && (
               <div className="p-5 h-full overflow-auto">
                 {result && <CompileCheck issues={activeIssues} ignored={ignoredIssues} ai={aiReview} onReview={async () => { if (await askCost("review")) runAiReview(); }} aiKey={aiKey} canEdit={!readOnly} system={result}
-                  fixing={fix?.status === "running" || loading} onJump={jumpTo} onFix={(l) => runFix(l)} onRegenerate={fixRegenerate} onIgnore={ignoreIssue} onRestore={restoreIssue} onCopy={copyIssues} />}
+                  fixing={fix?.status === "running" || loading} onJump={jumpTo} onFix={(list, log) => runFix(list, null, "code", log || "")} onRegenerate={fixRegenerate} onIgnore={ignoreIssue} onRestore={restoreIssue} onCopy={copyIssues} />}
                 {shell.helpLevel !== "minimal" && whatIfsOf(result).map((item, itemIndex) => (
                   <div key={item.title || itemIndex} className="panel p-3 mb-4" data-testid={itemIndex === 0 ? "what-if" : `what-if-${itemIndex}`}>
                     <div className="eyebrow mb-2">{item.title || "What if"}</div>
@@ -1568,8 +1644,23 @@ export default function Workspace() {
                   </div>
                 ))}
                 <div className="grid md:grid-cols-2 gap-4">
-                  <CodeBox title={`${result ? baseName(result) : "System"}.h`} code={result?.cpp_header} lang="cpp" testId="cpp-header" target={jump?.file === ".h" ? jump : null} callouts={whyForCpp(result, shell.helpLevel, ".h")} renderCallout={(note) => <WhyNote note={note} level={shell.helpLevel} />} highlightLines={(impactKey ? impactLines(result, impactKey) : shell.reveal?.lines || []).filter((line) => line.file === ".h").map((line) => line.line)} />
-                  <CodeBox title={`${result ? baseName(result) : "System"}.cpp`} code={result?.cpp_source} lang="cpp" testId="cpp-source" target={jump?.file === ".cpp" ? jump : null} callouts={whyForCpp(result, shell.helpLevel, ".cpp")} renderCallout={(note) => <WhyNote note={note} level={shell.helpLevel} />} highlightLines={(impactKey ? impactLines(result, impactKey) : shell.reveal?.lines || []).filter((line) => line.file === ".cpp").map((line) => line.line)} />
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[12px] font-mono text-[var(--text-secondary)]" data-testid="cpp-edit-state">{result?.manual_cpp ? "Manual edits" : "Generated"}</span>
+                    {result?.manual_cpp && (
+                      <button type="button" className="ue-btn !py-1 !px-2 !text-[11px]" data-testid="revert-cpp" onClick={() => setResult((current) => revertManualEdit(current))}>Revert to generated</button>
+                    )}
+                  </div>
+                  {(whyForCpp(result, shell.helpLevel, ".h").length > 0 || whyForCpp(result, shell.helpLevel, ".cpp").length > 0) && (
+                    <div className="mb-3 space-y-2">
+                      {whyForCpp(result, shell.helpLevel, ".h").concat(whyForCpp(result, shell.helpLevel, ".cpp")).map((note) => (
+                        <WhyNote key={note.id} note={note} level={shell.helpLevel} />
+                      ))}
+                    </div>
+                  )}
+                  <div className="grid gap-3">
+                    <CppEditor title={`${result ? baseName(result) : "System"}.h`} code={result?.cpp_header || ""} testId="cpp-header" readOnly={readOnly} target={jump?.file === ".h" ? jump : null} onChange={(text) => setResult((current) => applyManualEdit(current, ".h", text))} />
+                    <CppEditor title={`${result ? baseName(result) : "System"}.cpp`} code={result?.cpp_source || ""} testId="cpp-source" readOnly={readOnly} target={jump?.file === ".cpp" ? jump : null} onChange={(text) => setResult((current) => applyManualEdit(current, ".cpp", text))} />
+                  </div>
                 </div>
               </div>
             )}
@@ -1792,6 +1883,16 @@ export default function Workspace() {
             <button type="button" className="ue-btn mt-4" data-testid="predict-skip" onClick={() => revealSystem(pendingReveal.system, null, pendingReveal.outcome)}>Skip</button>
           </div>
         </div>
+      )}
+      {manualPrompt && (
+        <Modal title="Keep your C++ edits?" onClose={() => setManualPrompt(null)} testId="manual-cpp-modal" width={460}>
+          <p className="text-[13px] text-[var(--text-secondary)]">You edited the header or the source. A new synthesis replaces what is on screen. Your edits can go in as the previous system, or you can regenerate from the last generated code.</p>
+          <div className="mt-4 flex flex-wrap justify-end gap-2">
+            <button type="button" className="ue-btn" data-testid="manual-cpp-cancel" onClick={() => setManualPrompt(null)}>Cancel</button>
+            <button type="button" className="ue-btn" data-testid="manual-cpp-discard" onClick={() => { const pending = manualPrompt; setManualPrompt(null); runSynthesis(pending.body, pending.context, pending.successLabel, { ...pending.opts, manualChoice: "discard" }); }}>Use last generated</button>
+            <button type="button" className="ue-btn ue-btn-primary" data-testid="manual-cpp-keep" onClick={() => { const pending = manualPrompt; setManualPrompt(null); runSynthesis(pending.body, pending.context, pending.successLabel, { ...pending.opts, manualChoice: "keep" }); }}>Keep my edits as context</button>
+          </div>
+        </Modal>
       )}
       {costGate && (
         <Modal title="Paid request" onClose={() => { costWait.current?.(false); costWait.current = null; setCostGate(null); }} testId="cost-modal" width={420}>
