@@ -6,6 +6,7 @@
       "id": "tactical-fps",
       "title": "Tactical FPS foundation",
       "summary": "Interaction, inventory, weapon wear, and replication. You study the pieces, then load a starter project you can build on.",
+      "glossary_tags": ["Core", "Networking", "Inventory", "Input", "App"],
       "modules": [
         {
           "id": "interaction",
@@ -744,6 +745,7 @@
       "id": "tactical-fps-course",
       "title": "Tactical FPS, first course",
       "summary": "Four short modules. A quiz, a diff, a practical line, and a takeaway in each one.",
+      "glossary_tags": ["Core", "Networking", "Inventory", "Input", "App"],
       "pass_mark": 70,
       "modules": [
         {

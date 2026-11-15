@@ -3,23 +3,28 @@
 const fs = require("fs");
 const path = require("path");
 
-const FILE_NAME = "terms.json";
+const FILE_NAME = "glossary.json";
 
 function glossaryCandidates({ appPath, resourcesPath } = {}) {
   const candidates = [];
-  if (appPath) candidates.push(path.join(appPath, "content", "glossary", FILE_NAME));
+  const push = (root) => {
+    if (!root) return;
+    candidates.push(path.join(root, "content", FILE_NAME));
+    candidates.push(path.join(root, "content", "glossary", "terms.json"));
+  };
+  push(appPath);
   if (resourcesPath) {
-    candidates.push(path.join(resourcesPath, "app.asar", "content", "glossary", FILE_NAME));
-    candidates.push(path.join(resourcesPath, "app", "content", "glossary", FILE_NAME));
+    push(path.join(resourcesPath, "app.asar"));
+    push(path.join(resourcesPath, "app"));
   }
-  candidates.push(path.join(__dirname, "..", "content", "glossary", FILE_NAME));
+  push(path.join(__dirname, ".."));
   return candidates;
 }
 
 function readGlossaryFile(file) {
   const parsed = JSON.parse(fs.readFileSync(file, "utf8"));
   const terms = Array.isArray(parsed?.terms) ? parsed.terms : [];
-  return terms.filter((term) => term && term.term && term.definition);
+  return terms.filter((term) => term && term.term && (term.summary || term.definition));
 }
 
 function loadGlossary({ appPath, resourcesPath } = {}) {

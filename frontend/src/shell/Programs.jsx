@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { api, errorText } from "../lib/api";
 import ChoiceButton from "../components/ChoiceButton";
-import GlossaryText from "../components/GlossaryText";
+import GlossaryText, { GlossaryTags } from "../components/GlossaryText";
 import { useShell } from "./ShellContext";
 import { loadWorkspace } from "../lib/practice.mjs";
 import { refactorCheck } from "../lib/graph.mjs";
@@ -194,6 +194,7 @@ export default function Programs() {
   }
 
   return (
+    <GlossaryTags.Provider value={program.glossary_tags || null}>
     <div className="home-screen" data-testid="program-screen">
       <div className="home-inner">
         <button type="button" className="why-concept !mt-0" onClick={() => { setProgram(null); refreshCards(); }}>All programs</button>
@@ -333,5 +334,6 @@ export default function Programs() {
         )}
       </div>
     </div>
+    </GlossaryTags.Provider>
   );
 }

@@ -860,6 +860,67 @@ html, body, #root {
   line-height: 1.45;
   color: var(--text-secondary);
 }
+.glossary-more {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--unreal-orange);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+.glossary-pop-detail {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+.glossary-pop-kicker {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.glossary-see {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.glossary-see-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 11px;
+  text-decoration: underline dotted;
+  cursor: pointer;
+}
+.glossary-request {
+  position: fixed;
+  z-index: 40;
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.glossary-request button {
+  padding: 4px 8px;
+  border: 0;
+  background: none;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
 
 @media (max-width: 1100px) {
   .app-header { align-items: flex-start; }

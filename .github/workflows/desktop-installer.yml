@@ -156,6 +156,10 @@ jobs:
     needs: [windows, macos, linux]
     runs-on: ubuntu-latest
     steps:
+      # generate-notes runs git. The job has no repository until this checkout.
+      - uses: actions/checkout@v5
+        if: needs.windows.result == 'success' || needs.macos.result == 'success' || needs.linux.result == 'success'
+
       - uses: actions/download-artifact@v5
         if: needs.windows.result == 'success' || needs.macos.result == 'success' || needs.linux.result == 'success'
         with:
@@ -166,12 +170,13 @@ jobs:
         if: needs.windows.result == 'success' || needs.macos.result == 'success' || needs.linux.result == 'success'
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
           tag="${GITHUB_REF_NAME}"
           mkdir -p out
           find artifacts -type f -exec cp {} out/ \;
-          if ! gh release view "$tag" >/dev/null 2>&1; then
-            gh release create "$tag" out/* --title "$tag" --generate-notes --verify-tag
-          else
-            gh release upload "$tag" out/* --clobber
+          if gh release view "$tag" --repo "$GH_REPO" >/dev/null 2>&1; then
+            gh release upload "$tag" out/* --clobber --repo "$GH_REPO"
+          elif ! gh release create "$tag" out/* --title "$tag" --generate-notes --verify-tag --repo "$GH_REPO"; then
+            gh release upload "$tag" out/* --clobber --repo "$GH_REPO"
           fi

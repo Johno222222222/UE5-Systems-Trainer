@@ -3,13 +3,14 @@
 
 import { systemChip } from "./workspaceSession.mjs";
 
-export const APP_VERSION = "1.12.0";
+export const APP_VERSION = "1.13.0";
 
 export const SECTION_REGISTRY = [
   { id: "home", label: "Home", exists: true, screen: "home", acceptsSystem: false },
   { id: "tools", label: "Tools", exists: true, screen: "tools", acceptsSystem: true },
   { id: "learn", label: "Learn", exists: true, screen: "learn", acceptsSystem: true },
   { id: "references", label: "References", exists: true, screen: "references", acceptsSystem: true },
+  { id: "glossary", label: "Glossary", exists: true, screen: "glossary", acceptsSystem: false },
   { id: "programs", label: "Programs", exists: true, screen: "programs", acceptsSystem: false },
   { id: "courses", label: "Courses", exists: true, screen: "courses", acceptsSystem: false },
   { id: "community", label: "Community", exists: true, screen: "community", acceptsSystem: false },
@@ -41,7 +42,7 @@ export function openInTargets(registry = SECTION_REGISTRY, currentId = null) {
 
 export function sectionScreen(section, memory) {
   if (!section?.exists) return "missing";
-  if (section.screen === "home" || section.screen === "tools" || section.screen === "learn" || section.screen === "references" || section.screen === "programs" || section.screen === "courses" || section.screen === "community") return section.screen;
+  if (section.screen === "home" || section.screen === "tools" || section.screen === "learn" || section.screen === "references" || section.screen === "glossary" || section.screen === "programs" || section.screen === "courses" || section.screen === "community") return section.screen;
   return memory?.[section.id] ? "remembered" : "empty";
 }
 

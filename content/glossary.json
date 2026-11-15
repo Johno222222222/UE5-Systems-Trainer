@@ -1,0 +1,3891 @@
+{
+  "terms": [
+    {
+      "id": "actor",
+      "term": "Actor",
+      "aliases": [
+        "AActor"
+      ],
+      "category": "Engine",
+      "match": "always",
+      "definition": "An Actor is anything that can be placed in a level: a character, a door, a light, or a volume. It can have a position and it can tick, but the useful behaviour usually lives on a component attached to it.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "An Actor is anything that can be placed in a level: a character, a door, a light, or a volume.",
+      "detail": "It can have a position and it can tick, but the useful behaviour usually lives on a component attached to it.",
+      "see": [
+        "actor-component",
+        "pawn"
+      ]
+    },
+    {
+      "id": "actor-component",
+      "term": "ActorComponent",
+      "aliases": [
+        "Actor Component"
+      ],
+      "category": "Engine",
+      "match": "always",
+      "definition": "An Actor Component is a reusable piece of behaviour you add to an Actor. Health, inventory, and interaction are components so the pawn stays thin and the same piece can be used on a player or an AI.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "An Actor Component is a reusable piece of behaviour you add to an Actor.",
+      "detail": "Health, inventory, and interaction are components so the pawn stays thin and the same piece can be used on a player or an AI.",
+      "see": [
+        "actor",
+        "subsystem"
+      ]
+    },
+    {
+      "id": "pawn",
+      "term": "Pawn",
+      "aliases": [],
+      "category": "Engine",
+      "match": "always",
+      "definition": "A Pawn is an Actor that can be possessed and controlled. The player pawn is what you move. An AI pawn is what a controller drives. A Character is a Pawn that already has walking movement.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "A Pawn is an Actor that can be possessed and controlled.",
+      "detail": "The player pawn is what you move. An AI pawn is what a controller drives. A Character is a Pawn that already has walking movement.",
+      "see": [
+        "character",
+        "player-controller"
+      ]
+    },
+    {
+      "id": "character",
+      "term": "Character",
+      "aliases": [
+        "ACharacter"
+      ],
+      "category": "Engine",
+      "match": "capital",
+      "definition": "A Character is a Pawn with a capsule, a skeletal mesh, and a movement component already set up for walking and jumping. Most player and humanoid AI classes start here.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "A Character is a Pawn with a capsule, a skeletal mesh, and a movement component already set up for walking and jumping.",
+      "detail": "Most player and humanoid AI classes start here.",
+      "see": [
+        "pawn",
+        "root-motion"
+      ]
+    },
+    {
+      "id": "gamemode",
+      "term": "GameMode",
+      "aliases": [
+        "Game Mode"
+      ],
+      "category": "Engine",
+      "match": "always",
+      "definition": "The Game Mode is the rules object for a match. It exists only on the server. It decides which pawn, controller, and game state classes are used.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "The Game Mode is the rules object for a match.",
+      "detail": "It exists only on the server. It decides which pawn, controller, and game state classes are used.",
+      "see": [
+        "gamestate",
+        "server"
+      ]
+    },
+    {
+      "id": "gamestate",
+      "term": "GameState",
+      "aliases": [
+        "Game State"
+      ],
+      "category": "Engine",
+      "match": "always",
+      "definition": "The Game State holds match data everyone needs, such as the score or the time left. It is replicated so clients can read it without asking the server each time.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "The Game State holds match data everyone needs, such as the score or the time left.",
+      "detail": "It is replicated so clients can read it without asking the server each time.",
+      "see": [
+        "gamemode",
+        "replication"
+      ]
+    },
+    {
+      "id": "player-controller",
+      "term": "PlayerController",
+      "aliases": [
+        "Player Controller"
+      ],
+      "category": "Engine",
+      "match": "always",
+      "definition": "The Player Controller is the player's brain. It owns input and the camera. It persists across pawn changes, so put input there and put health on the pawn.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "The Player Controller is the player's brain.",
+      "detail": "It owns input and the camera. It persists across pawn changes, so put input there and put health on the pawn.",
+      "see": [
+        "pawn",
+        "player-state"
+      ]
+    },
+    {
+      "id": "player-state",
+      "term": "PlayerState",
+      "aliases": [
+        "Player State"
+      ],
+      "category": "Engine",
+      "match": "always",
+      "definition": "The Player State is the replicated record of one player: name, score, team. It stays when the pawn dies, so other players can still see who that person is.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "The Player State is the replicated record of one player: name, score, team.",
+      "detail": "It stays when the pawn dies, so other players can still see who that person is.",
+      "see": [
+        "player-controller",
+        "replication"
+      ]
+    },
+    {
+      "id": "world",
+      "term": "World",
+      "aliases": [],
+      "category": "Engine",
+      "match": "capital",
+      "definition": "The World is the running level and everything spawned into it. GetWorld() is how code asks for timers, traces, and the game state. A component with no world yet is not in play.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "The World is the running level and everything spawned into it.",
+      "detail": "GetWorld() is how code asks for timers, traces, and the game state. A component with no world yet is not in play.",
+      "see": []
+    },
+    {
+      "id": "level",
+      "term": "Level",
+      "aliases": [
+        "Map"
+      ],
+      "category": "Engine",
+      "match": "capital",
+      "definition": "A Level is the map you open in the editor and travel to in game. Actors placed in the level are loaded with it. Streaming levels load extra pieces around the player.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "A Level is the map you open in the editor and travel to in game.",
+      "detail": "Actors placed in the level are loaded with it. Streaming levels load extra pieces around the player.",
+      "see": []
+    },
+    {
+      "id": "asset",
+      "term": "Asset",
+      "aliases": [],
+      "category": "Engine",
+      "match": "capital",
+      "definition": "An Asset is a file Unreal cooks into the game: a mesh, a Blueprint, a data asset, or a texture. Code points at assets. It should not hard-code their numbers.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "An Asset is a file Unreal cooks into the game: a mesh, a Blueprint, a data asset, or a texture.",
+      "detail": "Code points at assets. It should not hard-code their numbers.",
+      "see": []
+    },
+    {
+      "id": "blueprint",
+      "term": "Blueprint",
+      "aliases": [],
+      "category": "Engine",
+      "match": "capital",
+      "definition": "A Blueprint is a visual class. Designers can change defaults and add events without compiling C++. The C++ parent still owns the rules the Blueprint should not reinvent.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "A Blueprint is a visual class.",
+      "detail": "Designers can change defaults and add events without compiling C++. The C++ parent still owns the rules the Blueprint should not reinvent.",
+      "see": []
+    },
+    {
+      "id": "cpp",
+      "term": "C++",
+      "aliases": [],
+      "category": "Engine",
+      "match": "always",
+      "definition": "C++ is the language Unreal's gameplay code is written in. This app generates a header and a source file you compile in a project. Review it before you ship it.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "C++ is the language Unreal's gameplay code is written in.",
+      "detail": "This app generates a header and a source file you compile in a project. Review it before you ship it.",
+      "see": []
+    },
+    {
+      "id": "header",
+      "term": "Header",
+      "aliases": [
+        "header file"
+      ],
+      "category": "Engine",
+      "match": "capital",
+      "definition": "The header (.h) declares the class: the properties, the functions, and the Unreal macros. Unreal Header Tool reads it to generate reflection. The matching source file implements those functions.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "The header (.h) declares the class: the properties, the functions, and the Unreal macros.",
+      "detail": "Unreal Header Tool reads it to generate reflection. The matching source file implements those functions.",
+      "see": []
+    },
+    {
+      "id": "source",
+      "term": "Source file",
+      "aliases": [
+        "source"
+      ],
+      "category": "Engine",
+      "match": "capital",
+      "definition": "The source file (.cpp) is where the functions declared in the header are written. It should include its own header first so the class and the implementation stay in step.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "The source file (.cpp) is where the functions declared in the header are written.",
+      "detail": "It should include its own header first so the class and the implementation stay in step.",
+      "see": []
+    },
+    {
+      "id": "uclass",
+      "term": "UCLASS",
+      "aliases": [],
+      "category": "Engine",
+      "match": "always",
+      "definition": "UCLASS marks a C++ class so Unreal can see it in the editor and in Blueprints. Without it, the class is plain C++ and you cannot place or spawn it the Unreal way.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "UCLASS marks a C++ class so Unreal can see it in the editor and in Blueprints.",
+      "detail": "Without it, the class is plain C++ and you cannot place or spawn it the Unreal way.",
+      "see": []
+    },
+    {
+      "id": "uproperty",
+      "term": "UPROPERTY",
+      "aliases": [],
+      "category": "Engine",
+      "match": "always",
+      "definition": "UPROPERTY tells Unreal to track a field. That is how the editor shows it, how the garbage collector keeps it, and how replication knows it exists. A raw pointer with no UPROPERTY can vanish.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "UPROPERTY tells Unreal to track a field.",
+      "detail": "That is how the editor shows it, how the garbage collector keeps it, and how replication knows it exists. A raw pointer with no UPROPERTY can vanish.",
+      "see": []
+    },
+    {
+      "id": "ufunction",
+      "term": "UFUNCTION",
+      "aliases": [],
+      "category": "Engine",
+      "match": "always",
+      "definition": "UFUNCTION exposes a C++ function to Blueprints, or marks it as a server, client, or multicast call. BlueprintNativeEvent also needs a matching Name_Implementation function in the source file.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "UFUNCTION exposes a C++ function to Blueprints, or marks it as a server, client, or multicast call.",
+      "detail": "BlueprintNativeEvent also needs a matching Name_Implementation function in the source file.",
+      "see": []
+    },
+    {
+      "id": "ustruct",
+      "term": "USTRUCT",
+      "aliases": [],
+      "category": "Engine",
+      "match": "always",
+      "definition": "USTRUCT is a data bundle Unreal can copy, show in the editor, and replicate. Use it for a row of item stats or a hit result, not for behaviour.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "USTRUCT is a data bundle Unreal can copy, show in the editor, and replicate.",
+      "detail": "Use it for a row of item stats or a hit result, not for behaviour.",
+      "see": []
+    },
+    {
+      "id": "data-asset",
+      "term": "Data Asset",
+      "aliases": [
+        "DataAsset"
+      ],
+      "category": "Engine",
+      "match": "always",
+      "definition": "A Data Asset is a designer-edited file of numbers and references, such as a weapon or an item definition. The component reads it. The numbers do not live in the widget or the Blueprint graph.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "A Data Asset is a designer-edited file of numbers and references, such as a weapon or an item definition.",
+      "detail": "The component reads it. The numbers do not live in the widget or the Blueprint graph.",
+      "see": [
+        "primary-data-asset",
+        "asset"
+      ]
+    },
+    {
+      "id": "primary-data-asset",
+      "term": "Primary Data Asset",
+      "aliases": [
+        "PrimaryDataAsset"
+      ],
+      "category": "Engine",
+      "match": "always",
+      "definition": "A Primary Data Asset is a Data Asset the Asset Manager can find by a soft id. Use it when the game should load an item or ability only when it is needed.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "A Primary Data Asset is a Data Asset the Asset Manager can find by a soft id.",
+      "detail": "Use it when the game should load an item or ability only when it is needed.",
+      "see": [
+        "data-asset",
+        "asset-manager",
+        "primary-asset-id"
+      ]
+    },
+    {
+      "id": "soft-ref",
+      "term": "Soft Object Reference",
+      "aliases": [
+        "Soft Pointer",
+        "Soft Object Ptr",
+        "TSoftObjectPtr"
+      ],
+      "category": "Engine",
+      "match": "always",
+      "definition": "A soft reference names an asset without loading it. The cook still knows about it, but the memory stays free until you load it on purpose. A hard reference loads the asset as soon as the owner loads.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "A soft reference names an asset without loading it.",
+      "detail": "The cook still knows about it, but the memory stays free until you load it on purpose. A hard reference loads the asset as soon as the owner loads.",
+      "see": [
+        "hard-ref",
+        "async-load"
+      ]
+    },
+    {
+      "id": "hard-ref",
+      "term": "Hard Reference",
+      "aliases": [
+        "Hard Pointer"
+      ],
+      "category": "Engine",
+      "match": "always",
+      "definition": "A hard reference loads the asset whenever the owner loads. That is correct for something you always need, and expensive for a list of every weapon in the game.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "A hard reference loads the asset whenever the owner loads.",
+      "detail": "That is correct for something you always need, and expensive for a list of every weapon in the game.",
+      "see": [
+        "soft-ref",
+        "asset"
+      ]
+    },
+    {
+      "id": "tick",
+      "term": "Tick",
+      "aliases": [
+        "TickComponent"
+      ],
+      "category": "Engine",
+      "match": "always",
+      "definition": "Tick is a function Unreal calls every frame. It is the wrong place for work that only happens on an event, a timer, or an overlap. Turn it off with bCanEverTick = false when you do not need it.",
+      "tags": [
+        "Core",
+        "Optimization"
+      ],
+      "summary": "Tick is a function Unreal calls every frame.",
+      "detail": "It is the wrong place for work that only happens on an event, a timer, or an overlap. Turn it off with bCanEverTick = false when you do not need it.",
+      "see": [
+        "tick-rate",
+        "begin-play"
+      ]
+    },
+    {
+      "id": "tick-rate",
+      "term": "Tick Rate",
+      "aliases": [
+        "Tick Interval"
+      ],
+      "category": "Engine",
+      "match": "always",
+      "definition": "Tick interval is how often a ticking actor or component runs. A larger interval costs less and updates less often. A trace that only needs to feel responsive can run on a timer instead.",
+      "tags": [
+        "Core",
+        "Optimization"
+      ],
+      "summary": "Tick interval is how often a ticking actor or component runs.",
+      "detail": "A larger interval costs less and updates less often. A trace that only needs to feel responsive can run on a timer instead.",
+      "see": []
+    },
+    {
+      "id": "begin-play",
+      "term": "BeginPlay",
+      "aliases": [
+        "Begin Play"
+      ],
+      "category": "Engine",
+      "match": "always",
+      "definition": "BeginPlay runs once when the actor starts playing. Bind events and cache components there. Call Super so the parent class still gets its turn.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "BeginPlay runs once when the actor starts playing.",
+      "detail": "Bind events and cache components there. Call Super so the parent class still gets its turn.",
+      "see": [
+        "end-play",
+        "tick"
+      ]
+    },
+    {
+      "id": "end-play",
+      "term": "EndPlay",
+      "aliases": [
+        "End Play"
+      ],
+      "category": "Engine",
+      "match": "always",
+      "definition": "EndPlay runs when the actor leaves the world. Clear timers and unbind delegates there so a destroyed actor does not keep a callback alive.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "EndPlay runs when the actor leaves the world.",
+      "detail": "Clear timers and unbind delegates there so a destroyed actor does not keep a callback alive.",
+      "see": []
+    },
+    {
+      "id": "construction-script",
+      "term": "Construction Script",
+      "aliases": [],
+      "category": "Engine",
+      "match": "always",
+      "definition": "The Construction Script runs in the editor when you move or change the actor, and again at spawn. Use it to build preview pieces. Do not start gameplay there.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "The Construction Script runs in the editor when you move or change the actor, and again at spawn.",
+      "detail": "Use it to build preview pieces. Do not start gameplay there.",
+      "see": []
+    },
+    {
+      "id": "replication",
+      "term": "Replication",
+      "aliases": [
+        "Replicate"
+      ],
+      "category": "Networking",
+      "match": "always",
+      "definition": "Replication is how the server copies state to clients so every player sees the same game. Mark the fields that must match, and change them on the server.",
+      "tags": [
+        "Networking"
+      ],
+      "summary": "Replication is how the server copies state to clients so every player sees the same game.",
+      "detail": "Mark the fields that must match, and change them on the server.",
+      "see": [
+        "replicated",
+        "onrep",
+        "doreplifetime"
+      ]
+    },
+    {
+      "id": "replicated",
+      "term": "Replicated",
+      "aliases": [],
+      "category": "Networking",
+      "match": "capital",
+      "definition": "A replicated property is sent from the server to the clients that need it. The client should not write it. The server writes it, and OnRep can react when the value arrives.",
+      "tags": [
+        "Networking"
+      ],
+      "summary": "A replicated property is sent from the server to the clients that need it.",
+      "detail": "The client should not write it. The server writes it, and OnRep can react when the value arrives.",
+      "see": [
+        "replication",
+        "onrep",
+        "doreplifetime"
+      ]
+    },
+    {
+      "id": "doreplifetime",
+      "term": "DOREPLIFETIME",
+      "aliases": [],
+      "category": "Networking",
+      "match": "always",
+      "definition": "DOREPLIFETIME registers a property inside GetLifetimeReplicatedProps. Without that line, a UPROPERTY marked Replicated is not actually sent.",
+      "tags": [
+        "Networking"
+      ],
+      "summary": "DOREPLIFETIME registers a property inside GetLifetimeReplicatedProps.",
+      "detail": "Without that line, a UPROPERTY marked Replicated is not actually sent.",
+      "see": [
+        "replication",
+        "onrep",
+        "replicated"
+      ]
+    },
+    {
+      "id": "onrep",
+      "term": "OnRep",
+      "aliases": [
+        "RepNotify",
+        "OnRep function"
+      ],
+      "category": "Networking",
+      "match": "always",
+      "definition": "An OnRep function runs on a client when a replicated property arrives. Use it to update a mesh, a widget, or a sound. Do not use it to decide the new value. The server already did that.",
+      "tags": [
+        "Networking"
+      ],
+      "summary": "An OnRep function runs on a client when a replicated property arrives.",
+      "detail": "Use it to update a mesh, a widget, or a sound. Do not use it to decide the new value. The server already did that.",
+      "see": [
+        "replication",
+        "doreplifetime",
+        "replicated"
+      ]
+    },
+    {
+      "id": "server",
+      "term": "Server",
+      "aliases": [],
+      "category": "Networking",
+      "match": "capital",
+      "definition": "The server owns the true game state. Damage, inventory, and pickups change there. A listen server is the host's machine. A dedicated server has no local player.",
+      "tags": [
+        "Networking"
+      ],
+      "summary": "The server owns the true game state.",
+      "detail": "Damage, inventory, and pickups change there. A listen server is the host's machine. A dedicated server has no local player.",
+      "see": [
+        "authority",
+        "client"
+      ]
+    },
+    {
+      "id": "client",
+      "term": "Client",
+      "aliases": [],
+      "category": "Networking",
+      "match": "capital",
+      "definition": "A client is a player's machine. It predicts some movement and shows the world, but it does not decide shared outcomes. It asks the server with a server RPC.",
+      "tags": [
+        "Networking"
+      ],
+      "summary": "A client is a player's machine.",
+      "detail": "It predicts some movement and shows the world, but it does not decide shared outcomes. It asks the server with a server RPC.",
+      "see": [
+        "server",
+        "client-rpc"
+      ]
+    },
+    {
+      "id": "authority",
+      "term": "Authority",
+      "aliases": [
+        "Has Authority",
+        "HasAuthority"
+      ],
+      "category": "Networking",
+      "match": "always",
+      "definition": "HasAuthority is true on the machine that owns that actor. For a replicated pawn that is the server. Check it before you change health, ammo, or inventory.",
+      "tags": [
+        "Networking"
+      ],
+      "summary": "HasAuthority is true on the machine that owns that actor.",
+      "detail": "For a replicated pawn that is the server. Check it before you change health, ammo, or inventory.",
+      "see": [
+        "server",
+        "server-rpc"
+      ]
+    },
+    {
+      "id": "reliable",
+      "term": "Reliable",
+      "aliases": [],
+      "category": "Networking",
+      "match": "capital",
+      "definition": "A reliable RPC is resent until it arrives. Use it for actions that must happen once, such as fire or interact. Do not use it for a stream of cosmetic updates.",
+      "tags": [
+        "Networking"
+      ],
+      "summary": "A reliable RPC is resent until it arrives.",
+      "detail": "Use it for actions that must happen once, such as fire or interact. Do not use it for a stream of cosmetic updates.",
+      "see": [
+        "unreliable",
+        "rpc"
+      ]
+    },
+    {
+      "id": "unreliable",
+      "term": "Unreliable",
+      "aliases": [],
+      "category": "Networking",
+      "match": "capital",
+      "definition": "An unreliable RPC can be dropped. That is fine for frequent cosmetics, such as a tracer, where the next update matters more than a missed one.",
+      "tags": [
+        "Networking"
+      ],
+      "summary": "An unreliable RPC can be dropped.",
+      "detail": "That is fine for frequent cosmetics, such as a tracer, where the next update matters more than a missed one.",
+      "see": [
+        "reliable",
+        "rpc"
+      ]
+    },
+    {
+      "id": "rpc",
+      "term": "RPC",
+      "aliases": [
+        "Remote Procedure Call"
+      ],
+      "category": "Networking",
+      "match": "always",
+      "definition": "An RPC is a function that runs on another machine. A server RPC runs on the server. A client RPC runs on the owning client. A multicast runs on the server and the relevant clients.",
+      "tags": [
+        "Networking"
+      ],
+      "summary": "An RPC is a function that runs on another machine.",
+      "detail": "A server RPC runs on the server. A client RPC runs on the owning client. A multicast runs on the server and the relevant clients.",
+      "see": [
+        "server-rpc",
+        "client-rpc",
+        "multicast"
+      ]
+    },
+    {
+      "id": "multicast",
+      "term": "Multicast",
+      "aliases": [
+        "NetMulticast"
+      ],
+      "category": "Networking",
+      "match": "always",
+      "definition": "A multicast function runs on the server and on the clients that are relevant to that actor. Use it for a hit flash or a sound that everyone nearby should see.",
+      "tags": [
+        "Networking"
+      ],
+      "summary": "A multicast function runs on the server and on the clients that are relevant to that actor.",
+      "detail": "Use it for a hit flash or a sound that everyone nearby should see.",
+      "see": [
+        "rpc",
+        "relevancy"
+      ]
+    },
+    {
+      "id": "server-rpc",
+      "term": "Server RPC",
+      "aliases": [
+        "Server function"
+      ],
+      "category": "Networking",
+      "match": "always",
+      "definition": "A server RPC is a function the owning client calls and the server runs. Validate it there. The client is asking. The server decides.",
+      "tags": [
+        "Networking"
+      ],
+      "summary": "A server RPC is a function the owning client calls and the server runs.",
+      "detail": "Validate it there. The client is asking. The server decides.",
+      "see": [
+        "rpc",
+        "server",
+        "authority"
+      ]
+    },
+    {
+      "id": "client-rpc",
+      "term": "Client RPC",
+      "aliases": [
+        "Client function"
+      ],
+      "category": "Networking",
+      "match": "always",
+      "definition": "A client RPC runs on the owning client. The server uses it to tell that one player something private, such as a UI message, that other players should not get.",
+      "tags": [
+        "Networking"
+      ],
+      "summary": "A client RPC runs on the owning client.",
+      "detail": "The server uses it to tell that one player something private, such as a UI message, that other players should not get.",
+      "see": [
+        "rpc",
+        "client"
+      ]
+    },
+    {
+      "id": "net-update",
+      "term": "Net Update Frequency",
+      "aliases": [
+        "NetUpdateFrequency"
+      ],
+      "category": "Networking",
+      "match": "always",
+      "definition": "Net update frequency is how often the server considers sending this actor's replicated state. Higher is smoother and costs more. A parked crate can update rarely.",
+      "tags": [
+        "Networking"
+      ],
+      "summary": "Net update frequency is how often the server considers sending this actor's replicated state.",
+      "detail": "Higher is smoother and costs more. A parked crate can update rarely.",
+      "see": [
+        "relevancy",
+        "replication"
+      ]
+    },
+    {
+      "id": "relevancy",
+      "term": "Relevancy",
+      "aliases": [],
+      "category": "Networking",
+      "match": "always",
+      "definition": "Relevancy is the server's choice of which clients receive an actor. A player far away does not need every bullet. If you are not relevant, you stop getting updates for that actor.",
+      "tags": [
+        "Networking"
+      ],
+      "summary": "Relevancy is the server's choice of which clients receive an actor.",
+      "detail": "A player far away does not need every bullet. If you are not relevant, you stop getting updates for that actor.",
+      "see": [
+        "dormancy",
+        "net-update"
+      ]
+    },
+    {
+      "id": "dormancy",
+      "term": "Dormancy",
+      "aliases": [],
+      "category": "Networking",
+      "match": "always",
+      "definition": "A dormant actor is skipped by replication until you wake it. Use it for objects that sit still, and flush the dormancy when their state actually changes.",
+      "tags": [
+        "Networking"
+      ],
+      "summary": "A dormant actor is skipped by replication until you wake it.",
+      "detail": "Use it for objects that sit still, and flush the dormancy when their state actually changes.",
+      "see": [
+        "relevancy",
+        "replication"
+      ]
+    },
+    {
+      "id": "gas",
+      "term": "Gameplay Ability System",
+      "aliases": [
+        "GAS"
+      ],
+      "category": "GAS",
+      "match": "always",
+      "definition": "The Gameplay Ability System is Unreal's framework for abilities, costs, cooldowns, and attributes. Activate by tag through the ability system so cost and cooldown are checked for you.",
+      "tags": [
+        "GAS"
+      ],
+      "summary": "The Gameplay Ability System is Unreal's framework for abilities, costs, cooldowns, and attributes.",
+      "detail": "Activate by tag through the ability system so cost and cooldown are checked for you.",
+      "see": [
+        "asc",
+        "gameplay-ability",
+        "gameplay-effect",
+        "attribute-set"
+      ]
+    },
+    {
+      "id": "attribute-set",
+      "term": "Attribute Set",
+      "aliases": [
+        "AttributeSet"
+      ],
+      "category": "GAS",
+      "match": "always",
+      "definition": "An Attribute Set is the list of numbers the ability system owns, such as health, mana, and stamina. Change them with gameplay effects so prediction and replication stay consistent.",
+      "tags": [
+        "GAS"
+      ],
+      "summary": "An Attribute Set is the list of numbers the ability system owns, such as health, mana, and stamina.",
+      "detail": "Change them with gameplay effects so prediction and replication stay consistent.",
+      "see": [
+        "gas",
+        "attribute-skip",
+        "gameplay-effect"
+      ]
+    },
+    {
+      "id": "gameplay-effect",
+      "term": "Gameplay Effect",
+      "aliases": [],
+      "category": "GAS",
+      "match": "always",
+      "definition": "A Gameplay Effect changes attributes. A cost, a heal, or a damage over time is an effect. Do not also subtract the same number by hand or you will spend it twice.",
+      "tags": [
+        "GAS"
+      ],
+      "summary": "A Gameplay Effect changes attributes.",
+      "detail": "A cost, a heal, or a damage over time is an effect. Do not also subtract the same number by hand or you will spend it twice.",
+      "see": [
+        "gas",
+        "attribute-set",
+        "modifier-skip",
+        "gameplay-effect-spec",
+        "duration-policy",
+        "stacking-skip"
+      ]
+    },
+    {
+      "id": "gameplay-ability",
+      "term": "Gameplay Ability",
+      "aliases": [],
+      "category": "GAS",
+      "match": "always",
+      "definition": "A Gameplay Ability is one action, such as dash or fireball. Grant it once. Activate it through the ability system so cooldown, cost, and tags are honoured.",
+      "tags": [
+        "GAS"
+      ],
+      "summary": "A Gameplay Ability is one action, such as dash or fireball.",
+      "detail": "Grant it once. Activate it through the ability system so cooldown, cost, and tags are honoured.",
+      "see": [
+        "gas",
+        "cooldown",
+        "gameplay-effect"
+      ]
+    },
+    {
+      "id": "gameplay-tag",
+      "term": "Gameplay Tag",
+      "aliases": [
+        "Gameplay Tags"
+      ],
+      "category": "GAS",
+      "match": "always",
+      "definition": "A Gameplay Tag is a hierarchical name, such as State.Stunned. Tags mark states and ability rules without a long chain of booleans. Designers can add tags without a new compile.",
+      "tags": [
+        "GAS"
+      ],
+      "summary": "A Gameplay Tag is a hierarchical name, such as State.Stunned.",
+      "detail": "Tags mark states and ability rules without a long chain of booleans. Designers can add tags without a new compile.",
+      "see": [
+        "gas",
+        "gameplay-ability",
+        "gameplay-tag-container"
+      ]
+    },
+    {
+      "id": "asc",
+      "term": "Ability System Component",
+      "aliases": [
+        "AbilitySystemComponent"
+      ],
+      "category": "GAS",
+      "match": "always",
+      "definition": "The Ability System Component is the piece on the pawn or player state that owns attributes, effects, and granted abilities. Other systems ask it to activate. They do not reach into the ability class.",
+      "tags": [
+        "GAS"
+      ],
+      "summary": "The Ability System Component is the piece on the pawn or player state that owns attributes, effects, and granted abilities.",
+      "detail": "Other systems ask it to activate. They do not reach into the ability class.",
+      "see": [
+        "gas",
+        "gameplay-ability",
+        "attribute-set"
+      ]
+    },
+    {
+      "id": "motion-matching",
+      "term": "Motion Matching",
+      "aliases": [],
+      "category": "Animation",
+      "match": "always",
+      "definition": "Motion Matching picks the next animation pose by searching a database for the clip that best continues the character's velocity and facing. It replaces a large hand-built blend graph for locomotion.",
+      "tags": [
+        "Motion Matching",
+        "Animation"
+      ],
+      "summary": "Motion Matching picks the next animation pose by searching a database for the clip that best continues the character's velocity and facing.",
+      "detail": "It replaces a large hand-built blend graph for locomotion.",
+      "see": [
+        "pose-search",
+        "anim-bp",
+        "pose-search-database",
+        "trajectory",
+        "motion-warping"
+      ]
+    },
+    {
+      "id": "pose-search",
+      "term": "Pose Search",
+      "aliases": [],
+      "category": "Animation",
+      "match": "always",
+      "definition": "Pose Search is the database query Motion Matching uses. It compares the current pose and movement against captured clips and returns the best next frame.",
+      "tags": [
+        "Motion Matching",
+        "Animation"
+      ],
+      "summary": "Pose Search is the database query Motion Matching uses.",
+      "detail": "It compares the current pose and movement against captured clips and returns the best next frame.",
+      "see": [
+        "motion-matching",
+        "anim-instance",
+        "pose-search-database",
+        "feature-channel",
+        "schema-skip"
+      ]
+    },
+    {
+      "id": "anim-bp",
+      "term": "Animation Blueprint",
+      "aliases": [
+        "Anim Blueprint"
+      ],
+      "category": "Animation",
+      "match": "always",
+      "definition": "An Animation Blueprint decides which poses play on a skeletal mesh. It should read state from the character. It should not own gameplay such as combo counts or inventory.",
+      "tags": [
+        "Animation"
+      ],
+      "summary": "An Animation Blueprint decides which poses play on a skeletal mesh.",
+      "detail": "It should read state from the character. It should not own gameplay such as combo counts or inventory.",
+      "see": [
+        "anim-instance",
+        "state-machine"
+      ]
+    },
+    {
+      "id": "anim-instance",
+      "term": "Anim Instance",
+      "aliases": [
+        "AnimInstance"
+      ],
+      "category": "Animation",
+      "match": "always",
+      "definition": "The Anim Instance is the running Animation Blueprint on one mesh. The character writes variables. The instance reads them when it updates the pose.",
+      "tags": [
+        "Animation"
+      ],
+      "summary": "The Anim Instance is the running Animation Blueprint on one mesh.",
+      "detail": "The character writes variables. The instance reads them when it updates the pose.",
+      "see": [
+        "anim-bp",
+        "montage"
+      ]
+    },
+    {
+      "id": "montage",
+      "term": "Montage",
+      "aliases": [
+        "Anim Montage"
+      ],
+      "category": "Animation",
+      "match": "always",
+      "definition": "A montage is a played animation with sections and notifies, such as an attack swing. The notify tells gameplay when the hit window opens. The montage does not apply the damage itself.",
+      "tags": [
+        "Animation"
+      ],
+      "summary": "A montage is a played animation with sections and notifies, such as an attack swing.",
+      "detail": "The notify tells gameplay when the hit window opens. The montage does not apply the damage itself.",
+      "see": [
+        "anim-instance",
+        "root-motion"
+      ]
+    },
+    {
+      "id": "blend-space",
+      "term": "Blend Space",
+      "aliases": [],
+      "category": "Animation",
+      "match": "always",
+      "definition": "A Blend Space mixes animations by one or two numbers, such as speed and direction. The character feeds the numbers. The blend space only chooses the pose.",
+      "tags": [
+        "Animation"
+      ],
+      "summary": "A Blend Space mixes animations by one or two numbers, such as speed and direction.",
+      "detail": "The character feeds the numbers. The blend space only chooses the pose.",
+      "see": [
+        "anim-bp",
+        "state-machine"
+      ]
+    },
+    {
+      "id": "state-machine",
+      "term": "State Machine",
+      "aliases": [],
+      "category": "Animation",
+      "match": "always",
+      "definition": "An animation state machine is a graph of poses and the rules for moving between them, such as idle to run. Transitions should read gameplay state, not invent it.",
+      "tags": [
+        "Animation"
+      ],
+      "summary": "An animation state machine is a graph of poses and the rules for moving between them, such as idle to run.",
+      "detail": "Transitions should read gameplay state, not invent it.",
+      "see": [
+        "anim-bp",
+        "blend-space"
+      ]
+    },
+    {
+      "id": "root-motion",
+      "term": "Root Motion",
+      "aliases": [],
+      "category": "Animation",
+      "match": "always",
+      "definition": "Root motion moves the actor from the animation itself, instead of from the movement component. Use it for a climb or a hit reaction where the clip must land in a specific place.",
+      "tags": [
+        "Animation"
+      ],
+      "summary": "Root motion moves the actor from the animation itself, instead of from the movement component.",
+      "detail": "Use it for a climb or a hit reaction where the clip must land in a specific place.",
+      "see": [
+        "montage",
+        "character"
+      ]
+    },
+    {
+      "id": "ik",
+      "term": "IK",
+      "aliases": [
+        "Inverse Kinematics"
+      ],
+      "category": "Animation",
+      "match": "always",
+      "definition": "Inverse kinematics bends a bone chain so an end point hits a target, such as a foot on the floor or a hand on a ledge. It adjusts a pose. It does not decide the gameplay target.",
+      "tags": [
+        "Animation"
+      ],
+      "summary": "Inverse kinematics bends a bone chain so an end point hits a target, such as a foot on the floor or a hand on a ledge.",
+      "detail": "It adjusts a pose. It does not decide the gameplay target.",
+      "see": [
+        "foot-ik",
+        "anim-instance"
+      ]
+    },
+    {
+      "id": "foot-ik",
+      "term": "Foot IK",
+      "aliases": [],
+      "category": "Animation",
+      "match": "always",
+      "definition": "Foot IK plants each foot on the ground so a walk cycle does not hover on stairs or slopes. The trace finds the floor. The IK offsets the foot bone.",
+      "tags": [
+        "Animation"
+      ],
+      "summary": "Foot IK plants each foot on the ground so a walk cycle does not hover on stairs or slopes.",
+      "detail": "The trace finds the floor. The IK offsets the foot bone.",
+      "see": [
+        "ik",
+        "line-trace"
+      ]
+    },
+    {
+      "id": "inventory",
+      "term": "Inventory Component",
+      "aliases": [
+        "Inventory"
+      ],
+      "category": "Items",
+      "match": "always",
+      "definition": "An inventory component owns the list of items and the stack rules. The widget only draws that list. If the widget owns a second copy, drag and drop will desync.",
+      "tags": [
+        "Inventory"
+      ],
+      "summary": "An inventory component owns the list of items and the stack rules.",
+      "detail": "The widget only draws that list. If the widget owns a second copy, drag and drop will desync.",
+      "see": [
+        "weapon",
+        "magazine",
+        "reserve-ammo"
+      ]
+    },
+    {
+      "id": "line-trace",
+      "term": "Line Trace",
+      "aliases": [
+        "line trace"
+      ],
+      "category": "Items",
+      "match": "always",
+      "definition": "A line trace shoots a straight query through the world and returns what it hits. An interaction trace from the camera matches the crosshair. A trace from the feet hits the floor.",
+      "tags": [
+        "Core",
+        "Inventory"
+      ],
+      "summary": "A line trace shoots a straight query through the world and returns what it hits.",
+      "detail": "An interaction trace from the camera matches the crosshair. A trace from the feet hits the floor.",
+      "see": [
+        "overlap",
+        "interface-call"
+      ]
+    },
+    {
+      "id": "overlap",
+      "term": "Overlap",
+      "aliases": [],
+      "category": "Items",
+      "match": "capital",
+      "definition": "An overlap is a collision event when one shape enters another, with no blocking. Use it for a pickup volume. Do not run expensive work on every overlap tick.",
+      "tags": [
+        "Core",
+        "Inventory"
+      ],
+      "summary": "An overlap is a collision event when one shape enters another, with no blocking.",
+      "detail": "Use it for a pickup volume. Do not run expensive work on every overlap tick.",
+      "see": [
+        "line-trace",
+        "begin-play"
+      ]
+    },
+    {
+      "id": "modularity",
+      "term": "Modularity",
+      "aliases": [],
+      "category": "Architecture",
+      "match": "always",
+      "definition": "Modularity means each behaviour lives in one place you can add or remove. A component you can put on any pawn is modular. A rule copied into every Blueprint is not.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "Modularity means each behaviour lives in one place you can add or remove.",
+      "detail": "A component you can put on any pawn is modular. A rule copied into every Blueprint is not.",
+      "see": []
+    },
+    {
+      "id": "coupling",
+      "term": "Coupling",
+      "aliases": [],
+      "category": "Architecture",
+      "match": "always",
+      "definition": "Coupling is how much one piece must know about another. A cast to a concrete Blueprint is tight coupling. An interface or a gameplay tag is loose, so you can add a new pickup without editing the trace.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "Coupling is how much one piece must know about another.",
+      "detail": "A cast to a concrete Blueprint is tight coupling. An interface or a gameplay tag is loose, so you can add a new pickup without editing the trace.",
+      "see": []
+    },
+    {
+      "id": "soc",
+      "term": "Separation of Concerns",
+      "aliases": [],
+      "category": "Architecture",
+      "match": "always",
+      "definition": "Separation of concerns means each piece answers one question. The component owns the data. The widget draws it. The server decides the outcome. Mixing those makes the next change break all three.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "Separation of concerns means each piece answers one question.",
+      "detail": "The component owns the data. The widget draws it. The server decides the outcome. Mixing those makes the next change break all three.",
+      "see": []
+    },
+    {
+      "id": "subsystem",
+      "term": "Subsystem",
+      "aliases": [],
+      "category": "Architecture",
+      "match": "capital",
+      "definition": "A subsystem is an engine-owned object with a lifetime, such as one per game instance or one per world. Use it for a service like save or match flow, not for per-pawn behaviour.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "A subsystem is an engine-owned object with a lifetime, such as one per game instance or one per world.",
+      "detail": "Use it for a service like save or match flow, not for per-pawn behaviour.",
+      "see": []
+    },
+    {
+      "id": "game-instance",
+      "term": "Game Instance",
+      "aliases": [
+        "GameInstance"
+      ],
+      "category": "Architecture",
+      "match": "always",
+      "definition": "The Game Instance lives for the whole process, across level loads. Put account or save access there. Do not put the current pawn's health there.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "The Game Instance lives for the whole process, across level loads.",
+      "detail": "Put account or save access there. Do not put the current pawn's health there.",
+      "see": []
+    },
+    {
+      "id": "game-instance-subsystem",
+      "term": "Game Instance Subsystem",
+      "aliases": [
+        "GameInstanceSubsystem"
+      ],
+      "category": "Architecture",
+      "match": "always",
+      "definition": "A Game Instance Subsystem is created with the game instance and survives travel. A save system or an online session fits there because it is not tied to one level.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "A Game Instance Subsystem is created with the game instance and survives travel.",
+      "detail": "A save system or an online session fits there because it is not tied to one level.",
+      "see": []
+    },
+    {
+      "id": "gc",
+      "term": "Garbage Collection",
+      "aliases": [],
+      "category": "Architecture",
+      "match": "always",
+      "definition": "Garbage collection frees Unreal objects that nothing referenced by UPROPERTY still points at. A raw pointer does not count. If you need the object, store it in a UPROPERTY or a container Unreal tracks.",
+      "tags": [
+        "Optimization"
+      ],
+      "summary": "Garbage collection frees Unreal objects that nothing referenced by UPROPERTY still points at.",
+      "detail": "A raw pointer does not count. If you need the object, store it in a UPROPERTY or a container Unreal tracks.",
+      "see": []
+    },
+    {
+      "id": "profiling",
+      "term": "Profiling",
+      "aliases": [],
+      "category": "Architecture",
+      "match": "always",
+      "definition": "Profiling measures where time and memory go, with Unreal Insights or stat commands. Guessing is how a Tick trace stays in the game. Measure, then change the hot path.",
+      "tags": [
+        "Optimization"
+      ],
+      "summary": "Profiling measures where time and memory go, with Unreal Insights or stat commands.",
+      "detail": "Guessing is how a Tick trace stays in the game. Measure, then change the hot path.",
+      "see": []
+    },
+    {
+      "id": "synthesize",
+      "term": "Synthesize",
+      "aliases": [],
+      "category": "Process",
+      "match": "capital",
+      "definition": "Synthesize asks the model to build a system from your description. It spends a request. The result is a draft you review, not a finished plugin.",
+      "tags": [
+        "App"
+      ],
+      "summary": "Synthesize asks the model to build a system from your description.",
+      "detail": "It spends a request. The result is a draft you review, not a finished plugin.",
+      "see": [
+        "regenerate",
+        "architecture-dial"
+      ]
+    },
+    {
+      "id": "regenerate",
+      "term": "Regenerate",
+      "aliases": [],
+      "category": "Process",
+      "match": "capital",
+      "definition": "Regenerate asks for a new draft from the current system plus your change notes. Manual C++ edits are kept as context only if you say so. Otherwise the last generated code is the starting point.",
+      "tags": [
+        "App"
+      ],
+      "summary": "Regenerate asks for a new draft from the current system plus your change notes.",
+      "detail": "Manual C++ edits are kept as context only if you say so. Otherwise the last generated code is the starting point.",
+      "see": [
+        "fix-regenerate",
+        "synthesize"
+      ]
+    },
+    {
+      "id": "uplugin",
+      "term": ".uplugin",
+      "aliases": [
+        "uplugin"
+      ],
+      "category": "Process",
+      "match": "always",
+      "definition": "The .uplugin file describes a plugin: its modules, and which engine plugins it needs. The editor reads it when you drop the folder into Plugins.",
+      "tags": [
+        "App"
+      ],
+      "summary": "The .uplugin file describes a plugin: its modules, and which engine plugins it needs.",
+      "detail": "The editor reads it when you drop the folder into Plugins.",
+      "see": []
+    },
+    {
+      "id": "build-cs",
+      "term": "Build.cs",
+      "aliases": [
+        "Build.cs"
+      ],
+      "category": "Process",
+      "match": "always",
+      "definition": "Build.cs lists the modules your code is allowed to use, such as Engine or UMG. If a type is missing at compile time, the include is often fine and this list is what is short.",
+      "tags": [
+        "App"
+      ],
+      "summary": "Build.cs lists the modules your code is allowed to use, such as Engine or UMG.",
+      "detail": "If a type is missing at compile time, the include is often fine and this list is what is short.",
+      "see": []
+    },
+    {
+      "id": "compile-check",
+      "term": "Compile Check",
+      "aliases": [
+        "compile check"
+      ],
+      "category": "Process",
+      "match": "always",
+      "definition": "Compile check is this app's pattern review of the header and source. It catches common mistakes. Build with Unreal runs the real compiler when an engine is installed.",
+      "tags": [
+        "App"
+      ],
+      "summary": "Compile check is this app's pattern review of the header and source.",
+      "detail": "It catches common mistakes. Build with Unreal runs the real compiler when an engine is installed.",
+      "see": [
+        "fix-regenerate",
+        "plugin-export"
+      ]
+    },
+    {
+      "id": "why-note",
+      "term": "WHY note",
+      "aliases": [
+        "Why note",
+        "WHY"
+      ],
+      "category": "Process",
+      "match": "always",
+      "definition": "A WHY note is a short reason next to a decision: why this component, why a timer, why the server. It is teaching text. It is not a comment the compiler needs.",
+      "tags": [
+        "App"
+      ],
+      "summary": "A WHY note is a short reason next to a decision: why this component, why a timer, why the server.",
+      "detail": "It is teaching text. It is not a comment the compiler needs.",
+      "see": [
+        "project-context",
+        "architecture-dial"
+      ]
+    },
+    {
+      "id": "project-context",
+      "term": "Project Context",
+      "aliases": [],
+      "category": "Process",
+      "match": "always",
+      "definition": "Project context is the short note about your game that steers the next synthesis, such as multiplayer or no tick. It is saved with the project.",
+      "tags": [
+        "App"
+      ],
+      "summary": "Project context is the short note about your game that steers the next synthesis, such as multiplayer or no tick.",
+      "detail": "It is saved with the project.",
+      "see": [
+        "why-note",
+        "architecture-dial"
+      ]
+    },
+    {
+      "id": "architecture-dial",
+      "term": "Architecture Dial",
+      "aliases": [
+        "Architecture Dials"
+      ],
+      "category": "Process",
+      "match": "always",
+      "definition": "An architecture dial is a slider for the next synthesis, such as complexity or modularity. It changes the request. It does not edit the code by itself.",
+      "tags": [
+        "App"
+      ],
+      "summary": "An architecture dial is a slider for the next synthesis, such as complexity or modularity.",
+      "detail": "It changes the request. It does not edit the code by itself.",
+      "see": [
+        "project-context",
+        "synthesize"
+      ]
+    },
+    {
+      "id": "tarray",
+      "term": "TArray",
+      "aliases": [],
+      "category": "Programming",
+      "match": "always",
+      "definition": "TArray is Unreal's resizable list. Inventory slots and ability lists are TArrays. Keep the gameplay array on the component, and let the widget read it.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "TArray is Unreal's resizable list.",
+      "detail": "Inventory slots and ability lists are TArrays. Keep the gameplay array on the component, and let the widget read it.",
+      "see": []
+    },
+    {
+      "id": "struct",
+      "term": "Struct",
+      "aliases": [],
+      "category": "Programming",
+      "match": "capital",
+      "definition": "A struct is a value made of fields, with no identity of its own. A hit result or an item stack is a struct. If it needs to tick or be placed in the level, it wants to be an Actor instead.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "A struct is a value made of fields, with no identity of its own.",
+      "detail": "A hit result or an item stack is a struct. If it needs to tick or be placed in the level, it wants to be an Actor instead.",
+      "see": []
+    },
+    {
+      "id": "inheritance",
+      "term": "Inheritance",
+      "aliases": [],
+      "category": "Programming",
+      "match": "always",
+      "definition": "Inheritance is a class extending another class. A character extends a pawn. Prefer a component or an interface when the shared piece is a behaviour, not an identity.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "Inheritance is a class extending another class.",
+      "detail": "A character extends a pawn. Prefer a component or an interface when the shared piece is a behaviour, not an identity.",
+      "see": []
+    },
+    {
+      "id": "nullptr",
+      "term": "nullptr",
+      "aliases": [
+        "Null"
+      ],
+      "category": "Programming",
+      "match": "always",
+      "definition": "nullptr means the pointer points at nothing. Check it before you use a component, a hit actor, or an asset. Skipping the check crashes when the object is not there yet.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "nullptr means the pointer points at nothing.",
+      "detail": "Check it before you use a component, a hit actor, or an asset. Skipping the check crashes when the object is not there yet.",
+      "see": []
+    },
+    {
+      "id": "boolean",
+      "term": "Boolean",
+      "aliases": [
+        "bool"
+      ],
+      "category": "Programming",
+      "match": "capital",
+      "definition": "A bool is true or false. A pile of bools for states is hard to extend. A gameplay tag or an enum names the state instead.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "A bool is true or false.",
+      "detail": "A pile of bools for states is hard to extend. A gameplay tag or an enum names the state instead.",
+      "see": []
+    },
+    {
+      "id": "function-skip",
+      "term": "Function",
+      "aliases": [],
+      "category": "Programming",
+      "match": "skip",
+      "definition": "A function is a named block of code. In Unreal, UFUNCTION is what makes a C++ function visible to Blueprints or the network.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "A function is a named block of code.",
+      "detail": "In Unreal, UFUNCTION is what makes a C++ function visible to Blueprints or the network.",
+      "see": []
+    },
+    {
+      "id": "variable-skip",
+      "term": "Variable",
+      "aliases": [],
+      "category": "Programming",
+      "match": "skip",
+      "definition": "A variable stores a value. In Unreal, a UPROPERTY is a variable the editor, the garbage collector, and replication can see.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "A variable stores a value.",
+      "detail": "In Unreal, a UPROPERTY is a variable the editor, the garbage collector, and replication can see.",
+      "see": []
+    },
+    {
+      "id": "class-skip",
+      "term": "Class",
+      "aliases": [],
+      "category": "Programming",
+      "match": "skip",
+      "definition": "A class is a type of object. UCLASS marks the ones Unreal should reflect. Plain C++ classes stay invisible to the editor.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "A class is a type of object.",
+      "detail": "UCLASS marks the ones Unreal should reflect. Plain C++ classes stay invisible to the editor.",
+      "see": []
+    },
+    {
+      "id": "memory-skip",
+      "term": "Memory",
+      "aliases": [],
+      "category": "Architecture",
+      "match": "skip",
+      "definition": "Memory is the RAM the game uses. Soft references and not ticking are how you keep it down. Profiling tells you where it went.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "Memory is the RAM the game uses.",
+      "detail": "Soft references and not ticking are how you keep it down. Profiling tells you where it went.",
+      "see": []
+    },
+    {
+      "id": "version-skip",
+      "term": "Version",
+      "aliases": [],
+      "category": "Process",
+      "match": "skip",
+      "definition": "A version is a saved snapshot of a project. Restoring one adds a new version. It does not delete the history.",
+      "tags": [
+        "App"
+      ],
+      "summary": "A version is a saved snapshot of a project.",
+      "detail": "Restoring one adds a new version. It does not delete the history.",
+      "see": []
+    },
+    {
+      "id": "compare-skip",
+      "term": "Compare",
+      "aliases": [],
+      "category": "Process",
+      "match": "skip",
+      "definition": "Compare shows two drafts of a system next to each other so you can see what a change did.",
+      "tags": [
+        "App"
+      ],
+      "summary": "Compare shows two drafts of a system next to each other so you can see what a change did.",
+      "detail": "",
+      "see": []
+    },
+    {
+      "id": "restore-skip",
+      "term": "Restore",
+      "aliases": [],
+      "category": "Process",
+      "match": "skip",
+      "definition": "Restore makes an older saved version the current one and keeps the older snapshot in the list.",
+      "tags": [
+        "App"
+      ],
+      "summary": "Restore makes an older saved version the current one and keeps the older snapshot in the list.",
+      "detail": "",
+      "see": []
+    },
+    {
+      "id": "const-skip",
+      "term": "Const",
+      "aliases": [],
+      "category": "Programming",
+      "match": "skip",
+      "definition": "Const means the value will not be changed through that name. It documents intent. It is not a gameplay lock.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "Const means the value will not be changed through that name.",
+      "detail": "It documents intent. It is not a gameplay lock.",
+      "see": []
+    },
+    {
+      "id": "float-skip",
+      "term": "Float",
+      "aliases": [],
+      "category": "Programming",
+      "match": "skip",
+      "definition": "A float is a fractional number, such as a distance or a duration. Unreal gameplay code usually uses float for those, and int32 for counts.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "A float is a fractional number, such as a distance or a duration.",
+      "detail": "Unreal gameplay code usually uses float for those, and int32 for counts.",
+      "see": []
+    },
+    {
+      "id": "int-skip",
+      "term": "Integer",
+      "aliases": [
+        "int32"
+      ],
+      "category": "Programming",
+      "match": "skip",
+      "definition": "int32 is a whole number. Use it for counts, ammo, and indexes. Use a float for distances and times.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "int32 is a whole number.",
+      "detail": "Use it for counts, ammo, and indexes. Use a float for distances and times.",
+      "see": []
+    },
+    {
+      "id": "array-skip",
+      "term": "Array",
+      "aliases": [],
+      "category": "Programming",
+      "match": "skip",
+      "definition": "An array is an ordered list. In Unreal gameplay code that list is usually a TArray.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "An array is an ordered list.",
+      "detail": "In Unreal gameplay code that list is usually a TArray.",
+      "see": []
+    },
+    {
+      "id": "component-skip",
+      "term": "Component",
+      "aliases": [],
+      "category": "Architecture",
+      "match": "skip",
+      "definition": "A component is a piece attached to an owner. On an Actor, that is an Actor Component. The word also shows up in ordinary sentences, so it is not underlined.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "A component is a piece attached to an owner.",
+      "detail": "On an Actor, that is an Actor Component. The word also shows up in ordinary sentences, so it is not underlined.",
+      "see": []
+    },
+    {
+      "id": "slot-skip",
+      "term": "Slot",
+      "aliases": [],
+      "category": "Items",
+      "match": "skip",
+      "definition": "A slot is one cell in an inventory grid. The component owns the slots. The widget draws them.",
+      "tags": [
+        "Inventory"
+      ],
+      "summary": "A slot is one cell in an inventory grid.",
+      "detail": "The component owns the slots. The widget draws them.",
+      "see": []
+    },
+    {
+      "id": "stack-skip",
+      "term": "Stack",
+      "aliases": [
+        "Stack Size"
+      ],
+      "category": "Items",
+      "match": "skip",
+      "definition": "A stack is how many of one item sit in a single slot. The max stack belongs on the item data, not in the widget.",
+      "tags": [
+        "Inventory"
+      ],
+      "summary": "A stack is how many of one item sit in a single slot.",
+      "detail": "The max stack belongs on the item data, not in the widget.",
+      "see": []
+    },
+    {
+      "id": "equipped-skip",
+      "term": "Equipped",
+      "aliases": [],
+      "category": "Items",
+      "match": "skip",
+      "definition": "Equipped means the item is the one in hand, not only in the bag. That state lives on the inventory or the equipment component.",
+      "tags": [
+        "Inventory"
+      ],
+      "summary": "Equipped means the item is the one in hand, not only in the bag.",
+      "detail": "That state lives on the inventory or the equipment component.",
+      "see": []
+    },
+    {
+      "id": "pickup-skip",
+      "term": "Pickup",
+      "aliases": [],
+      "category": "Items",
+      "match": "skip",
+      "definition": "A pickup is an actor in the world that can move into an inventory. The overlap finds it. The server adds it.",
+      "tags": [
+        "Inventory"
+      ],
+      "summary": "A pickup is an actor in the world that can move into an inventory.",
+      "detail": "The overlap finds it. The server adds it.",
+      "see": []
+    },
+    {
+      "id": "attachment-skip",
+      "term": "Attachment",
+      "aliases": [],
+      "category": "Items",
+      "match": "skip",
+      "definition": "Attachment parents one component or actor to a socket on another, such as a weapon on a hand bone.",
+      "tags": [
+        "Inventory"
+      ],
+      "summary": "Attachment parents one component or actor to a socket on another, such as a weapon on a hand bone.",
+      "detail": "",
+      "see": []
+    },
+    {
+      "id": "plugin-skip",
+      "term": "Plugin",
+      "aliases": [],
+      "category": "Process",
+      "match": "skip",
+      "definition": "A plugin is a folder Unreal can enable: a .uplugin plus one or more modules. This app exports your system as one.",
+      "tags": [
+        "App"
+      ],
+      "summary": "A plugin is a folder Unreal can enable: a .uplugin plus one or more modules.",
+      "detail": "This app exports your system as one.",
+      "see": []
+    },
+    {
+      "id": "module-skip",
+      "term": "Module",
+      "aliases": [
+        "Unreal module"
+      ],
+      "category": "Process",
+      "match": "skip",
+      "definition": "A module is one compiled piece of a project or plugin, with its own Build.cs. Your game and your plugin are different modules.",
+      "tags": [
+        "App"
+      ],
+      "summary": "A module is one compiled piece of a project or plugin, with its own Build.cs.",
+      "detail": "Your game and your plugin are different modules.",
+      "see": []
+    },
+    {
+      "id": "attribute-skip",
+      "term": "Attribute",
+      "aliases": [],
+      "category": "GAS",
+      "match": "skip",
+      "definition": "An attribute is a named number in an attribute set, such as health. Gameplay effects change it. Blueprints should not write it directly.",
+      "tags": [
+        "GAS"
+      ],
+      "summary": "An attribute is a named number in an attribute set, such as health.",
+      "detail": "Gameplay effects change it. Blueprints should not write it directly.",
+      "see": []
+    },
+    {
+      "id": "modifier-skip",
+      "term": "Modifier",
+      "aliases": [],
+      "category": "GAS",
+      "match": "skip",
+      "definition": "A modifier is the math a gameplay effect applies to an attribute, such as add or multiply.",
+      "tags": [
+        "GAS"
+      ],
+      "summary": "A modifier is the math a gameplay effect applies to an attribute, such as add or multiply.",
+      "detail": "",
+      "see": []
+    },
+    {
+      "id": "magnitude-skip",
+      "term": "Magnitude",
+      "aliases": [],
+      "category": "GAS",
+      "match": "skip",
+      "definition": "Magnitude is how strong a modifier is. A designer sets it on the effect. The ability should not also hard-code the same number.",
+      "tags": [
+        "GAS"
+      ],
+      "summary": "Magnitude is how strong a modifier is.",
+      "detail": "A designer sets it on the effect. The ability should not also hard-code the same number.",
+      "see": []
+    },
+    {
+      "id": "socket-skip",
+      "term": "Socket",
+      "aliases": [],
+      "category": "Animation",
+      "match": "skip",
+      "definition": "A socket is a named point on a skeleton, such as the hand, where a weapon or an effect can attach.",
+      "tags": [
+        "Animation"
+      ],
+      "summary": "A socket is a named point on a skeleton, such as the hand, where a weapon or an effect can attach.",
+      "detail": "",
+      "see": []
+    },
+    {
+      "id": "override-skip",
+      "term": "Override",
+      "aliases": [],
+      "category": "Programming",
+      "match": "skip",
+      "definition": "Override replaces a parent function, such as BeginPlay or Tick. Call Super unless you fully replace the parent behaviour on purpose.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "Override replaces a parent function, such as BeginPlay or Tick.",
+      "detail": "Call Super unless you fully replace the parent behaviour on purpose.",
+      "see": []
+    },
+    {
+      "id": "virtual-skip",
+      "term": "Virtual",
+      "aliases": [],
+      "category": "Programming",
+      "match": "skip",
+      "definition": "A virtual function can be overridden by a child class. Unreal's Blueprint events are the editor-facing version of that idea.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "A virtual function can be overridden by a child class.",
+      "detail": "Unreal's Blueprint events are the editor-facing version of that idea.",
+      "see": []
+    },
+    {
+      "id": "reference-skip",
+      "term": "Reference",
+      "aliases": [],
+      "category": "Programming",
+      "match": "skip",
+      "definition": "A reference is a name for an existing object. A hard reference loads it. A soft reference only names it until you load it.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "A reference is a name for an existing object.",
+      "detail": "A hard reference loads it. A soft reference only names it until you load it.",
+      "see": []
+    },
+    {
+      "id": "pointer-skip",
+      "term": "Pointer",
+      "aliases": [],
+      "category": "Programming",
+      "match": "skip",
+      "definition": "A pointer holds the address of an object, or nullptr. In Unreal, store object pointers in a UPROPERTY so garbage collection sees them.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "A pointer holds the address of an object, or nullptr.",
+      "detail": "In Unreal, store object pointers in a UPROPERTY so garbage collection sees them.",
+      "see": []
+    },
+    {
+      "id": "interaction-skip",
+      "term": "Interaction",
+      "aliases": [],
+      "category": "Items",
+      "match": "skip",
+      "definition": "Interaction is the player using the thing they look at. A line trace finds it. An interface calls it. A cast list does not scale.",
+      "tags": [
+        "Inventory"
+      ],
+      "summary": "Interaction is the player using the thing they look at.",
+      "detail": "A line trace finds it. An interface calls it. A cast list does not scale.",
+      "see": []
+    },
+    {
+      "id": "performance-skip",
+      "term": "Performance",
+      "aliases": [],
+      "category": "Architecture",
+      "match": "skip",
+      "definition": "Performance is how much time and memory a frame costs. Tick and traces every frame are the usual waste. Profile before you rewrite.",
+      "tags": [
+        "Optimization"
+      ],
+      "summary": "Performance is how much time and memory a frame costs.",
+      "detail": "Tick and traces every frame are the usual waste. Profile before you rewrite.",
+      "see": []
+    },
+    {
+      "id": "optimization-skip",
+      "term": "Optimization",
+      "aliases": [],
+      "category": "Architecture",
+      "match": "skip",
+      "definition": "Optimization is a change that makes a measured hot path cheaper. Doing it before you measure usually hides the real cost.",
+      "tags": [
+        "Optimization"
+      ],
+      "summary": "Optimization is a change that makes a measured hot path cheaper.",
+      "detail": "Doing it before you measure usually hides the real cost.",
+      "see": []
+    },
+    {
+      "id": "pure",
+      "term": "Pure",
+      "aliases": [
+        "BlueprintPure"
+      ],
+      "category": "Graphs",
+      "match": "capital",
+      "definition": "A Pure function has no execution pin. Unreal runs it again every time another node reads it. Use it for cheap questions, not for traces, casts, or spawns.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "A Pure function has no execution pin.",
+      "detail": "Unreal runs it again every time another node reads it. Use it for cheap questions, not for traces, casts, or spawns.",
+      "see": []
+    },
+    {
+      "id": "impure",
+      "term": "Impure",
+      "aliases": [],
+      "category": "Graphs",
+      "match": "capital",
+      "definition": "An Impure function has execution pins and runs once when the wire reaches it. Changes to state belong here, not in a Pure function.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "An Impure function has execution pins and runs once when the wire reaches it.",
+      "detail": "Changes to state belong here, not in a Pure function.",
+      "see": []
+    },
+    {
+      "id": "blueprint-callable",
+      "term": "BlueprintCallable",
+      "aliases": [
+        "Blueprint Callable"
+      ],
+      "category": "Graphs",
+      "match": "always",
+      "definition": "BlueprintCallable marks a function that a Blueprint can call. The C++ still owns the body. Designers wire the call. They do not reimplement it.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "BlueprintCallable marks a function that a Blueprint can call.",
+      "detail": "The C++ still owns the body. Designers wire the call. They do not reimplement it.",
+      "see": []
+    },
+    {
+      "id": "macro",
+      "term": "Macro",
+      "aliases": [
+        "Macros"
+      ],
+      "category": "Graphs",
+      "match": "capital",
+      "definition": "A Macro is a collapsed graph that is pasted inline at each call. It has no function of its own. A change to the macro changes every place that uses it.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "A Macro is a collapsed graph that is pasted inline at each call.",
+      "detail": "It has no function of its own. A change to the macro changes every place that uses it.",
+      "see": []
+    },
+    {
+      "id": "foreach",
+      "term": "ForEach",
+      "aliases": [
+        "ForEachLoop"
+      ],
+      "category": "Graphs",
+      "match": "always",
+      "definition": "ForEach walks an array one element at a time. The loop body runs per element, then Completed runs once. Do not put a heavy cast in the body if you can filter first.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "ForEach walks an array one element at a time.",
+      "detail": "The loop body runs per element, then Completed runs once. Do not put a heavy cast in the body if you can filter first.",
+      "see": []
+    },
+    {
+      "id": "entry",
+      "term": "Entry",
+      "aliases": [],
+      "category": "Graphs",
+      "match": "capital",
+      "definition": "Entry is the start of a function or macro graph. Its outputs are the inputs of that graph. The event graph does not have an Entry node. Events start it instead.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "Entry is the start of a function or macro graph.",
+      "detail": "Its outputs are the inputs of that graph. The event graph does not have an Entry node. Events start it instead.",
+      "see": []
+    },
+    {
+      "id": "collapse",
+      "term": "Collapse",
+      "aliases": [
+        "Collapsed graph"
+      ],
+      "category": "Graphs",
+      "match": "capital",
+      "definition": "Collapse turns a selected group of nodes into a function or a macro. Wires that crossed the selection become the new pins.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "Collapse turns a selected group of nodes into a function or a macro.",
+      "detail": "Wires that crossed the selection become the new pins.",
+      "see": []
+    },
+    {
+      "id": "line-trace",
+      "term": "Line Trace",
+      "aliases": [
+        "LineTrace"
+      ],
+      "category": "Graphs",
+      "match": "always",
+      "definition": "A line trace asks the world what a straight line hits. Use a short one from the camera for interact. Do not trace every frame if a timer is enough.",
+      "tags": [
+        "Core",
+        "Inventory"
+      ],
+      "summary": "A line trace asks the world what a straight line hits.",
+      "detail": "Use a short one from the camera for interact. Do not trace every frame if a timer is enough.",
+      "see": [
+        "overlap",
+        "interface-call"
+      ]
+    },
+    {
+      "id": "interface-call",
+      "term": "Interface",
+      "aliases": [
+        "Interface Call"
+      ],
+      "category": "Graphs",
+      "match": "capital",
+      "definition": "An interface is a set of functions a door, a chest, and a switch can all answer. Call the interface. Do not cast to every possible class.",
+      "tags": [
+        "Core",
+        "Inventory"
+      ],
+      "summary": "An interface is a set of functions a door, a chest, and a switch can all answer.",
+      "detail": "Call the interface. Do not cast to every possible class.",
+      "see": [
+        "line-trace",
+        "coupling"
+      ]
+    },
+    {
+      "id": "do-once",
+      "term": "DoOnce",
+      "aliases": [
+        "Do Once"
+      ],
+      "category": "Graphs",
+      "match": "always",
+      "definition": "DoOnce lets execution through a single time. Later pulses stop until something hits Reset. Use it for a one-shot intro, not for a cooldown you must time.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "DoOnce lets execution through a single time.",
+      "detail": "Later pulses stop until something hits Reset. Use it for a one-shot intro, not for a cooldown you must time.",
+      "see": []
+    },
+    {
+      "id": "flipflop",
+      "term": "FlipFlop",
+      "aliases": [
+        "Flip Flop"
+      ],
+      "category": "Graphs",
+      "match": "always",
+      "definition": "FlipFlop alternates. The first pulse leaves through A, the next through B, then A again. A door toggle is the usual use.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "FlipFlop alternates.",
+      "detail": "The first pulse leaves through A, the next through B, then A again. A door toggle is the usual use.",
+      "see": []
+    },
+    {
+      "id": "sequence-node",
+      "term": "Sequence",
+      "aliases": [],
+      "category": "Graphs",
+      "match": "capital",
+      "definition": "A Sequence runs its outputs in order. Then 0 finishes its chain, then Then 1 starts. It is not a branch. Every output runs.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "A Sequence runs its outputs in order.",
+      "detail": "Then 0 finishes its chain, then Then 1 starts. It is not a branch. Every output runs.",
+      "see": []
+    },
+    {
+      "id": "k2node",
+      "term": "K2Node",
+      "aliases": [],
+      "category": "Graphs",
+      "match": "always",
+      "definition": "A K2Node is one node in Unreal's Blueprint graph text. Copy for Unreal writes these objects so the editor can paste them. The text format is best effort.",
+      "tags": [
+        "Core"
+      ],
+      "summary": "A K2Node is one node in Unreal's Blueprint graph text.",
+      "detail": "Copy for Unreal writes these objects so the editor can paste them. The text format is best effort.",
+      "see": []
+    },
+    {
+      "id": "gameplay-cue",
+      "term": "Gameplay Cue",
+      "aliases": [],
+      "tags": [
+        "GAS"
+      ],
+      "category": "GAS",
+      "match": "always",
+      "summary": "A Gameplay Cue is the cosmetic that plays when a Gameplay Effect is applied, such as a hit flash or a sound.",
+      "detail": "In UE5 this means a GameplayCueNotify asset, triggered by a gameplay tag, so the ability does not spawn the Niagara system itself.",
+      "definition": "A Gameplay Cue is the cosmetic that plays when a Gameplay Effect is applied, such as a hit flash or a sound.",
+      "see": [
+        "gameplay-effect",
+        "gameplay-tag"
+      ]
+    },
+    {
+      "id": "ability-task",
+      "term": "Ability Task",
+      "aliases": [],
+      "tags": [
+        "GAS"
+      ],
+      "category": "GAS",
+      "match": "always",
+      "summary": "An Ability Task is a small async step inside a Gameplay Ability, such as wait for input or wait for a target.",
+      "detail": "In UE5 this means a UAbilityTask started from the ability. It ends the step. It does not grant the ability.",
+      "definition": "An Ability Task is a small async step inside a Gameplay Ability, such as wait for input or wait for a target.",
+      "see": [
+        "gameplay-ability",
+        "asc"
+      ]
+    },
+    {
+      "id": "cooldown",
+      "term": "Cooldown",
+      "aliases": [],
+      "tags": [
+        "GAS"
+      ],
+      "category": "GAS",
+      "match": "always",
+      "summary": "A cooldown is the wait before an ability can run again.",
+      "detail": "In UE5 this means a duration Gameplay Effect with a cooldown tag. The ability system blocks activation while that tag is on.",
+      "definition": "A cooldown is the wait before an ability can run again.",
+      "see": [
+        "gameplay-ability",
+        "gameplay-effect"
+      ]
+    },
+    {
+      "id": "gameplay-event",
+      "term": "Gameplay Event",
+      "aliases": [],
+      "tags": [
+        "GAS"
+      ],
+      "category": "GAS",
+      "match": "always",
+      "summary": "A Gameplay Event is a tagged message that can activate an ability, such as a hit confirm.",
+      "detail": "In UE5 this means SendGameplayEventToActor with a gameplay tag and an optional payload. The ability list decides who listens.",
+      "definition": "A Gameplay Event is a tagged message that can activate an ability, such as a hit confirm.",
+      "see": [
+        "gameplay-ability",
+        "gameplay-tag"
+      ]
+    },
+    {
+      "id": "prediction-key",
+      "term": "Prediction Key",
+      "aliases": [],
+      "tags": [
+        "GAS",
+        "Networking"
+      ],
+      "category": "GAS",
+      "match": "always",
+      "summary": "A prediction key lets the owning client try an ability before the server confirms it.",
+      "detail": "In UE5 this means an FPredictionKey on the ability activation. If the server rejects it, the predicted effect is undone.",
+      "definition": "A prediction key lets the owning client try an ability before the server confirms it.",
+      "see": [
+        "gas",
+        "server-rpc"
+      ]
+    },
+    {
+      "id": "net-driver",
+      "term": "Net Driver",
+      "aliases": [],
+      "tags": [
+        "Networking"
+      ],
+      "category": "Networking",
+      "match": "always",
+      "summary": "The Net Driver is the connection layer that sends and receives replicated actor data.",
+      "detail": "In UE5 this means UNetDriver. IpNetDriver is the usual game driver. It owns the channels. Gameplay code does not tick it.",
+      "definition": "The Net Driver is the connection layer that sends and receives replicated actor data.",
+      "see": [
+        "replication",
+        "actor-channel"
+      ]
+    },
+    {
+      "id": "replication-graph",
+      "term": "Replication Graph",
+      "aliases": [],
+      "tags": [
+        "Networking"
+      ],
+      "category": "Networking",
+      "match": "always",
+      "summary": "A replication graph is an optional faster way to decide which actors each connection should receive.",
+      "detail": "In UE5 this means UReplicationGraph, used by large games instead of the default per-actor relevancy pass.",
+      "definition": "A replication graph is an optional faster way to decide which actors each connection should receive.",
+      "see": [
+        "relevancy",
+        "net-driver"
+      ]
+    },
+    {
+      "id": "fast-array",
+      "term": "Fast Array Serializer",
+      "aliases": [],
+      "tags": [
+        "Networking"
+      ],
+      "category": "Networking",
+      "match": "always",
+      "summary": "A fast array serializer replicates a list by sending what changed, not the whole list every time.",
+      "detail": "In UE5 this means FFastArraySerializer and FFastArraySerializerItem. Inventory stacks are the usual use.",
+      "definition": "A fast array serializer replicates a list by sending what changed, not the whole list every time.",
+      "see": [
+        "replication",
+        "tarray"
+      ]
+    },
+    {
+      "id": "autonomous-proxy",
+      "term": "Autonomous Proxy",
+      "aliases": [],
+      "tags": [
+        "Networking"
+      ],
+      "category": "Networking",
+      "match": "always",
+      "summary": "The autonomous proxy is the copy of a pawn on the machine of the player who owns it.",
+      "detail": "In UE5 this means ENetRole::ROLE_AutonomousProxy. That copy sends input. It does not own the true health.",
+      "definition": "The autonomous proxy is the copy of a pawn on the machine of the player who owns it.",
+      "see": [
+        "simulated-proxy",
+        "net-role"
+      ]
+    },
+    {
+      "id": "simulated-proxy",
+      "term": "Simulated Proxy",
+      "aliases": [],
+      "tags": [
+        "Networking"
+      ],
+      "category": "Networking",
+      "match": "always",
+      "summary": "A simulated proxy is everyone else's copy of a pawn. It plays what the server sent.",
+      "detail": "In UE5 this means ENetRole::ROLE_SimulatedProxy. Do not read the local player's input on a simulated proxy.",
+      "definition": "A simulated proxy is everyone else's copy of a pawn. It plays what the server sent.",
+      "see": [
+        "autonomous-proxy",
+        "net-role"
+      ]
+    },
+    {
+      "id": "net-role",
+      "term": "Net Role",
+      "aliases": [],
+      "tags": [
+        "Networking"
+      ],
+      "category": "Networking",
+      "match": "always",
+      "summary": "Net role says whether this machine is the authority, the owning client, or a simulator for an actor.",
+      "detail": "In UE5 this means Actor->GetLocalRole(). HasAuthority is the usual check before you change shared state.",
+      "definition": "Net role says whether this machine is the authority, the owning client, or a simulator for an actor.",
+      "see": [
+        "authority",
+        "autonomous-proxy"
+      ]
+    },
+    {
+      "id": "tear-off",
+      "term": "Tear Off",
+      "aliases": [],
+      "tags": [
+        "Networking"
+      ],
+      "category": "Networking",
+      "match": "always",
+      "summary": "Tear off stops replicating an actor and lets each machine finish it locally, such as a ragdoll.",
+      "detail": "In UE5 this means AActor::TearOff. After that, the server no longer sends corrections for it.",
+      "definition": "Tear off stops replicating an actor and lets each machine finish it locally, such as a ragdoll.",
+      "see": [
+        "replication",
+        "relevancy"
+      ]
+    },
+    {
+      "id": "actor-channel",
+      "term": "Actor Channel",
+      "aliases": [],
+      "tags": [
+        "Networking"
+      ],
+      "category": "Networking",
+      "match": "always",
+      "summary": "An actor channel is the network pipe for one replicated actor on one connection.",
+      "detail": "In UE5 this means UActorChannel inside the Net Driver. You rarely touch it. Relevancy opens and closes it.",
+      "definition": "An actor channel is the network pipe for one replicated actor on one connection.",
+      "see": [
+        "net-driver",
+        "replication"
+      ]
+    },
+    {
+      "id": "push-model",
+      "term": "Push Model",
+      "aliases": [],
+      "tags": [
+        "Networking"
+      ],
+      "category": "Networking",
+      "match": "always",
+      "summary": "Push model replication marks a property dirty only when your code says it changed.",
+      "detail": "In UE5 this means the push-model macros with DOREPLIFETIME_CONDITION. It avoids comparing the property every net update.",
+      "definition": "Push model replication marks a property dirty only when your code says it changed.",
+      "see": [
+        "replication",
+        "doreplifetime"
+      ]
+    },
+    {
+      "id": "asset-manager",
+      "term": "Asset Manager",
+      "aliases": [],
+      "tags": [
+        "Data"
+      ],
+      "category": "Data",
+      "match": "always",
+      "summary": "The Asset Manager loads primary assets by id and can keep them resident.",
+      "detail": "In UE5 this means UAssetManager. You register primary asset types in the project settings, then load them by FPrimaryAssetId.",
+      "definition": "The Asset Manager loads primary assets by id and can keep them resident.",
+      "see": [
+        "primary-asset-id",
+        "primary-data-asset"
+      ]
+    },
+    {
+      "id": "primary-asset-id",
+      "term": "Primary Asset Id",
+      "aliases": [],
+      "tags": [
+        "Data"
+      ],
+      "category": "Data",
+      "match": "always",
+      "summary": "A primary asset id is the type and name the Asset Manager uses to find one asset.",
+      "detail": "In UE5 this means FPrimaryAssetId, such as Item:Rifle. It is not a file path.",
+      "definition": "A primary asset id is the type and name the Asset Manager uses to find one asset.",
+      "see": [
+        "asset-manager",
+        "primary-data-asset"
+      ]
+    },
+    {
+      "id": "data-table",
+      "term": "Data Table",
+      "aliases": [],
+      "tags": [
+        "Data"
+      ],
+      "category": "Data",
+      "match": "always",
+      "summary": "A Data Table is a spreadsheet of rows that share one struct.",
+      "detail": "In UE5 this means UDataTable. Each row is a USTRUCT. Look up a row by name. Do not store gameplay state in the table.",
+      "definition": "A Data Table is a spreadsheet of rows that share one struct.",
+      "see": [
+        "data-asset",
+        "data-registry",
+        "curve-table"
+      ]
+    },
+    {
+      "id": "data-registry",
+      "term": "Data Registry",
+      "aliases": [],
+      "tags": [
+        "Data"
+      ],
+      "category": "Data",
+      "match": "always",
+      "summary": "The Data Registry gathers rows from data tables and other sources behind one lookup.",
+      "detail": "In UE5 this means UDataRegistry. Use it when several tables contribute items of the same struct.",
+      "definition": "The Data Registry gathers rows from data tables and other sources behind one lookup.",
+      "see": [
+        "data-table",
+        "asset-manager"
+      ]
+    },
+    {
+      "id": "soft-class",
+      "term": "Soft Class Reference",
+      "aliases": [],
+      "tags": [
+        "Data"
+      ],
+      "category": "Data",
+      "match": "always",
+      "summary": "A soft class reference names a class without loading its default object yet.",
+      "detail": "In UE5 this means TSoftClassPtr. Load it before you spawn. A hard class pointer loads it with the owner.",
+      "definition": "A soft class reference names a class without loading its default object yet.",
+      "see": [
+        "soft-ref",
+        "async-load"
+      ]
+    },
+    {
+      "id": "async-load",
+      "term": "Async Load",
+      "aliases": [],
+      "tags": [
+        "Data"
+      ],
+      "category": "Data",
+      "match": "always",
+      "summary": "An async load brings in a soft asset without freezing the frame.",
+      "detail": "In UE5 this means StreamableManager or Asset Manager load handles. Bind the callback. Do not assume the pointer is set on the next line.",
+      "definition": "An async load brings in a soft asset without freezing the frame.",
+      "see": [
+        "soft-ref",
+        "asset-manager",
+        "streamable-manager"
+      ]
+    },
+    {
+      "id": "enhanced-input",
+      "term": "Enhanced Input",
+      "aliases": [],
+      "tags": [
+        "Input"
+      ],
+      "category": "Input",
+      "match": "always",
+      "summary": "Enhanced Input maps keys to named actions, with triggers and modifiers, instead of a direct key check.",
+      "detail": "In UE5 this means the Enhanced Input plugin: UInputAction assets, a mapping context, and UEnhancedInputComponent on the pawn or controller.",
+      "definition": "Enhanced Input maps keys to named actions, with triggers and modifiers, instead of a direct key check.",
+      "see": [
+        "input-action",
+        "input-mapping-context"
+      ]
+    },
+    {
+      "id": "input-action",
+      "term": "Input Action",
+      "aliases": [],
+      "tags": [
+        "Input"
+      ],
+      "category": "Input",
+      "match": "always",
+      "summary": "An Input Action is one named thing the player can do, such as Jump or Interact.",
+      "detail": "In UE5 this means a UInputAction asset. The mapping context binds keys to it. The graph listens for Started or Triggered.",
+      "definition": "An Input Action is one named thing the player can do, such as Jump or Interact.",
+      "see": [
+        "enhanced-input",
+        "input-trigger"
+      ]
+    },
+    {
+      "id": "input-mapping-context",
+      "term": "Input Mapping Context",
+      "aliases": [],
+      "tags": [
+        "Input"
+      ],
+      "category": "Input",
+      "match": "always",
+      "summary": "A mapping context is the list of keys that fire input actions while that context is added.",
+      "detail": "In UE5 this means a UInputMappingContext added on the local player subsystem. Add it on the possessed pawn. Remove it when that pawn is gone.",
+      "definition": "A mapping context is the list of keys that fire input actions while that context is added.",
+      "see": [
+        "enhanced-input",
+        "input-action"
+      ]
+    },
+    {
+      "id": "input-trigger",
+      "term": "Input Trigger",
+      "aliases": [],
+      "tags": [
+        "Input"
+      ],
+      "category": "Input",
+      "match": "always",
+      "summary": "An input trigger decides when an action fires, such as pressed, held, or tap.",
+      "detail": "In UE5 this means a UInputTrigger on the mapping. Hold time lives on the trigger, not in the ability.",
+      "definition": "An input trigger decides when an action fires, such as pressed, held, or tap.",
+      "see": [
+        "trigger-skip"
+      ]
+    },
+    {
+      "id": "umg",
+      "term": "UMG",
+      "aliases": [],
+      "tags": [
+        "UI"
+      ],
+      "category": "UI",
+      "match": "always",
+      "summary": "UMG is Unreal's widget tool for HUD and menus.",
+      "detail": "In UE5 this means UUserWidget Blueprints. The widget reads data. It should not own the inventory list or apply damage.",
+      "definition": "UMG is Unreal's widget tool for HUD and menus.",
+      "see": [
+        "user-widget",
+        "slate"
+      ]
+    },
+    {
+      "id": "user-widget",
+      "term": "User Widget",
+      "aliases": [],
+      "tags": [
+        "UI"
+      ],
+      "category": "UI",
+      "match": "always",
+      "summary": "A User Widget is one UMG layout, such as a prompt or a health bar.",
+      "detail": "In UE5 this means UUserWidget. Create it with CreateWidget. Bind it to a value the component already owns.",
+      "definition": "A User Widget is one UMG layout, such as a prompt or a health bar.",
+      "see": [
+        "umg",
+        "widget-component",
+        "widget-skip",
+        "mvvm"
+      ]
+    },
+    {
+      "id": "widget-component",
+      "term": "Widget Component",
+      "aliases": [],
+      "tags": [
+        "UI"
+      ],
+      "category": "UI",
+      "match": "always",
+      "summary": "A widget component draws a User Widget in the world, on an actor.",
+      "detail": "In UE5 this means UWidgetComponent. Use it for a nameplate. A screen HUD should be a viewport widget instead.",
+      "definition": "A widget component draws a User Widget in the world, on an actor.",
+      "see": []
+    },
+    {
+      "id": "slate",
+      "term": "Slate",
+      "aliases": [],
+      "tags": [
+        "UI"
+      ],
+      "category": "UI",
+      "match": "always",
+      "summary": "Slate is the C++ UI framework the editor and UMG are built on.",
+      "detail": "In UE5 this means SWidget classes. Game HUD is usually UMG. Editor panels, such as the Architect panel, are Slate.",
+      "definition": "Slate is the C++ UI framework the editor and UMG are built on.",
+      "see": [
+        "umg"
+      ]
+    },
+    {
+      "id": "common-ui",
+      "term": "Common UI",
+      "aliases": [],
+      "tags": [
+        "UI"
+      ],
+      "category": "UI",
+      "match": "always",
+      "summary": "Common UI is an optional layer on UMG for gamepad focus, layers, and actions.",
+      "detail": "In UE5 this means the CommonUI plugin: CommonActivatableWidget and input actions that the layer routes. It is not required for a simple prompt.",
+      "definition": "Common UI is an optional layer on UMG for gamepad focus, layers, and actions.",
+      "see": []
+    },
+    {
+      "id": "behavior-tree",
+      "term": "Behavior Tree",
+      "aliases": [],
+      "tags": [
+        "AI"
+      ],
+      "category": "AI",
+      "match": "always",
+      "summary": "A Behavior Tree is a prioritized list of AI tasks, such as patrol, then chase.",
+      "detail": "In UE5 this means a Behavior Tree asset run by a Brain Component on an AI Controller. Tasks read the Blackboard. They do not own the pawn's health.",
+      "definition": "A Behavior Tree is a prioritized list of AI tasks, such as patrol, then chase.",
+      "see": [
+        "blackboard",
+        "ai-controller"
+      ]
+    },
+    {
+      "id": "blackboard",
+      "term": "Blackboard",
+      "aliases": [],
+      "tags": [
+        "AI"
+      ],
+      "category": "AI",
+      "match": "always",
+      "summary": "A Blackboard is the AI's shared notebook: the target, the last location, a bool.",
+      "detail": "In UE5 this means a Blackboard asset. The tree and the EQS query both read those keys.",
+      "definition": "A Blackboard is the AI's shared notebook: the target, the last location, a bool.",
+      "see": [
+        "behavior-tree",
+        "ai-perception"
+      ]
+    },
+    {
+      "id": "ai-controller",
+      "term": "AI Controller",
+      "aliases": [],
+      "tags": [
+        "AI"
+      ],
+      "category": "AI",
+      "match": "always",
+      "summary": "An AI Controller possesses an AI pawn and runs its behavior tree.",
+      "detail": "In UE5 this means AAIController. Put perception and the tree there. Put movement on the character.",
+      "definition": "An AI Controller possesses an AI pawn and runs its behavior tree.",
+      "see": [
+        "behavior-tree",
+        "nav-mesh"
+      ]
+    },
+    {
+      "id": "eqs",
+      "term": "Environment Query System",
+      "aliases": [
+        "EQS"
+      ],
+      "tags": [
+        "AI"
+      ],
+      "category": "AI",
+      "match": "always",
+      "summary": "EQS asks the world a spatial question, such as the best cover point near the player.",
+      "detail": "In UE5 this means an Environment Query asset. A behavior-tree task runs it and writes the result to the Blackboard.",
+      "definition": "EQS asks the world a spatial question, such as the best cover point near the player.",
+      "see": [
+        "ai-perception",
+        "nav-mesh"
+      ]
+    },
+    {
+      "id": "ai-perception",
+      "term": "AI Perception",
+      "aliases": [],
+      "tags": [
+        "AI"
+      ],
+      "category": "AI",
+      "match": "always",
+      "summary": "AI Perception reports what an AI can see or hear.",
+      "detail": "In UE5 this means UAIPerceptionComponent on the controller, with sight and hearing senses. A stimulus is not yet a decision.",
+      "definition": "AI Perception reports what an AI can see or hear.",
+      "see": [
+        "ai-controller",
+        "eqs"
+      ]
+    },
+    {
+      "id": "nav-mesh",
+      "term": "Nav Mesh",
+      "aliases": [],
+      "tags": [
+        "AI"
+      ],
+      "category": "AI",
+      "match": "always",
+      "summary": "A nav mesh is the walkable surface AI pathfinding uses.",
+      "detail": "In UE5 this means the Recast nav mesh built from the level. MoveTo on the AI controller follows it. A line trace does not.",
+      "definition": "A nav mesh is the walkable surface AI pathfinding uses.",
+      "see": [
+        "ai-controller",
+        "character"
+      ]
+    },
+    {
+      "id": "chaos",
+      "term": "Chaos",
+      "aliases": [],
+      "tags": [
+        "Physics"
+      ],
+      "category": "Physics",
+      "match": "always",
+      "summary": "Chaos is Unreal's physics system for collision, destruction, and vehicles.",
+      "detail": "In UE5 this means the Chaos solver. Gameplay overlap still uses the collision presets. Chaos does not replace a line trace.",
+      "definition": "Chaos is Unreal's physics system for collision, destruction, and vehicles.",
+      "see": [
+        "geometry-collection",
+        "chaos-vehicle",
+        "rigid-body",
+        "destruction"
+      ]
+    },
+    {
+      "id": "geometry-collection",
+      "term": "Geometry Collection",
+      "aliases": [],
+      "tags": [
+        "Physics"
+      ],
+      "category": "Physics",
+      "match": "always",
+      "summary": "A Geometry Collection is a mesh broken into pieces Chaos can simulate when it breaks.",
+      "detail": "In UE5 this means a Geometry Collection asset. Fracture it in the editor. The ability only applies the break, it does not author the chunks.",
+      "definition": "A Geometry Collection is a mesh broken into pieces Chaos can simulate when it breaks.",
+      "see": [
+        "chaos",
+        "destruction"
+      ]
+    },
+    {
+      "id": "chaos-vehicle",
+      "term": "Chaos Vehicle",
+      "aliases": [],
+      "tags": [
+        "Physics"
+      ],
+      "category": "Physics",
+      "match": "always",
+      "summary": "A Chaos Vehicle is a pawn whose wheels are simulated by the Chaos vehicle plugin.",
+      "detail": "In UE5 this means AWheeledVehiclePawn and the ChaosVehicles plugin. Throttle is an input. The wheel setup is an asset.",
+      "definition": "A Chaos Vehicle is a pawn whose wheels are simulated by the Chaos vehicle plugin.",
+      "see": [
+        "chaos",
+        "pawn"
+      ]
+    },
+    {
+      "id": "metasound",
+      "term": "MetaSound",
+      "aliases": [],
+      "tags": [
+        "Audio"
+      ],
+      "category": "Audio",
+      "match": "always",
+      "summary": "A MetaSound is a sound graph that can take gameplay parameters, such as engine RPM.",
+      "detail": "In UE5 this means a MetaSound Source asset. Set parameters from the component. Do not build the graph in C++.",
+      "definition": "A MetaSound is a sound graph that can take gameplay parameters, such as engine RPM.",
+      "see": [
+        "sound-cue",
+        "audio-component"
+      ]
+    },
+    {
+      "id": "sound-cue",
+      "term": "Sound Cue",
+      "aliases": [],
+      "tags": [
+        "Audio"
+      ],
+      "category": "Audio",
+      "match": "always",
+      "summary": "A Sound Cue is a packaged sound with volume, pitch, and attenuation.",
+      "detail": "In UE5 this means a USoundCue. Play it from an audio component or SpawnSound. The cue does not decide when the shot is legal.",
+      "definition": "A Sound Cue is a packaged sound with volume, pitch, and attenuation.",
+      "see": [
+        "metasound",
+        "sound-attenuation"
+      ]
+    },
+    {
+      "id": "sound-attenuation",
+      "term": "Attenuation",
+      "aliases": [],
+      "tags": [
+        "Audio"
+      ],
+      "category": "Audio",
+      "match": "always",
+      "summary": "Attenuation is how a sound gets quieter and more muffled with distance.",
+      "detail": "In UE5 this means a USoundAttenuation asset on the cue or the audio component. Falloff is data, not a Tick.",
+      "definition": "Attenuation is how a sound gets quieter and more muffled with distance.",
+      "see": [
+        "audio-component",
+        "sound-cue"
+      ]
+    },
+    {
+      "id": "audio-component",
+      "term": "Audio Component",
+      "aliases": [],
+      "tags": [
+        "Audio"
+      ],
+      "category": "Audio",
+      "match": "always",
+      "summary": "An Audio Component plays a sound attached to an actor.",
+      "detail": "In UE5 this means UAudioComponent. Use it for a looping engine. A one-shot can spawn and forget.",
+      "definition": "An Audio Component plays a sound attached to an actor.",
+      "see": [
+        "sound-cue",
+        "actor-component"
+      ]
+    },
+    {
+      "id": "nanite",
+      "term": "Nanite",
+      "aliases": [],
+      "tags": [
+        "Optimization"
+      ],
+      "category": "Optimization",
+      "match": "always",
+      "summary": "Nanite is Unreal's virtualized geometry. A static mesh can keep its source detail and stream what the view needs.",
+      "detail": "In UE5 this means the Nanite flag on a static mesh. It does not apply to skeletal characters.",
+      "definition": "Nanite is Unreal's virtualized geometry. A static mesh can keep its source detail and stream what the view needs.",
+      "see": [
+        "lumen",
+        "world-partition"
+      ]
+    },
+    {
+      "id": "lumen",
+      "term": "Lumen",
+      "aliases": [],
+      "tags": [
+        "Optimization"
+      ],
+      "category": "Optimization",
+      "match": "always",
+      "summary": "Lumen is Unreal's dynamic global illumination and reflections.",
+      "detail": "In UE5 this means the Lumen settings on the project and the post-process volume. Gameplay code does not compute the bounce light.",
+      "definition": "Lumen is Unreal's dynamic global illumination and reflections.",
+      "see": [
+        "nanite",
+        "unreal-insights"
+      ]
+    },
+    {
+      "id": "world-partition",
+      "term": "World Partition",
+      "aliases": [],
+      "tags": [
+        "Optimization",
+        "Data"
+      ],
+      "category": "Optimization",
+      "match": "always",
+      "summary": "World Partition splits a large level into cells that stream around the player.",
+      "detail": "In UE5 this means a World Partition level. Actors live in cells. You do not hand-place dozens of streaming sublevels for a new open world.",
+      "definition": "World Partition splits a large level into cells that stream around the player.",
+      "see": [
+        "level-streaming",
+        "level"
+      ]
+    },
+    {
+      "id": "level-streaming",
+      "term": "Level Streaming",
+      "aliases": [],
+      "tags": [
+        "Optimization"
+      ],
+      "category": "Optimization",
+      "match": "always",
+      "summary": "Level streaming loads and unloads a sublevel while the game runs.",
+      "detail": "In UE5 this means ULevelStreaming. World Partition is the newer way to do the same job for a big map.",
+      "definition": "Level streaming loads and unloads a sublevel while the game runs.",
+      "see": [
+        "world-partition",
+        "level"
+      ]
+    },
+    {
+      "id": "unreal-insights",
+      "term": "Unreal Insights",
+      "aliases": [],
+      "tags": [
+        "Optimization"
+      ],
+      "category": "Optimization",
+      "match": "always",
+      "summary": "Unreal Insights is the trace viewer for CPU time, frames, and memory.",
+      "detail": "In UE5 this means a .utrace capture. Use it before you remove a feature for speed.",
+      "definition": "Unreal Insights is the trace viewer for CPU time, frames, and memory.",
+      "see": [
+        "profiling",
+        "tick"
+      ]
+    },
+    {
+      "id": "stack-systems",
+      "term": "Stack Systems",
+      "aliases": [],
+      "tags": [
+        "App"
+      ],
+      "category": "App",
+      "match": "always",
+      "summary": "Stack Systems asks for one new draft that is written to work with up to four systems you already saved.",
+      "detail": "In this app the request sends short summaries of those systems, not their full source, so the model does not copy a chopped file.",
+      "definition": "Stack Systems asks for one new draft that is written to work with up to four systems you already saved.",
+      "see": [
+        "bundle",
+        "synthesize"
+      ]
+    },
+    {
+      "id": "bundle",
+      "term": "Bundle",
+      "aliases": [],
+      "tags": [
+        "App"
+      ],
+      "category": "App",
+      "match": "always",
+      "summary": "A bundle exports two or more saved projects as one Unreal plugin, with one module for each.",
+      "detail": "In this app you tick the projects and choose Bundle. A preset remembers that set. The file is a plugin you copy into Plugins.",
+      "definition": "A bundle exports two or more saved projects as one Unreal plugin, with one module for each.",
+      "see": [
+        "plugin-export",
+        "stack-systems"
+      ]
+    },
+    {
+      "id": "fix-regenerate",
+      "term": "Fix & Regenerate",
+      "aliases": [],
+      "tags": [
+        "App"
+      ],
+      "category": "App",
+      "match": "always",
+      "summary": "Fix & Regenerate sends the compile-check notes back with the current system and asks for a revised draft.",
+      "detail": "In this app it is a request, like Regenerate. It does not run the Unreal compiler unless you also build.",
+      "definition": "Fix & Regenerate sends the compile-check notes back with the current system and asks for a revised draft.",
+      "see": [
+        "compile-check",
+        "regenerate"
+      ]
+    },
+    {
+      "id": "version-label",
+      "term": "Version Label",
+      "aliases": [],
+      "tags": [
+        "App"
+      ],
+      "category": "App",
+      "match": "always",
+      "summary": "The version label is the app's release number, such as 1.13.0, shown on feedback and update checks.",
+      "detail": "It is package.json's version. A saved project version is a different thing: a snapshot you can restore.",
+      "definition": "The version label is the app's release number, such as 1.13.0, shown on feedback and update checks.",
+      "see": [
+        "version-skip",
+        "restore-skip"
+      ]
+    },
+    {
+      "id": "plugin-export",
+      "term": "Plugin Export",
+      "aliases": [],
+      "tags": [
+        "App"
+      ],
+      "category": "App",
+      "match": "always",
+      "summary": "Plugin export writes the generated header and source into an Unreal plugin folder for a project you pick.",
+      "detail": "In this app that is Copy into a UE project, or Send to Unreal when the companion is paired. Edited files are left alone until you confirm.",
+      "definition": "Plugin export writes the generated header and source into an Unreal plugin folder for a project you pick.",
+      "see": [
+        "uplugin",
+        "build-cs",
+        "bundle"
+      ]
+    },
+    {
+      "id": "pose-search-database",
+      "term": "Pose Search Database",
+      "aliases": [],
+      "tags": [
+        "Motion Matching",
+        "Animation"
+      ],
+      "category": "Animation",
+      "match": "always",
+      "summary": "A Pose Search Database is the asset that stores the clips Motion Matching can pick from.",
+      "detail": "UPoseSearchDatabase. It points at a Pose Search Schema and a list of sequences, composites, or blend spaces. The Motion Matching node searches that index.",
+      "definition": "A Pose Search Database is the asset that stores the clips Motion Matching can pick from.",
+      "see": [
+        "motion-matching-database",
+        "schema-skip",
+        "motion-matching"
+      ]
+    },
+    {
+      "id": "motion-matching-database",
+      "term": "Motion Matching Database",
+      "aliases": [
+        "Motion Database"
+      ],
+      "tags": [
+        "Motion Matching",
+        "Animation"
+      ],
+      "category": "Animation",
+      "match": "always",
+      "summary": "A Motion Matching Database is the Pose Search Database the Motion Matching node searches.",
+      "detail": "Create it from Animation > Motion Matching > Pose Search Database. It is a UPoseSearchDatabase, not a second kind of asset.",
+      "definition": "A Motion Matching Database is the Pose Search Database the Motion Matching node searches.",
+      "see": [
+        "pose-search-database",
+        "motion-matching",
+        "schema-skip"
+      ]
+    },
+    {
+      "id": "trajectory",
+      "term": "Trajectory",
+      "aliases": [
+        "Character Trajectory"
+      ],
+      "tags": [
+        "Motion Matching",
+        "Animation"
+      ],
+      "category": "Animation",
+      "match": "always",
+      "summary": "A trajectory is the character's past and future path, sampled so Motion Matching can continue it.",
+      "detail": "The Character Trajectory component holds that path. The schema's Trajectory channel samples it. A positive offset looks ahead, and a negative offset looks back.",
+      "definition": "A trajectory is the character's past and future path, sampled so Motion Matching can continue it.",
+      "see": [
+        "feature-channel",
+        "pose-search-database",
+        "motion-matching"
+      ]
+    },
+    {
+      "id": "pose-skip",
+      "term": "Pose",
+      "aliases": [],
+      "tags": [
+        "Motion Matching",
+        "Animation"
+      ],
+      "category": "Animation",
+      "match": "skip",
+      "summary": "A pose is the skeleton's bone transforms at one sample.",
+      "detail": "The Pose Search channel compares the current pose with samples in the database. The bare word is not underlined, because it is ordinary English.",
+      "definition": "A pose is the skeleton's bone transforms at one sample.",
+      "see": [
+        "pose-search",
+        "feature-channel",
+        "pose-search-database"
+      ]
+    },
+    {
+      "id": "feature-channel",
+      "term": "Feature Channel",
+      "aliases": [],
+      "tags": [
+        "Motion Matching",
+        "Animation"
+      ],
+      "category": "Animation",
+      "match": "always",
+      "summary": "A feature channel is one kind of data the Pose Search Schema extracts, such as trajectory or pose.",
+      "detail": "A new schema starts with a Trajectory channel and a Pose Search channel. Each channel has a weight. More channels make the search pickier and cost more memory.",
+      "definition": "A feature channel is one kind of data the Pose Search Schema extracts, such as trajectory or pose.",
+      "see": [
+        "schema-skip",
+        "trajectory",
+        "pose-search-database"
+      ]
+    },
+    {
+      "id": "schema-skip",
+      "term": "Schema",
+      "aliases": [
+        "Pose Search Schema"
+      ],
+      "tags": [
+        "Motion Matching",
+        "Animation"
+      ],
+      "category": "Animation",
+      "match": "skip",
+      "summary": "A Pose Search Schema lists the skeleton, the sample rate, and the feature channels a database is built with.",
+      "detail": "UPoseSearchSchema. The database and the Motion Matching query have to use the same schema. The bare word is not underlined, because it is ordinary English.",
+      "definition": "A Pose Search Schema lists the skeleton, the sample rate, and the feature channels a database is built with.",
+      "see": [
+        "pose-search-database",
+        "feature-channel",
+        "pose-search"
+      ]
+    },
+    {
+      "id": "motion-warping",
+      "term": "Motion Warping",
+      "aliases": [],
+      "tags": [
+        "Motion Matching",
+        "Animation"
+      ],
+      "category": "Animation",
+      "match": "always",
+      "summary": "Motion Warping bends a montage's root motion toward a named target during a window.",
+      "detail": "UMotionWarpingComponent, plus a warp notify on the montage. A vault or a climb uses it. The database does not store the warp.",
+      "definition": "Motion Warping bends a montage's root motion toward a named target during a window.",
+      "see": [
+        "montage",
+        "root-motion",
+        "distance-matching"
+      ]
+    },
+    {
+      "id": "distance-matching",
+      "term": "Distance Matching",
+      "aliases": [],
+      "tags": [
+        "Motion Matching",
+        "Animation"
+      ],
+      "category": "Animation",
+      "match": "always",
+      "summary": "Distance matching advances a stop or a pivot so the animated travel matches the distance still left.",
+      "detail": "The Animation Blueprint reads that distance from movement. It keeps the feet from sliding when the character stops short of the clip.",
+      "definition": "Distance matching advances a stop or a pivot so the animated travel matches the distance still left.",
+      "see": [
+        "motion-matching",
+        "orientation-warping",
+        "root-motion"
+      ]
+    },
+    {
+      "id": "orientation-warping",
+      "term": "Orientation Warping",
+      "aliases": [],
+      "tags": [
+        "Motion Matching",
+        "Animation"
+      ],
+      "category": "Animation",
+      "match": "always",
+      "summary": "Orientation warping turns the lower body toward the movement direction while the clip's upper body stays put.",
+      "detail": "It is an Animation Warping node. Use it when the database has no clip for every strafe angle.",
+      "definition": "Orientation warping turns the lower body toward the movement direction while the clip's upper body stays put.",
+      "see": [
+        "motion-warping",
+        "motion-matching",
+        "anim-bp"
+      ]
+    },
+    {
+      "id": "animation-compression",
+      "term": "Animation Compression",
+      "aliases": [],
+      "tags": [
+        "Animation",
+        "Optimization"
+      ],
+      "category": "Animation",
+      "match": "always",
+      "summary": "Animation compression stores a sequence's bone keys in a smaller form.",
+      "detail": "The codec and the allowed error live on the animation asset. A Pose Search Database is built from the clips you add, after that compression.",
+      "definition": "Animation compression stores a sequence's bone keys in a smaller form.",
+      "see": [
+        "pose-search-database",
+        "anim-bp"
+      ]
+    },
+    {
+      "id": "blend-profile",
+      "term": "Blend Profile",
+      "aliases": [],
+      "tags": [
+        "Animation"
+      ],
+      "category": "Animation",
+      "match": "always",
+      "summary": "A blend profile is a per-bone blend speed saved on the skeleton.",
+      "detail": "UBlendProfile. The Motion Matching node can use one so the spine blends faster than the fingers.",
+      "definition": "A blend profile is a per-bone blend speed saved on the skeleton.",
+      "see": [
+        "motion-matching",
+        "blend-space",
+        "anim-bp"
+      ]
+    },
+    {
+      "id": "gameplay-effect-spec",
+      "term": "Gameplay Effect Spec",
+      "aliases": [],
+      "tags": [
+        "GAS"
+      ],
+      "category": "GAS",
+      "match": "always",
+      "summary": "A Gameplay Effect Spec is the runtime copy of a Gameplay Effect, ready to apply.",
+      "detail": "FGameplayEffectSpec. It holds the effect, the level, the context, captured attributes, and calculated magnitudes. ApplyGameplayEffectSpecToSelf or ApplyGameplayEffectSpecToTarget consumes it.",
+      "definition": "A Gameplay Effect Spec is the runtime copy of a Gameplay Effect, ready to apply.",
+      "see": [
+        "gameplay-effect",
+        "magnitude-calculation",
+        "duration-policy"
+      ]
+    },
+    {
+      "id": "duration-policy",
+      "term": "Duration Policy",
+      "aliases": [],
+      "tags": [
+        "GAS"
+      ],
+      "category": "GAS",
+      "match": "always",
+      "summary": "Duration policy says whether a Gameplay Effect is instant, has a duration, or lasts until removed.",
+      "detail": "EGameplayEffectDurationType on the effect: Instant, HasDuration, or Infinite. HasDuration uses Duration Magnitude. Instant effects do not stack and do not tick a period.",
+      "definition": "Duration policy says whether a Gameplay Effect is instant, has a duration, or lasts until removed.",
+      "see": [
+        "gameplay-effect",
+        "period-skip",
+        "stacking-skip"
+      ]
+    },
+    {
+      "id": "period-skip",
+      "term": "Period",
+      "aliases": [],
+      "tags": [
+        "GAS"
+      ],
+      "category": "GAS",
+      "match": "skip",
+      "summary": "The period is how often a duration or infinite Gameplay Effect executes again.",
+      "detail": "A period of 0.5 runs the periodic execution twice a second. Zero means no periodic tick. Instant effects ignore it. The bare word is not underlined.",
+      "definition": "The period is how often a duration or infinite Gameplay Effect executes again.",
+      "see": [
+        "duration-policy",
+        "gameplay-effect",
+        "execution-calculation"
+      ]
+    },
+    {
+      "id": "stacking-skip",
+      "term": "Stacking",
+      "aliases": [
+        "Stacking Type"
+      ],
+      "tags": [
+        "GAS"
+      ],
+      "category": "GAS",
+      "match": "skip",
+      "summary": "Stacking decides what a second application of the same Gameplay Effect does.",
+      "detail": "None keeps a separate instance. Aggregate by Source stacks per instigator. Aggregate by Target keeps one stack on the target. Stack limit, duration refresh, and expiration are the other settings. Instant effects do not stack. The word is not underlined.",
+      "definition": "Stacking decides what a second application of the same Gameplay Effect does.",
+      "see": [
+        "gameplay-effect",
+        "duration-policy",
+        "gameplay-effect-spec"
+      ]
+    },
+    {
+      "id": "magnitude-calculation",
+      "term": "Magnitude Calculation",
+      "aliases": [
+        "Mod Magnitude Calculation"
+      ],
+      "tags": [
+        "GAS"
+      ],
+      "category": "GAS",
+      "match": "always",
+      "summary": "A magnitude calculation is how one modifier on a Gameplay Effect gets its number.",
+      "detail": "The modifier can use a scalable float, an attribute, a Set by Caller value, or a custom UGameplayModMagnitudeCalculation class.",
+      "definition": "A magnitude calculation is how one modifier on a Gameplay Effect gets its number.",
+      "see": [
+        "gameplay-effect",
+        "magnitude-skip",
+        "curve-table"
+      ]
+    },
+    {
+      "id": "execution-calculation",
+      "term": "Execution Calculation",
+      "aliases": [],
+      "tags": [
+        "GAS"
+      ],
+      "category": "GAS",
+      "match": "always",
+      "summary": "An execution calculation is custom C++ that runs when a Gameplay Effect executes.",
+      "detail": "UGameplayEffectExecutionCalculation. Execute reads captured attributes and writes output modifiers. Use it when one modifier line cannot express the math, such as attack minus defense.",
+      "definition": "An execution calculation is custom C++ that runs when a Gameplay Effect executes.",
+      "see": [
+        "gameplay-effect",
+        "magnitude-calculation",
+        "attribute-set"
+      ]
+    },
+    {
+      "id": "target-data",
+      "term": "Target Data",
+      "aliases": [],
+      "tags": [
+        "GAS"
+      ],
+      "category": "GAS",
+      "match": "always",
+      "summary": "Target data is the hit or the location a targeting task hands to an ability.",
+      "detail": "FGameplayAbilityTargetData, held in an FGameplayAbilityTargetDataHandle. The owning client can send it to the server with the ability's replicated target data. It is not the actor pointer itself.",
+      "definition": "Target data is the hit or the location a targeting task hands to an ability.",
+      "see": [
+        "ability-task",
+        "gameplay-ability",
+        "line-trace"
+      ]
+    },
+    {
+      "id": "ability-system-globals",
+      "term": "Ability System Global Data",
+      "aliases": [
+        "Ability System Globals"
+      ],
+      "tags": [
+        "GAS"
+      ],
+      "category": "GAS",
+      "match": "always",
+      "summary": "Ability System global data is the project-wide Gameplay Ability System setup.",
+      "detail": "UAbilitySystemGlobals, under Project Settings > Gameplay Abilities. InitGlobalData runs once. Per-actor state still lives on the Ability System Component.",
+      "definition": "Ability System global data is the project-wide Gameplay Ability System setup.",
+      "see": [
+        "gas",
+        "asc",
+        "gameplay-cue"
+      ]
+    },
+    {
+      "id": "net-serialize",
+      "term": "Net Serialize",
+      "aliases": [
+        "NetSerialize"
+      ],
+      "tags": [
+        "Networking"
+      ],
+      "category": "Networking",
+      "match": "always",
+      "summary": "NetSerialize is the function a replicated struct uses when the default property copy is not enough.",
+      "detail": "The signature takes an FArchive, a UPackageMap, and a success flag. Fast arrays and prediction keys implement it. An ordinary float still uses DOREPLIFETIME.",
+      "definition": "NetSerialize is the function a replicated struct uses when the default property copy is not enough.",
+      "see": [
+        "replication",
+        "fast-array",
+        "doreplifetime"
+      ]
+    },
+    {
+      "id": "conditional-replication",
+      "term": "Conditional Replication",
+      "aliases": [],
+      "tags": [
+        "Networking"
+      ],
+      "category": "Networking",
+      "match": "always",
+      "summary": "Conditional replication sends a property only to the connections that pass a lifetime condition.",
+      "detail": "DOREPLIFETIME_CONDITION, with an ELifetimeCondition such as COND_OwnerOnly or COND_SkipOwner. The check is per connection.",
+      "definition": "Conditional replication sends a property only to the connections that pass a lifetime condition.",
+      "see": [
+        "owner-only",
+        "skip-owner",
+        "doreplifetime"
+      ]
+    },
+    {
+      "id": "owner-only",
+      "term": "Owner Only",
+      "aliases": [
+        "COND_OwnerOnly"
+      ],
+      "tags": [
+        "Networking"
+      ],
+      "category": "Networking",
+      "match": "always",
+      "summary": "Owner Only sends a property only to the connection that owns the actor.",
+      "detail": "COND_OwnerOnly. Use it for the owner's ammo or ability state. Other players do not receive that property.",
+      "definition": "Owner Only sends a property only to the connection that owns the actor.",
+      "see": [
+        "conditional-replication",
+        "skip-owner",
+        "autonomous-proxy"
+      ]
+    },
+    {
+      "id": "skip-owner",
+      "term": "Skip Owner",
+      "aliases": [
+        "COND_SkipOwner"
+      ],
+      "tags": [
+        "Networking"
+      ],
+      "category": "Networking",
+      "match": "always",
+      "summary": "Skip Owner sends a property to every connection except the owner.",
+      "detail": "COND_SkipOwner. The owner already predicted the value, so the server does not send it back.",
+      "definition": "Skip Owner sends a property to every connection except the owner.",
+      "see": [
+        "conditional-replication",
+        "owner-only",
+        "simulated-proxy"
+      ]
+    },
+    {
+      "id": "net-priority",
+      "term": "Net Priority",
+      "aliases": [
+        "NetPriority"
+      ],
+      "tags": [
+        "Networking"
+      ],
+      "category": "Networking",
+      "match": "always",
+      "summary": "Net priority is how much bandwidth an actor gets when the connection is full.",
+      "detail": "AActor::NetPriority. A higher number gets more of the saturated connection. GetNetPriority also factors distance and time since the last send. Raising every actor does nothing.",
+      "definition": "Net priority is how much bandwidth an actor gets when the connection is full.",
+      "see": [
+        "net-update",
+        "relevancy",
+        "replication"
+      ]
+    },
+    {
+      "id": "net-cull-distance",
+      "term": "Net Cull Distance",
+      "aliases": [
+        "NetCullDistanceSquared"
+      ],
+      "tags": [
+        "Networking"
+      ],
+      "category": "Networking",
+      "match": "always",
+      "summary": "Net cull distance is how far away an actor still replicates.",
+      "detail": "The actor property is NetCullDistanceSquared, the square of that distance. Past it, the actor is not relevant. bAlwaysRelevant ignores the distance.",
+      "definition": "Net cull distance is how far away an actor still replicates.",
+      "see": [
+        "relevancy",
+        "replication-graph",
+        "net-priority"
+      ]
+    },
+    {
+      "id": "subobject-replication",
+      "term": "Subobject Replication",
+      "aliases": [],
+      "tags": [
+        "Networking"
+      ],
+      "category": "Networking",
+      "match": "always",
+      "summary": "Subobject replication sends a component or another UObject on its owner's actor channel.",
+      "detail": "Set a component to replicate, or call AddReplicatedSubObject and later RemoveReplicatedSubObject. The registered list is the path that works with Iris. The owner must replicate first.",
+      "definition": "Subobject replication sends a component or another UObject on its owner's actor channel.",
+      "see": [
+        "actor-channel",
+        "replication",
+        "actor-component"
+      ]
+    },
+    {
+      "id": "bunch-skip",
+      "term": "Bunch",
+      "aliases": [
+        "Net Bunch"
+      ],
+      "tags": [
+        "Networking"
+      ],
+      "category": "Networking",
+      "match": "skip",
+      "summary": "A bunch is the block of bytes the net driver writes for one channel before it becomes a packet.",
+      "detail": "FOutBunch on the way out and FInBunch on the way in. Gameplay code uses replicated properties, not bunches. The bare word is not underlined.",
+      "definition": "A bunch is the block of bytes the net driver writes for one channel before it becomes a packet.",
+      "see": [
+        "net-driver",
+        "actor-channel",
+        "net-serialize"
+      ]
+    },
+    {
+      "id": "streamable-manager",
+      "term": "Streamable Manager",
+      "aliases": [],
+      "tags": [
+        "Data"
+      ],
+      "category": "Data",
+      "match": "always",
+      "summary": "The Streamable Manager loads a soft reference without stalling the frame.",
+      "detail": "FStreamableManager. The Asset Manager owns one. RequestAsyncLoad returns a handle. Keep that handle, or the asset can unload.",
+      "definition": "The Streamable Manager loads a soft reference without stalling the frame.",
+      "see": [
+        "async-load",
+        "asset-manager",
+        "soft-ref"
+      ]
+    },
+    {
+      "id": "curve-table",
+      "term": "Curve Table",
+      "aliases": [],
+      "tags": [
+        "Data",
+        "GAS"
+      ],
+      "category": "Data",
+      "match": "always",
+      "summary": "A Curve Table is a set of curves looked up by row name.",
+      "detail": "UCurveTable. A scalable float on a Gameplay Effect uses a row and a level. It is not a Data Table of structs.",
+      "definition": "A Curve Table is a set of curves looked up by row name.",
+      "see": [
+        "data-table",
+        "magnitude-calculation",
+        "gameplay-effect"
+      ]
+    },
+    {
+      "id": "gameplay-tag-container",
+      "term": "Gameplay Tag Container",
+      "aliases": [],
+      "tags": [
+        "GAS",
+        "Data"
+      ],
+      "category": "GAS",
+      "match": "always",
+      "summary": "A Gameplay Tag Container is a set of gameplay tags, not a single tag.",
+      "detail": "FGameplayTagContainer. HasTag and the tag requirements on an ability or an effect read one. Adding a tag does not compile a new class.",
+      "definition": "A Gameplay Tag Container is a set of gameplay tags, not a single tag.",
+      "see": [
+        "gameplay-tag",
+        "gameplay-ability",
+        "gameplay-effect"
+      ]
+    },
+    {
+      "id": "trigger-skip",
+      "term": "Trigger",
+      "aliases": [],
+      "tags": [
+        "Input"
+      ],
+      "category": "Input",
+      "match": "skip",
+      "summary": "A trigger is the rule that decides when an Enhanced Input action fires.",
+      "detail": "UInputTrigger on a mapping, such as pressed, held, or tap. The longer name Input Trigger is the one that is underlined. This bare word is not.",
+      "definition": "A trigger is the rule that decides when an Enhanced Input action fires.",
+      "see": [
+        "input-trigger",
+        "input-action",
+        "enhanced-input"
+      ]
+    },
+    {
+      "id": "widget-skip",
+      "term": "Widget",
+      "aliases": [
+        "UWidget"
+      ],
+      "tags": [
+        "UI"
+      ],
+      "category": "UI",
+      "match": "skip",
+      "summary": "A widget is one piece of UI, such as a bar, a button, or a whole HUD.",
+      "detail": "UWidget is the base. A User Widget is the UMG asset you design. The bare word is not underlined, because it shows up in ordinary sentences.",
+      "definition": "A widget is one piece of UI, such as a bar, a button, or a whole HUD.",
+      "see": [
+        "user-widget",
+        "umg",
+        "binding-skip"
+      ]
+    },
+    {
+      "id": "binding-skip",
+      "term": "Binding",
+      "aliases": [
+        "Property Binding"
+      ],
+      "tags": [
+        "UI"
+      ],
+      "category": "UI",
+      "match": "skip",
+      "summary": "A binding is a widget field that reads a value from gameplay instead of storing its own copy.",
+      "detail": "A UMG property binding or an MVVM field. The widget displays it. The component still owns the number. The bare word is not underlined.",
+      "definition": "A binding is a widget field that reads a value from gameplay instead of storing its own copy.",
+      "see": [
+        "user-widget",
+        "mvvm",
+        "umg"
+      ]
+    },
+    {
+      "id": "mvvm",
+      "term": "MVVM",
+      "aliases": [
+        "Model View ViewModel"
+      ],
+      "tags": [
+        "UI"
+      ],
+      "category": "UI",
+      "match": "always",
+      "summary": "MVVM is the plugin that lets a widget bind to a view model instead of reaching into the component.",
+      "detail": "The view model reads the gameplay object and notifies the widget when a field changes. The widget does not own the inventory or the health.",
+      "definition": "MVVM is the plugin that lets a widget bind to a view model instead of reaching into the component.",
+      "see": [
+        "user-widget",
+        "binding-skip",
+        "umg"
+      ]
+    },
+    {
+      "id": "state-tree",
+      "term": "State Tree",
+      "aliases": [],
+      "tags": [
+        "AI"
+      ],
+      "category": "AI",
+      "match": "always",
+      "summary": "A State Tree is a data-driven state machine for AI or for gameplay.",
+      "detail": "A State Tree asset plus a State Tree Component. States have tasks and conditions. It can replace a Behavior Tree, and it does not own the pawn's health.",
+      "definition": "A State Tree is a data-driven state machine for AI or for gameplay.",
+      "see": [
+        "behavior-tree",
+        "blackboard",
+        "ai-controller"
+      ]
+    },
+    {
+      "id": "rigid-body",
+      "term": "Rigid Body",
+      "aliases": [],
+      "tags": [
+        "Physics"
+      ],
+      "category": "Physics",
+      "match": "always",
+      "summary": "A rigid body is a simulated object with mass, velocity, and collision.",
+      "detail": "Chaos simulates it. Simulate Physics on a primitive component turns that component into one. A gameplay overlap is still a collision query, not the solver.",
+      "definition": "A rigid body is a simulated object with mass, velocity, and collision.",
+      "see": [
+        "chaos",
+        "constraint-skip",
+        "character"
+      ]
+    },
+    {
+      "id": "constraint-skip",
+      "term": "Constraint",
+      "aliases": [
+        "Physics Constraint"
+      ],
+      "tags": [
+        "Physics"
+      ],
+      "category": "Physics",
+      "match": "skip",
+      "summary": "A constraint is a joint that limits how two physics bodies move relative to each other.",
+      "detail": "A physics constraint component or a Chaos constraint. A door hinge is the usual use. The bare word is not underlined.",
+      "definition": "A constraint is a joint that limits how two physics bodies move relative to each other.",
+      "see": [
+        "rigid-body",
+        "chaos",
+        "actor"
+      ]
+    },
+    {
+      "id": "destruction",
+      "term": "Destruction",
+      "aliases": [
+        "Chaos Destruction"
+      ],
+      "tags": [
+        "Physics"
+      ],
+      "category": "Physics",
+      "match": "always",
+      "summary": "Destruction is Chaos breaking a mesh into pieces that simulate.",
+      "detail": "The asset is a Geometry Collection, fractured in the editor. Gameplay applies a strain or a break. It does not build the chunks.",
+      "definition": "Destruction is Chaos breaking a mesh into pieces that simulate.",
+      "see": [
+        "geometry-collection",
+        "chaos",
+        "rigid-body"
+      ]
+    },
+    {
+      "id": "instanced-static-mesh",
+      "term": "Instanced Static Mesh",
+      "aliases": [
+        "ISM"
+      ],
+      "tags": [
+        "Optimization"
+      ],
+      "category": "Optimization",
+      "match": "always",
+      "summary": "An instanced static mesh draws many copies of one mesh in one component.",
+      "detail": "UInstancedStaticMeshComponent. AddInstance takes a transform. Foliage uses this. An instance that the player can use still needs an actor for the gameplay.",
+      "definition": "An instanced static mesh draws many copies of one mesh in one component.",
+      "see": [
+        "nanite",
+        "asset",
+        "performance-skip"
+      ]
+    },
+    {
+      "id": "virtual-shadow-maps",
+      "term": "Virtual Shadow Maps",
+      "aliases": [
+        "VSM"
+      ],
+      "tags": [
+        "Optimization"
+      ],
+      "category": "Optimization",
+      "match": "always",
+      "summary": "Virtual Shadow Maps are Unreal's paged shadows, used so detailed meshes can cast sharp shadows.",
+      "detail": "They are a project rendering setting. Nanite meshes are the usual reason to turn them on. A weapon script does not create them.",
+      "definition": "Virtual Shadow Maps are Unreal's paged shadows, used so detailed meshes can cast sharp shadows.",
+      "see": [
+        "nanite",
+        "lumen",
+        "performance-skip"
+      ]
+    },
+    {
+      "id": "significance-manager",
+      "term": "Significance Manager",
+      "aliases": [],
+      "tags": [
+        "Optimization"
+      ],
+      "category": "Optimization",
+      "match": "always",
+      "summary": "The Significance Manager scores objects so you can slow down the ones that are far away.",
+      "detail": "USignificanceManager. Register the object with a function of distance or screen size. Use the score to drop tick or animation work. It does not cull rendering by itself.",
+      "definition": "The Significance Manager scores objects so you can slow down the ones that are far away.",
+      "see": [
+        "tick",
+        "unreal-insights",
+        "performance-skip"
+      ]
+    },
+    {
+      "id": "damage",
+      "term": "Damage",
+      "aliases": [],
+      "tags": [
+        "Core",
+        "GAS"
+      ],
+      "category": "GAS",
+      "match": "always",
+      "summary": "Damage is a number applied on the server that reduces health.",
+      "detail": "Apply it with a Gameplay Effect or the health component. The client plays the hit from an OnRep or a Gameplay Cue. Do not subtract health in the widget.",
+      "definition": "Damage is a number applied on the server that reduces health.",
+      "see": [
+        "gameplay-effect",
+        "authority",
+        "gameplay-cue"
+      ]
+    },
+    {
+      "id": "weapon",
+      "term": "Weapon",
+      "aliases": [],
+      "tags": [
+        "Inventory",
+        "Core"
+      ],
+      "category": "Items",
+      "match": "always",
+      "summary": "A weapon is the equipped item that fires or hits.",
+      "detail": "The inventory marks it equipped. The weapon component owns the trace and the ammo counts. The montage only plays the pose.",
+      "definition": "A weapon is the equipped item that fires or hits.",
+      "see": [
+        "inventory",
+        "magazine",
+        "reserve-ammo"
+      ]
+    },
+    {
+      "id": "magazine",
+      "term": "Magazine",
+      "aliases": [],
+      "tags": [
+        "Inventory"
+      ],
+      "category": "Items",
+      "match": "always",
+      "summary": "The magazine is the ammo currently loaded in the weapon.",
+      "detail": "It is separate from the reserve. A reload moves reserve into the magazine. The server writes the count.",
+      "definition": "The magazine is the ammo currently loaded in the weapon.",
+      "see": [
+        "reserve-ammo",
+        "weapon",
+        "inventory"
+      ]
+    },
+    {
+      "id": "reserve-ammo",
+      "term": "Reserve Ammo",
+      "aliases": [
+        "Reserve"
+      ],
+      "tags": [
+        "Inventory"
+      ],
+      "category": "Items",
+      "match": "always",
+      "summary": "Reserve ammo is the ammo the character carries that is not loaded in the magazine.",
+      "detail": "Reloading spends it. The weapon or the inventory owns the number. The ammo widget only displays it.",
+      "definition": "Reserve ammo is the ammo the character carries that is not loaded in the magazine.",
+      "see": [
+        "magazine",
+        "weapon",
+        "inventory"
+      ]
+    },
+    {
+      "id": "clamp",
+      "term": "Clamp",
+      "aliases": [
+        "FMath::Clamp"
+      ],
+      "tags": [
+        "Core"
+      ],
+      "category": "Programming",
+      "match": "always",
+      "summary": "Clamp keeps a number inside a minimum and a maximum.",
+      "detail": "FMath::Clamp. A health bar fill uses it so the value stays between 0 and 1. Clamping a copy on the client does not change the server's value.",
+      "definition": "Clamp keeps a number inside a minimum and a maximum.",
+      "see": [
+        "float-skip",
+        "damage"
+      ]
+    },
+    {
+      "id": "gameplay",
+      "term": "Gameplay",
+      "aliases": [],
+      "tags": [
+        "Core"
+      ],
+      "category": "Architecture",
+      "match": "always",
+      "summary": "Gameplay is the rules the player feels, such as health, ammo, and interaction.",
+      "detail": "A component owns that state. Animation, UI, and audio read it. They should not keep a second copy.",
+      "definition": "Gameplay is the rules the player feels, such as health, ammo, and interaction.",
+      "see": [
+        "actor-component",
+        "gas",
+        "inventory"
+      ]
+    }
+  ]
+}
