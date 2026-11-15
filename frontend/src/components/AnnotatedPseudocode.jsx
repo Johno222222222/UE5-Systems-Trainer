@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { Copy, Download, Lightbulb } from "lucide-react";
 import { highlightBlueprint } from "../lib/highlight";
 import WhyNote from "./WhyNote";
+import GlossaryText from "./GlossaryText";
 
 const WHY_RE = /^(\s*)(?:\/\/\s*)?WHY:\s*(.*)$/i;
 
@@ -10,7 +11,7 @@ export function WhyCallout({ text, testId, indent = 0 }) {
   return (
     <div className="why-callout" style={{ marginLeft: indent }} data-testid={testId}>
       <Lightbulb size={12} className="shrink-0 mt-[2px]" />
-      <span><span className="why-label">Why</span>{text}</span>
+      <span><span className="why-label">Why</span><GlossaryText text={text} /></span>
     </div>
   );
 }

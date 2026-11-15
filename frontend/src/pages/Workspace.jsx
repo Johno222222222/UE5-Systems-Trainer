@@ -1643,24 +1643,22 @@ export default function Workspace() {
                     )}
                   </div>
                 ))}
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[12px] font-mono text-[var(--text-secondary)]" data-testid="cpp-edit-state">{result?.manual_cpp ? "Manual edits" : "Generated"}</span>
-                    {result?.manual_cpp && (
-                      <button type="button" className="ue-btn !py-1 !px-2 !text-[11px]" data-testid="revert-cpp" onClick={() => setResult((current) => revertManualEdit(current))}>Revert to generated</button>
-                    )}
-                  </div>
-                  {(whyForCpp(result, shell.helpLevel, ".h").length > 0 || whyForCpp(result, shell.helpLevel, ".cpp").length > 0) && (
-                    <div className="mb-3 space-y-2">
-                      {whyForCpp(result, shell.helpLevel, ".h").concat(whyForCpp(result, shell.helpLevel, ".cpp")).map((note) => (
-                        <WhyNote key={note.id} note={note} level={shell.helpLevel} />
-                      ))}
-                    </div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[12px] font-mono text-[var(--text-secondary)]" data-testid="cpp-edit-state">{result?.manual_cpp ? "Manual edits" : "Generated"}</span>
+                  {result?.manual_cpp && (
+                    <button type="button" className="ue-btn !py-1 !px-2 !text-[11px]" data-testid="revert-cpp" onClick={() => setResult((current) => revertManualEdit(current))}>Revert to generated</button>
                   )}
-                  <div className="grid gap-3">
-                    <CppEditor title={`${result ? baseName(result) : "System"}.h`} code={result?.cpp_header || ""} testId="cpp-header" readOnly={readOnly} target={jump?.file === ".h" ? jump : null} onChange={(text) => setResult((current) => applyManualEdit(current, ".h", text))} />
-                    <CppEditor title={`${result ? baseName(result) : "System"}.cpp`} code={result?.cpp_source || ""} testId="cpp-source" readOnly={readOnly} target={jump?.file === ".cpp" ? jump : null} onChange={(text) => setResult((current) => applyManualEdit(current, ".cpp", text))} />
+                </div>
+                {(whyForCpp(result, shell.helpLevel, ".h").length > 0 || whyForCpp(result, shell.helpLevel, ".cpp").length > 0) && (
+                  <div className="mb-3 space-y-2">
+                    {whyForCpp(result, shell.helpLevel, ".h").concat(whyForCpp(result, shell.helpLevel, ".cpp")).map((note) => (
+                      <WhyNote key={note.id} note={note} level={shell.helpLevel} />
+                    ))}
                   </div>
+                )}
+                <div className="cpp-editors" data-testid="cpp-editors">
+                  <CppEditor title={`${result ? baseName(result) : "System"}.h`} code={result?.cpp_header || ""} testId="cpp-header" readOnly={readOnly} target={jump?.file === ".h" ? jump : null} onChange={(text) => setResult((current) => applyManualEdit(current, ".h", text))} />
+                  <CppEditor title={`${result ? baseName(result) : "System"}.cpp`} code={result?.cpp_source || ""} testId="cpp-source" readOnly={readOnly} target={jump?.file === ".cpp" ? jump : null} onChange={(text) => setResult((current) => applyManualEdit(current, ".cpp", text))} />
                 </div>
               </div>
             )}
@@ -2025,6 +2023,9 @@ export default function Workspace() {
           </div>
           <div className="max-h-[300px] overflow-y-auto panel p-3 mb-4"><IssueList issues={exportIssues} testId="export-check-issues" onJump={jumpTo} /></div>
           <div className="flex flex-wrap gap-2 justify-end">
+            {exportIssues.some((item) => item && Number(item.line) > 0) && (
+              <button type="button" className="ue-btn mr-auto" data-testid="export-jump" onClick={() => jumpTo(exportIssues.find((item) => Number(item.line) > 0))}>Jump to line</button>
+            )}
             <button className="ue-btn" onClick={() => { setExportPrompt(null); setTab("cpp"); }} data-testid="export-check-review">Review in C++ tab</button>
             <button className="ue-btn ue-btn-primary" onClick={() => exportZip(exportPrompt, true)} data-testid="export-check-anyway"><FileArchive size={13} /> Export anyway</button>
           </div>
@@ -2033,7 +2034,7 @@ export default function Workspace() {
       {bundle && <BundleModal ids={bundle.ids} preset={bundle.preset} onClose={() => setBundle(null)} onPresetsChanged={() => setProjRefresh((n) => n + 1)}
         aiKey={aiKey} usage={usage} onNeedKey={() => setKeyModal("required")} onUsed={() => { setUsageTick((n) => n + 1); setProjRefresh((n) => n + 1); }} />}
       {fix && result && (
-        <FixReviewModal fix={fix} system={fix.target === "tests" ? { cpp_header: result.cpp_header, cpp_source: result.tests?.code || "" } : result} base={baseName(result)} onAccept={acceptFix} onRetry={() => runFix(fix.list, fix.thenExport, fix.target)} onCancel={() => setFix(null)}
+        <FixReviewModal fix={fix} system={fix.target === "tests" ? { cpp_header: result.cpp_header, cpp_source: result.tests?.code || "" } : result} base={baseName(result)} onAccept={acceptFix} onRetry={() => runFix(fix.list, fix.thenExport, fix.target)} onJump={(issue) => { if (fix.target === "tests") { setTab("tests"); setJump({ file: "tests", line: Number(issue.line) || 1, nonce: Date.now() }); } else jumpTo(issue); }} onCancel={() => setFix(null)}
           onRegenerate={() => fixRegenerate(fix.list)}
           onDiscard={() => { const { thenExport, status } = fix; setFix(null); if (thenExport && status !== "running") exportZip(thenExport, true); }} />
       )}

@@ -4,6 +4,7 @@ import { api, errorText } from "../lib/api";
 import { keyDecisions, resolveConcept } from "../lib/references.mjs";
 import WhyNote from "../components/WhyNote";
 import ChoiceButton from "../components/ChoiceButton";
+import GlossaryText from "../components/GlossaryText";
 import NodeGraph from "../components/NodeGraph";
 import { useShell } from "./ShellContext";
 
@@ -27,7 +28,7 @@ function ConceptStudy({ card, examples, onExample }) {
     <div data-testid={`concept-card-${card.id}`}>
       <div className="eyebrow">Concept</div>
       <h1 className="font-display text-[36px] font-extrabold uppercase tracking-wider leading-none mt-1">{card.title}</h1>
-      <p className="mt-3 text-[13px] text-[var(--text-secondary)] leading-relaxed max-w-2xl">{card.explanation}</p>
+      <p className="mt-3 text-[13px] text-[var(--text-secondary)] leading-relaxed max-w-2xl"><GlossaryText text={card.explanation} /></p>
       {(card.learn_more || []).length > 0 && (
         <div className="mt-3 flex flex-wrap gap-3" data-testid={`concept-docs-${card.id}`}>
           <span className="text-[10.5px] font-mono uppercase tracking-widest text-[var(--text-muted)]">Learn more</span>
@@ -38,7 +39,7 @@ function ConceptStudy({ card, examples, onExample }) {
       )}
       <div className="panel p-4 mt-5" data-testid={`concept-challenge-${card.id}`}>
         <div className="eyebrow mb-2">Try this</div>
-        <div className="font-sub font-semibold text-[15px]">{task.prompt}</div>
+        <div className="font-sub font-semibold text-[15px]"><GlossaryText text={task.prompt} /></div>
         <div className="mt-3 flex flex-col gap-2">
           {(task.choices || []).map((label, index) => (
             <ChoiceButton
@@ -305,7 +306,7 @@ export default function References() {
                     <ol className="space-y-2">
                       {decisions.map((item, index) => (
                         <li key={item.id || index} className="panel p-3" data-testid={`key-decision-${item.id || index}`}>
-                          <div className="text-[13px] text-[var(--text-primary)]">{item.decision}</div>
+                          <div className="text-[13px] text-[var(--text-primary)]"><GlossaryText text={item.decision} /></div>
                           {item.tradeoff && <div className="mt-1 text-[12px] text-[var(--text-secondary)]">{item.tradeoff}</div>}
                           {item.concept_id && (
                             <button type="button" className="why-concept" onClick={() => shell.openConcept(item.concept_id)}>

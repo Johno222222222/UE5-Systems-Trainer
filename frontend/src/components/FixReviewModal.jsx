@@ -38,8 +38,9 @@ export function FileDiff({ label, before, after, testId }) {
 }
 
 // fix: {status: "running"|"review"|"error", count, data?, error?}
-export default function FixReviewModal({ fix, system, base, onAccept, onDiscard, onCancel, onRetry, onRegenerate, progress, discardLabel, acceptLabel, footnote }) {
+export default function FixReviewModal({ fix, system, base, onAccept, onDiscard, onCancel, onRetry, onRegenerate, onJump, progress, discardLabel, acceptLabel, footnote }) {
   const exporting = !!fix.thenExport;
+  const jumpIssue = (fix.list || []).find((item) => item && Number(item.line) > 0);
   return (
     <Modal title={`${progress ? `${progress} · ` : ""}${fix.status === "running" ? "Writing a fix…" : fix.status === "error" ? "Fix not applied" : "Review the fix"}`} onClose={onCancel || onDiscard} testId="fix-modal" width={980}>
       {fix.status === "running" && (
@@ -52,6 +53,9 @@ export default function FixReviewModal({ fix, system, base, onAccept, onDiscard,
           <div className="text-[12.5px] font-mono text-[var(--accent-red)] mb-4" data-testid="fix-error">{fix.error}</div>
           <div className="text-[12px] text-[var(--text-secondary)] mb-4">Nothing in your code was changed. For structural problems, regenerating the system with these issues as change requests often works better (1 synthesis).</div>
           <div className="flex gap-2 justify-end">
+            {jumpIssue && onJump && (
+              <button type="button" className="ue-btn mr-auto" data-testid="fix-jump" onClick={() => { onJump(jumpIssue); (onCancel || onDiscard)?.(); }}>Jump to line</button>
+            )}
             <button className="ue-btn" onClick={onDiscard} data-testid="fix-close"><X size={13} /> {discardLabel || (exporting ? "Export without fixing" : "Close")}</button>
             {onRegenerate && <button className="ue-btn" onClick={onRegenerate} data-testid="fix-error-regenerate"><RefreshCw size={13} /> Fix &amp; regenerate</button>}
             <button className="ue-btn ue-btn-primary" onClick={onRetry} data-testid="fix-retry"><RotateCcw size={13} /> Try again</button>

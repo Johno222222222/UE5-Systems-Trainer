@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { api, errorText } from "../lib/api";
 import ChoiceButton from "../components/ChoiceButton";
+import GlossaryText from "../components/GlossaryText";
 import { useShell } from "./ShellContext";
 
 const VIEWS = [
@@ -208,7 +209,7 @@ export default function Programs() {
               {(step.reveal?.nodes || []).map((name) => <span key={name} className="tag">{name}</span>)}
               {(step.reveal?.functions || []).map((name) => <span key={name} className="tag">{name}</span>)}
             </div>
-            <div className="mt-4 font-sub font-semibold" data-testid="program-predict">{step.predict?.prompt}</div>
+            <div className="mt-4 font-sub font-semibold" data-testid="program-predict"><GlossaryText text={step.predict?.prompt} /></div>
             <div className="mt-2 flex flex-col gap-2">
               {(step.predict?.choices || []).map((choice, index) => (
                 <ChoiceButton
@@ -225,11 +226,11 @@ export default function Programs() {
             </div>
             {picked !== null && (
               <div className="mt-3 text-[13px] text-[var(--text-secondary)]" data-testid="program-why">
-                <div>{picked === step.predict.answer ? "That's the one this foundation uses." : step.predict.why}</div>
-                <div className="mt-2">{step.why}</div>
+                <div>{picked === step.predict.answer ? "That's the one this foundation uses." : <GlossaryText text={step.predict.why} />}</div>
+                <div className="mt-2"><GlossaryText text={step.why} /></div>
                 <label className="block mt-3">
                   <span className="eyebrow">Task</span>
-                  <div className="mt-1 text-[13px] text-[var(--text-primary)]">{step.task}</div>
+                  <div className="mt-1 text-[13px] text-[var(--text-primary)]"><GlossaryText text={step.task} /></div>
                   <input className="mt-2 w-full bg-[var(--bg-main)] border border-[var(--border)] rounded px-2 py-1" value={taskText} data-testid="program-task-input" onChange={(event) => setTaskText(event.target.value)} />
                 </label>
                 <button type="button" className="ue-btn ue-btn-primary mt-2" data-testid="program-task-check" onClick={submitStep}>Check task</button>
@@ -281,7 +282,7 @@ export default function Programs() {
                     </div>
                   ))}
                 </div>
-                <p className="mt-3 text-[13px] text-[var(--text-secondary)]">{item.note}</p>
+                <p className="mt-3 text-[13px] text-[var(--text-secondary)]"><GlossaryText text={item.note} /></p>
               </div>
             ))}
           </div>
@@ -303,7 +304,7 @@ export default function Programs() {
             {mapNode && (
               <div className="mt-4" data-testid="map-detail">
                 <h2 className="font-sub font-semibold text-[18px]">{mapNode.title}</h2>
-                <p className="mt-2 text-[13px] text-[var(--text-secondary)]">{mapNode.detail}</p>
+                <p className="mt-2 text-[13px] text-[var(--text-secondary)]"><GlossaryText text={mapNode.detail} /></p>
               </div>
             )}
           </div>
