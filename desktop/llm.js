@@ -85,6 +85,56 @@ function textFromJson(provider, data) {
   return "";
 }
 
+// Gemini uses finishReason MAX_TOKENS. OpenAI uses finish_reason "length".
+function finishReasonFrom(provider, data) {
+  if (!data || typeof data !== "object") return "";
+  if (provider === "gemini") return String(data.candidates?.[0]?.finishReason || "");
+  return String(data.choices?.[0]?.finish_reason || "");
+}
+
+function isTruncatedFinish(reason) {
+  const value = String(reason || "").toUpperCase().replace(/[\s-]+/g, "_");
+  return value === "MAX_TOKENS" || value === "LENGTH" || value === "MAX_COMPLETION_TOKENS";
+}
+
+// Output caps for the models this app offers. These are the provider maximums,
+// not a smaller budget. A stacked system needs the whole allowance.
+const OUTPUT_TOKEN_LIMITS = {
+  gemini: {
+    "gemini-3.5-flash-lite": 65536,
+    "gemini-3.1-flash-lite": 65536,
+    "gemini-3.8-flash": 65536,
+    "gemini-3.1-pro-preview": 65536,
+  },
+  openai: {
+    "gpt-4.1-mini": 32768,
+    "gpt-4.1": 32768,
+    "gpt-5-mini": 128000,
+  },
+};
+
+function outputTokenLimit(provider, model) {
+  return OUTPUT_TOKEN_LIMITS[provider]?.[model] || (provider === "gemini" ? 65536 : 32768);
+}
+
+function maxTokensFor(provider, modelOrOpts) {
+  const model = modelOrOpts && typeof modelOrOpts === "object" ? modelOrOpts.model : modelOrOpts;
+  return outputTokenLimit(provider, model);
+}
+
+// Join a continuation onto a cut-off reply. If the model repeats the tail, keep it once.
+function joinModelText(soFar, next) {
+  const base = String(soFar || "");
+  const addition = String(next || "");
+  if (!addition) return base;
+  if (!base) return addition;
+  const max = Math.min(base.length, addition.length, 4000);
+  for (let n = max; n >= 32; n -= 1) {
+    if (base.slice(-n) === addition.slice(0, n)) return base + addition.slice(n);
+  }
+  return base + addition;
+}
+
 function deltaFromEvent(provider, data) {
   if (data?.error) {
     const err = new Error(typeof data.error === "string" ? data.error : JSON.stringify(data.error).slice(0, 800));
@@ -105,62 +155,63 @@ async function readResponse(res, provider, onChars) {
     err.status_code = res.status;
     throw err;
   }
+  const state = { text: "", finishReason: "" };
   const ctype = res.headers.get("content-type") || "";
   if (!ctype.includes("text/event-stream")) {
     const data = await res.json();
-    const text = textFromJson(provider, data);
-    if (!text.trim()) {
-      const reason = data?.candidates?.[0]?.finishReason || data?.promptFeedback?.blockReason || data?.error?.message || "empty";
+    state.text = textFromJson(provider, data);
+    state.finishReason = finishReasonFrom(provider, data);
+    if (!state.text.trim()) {
+      const reason = state.finishReason || data?.promptFeedback?.blockReason || data?.error?.message || "empty";
       const err = new Error(`The model returned no text (${reason}).`);
       err.status_code = 502;
       throw err;
     }
-    if (onChars) onChars(text.length);
-    return text;
+    if (onChars) onChars(state.text.length);
+    return state;
   }
   if (!res.body || typeof res.body.getReader !== "function") {
     const raw = await res.text();
-    let full = "";
-    for (const line of raw.split("\n")) full = consumeSseLine(provider, line, full, onChars);
-    return full;
+    for (const line of raw.split("\n")) consumeSseLine(provider, line, state, onChars);
+  } else {
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = "";
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+      const lines = buf.split("\n");
+      buf = lines.pop() || "";
+      for (const line of lines) consumeSseLine(provider, line, state, onChars);
+    }
+    if (buf.trim()) consumeSseLine(provider, buf, state, onChars);
   }
-  const reader = res.body.getReader();
-  const decoder = new TextDecoder();
-  let buf = "";
-  let full = "";
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buf += decoder.decode(value, { stream: true });
-    const lines = buf.split("\n");
-    buf = lines.pop() || "";
-    for (const line of lines) full = consumeSseLine(provider, line, full, onChars);
-  }
-  if (buf.trim()) full = consumeSseLine(provider, buf, full, onChars);
-  if (!full.trim()) {
+  if (!state.text.trim()) {
     const err = new Error("The model returned no text.");
     err.status_code = 502;
     throw err;
   }
-  return full;
+  return state;
 }
 
-function consumeSseLine(provider, line, full, onChars) {
+function consumeSseLine(provider, line, state, onChars) {
   const trimmed = String(line).trim();
-  if (!trimmed.startsWith("data:")) return full;
+  if (!trimmed.startsWith("data:")) return;
   const payload = trimmed.slice(5).trim();
-  if (!payload || payload === "[DONE]") return full;
+  if (!payload || payload === "[DONE]") return;
   let json;
   try {
     json = JSON.parse(payload);
   } catch {
-    return full;
+    return;
   }
+  const reason = finishReasonFrom(provider, json);
+  if (reason) state.finishReason = reason;
   const piece = deltaFromEvent(provider, json);
-  if (!piece) return full;
-  const next = full + piece;
-  if (onChars) onChars(next.length);
-  return next;
+  if (!piece) return;
+  state.text += piece;
+  if (onChars) onChars(state.text.length);
 }
 
 /**
@@ -185,7 +236,12 @@ async function complete({ provider, model, apiKey, system, user, images, maxToke
       body: JSON.stringify(req.body),
       signal: ac.signal,
     });
-    return await readResponse(res, provider, onChars);
+    const read = await readResponse(res, provider, onChars);
+    return {
+      text: read.text,
+      finishReason: read.finishReason,
+      truncated: isTruncatedFinish(read.finishReason),
+    };
   } catch (exc) {
     if (exc?.name === "AbortError" || ac.signal.aborted) {
       const err = new Error("timeout");
@@ -199,10 +255,6 @@ async function complete({ provider, model, apiKey, system, user, images, maxToke
   }
 }
 
-function maxTokensFor(provider, { stack }) {
-  if (provider === "gemini") return 24000;
-  return stack ? 12000 : 8000;
-}
 
 // Offline stand-in for development checks. Enabled only with UE5_STUB_LLM=1.
 function stubFetch() {
@@ -234,7 +286,11 @@ module.exports = {
   complete,
   requestFor,
   textFromJson,
+  finishReasonFrom,
+  isTruncatedFinish,
+  outputTokenLimit,
   maxTokensFor,
+  joinModelText,
   classifyError,
   stubFetch,
   GEMINI_URL,

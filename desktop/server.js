@@ -8,7 +8,7 @@ const Busboy = require("busboy");
 
 const { createStore } = require("./store");
 const { createSecrets } = require("./secrets");
-const { complete, maxTokensFor, stubFetch } = require("./llm");
+const { complete, joinModelText, outputTokenLimit, stubFetch } = require("./llm");
 const {
   ALLOWED_MODELS,
   DEFAULT_MODEL,
@@ -18,6 +18,8 @@ const {
   usageDay,
   keyFingerprint,
   extractJson,
+  assessReply,
+  TRUNCATED_OUTPUT_MESSAGE,
   buildUserText,
   classifyError,
   redact,
@@ -339,6 +341,55 @@ async function startServer(options = {}) {
     return out;
   }
 
+  async function callModel(llm, args) {
+    const limit = outputTokenLimit(llm.provider, llm.model);
+    try {
+      return await complete({ ...args, maxTokens: limit });
+    } catch (exc) {
+      const msg = String(exc.message || "").toLowerCase();
+      const rejectedLimit = (exc.status_code === 400 || exc.statusCode === 400)
+        && /maxoutputtokens|max_completion_tokens|max_tokens/.test(msg);
+      if (rejectedLimit && limit > 8192) {
+        return await complete({ ...args, maxTokens: 8192 });
+      }
+      throw exc;
+    }
+  }
+
+  // A length stop used to be ignored, so a chopped C++ file could be shown as
+  // the finished system. Keep asking until the JSON and the code are whole,
+  // and refuse the result if they never are.
+  async function assembleReply(job, llm, { system, user, images }) {
+    let raw = "";
+    let prompt = user;
+    let mode = "start";
+    let truncated = false;
+    for (let part = 0; part < 3; part += 1) {
+      await store.update((data) => { recordUsage(data, llm.key, llm.provider, llm.model, "synthesis", clock); });
+      const reply = await callModel(llm, {
+        provider: llm.provider,
+        model: llm.model,
+        apiKey: llm.key,
+        system,
+        user: prompt,
+        images: part === 0 ? images : [],
+        timeoutMs: options.generateTimeoutMs || 180000,
+        fetchImpl,
+        onChars: (n) => { job.chars = (mode === "append" ? raw.length : 0) + n; },
+      });
+      raw = mode === "append" ? joinModelText(raw, reply.text) : reply.text;
+      truncated = reply.truncated;
+      const verdict = assessReply(raw, { truncated });
+      if (verdict.action === "accept") return { raw, truncated: false, accepted: true };
+      mode = verdict.action;
+      const tail = raw.slice(-2500);
+      prompt = mode === "append"
+        ? `The previous JSON reply was cut off at the output limit. Continue EXACTLY from the last character of the tail. Do not repeat the tail. Do not add commentary or code fences.\n\nTAIL:\n${tail}`
+        : `The JSON below was cut off inside the C++ or is missing a section. Reply with ONE complete JSON object for the same system. Write full cpp_header and cpp_source, plus blueprint_pseudocode, setup_guide, and node_graph_nodes. Do not stop mid-function.\n\nINCOMPLETE:\n${raw.slice(0, 12000)}`;
+    }
+    return { raw, truncated, accepted: false };
+  }
+
   async function runJob(job, req, refs, llm) {
     const images = refs.filter((r) => r.image_bytes).map((r) => ({
       mime: r.content_type || "image/png",
@@ -350,21 +401,13 @@ async function startServer(options = {}) {
       image_bytes: r.image_bytes,
     })));
     const attempts = llm.provider === "gemini" ? 3 : 1;
-    let raw = "";
+    let assembled = null;
     for (let attempt = 0; attempt < attempts; attempt++) {
       try {
-        await store.update((data) => { recordUsage(data, llm.key, llm.provider, llm.model, "synthesis", clock); });
-        raw = await complete({
-          provider: llm.provider,
-          model: llm.model,
-          apiKey: llm.key,
+        assembled = await assembleReply(job, llm, {
           system: promptsFor(req.unreal_version).system,
           user: userText,
           images,
-          maxTokens: maxTokensFor(llm.provider, { stack: req.stack_systems.length > 0 }),
-          timeoutMs: options.generateTimeoutMs || 180000,
-          fetchImpl,
-          onChars: (n) => { job.chars = n; },
         });
         break;
       } catch (exc) {
@@ -379,6 +422,16 @@ async function startServer(options = {}) {
         job.detail = `Model busy, retrying (${attempt + 1}/2)…`;
         await sleep(4000 * (attempt + 1));
       }
+    }
+    const raw = assembled ? assembled.raw : "";
+    if (assembled && !assembled.accepted) {
+      job.status = "error";
+      job.error_code = assembled.truncated ? "truncated" : "incomplete";
+      job.detail = assembled.truncated
+        ? TRUNCATED_OUTPUT_MESSAGE
+        : "The model's output was incomplete. Please try again, or lower Complexity.";
+      console.error(`Refused unfinished model output. Tail: ${String(raw).slice(-300)}`);
+      return;
     }
     try {
       const data = normalizeSystem(extractJson(raw), req.stack_systems);
@@ -396,7 +449,7 @@ async function startServer(options = {}) {
   async function ask(llm, { system, user, maxTokens, timeoutMs, kind }) {
     await store.update((data) => { recordUsage(data, llm.key, llm.provider, llm.model, kind, clock); });
     try {
-      return await complete({
+      const reply = await complete({
         provider: llm.provider,
         model: llm.model,
         apiKey: llm.key,
@@ -406,6 +459,7 @@ async function startServer(options = {}) {
         timeoutMs,
         fetchImpl,
       });
+      return reply.text;
     } catch (exc) {
       if (exc?.name === "AbortError" || classifyError(exc, llm.model).code === "busy" && String(exc.message).includes("timeout")) {
         throw new HttpError(504, kind === "review"
@@ -910,6 +964,8 @@ async function startServer(options = {}) {
         note: r.note || "",
         fixes: r.fixes || [],
         system_name: r.system?.system_name,
+        summary: String(r.system?.summary || "").slice(0, 180),
+        prompt: String(r.context?.prompt || "").slice(0, 180),
       })),
     };
   });

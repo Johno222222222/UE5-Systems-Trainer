@@ -95,18 +95,27 @@ export default function Home() {
           )}
           <div className="home-grid">
             {ranked.prominent.map((project) => (
-              <button
-                key={project.project_id}
-                type="button"
-                className="panel home-card text-left"
-                data-testid={`home-project-${project.project_id}`}
-                onClick={() => shell.issue({ type: "open-project", id: project.project_id })}
-              >
-                <div className="font-sub font-semibold text-[14px] truncate">{project.name}</div>
-                <div className="mt-1 text-[11px] font-mono text-[var(--text-muted)] truncate">
-                  v{project.version} · saved {ago(project.updated_at)}
-                </div>
-              </button>
+              <div key={project.project_id} className="panel home-card text-left" data-testid={`home-project-${project.project_id}`}>
+                <button
+                  type="button"
+                  className="block w-full text-left bg-transparent border-0 p-0 text-inherit cursor-pointer"
+                  data-testid={`home-open-${project.project_id}`}
+                  onClick={() => shell.issue({ type: "open-project", id: project.project_id })}
+                >
+                  <div className="font-sub font-semibold text-[14px] truncate">{project.name}</div>
+                  <div className="mt-1 text-[11px] font-mono text-[var(--text-muted)] truncate">
+                    saved {ago(project.updated_at)}
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  className="mt-2 bg-transparent border-0 p-0 text-[11px] font-mono text-[var(--unreal-orange)] hover:underline cursor-pointer"
+                  data-testid={`home-versions-${project.project_id}`}
+                  onClick={() => shell.issue({ type: "open-project", id: project.project_id, history: true })}
+                >
+                  v{project.version} · versions
+                </button>
+              </div>
             ))}
           </div>
           {ranked.rest.length > 0 && (
@@ -123,16 +132,24 @@ export default function Home() {
               {showRest && (
                 <ul className="mt-2 space-y-1" data-testid="home-rest-list">
                   {ranked.rest.map((project) => (
-                    <li key={project.project_id}>
+                    <li key={project.project_id} className="home-rest-row" data-testid={`home-project-${project.project_id}`}>
                       <button
                         type="button"
-                        className="home-rest-row"
-                        data-testid={`home-project-${project.project_id}`}
+                        className="truncate text-left flex-1 min-w-0 bg-transparent border-0 p-0 text-inherit cursor-pointer"
+                        data-testid={`home-open-${project.project_id}`}
                         onClick={() => shell.issue({ type: "open-project", id: project.project_id })}
                       >
-                        <span className="truncate">{project.name}</span>
-                        <span className="font-mono text-[10px] text-[var(--text-muted)] shrink-0">v{project.version} · {ago(project.updated_at)}</span>
+                        {project.name}
                       </button>
+                      <button
+                        type="button"
+                        className="font-mono text-[10px] text-[var(--unreal-orange)] shrink-0 hover:underline bg-transparent border-0 p-0 cursor-pointer"
+                        data-testid={`home-versions-${project.project_id}`}
+                        onClick={() => shell.issue({ type: "open-project", id: project.project_id, history: true })}
+                      >
+                        v{project.version} · versions
+                      </button>
+                      <span className="font-mono text-[10px] text-[var(--text-muted)] shrink-0">{ago(project.updated_at)}</span>
                     </li>
                   ))}
                 </ul>

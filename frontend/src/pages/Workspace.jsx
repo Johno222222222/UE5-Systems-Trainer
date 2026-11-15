@@ -201,6 +201,8 @@ export default function Workspace() {
   const [keyModal, setKeyModal] = useState(null); // null | "edit" | "required"
   const [saving, setSaving] = useState(false);
   const [versions, setVersions] = useState([]);
+  const [versionsReady, setVersionsReady] = useState(false);
+  const [viewingVersion, setViewingVersion] = useState(null);
   const [compareBase, setCompareBase] = useState("previous"); // "previous" | version number
   const [baseSystem, setBaseSystem] = useState(null);
   const [usageTick, setUsageTick] = useState(0);
@@ -304,6 +306,7 @@ export default function Workspace() {
     setExportPrompt(null);
     setCompareBase("previous");
     setBaseSystem(null);
+    setViewingVersion(null);
     setBaseline(blankSnapshot({ project_context: context, unreal_version: version }));
     toast.message("New project", { description: keepContext ? "Project context kept. The API key was not changed." : "Workspace cleared. The API key was not changed." });
   };
@@ -416,6 +419,7 @@ export default function Workspace() {
       }
       if (result) setPreviousResult(result);
       // Keep generated tests across regenerations; the Tests tab marks them out of date
+      setViewingVersion(null);
       setResult({ ...data, ...(result?.tests && !body.stack_systems ? { tests: result.tests } : {}), context: { ...context, project_context: projectContext, references, notes: body.designer_notes || "", unreal_version: unrealVersion }, baseline_modules: data.modules });
       setSetupDone({});
       setNotes((n) => (n === (body.designer_notes || "") ? "" : n));
@@ -628,16 +632,18 @@ export default function Workspace() {
     }));
   };
 
-  const openProject = async (id) => {
+  const openProject = async (id, opts = {}) => {
     try {
       const { data } = await api.get(`/projects/${id}`);
       const { system, context, ...meta } = data;
       epochRef.current += 1;
       setProject(meta);
+      setViewingVersion(null);
       setIgnores(meta.ignored_issues || []);
       setFixNotes([]);
       setFixLog([]);
       openSystem(system, context, meta);
+      if (opts.history) setHistoryOpen(true);
       toast.message(`Opened ${data.name}`, { description: meta.my_role === "viewer" ? "View only" : `Last saved by ${meta.updated_by_name}` });
     } catch (e) {
       toast.error("Couldn't open project", { description: errorText(e) });
@@ -649,7 +655,7 @@ export default function Workspace() {
     const cmd = shell.takeCommand();
     if (!cmd) return;
     if (cmd.type === "new-project") requestNewProject();
-    else if (cmd.type === "open-project" && cmd.id) openProject(cmd.id);
+    else if (cmd.type === "open-project" && cmd.id) openProject(cmd.id, { history: !!cmd.history });
     else if (cmd.type === "template" && cmd.template) pickTemplate(cmd.template);
     // The command is consumed once. The handlers close over this render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -719,27 +725,47 @@ export default function Workspace() {
     });
   };
 
-  const restoreVersion = async () => {
-    if (typeof compareBase !== "number" || !project) return;
-    if (pendingChanges.length && !window.confirm(`Restore v${compareBase}? Your ${pendingChanges.length} unsynthesized change(s) will be discarded.`)) return;
+  const restoreSavedVersion = async (version) => {
+    if (typeof version !== "number" || !project) return;
+    if (pendingChanges.length && !window.confirm(`Restore v${version}? Your ${pendingChanges.length} unsynthesized change(s) will be discarded.`)) return;
     setRestoring(true);
     try {
       const pid = project.project_id;
-      const { data } = await api.post(`/projects/${pid}/versions/${compareBase}/restore`);
+      const { data } = await api.post(`/projects/${pid}/versions/${version}/restore`);
       if (projectRef.current?.project_id !== pid) return;
       const { system, context, ...meta } = data;
-      const from = compareBase;
       setProject(meta);
+      setViewingVersion(null);
+      setHistoryOpen(false);
       openSystem(system, context, meta);
       setFixLog([]);
       setFixNotes([]);
       setSaveNote("");
       setProjRefresh((n) => n + 1);
-      toast.success(`Restored v${from} as v${meta.version}`, { description: "Nothing is lost: the version you replaced is still in history." });
+      toast.success(`Restored v${version} as v${meta.version}`, { description: "Nothing is lost: the version you replaced is still in history." });
     } catch (e) {
       toast.error("Couldn't restore", { description: errorText(e) });
     } finally {
       setRestoring(false);
+    }
+  };
+
+  const openSavedVersion = async (version) => {
+    if (!project) return;
+    try {
+      const pid = project.project_id;
+      const { data } = await api.get(`/projects/${pid}/versions/${version}`);
+      if (projectRef.current?.project_id !== pid) return;
+      epochRef.current += 1;
+      openSystem(data.system, data.context, project);
+      setViewingVersion(version === project.version ? null : version);
+      setHistoryOpen(false);
+      setTab("graph");
+      toast.message(version === project.version ? `Opened v${version}` : `Opened v${version}`, {
+        description: version === project.version ? "This is the latest save." : "Restore it to make this the current version. Older saves stay in the list.",
+      });
+    } catch (e) {
+      toast.error("Couldn't open that version", { description: errorText(e) });
     }
   };
 
@@ -750,12 +776,16 @@ export default function Workspace() {
   };
 
   useEffect(() => {
-    if (tab !== "compare" || !project) { setVersions([]); return; }
+    if (!project?.project_id) { setVersions([]); setVersionsReady(false); return undefined; }
     const pid = project.project_id;
+    let alive = true;
+    setVersionsReady(false);
     api.get(`/projects/${pid}/versions`)
-      .then((r) => { if (projectRef.current?.project_id === pid) setVersions(r.data.versions); })
-      .catch(() => setVersions([]));
-  }, [tab, project?.project_id, project?.version]); // eslint-disable-line react-hooks/exhaustive-deps
+      .then((r) => { if (alive && projectRef.current?.project_id === pid) setVersions(r.data.versions || []); })
+      .catch(() => { if (alive) setVersions([]); })
+      .finally(() => { if (alive) setVersionsReady(true); });
+    return () => { alive = false; };
+  }, [project?.project_id, project?.version]);
 
   useEffect(() => { setCompareBase("previous"); setBaseSystem(null); }, [project?.project_id]);
 
@@ -811,7 +841,7 @@ export default function Workspace() {
       <span className="text-[11px] font-mono text-[var(--text-secondary)] truncate max-w-[320px]" title={baseNote} data-testid="compare-version-note">“{baseNote}”</span>
     )}
     {canRestore && (
-      <button className="ue-btn !py-1 !px-2 !text-[11px] !border-[var(--cpp-green)] !text-[var(--cpp-green)]" onClick={restoreVersion} disabled={restoring} data-testid="restore-version-button">
+      <button className="ue-btn !py-1 !px-2 !text-[11px] !border-[var(--cpp-green)] !text-[var(--cpp-green)]" onClick={() => restoreSavedVersion(compareBase)} disabled={restoring} data-testid="restore-version-button">
         <History size={12} /> {restoring ? "Restoring…" : `Restore v${compareBase}`}
       </button>
     )}
@@ -1011,6 +1041,9 @@ export default function Workspace() {
                 {readOnly ? <><Eye size={10} /> View only</> : "Local"}
               </span>
               <span className="hidden lg:inline text-[10.5px] font-mono text-[var(--text-muted)] truncate" data-testid="project-last-saved">saved by {project.updated_by_name} · {new Date(project.updated_at).toLocaleString()}</span>
+              <button className="ue-btn !py-1 !px-2 !text-[11px] shrink-0" onClick={() => setHistoryOpen(true)} data-testid="versions-button" title="Saved versions of this project">
+                <History size={12} /> Versions{versions.length > 0 ? ` · ${versions.length}` : ""}
+              </button>
             </>
           ) : (
             <span className="text-[11px] font-mono text-[var(--text-muted)]" data-testid="project-name-unsaved">Unsaved system</span>
@@ -1190,6 +1223,14 @@ export default function Workspace() {
               <div className="text-[11px] font-mono text-[var(--text-secondary)] truncate mt-1">
                 {result?.summary || "Describe a system on the left, tune the dials, press Synthesize."}
               </div>
+              {viewingVersion && (
+                <div className="mt-2 flex flex-wrap items-center gap-2" data-testid="viewing-version-banner">
+                  <span className="text-[11px] font-mono text-[var(--unreal-orange)]">Viewing v{viewingVersion}. This is not the latest save.</span>
+                  <button className="ue-btn !py-1 !px-2 !text-[11px] !border-[var(--cpp-green)] !text-[var(--cpp-green)]" disabled={restoring || readOnly} onClick={() => restoreSavedVersion(viewingVersion)} data-testid="banner-restore-version">
+                    Restore this version
+                  </button>
+                </div>
+              )}
             </div>
             <div className="tab-row shrink min-w-0 ml-2">
               {TABS.map((t) => {
@@ -1540,8 +1581,11 @@ export default function Workspace() {
           onDiscard={() => { const { thenExport, status } = fix; setFix(null); if (thenExport && status !== "running") exportZip(thenExport, true); }} />
       )}
       {historyOpen && (
-        <HistoryModal versions={versions} current={project?.version} pending={fixLog} onClose={() => setHistoryOpen(false)}
-          onCompare={(v) => { setHistoryOpen(false); pickBase(String(v)); }} onViewFix={(entry, pending) => setViewFix({ entry, pending })} />
+        <HistoryModal versions={versions} current={project?.version} pending={fixLog} restoring={restoring} loading={!versionsReady} onClose={() => setHistoryOpen(false)}
+          onOpen={(v) => openSavedVersion(v)}
+          onCompare={(v) => { setHistoryOpen(false); setTab("compare"); pickBase(String(v)); }}
+          onRestore={(v) => restoreSavedVersion(v)}
+          onViewFix={(entry, pending) => setViewFix({ entry, pending })} />
       )}
       {viewFix && (
         <FixDetailModal entry={viewFix.entry} pending={viewFix.pending} canUndo={!readOnly && !!result} onClose={() => setViewFix(null)}

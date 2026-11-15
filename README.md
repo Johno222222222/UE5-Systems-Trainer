@@ -42,7 +42,7 @@ You can save one Gemini key and one OpenAI key and switch between them. Changing
 - **Feedback** opens a new GitHub issue with the app version and a category. Nothing is emailed.
 - Describe a system on the left and press **Synthesize**. Templates are starting points.
 - Edit sliders, modules, and notes, then regenerate. The Compare tab shows what changed.
-- **Save project** keeps a version. History can name a version, compare against it, or restore it. Restoring adds a new version, so older ones stay.
+- **Save project** keeps a version. **Versions**, next to the project name in Tools, lists every save: the number, the time, and a short summary. Open one to look at it, Compare to put it next to what is on screen, or Restore to make it the current version. Restoring adds a new version, so older ones stay. On Home, **vN · versions** on a project card opens that list. The card itself still opens the latest save.
 - **JSON** downloads the system you are looking at. **Backup** in the Projects list downloads every project, its version history, and bundle presets as one file. **Import** accepts either kind of file.
 - **UE5 .zip** builds an Unreal plugin (recommended) or source files only. Copy for Unreal, tests, and Data Table tuning files are in that export.
 - Tick two or more projects to **Stack** them into one system, or **Bundle** them as one plugin. Bundle presets remember a group.
