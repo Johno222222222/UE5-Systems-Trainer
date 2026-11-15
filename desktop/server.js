@@ -9,6 +9,8 @@ const Busboy = require("busboy");
 const { createStore } = require("./store");
 const { createSecrets } = require("./secrets");
 const { complete, joinModelText, outputTokenLimit, stubFetch } = require("./llm");
+const { LEARNING_PROMPT, learningGaps, fillLearning, learningUserText } = require("./learning");
+const { attachStarters } = require("./templateLearning");
 const {
   ALLOWED_MODELS,
   DEFAULT_MODEL,
@@ -532,7 +534,7 @@ async function startServer(options = {}) {
     update: await loadUpdate(),
   }));
 
-  route("GET", "/api/templates", async () => ({ templates: TEMPLATES }));
+  route("GET", "/api/templates", async () => ({ templates: attachStarters(TEMPLATES) }));
 
   route("GET", "/api/settings", async () => secrets.publicView(dataDir));
 
@@ -601,6 +603,66 @@ async function startServer(options = {}) {
       return { ok: false, code: classified.code, message: redact(classified.message, llm.key) };
     }
     return { ok: true, message: `Key works with ${llm.model}.` };
+  });
+
+  async function assembleLearning(job, llm, system, unrealVersion) {
+    let raw = "";
+    let user = learningUserText(system, unrealVersion);
+    let mode = "start";
+    let reasked = false;
+    for (let part = 0; part < 3; part += 1) {
+      await store.update((data) => { recordUsage(data, llm.key, llm.provider, llm.model, "learning", clock); });
+      const reply = await callModel(llm, {
+        provider: llm.provider,
+        model: llm.model,
+        apiKey: llm.key,
+        system: LEARNING_PROMPT,
+        user,
+        images: [],
+        timeoutMs: options.generateTimeoutMs || 180000,
+        fetchImpl,
+        onChars: (n) => { if (job) job.chars = n; },
+      });
+      raw = mode === "append" ? joinModelText(raw, reply.text) : reply.text;
+      let parsed = null;
+      try { parsed = extractJson(raw); } catch { parsed = null; }
+      if (!parsed) {
+        mode = "append";
+        user = `The previous JSON reply was cut off at the output limit. Continue EXACTLY from the last character of the tail. Do not repeat the tail. Do not add commentary.\n\nTAIL:\n${raw.slice(-2500)}`;
+        if (!reply.truncated && part > 0) break;
+        continue;
+      }
+      const gaps = learningGaps(parsed, system);
+      if (gaps.length && !reasked) {
+        reasked = true;
+        mode = "replace";
+        user = `The teaching JSON is missing ${gaps.join("; ")}. Reply with the full JSON object and include them. Keep every why note you already wrote.`;
+        continue;
+      }
+      return fillLearning(parsed, system);
+    }
+    return null;
+  }
+
+  route("POST", "/api/learn", async (req) => {
+    const body = await readJson(req);
+    const system = body.system;
+    if (!system || typeof system !== "object" || !system.system_name) {
+      throw new HttpError(400, "The learning pass needs the finished system.");
+    }
+    const llm = resolveLlm(req.headers, secrets);
+    const version = normalizeUnrealVersion(body.unreal_version) || DEFAULT_UNREAL_VERSION;
+    let learning = null;
+    try {
+      learning = await assembleLearning(null, llm, system, version);
+    } catch (exc) {
+      console.error(`Learning pass failed: ${redact(exc.message || exc, llm.key).slice(0, 300)}`);
+      throw new HttpError(502, "The learning pass failed. The system was kept. Press Retry learning pass.");
+    }
+    if (!learning) {
+      throw new HttpError(502, "The learning pass was cut off. The system was kept. Press Retry learning pass.");
+    }
+    return { learning };
   });
 
   route("POST", "/api/generate", async (req) => {

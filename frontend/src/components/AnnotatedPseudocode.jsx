@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Copy, Download, Lightbulb } from "lucide-react";
 import { highlightBlueprint } from "../lib/highlight";
+import WhyNote from "./WhyNote";
 
 const WHY_RE = /^(\s*)(?:\/\/\s*)?WHY:\s*(.*)$/i;
 
@@ -14,8 +15,12 @@ export function WhyCallout({ text, testId, indent = 0 }) {
   );
 }
 
-export default function AnnotatedPseudocode({ code }) {
+export default function AnnotatedPseudocode({ code, nodeNotes = [], focusNodeId = null, level = "learning" }) {
   const [showWhy, setShowWhy] = useState(true);
+  const focusRef = useRef(null);
+  useEffect(() => {
+    if (focusNodeId && focusRef.current) focusRef.current.scrollIntoView({ block: "center" });
+  }, [focusNodeId]);
   const lines = (code || "").split("\n");
   const whyCount = lines.filter((l) => WHY_RE.test(l)).length;
 
@@ -58,6 +63,16 @@ export default function AnnotatedPseudocode({ code }) {
           }
           return <div key={i} className="whitespace-pre" dangerouslySetInnerHTML={{ __html: highlightBlueprint(line) || "&nbsp;" }} />;
         })}
+        {nodeNotes.filter((note) => note.anchor?.node_id === focusNodeId).map((note) => (
+          <div key={note.id} ref={focusRef} className="mt-3" data-testid={`why-pseudo-${note.anchor.node_id}`}>
+            <WhyNote note={note} level={level} />
+          </div>
+        ))}
+        {focusNodeId && !nodeNotes.some((note) => note.anchor?.node_id === focusNodeId) && (
+          <div ref={focusRef} className="mt-3 text-[12px] font-mono text-[var(--text-muted)]" data-testid="why-pseudo-missing">
+            This node has no teaching note.
+          </div>
+        )}
       </div>
     </div>
   );

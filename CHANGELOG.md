@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.0
+
+Stage 2, the learning layer.
+
+- After a system is generated it shows immediately. A second request then writes challenges, WHY notes, parameter effects, and common traps. If that pass fails, the system stays and you can retry it.
+- WHY badges sit on event-graph nodes. The C++ view shows a callout beside the line it explains. One sentence is always visible. Learning mode also opens the tradeoff, the common mistake, and a link to the concept, which waits for a later stage.
+- The help switch in the top bar is Learning, Standard, or Minimal. Learning is the default. Standard keeps the one-line notes. Minimal hides them and does not make the learning request. The choice is remembered on this computer.
+- The eight built-in templates already include their teaching notes, so opening one does not call the model.
+- A project saved before this version still opens.
+
 ## 1.1.1
 
 - Versions is next to the project name again. It lists each save with its number, time, and a short summary. You can open one, compare it, or restore it. Home's project cards link to that list. Opening a card still loads the latest save.

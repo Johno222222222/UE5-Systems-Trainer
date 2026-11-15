@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../lib/api";
 import { APP_VERSION, SECTION_REGISTRY, rememberOpen } from "../lib/shell.mjs";
+import { createHelpLevelStore } from "../lib/learning.mjs";
 import { createWorkspaceSession, openItemFromDraft, systemChip } from "../lib/workspaceSession.mjs";
 
 const ShellContext = createContext(null);
@@ -20,6 +21,14 @@ export function ShellProvider({ children }) {
   const [memory, setMemory] = useState({});
   const [homeFocus, setHomeFocus] = useState(null);
   const [draftTick, setDraftTick] = useState(0);
+  const [helpLevel, setHelpLevelState] = useState(() => {
+    try { return createHelpLevelStore(window.localStorage).get(); }
+    catch { return "learning"; }
+  });
+  const setHelpLevel = (value) => {
+    try { setHelpLevelState(createHelpLevelStore(window.localStorage).set(value)); }
+    catch { setHelpLevelState(value); }
+  };
   const [appInfo, setAppInfo] = useState({ version: APP_VERSION, update: null });
   const commandRef = useRef(null);
   const sectionRef = useRef(section);
@@ -100,7 +109,9 @@ export function ShellProvider({ children }) {
       setSection("home");
     },
     draftTick,
-  }), [session, section, memory, toolsOpen, homeFocus, appInfo, chip, commandNonce, go, issue, takeCommand, sendToSection, draftTick]);
+    helpLevel,
+    setHelpLevel,
+  }), [session, section, memory, toolsOpen, homeFocus, appInfo, chip, commandNonce, go, issue, takeCommand, sendToSection, draftTick, helpLevel]);
 
   return <ShellContext.Provider value={value}>{children}</ShellContext.Provider>;
 }
