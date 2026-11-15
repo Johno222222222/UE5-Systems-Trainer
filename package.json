@@ -57,7 +57,8 @@
     },
     "linux": {
       "target": ["AppImage", "deb"],
-      "category": "Development"
+      "category": "Development",
+      "maintainer": "Johno <johno222222222@users.noreply.github.com>"
     },
     "mac": {
       "target": ["dmg", "zip"],
