@@ -5,17 +5,42 @@ import { learnQuestions, pictureOf } from "../lib/learnQuiz.mjs";
 import ChoiceButton from "../components/ChoiceButton";
 import { useShell } from "./ShellContext";
 
-function GraphThumb({ nodes }) {
+function GraphThumb({ nodes, wires }) {
+  const list = Array.isArray(nodes) ? nodes : [];
+  if (!list.length) {
+    return <p className="text-[13px] text-[var(--text-secondary)]" data-testid="learn-graph-image">This system has no event graph yet.</p>;
+  }
+  const placed = list.map((node, index) => ({
+    id: node.id || `n${index}`,
+    label: String(node.label || "Node"),
+    x: node.x || 24 + (index % 4) * 180,
+    y: node.y || 24 + Math.floor(index / 4) * 96,
+  }));
+  const minX = Math.min(...placed.map((node) => node.x));
+  const minY = Math.min(...placed.map((node) => node.y));
+  const maxX = Math.max(...placed.map((node) => node.x + 160));
+  const maxY = Math.max(...placed.map((node) => node.y + 56));
+  const width = Math.max(640, maxX - minX + 48);
+  const height = Math.max(160, maxY - minY + 48);
+  const at = (node) => ({ x: node.x - minX + 24, y: node.y - minY + 24 });
+  const byId = new Map(placed.map((node) => [node.id, node]));
   return (
-    <svg viewBox="0 0 640 120" className="w-full" data-testid="learn-graph-image" role="img" aria-label="Event graph">
-      <rect width="640" height="120" fill="#0c1018" />
-      {nodes.map((label, index) => {
-        const x = 16 + index * 104;
+    <svg viewBox={`0 0 ${width} ${height}`} className="w-full" data-testid="learn-graph-image" role="img" aria-label="Event graph">
+      <rect width={width} height={height} fill="#0c1018" />
+      {(wires || []).map((wire, index) => {
+        const from = byId.get(wire.from);
+        const to = byId.get(wire.to);
+        if (!from || !to) return null;
+        const a = at(from);
+        const b = at(to);
+        return <path key={`w${index}`} d={`M ${a.x + 150} ${a.y + 28} C ${a.x + 190} ${a.y + 28}, ${b.x - 30} ${b.y + 28}, ${b.x} ${b.y + 28}`} fill="none" stroke="#ff7a1a" strokeWidth="2" />;
+      })}
+      {placed.map((node) => {
+        const p = at(node);
         return (
-          <g key={`${label}-${index}`}>
-            {index > 0 && <path d={`M ${x - 8} 58 H ${x}`} stroke="#ff7a1a" strokeWidth="2" />}
-            <rect x={x} y="36" width="96" height="40" rx="6" fill="#121826" stroke="#0099ff" />
-            <text x={x + 48} y="60" fill="#e8eef8" fontSize="10" textAnchor="middle">{label.slice(0, 16)}</text>
+          <g key={node.id}>
+            <rect x={p.x} y={p.y} width="150" height="52" rx="6" fill="#121826" stroke="#0099ff" />
+            <text x={p.x + 75} y={p.y + 30} fill="#e8eef8" fontSize="11" textAnchor="middle">{node.label.slice(0, 22)}</text>
           </g>
         );
       })}
@@ -88,7 +113,7 @@ export default function Learn() {
         {mode === "picture" && (
           <div className="mt-4" data-testid="learn-picture">
             <div className="panel p-3">
-              {pane === "graph" && <GraphThumb nodes={picture.nodes} />}
+              {pane === "graph" && <GraphThumb nodes={picture.nodes} wires={picture.wires} />}
               {pane === "cpp" && (
                 <pre className="text-[12px] font-mono text-[var(--text-secondary)] overflow-auto" data-testid="learn-cpp">
                   {picture.lines.map((row) => `${String(row.line).padStart(3, " ")}  ${row.text}`).join("\n") || "No C++ yet."}

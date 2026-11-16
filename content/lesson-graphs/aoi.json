@@ -1,0 +1,24 @@
+{
+  "id": "aoi",
+  "title": "Area of interest",
+  "summary": "Authority decides if this actor is relevant before it replicates.",
+  "variables": [{"name": "Relevant", "type": "bool", "default": "false"}],
+  "graph": {
+    "kind": "event",
+    "name": "AOI",
+    "nodes": [
+      {"key": "begin", "catalog": "begin-play", "x": 40, "y": 40, "note": "Begin Play starts the relevance timer."},
+      {"key": "timer", "catalog": "set-timer-event", "x": 300, "y": 40, "data": {"seconds": 0.5, "event": "CheckAOI"}, "note": "Relevance is checked twice a second, not every frame."},
+      {"key": "check", "catalog": "custom-event", "x": 40, "y": 200, "data": {"name": "CheckAOI"}, "note": "CheckAOI is the relevancy pass."},
+      {"key": "auth", "catalog": "has-authority", "x": 320, "y": 200, "note": "The server decides who is relevant."},
+      {"key": "trace", "catalog": "line-trace", "x": 600, "y": 200, "note": "A stand-in for distance. A real AOI uses the replication graph."},
+      {"key": "set", "catalog": "set-variable", "x": 880, "y": 200, "data": {"variable": "Relevant", "varType": "bool"}, "pinType": "bool", "note": "Relevant gates replication. The widget is not replicated."}
+    ],
+    "wires": [
+      {"from": "begin", "fromPin": "Exec", "to": "timer", "toPin": "Exec"},
+      {"from": "check", "fromPin": "Exec", "to": "auth", "toPin": "Exec"},
+      {"from": "auth", "fromPin": "Exec", "to": "trace", "toPin": "Exec"},
+      {"from": "trace", "fromPin": "Exec", "to": "set", "toPin": "Exec"}
+    ]
+  }
+}

@@ -1713,7 +1713,7 @@ async function startServer(options = {}) {
       const saved = trackState(data.progress.study);
       if (!saved[track.id]) saved[track.id] = { sections: {}, exam: null };
       saved[track.id].sections[section.id] = { percent: scored.percent, passed: scored.passed, assignment_ok };
-      return { ...scored, assignment_ok };
+      return { ...scored, assignment_ok, model: section.assignment.model || "" };
     });
   });
 

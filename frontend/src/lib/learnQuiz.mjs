@@ -1,15 +1,8 @@
-// Extra Learn questions from the open system. Beginner stays on this graph.
-// Intermediate adds the prediction questions. Prompts are not repeated.
+// Learn questions and the Big Picture, taken from the open system's graph,
+// C++ lines, and properties. Owned challenges stay. Nothing here is a title swap.
 
 import { challengesOf } from "./practice.mjs";
-
-function nodesOf(system) {
-  const named = [];
-  for (const node of system?.node_graph_nodes || []) {
-    if (node?.label) named.push(String(node.label));
-  }
-  return named;
-}
+import { readEventGraph } from "./graph.mjs";
 
 function unique(list) {
   const seen = new Set();
@@ -23,93 +16,186 @@ function unique(list) {
   return out;
 }
 
+function sourceRows(system) {
+  return String(system?.cpp_source || "").split("\n");
+}
+
+function quotedLine(system) {
+  const rows = sourceRows(system);
+  const index = rows.findIndex((row) => row.trim() && !row.trim().startsWith("#include") && !row.trim().startsWith("//"));
+  if (index < 0) return null;
+  return { line: index + 1, text: rows[index].trim() };
+}
+
+function propertiesOf(header) {
+  const properties = [];
+  for (const match of String(header || "").matchAll(/UPROPERTY\s*\(([^)]*)\)\s*[\w:<>]+\s+(\w+)/g)) {
+    properties.push({ name: match[2], meta: match[1], replicated: /Replicated|RepNotify/i.test(match[1]) });
+  }
+  return properties;
+}
+
+function nodeFacts(system) {
+  const graph = readEventGraph(system || {});
+  return (graph.nodes || []).map((node) => ({
+    id: node.id,
+    label: String(node.label || node.data?.action || node.data?.variable || node.data?.name || node.catalog || "Node"),
+    catalog: String(node.catalog || ""),
+    x: Number(node.x) || 0,
+    y: Number(node.y) || 0,
+  }));
+}
+
+function question(id, level, prompt, choices, answer, why) {
+  return { id, level, prompt, choices, answer, why_people_pick: why };
+}
+
 function beginnerExtras(system) {
   const name = system?.system_name || "This system";
-  const nodes = nodesOf(system);
-  const first = nodes[0] || "Begin Play";
-  const questions = [
-    {
-      id: "learn-setup",
-      level: "beginner",
-      prompt: `What happens if ${first} is removed from ${name}?`,
-      choices: [
-        "The chain that starts there does not run.",
-        "Tick starts the same work.",
-        "The widget starts the same work.",
+  const nodes = nodeFacts(system);
+  const props = propertiesOf(system?.cpp_header);
+  const line = quotedLine(system);
+  const questions = [];
+  const first = nodes[0];
+  if (first) {
+    questions.push(question(
+      "learn-setup",
+      "beginner",
+      `${name}: the event graph starts at "${first.label}". What stops if that node is deleted?`,
+      [
+        `The chain that begins at ${first.label} never runs.`,
+        "Tick starts the same chain on its own.",
+        "The widget starts the same chain.",
       ],
-      answer: 0,
-      why_people_pick: `${first} is the start of this graph.`,
-    },
-    {
-      id: "learn-depend",
-      level: "beginner",
-      prompt: `What happens if ${name} casts to every Blueprint it can use?`,
-      choices: [
+      0,
+      `${first.label} is the start of this graph.`,
+    ));
+  }
+  const caster = nodes.find((node) => /cast/i.test(`${node.label} ${node.catalog}`));
+  if (caster) {
+    questions.push(question(
+      "learn-depend",
+      "beginner",
+      `${name} contains "${caster.label}". What happens if every usable Blueprint gets its own cast next to it?`,
+      [
         "The cast list grows with every new actor.",
-        "An interface stays one call.",
-        "The constructor lists them once.",
+        "One interface call stays stable.",
+        "The constructor lists them once and is done.",
       ],
-      answer: 0,
-      why_people_pick: "A cast chain is the dependency to avoid.",
-    },
-  ];
-  if (/replicat|health|ammo|server/i.test(`${name} ${system?.network_notes || ""} ${system?.cpp_header || ""}`)) {
-    questions.push({
-      id: "learn-net",
-      level: "beginner",
-      prompt: `What happens if a client writes the replicated number in ${name}?`,
-      choices: [
-        "That copy can disagree with the server.",
-        "The server adopts the client number.",
-        "The widget rejects it.",
+      0,
+      `${caster.label} is the cast. An interface stays one call.`,
+    ));
+  }
+  const replicated = props.find((item) => item.replicated);
+  if (replicated) {
+    questions.push(question(
+      "learn-net",
+      "beginner",
+      `${name} replicates ${replicated.name}. What happens if a client writes ${replicated.name} itself?`,
+      [
+        `That copy of ${replicated.name} can disagree with the server.`,
+        `The server adopts the client's ${replicated.name}.`,
+        "The widget rejects the write.",
       ],
-      answer: 0,
-      why_people_pick: "Shared numbers are written with authority.",
-    });
+      0,
+      `${replicated.name} is written with authority.`,
+    ));
+  }
+  if (line) {
+    questions.push(question(
+      "learn-line",
+      "beginner",
+      `${name} line ${line.line} reads \`${line.text}\`. Which machine should be allowed to run that line when it changes shared state?`,
+      [
+        "The authority, then clients hear the result.",
+        "Every client, so the bar moves early.",
+        "The constructor, once.",
+      ],
+      0,
+      "The quoted line is a write. Authority owns writes of shared state.",
+    ));
   }
   return questions;
 }
 
 function intermediateExtras(system) {
   const name = system?.system_name || "This system";
-  return [
-    {
-      id: "learn-what-if",
-      level: "intermediate",
-      prompt: `What happens if the interval in ${name} changes from 0.1 to 0.5?`,
-      choices: [
+  const nodes = nodeFacts(system);
+  const props = propertiesOf(system?.cpp_header);
+  const line = quotedLine(system);
+  const questions = [];
+  const timer = nodes.find((node) => /timer|tick/i.test(`${node.label} ${node.catalog}`));
+  const interval = (system?.tunable_parameters || []).find((item) => /interval|rate|seconds|period/i.test(`${item.key} ${item.label}`));
+  if (timer || interval) {
+    const label = interval ? `${interval.label || interval.key}` : timer.label;
+    questions.push(question(
+      "learn-what-if",
+      "intermediate",
+      `${name}: ${label} is the schedule. What happens if that interval changes from 0.1 to 0.5?`,
+      [
         "The check runs less often.",
         "The check runs every frame.",
-        "The check runs in the constructor.",
+        "The check moves into the constructor.",
       ],
-      answer: 0,
-      why_people_pick: "A longer timer sleeps longer.",
-    },
-    {
-      id: "learn-cpp",
-      level: "intermediate",
-      prompt: `What happens if the C++ for ${name} subtracts a shared number with no authority check?`,
-      choices: [
-        "Every machine can write a different value.",
-        "Only the server writes it.",
-        "The header ignores the line.",
-      ],
-      answer: 0,
-      why_people_pick: "The repair is the authority check.",
-    },
-    {
-      id: "learn-expand",
-      level: "intermediate",
-      prompt: `What happens if you add a follow-on subsystem that Tick-polls ${name}?`,
-      choices: [
-        "The new piece works while nothing changed.",
-        "The new piece can listen for the change.",
+      0,
+      "A longer timer sleeps longer. Tick would not.",
+    ));
+  } else if (line) {
+    questions.push(question(
+      "learn-what-if",
+      "intermediate",
+      `${name} has no timer node. What happens if you move \`${line.text}\` onto Tick at 0.5 second intervals instead of the event that owns it?`,
+      [
+        "The line runs on a clock even when nothing asked.",
+        "The line runs only when its event fires.",
         "The constructor publishes it.",
       ],
-      answer: 0,
-      why_people_pick: "A listener is the expansion. Tick is the inefficiency.",
-    },
-  ];
+      0,
+      "Tick does not wait for the event.",
+    ));
+  }
+  const replicated = props.find((item) => item.replicated) || props[0];
+  if (line && replicated) {
+    questions.push(question(
+      "learn-cpp",
+      "intermediate",
+      `${name} line ${line.line} is \`${line.text}\` and ${replicated.name} is the property. What happens if that line runs with no authority check?`,
+      [
+        `Every machine can write a different ${replicated.name}.`,
+        `Only the server writes ${replicated.name}.`,
+        "The header ignores the line.",
+      ],
+      0,
+      `The repair is an authority check before ${replicated.name} changes.`,
+    ));
+  } else if (line) {
+    questions.push(question(
+      "learn-cpp",
+      "intermediate",
+      `What happens if ${name} runs \`${line.text}\` from Tick instead of from the event graph?`,
+      [
+        "The work repeats while nothing changed.",
+        "The event still gates it.",
+        "The header skips the line.",
+      ],
+      0,
+      "Tick does not know whether the event happened.",
+    ));
+  }
+  const follower = nodes[0]?.label || replicated?.name || name;
+  questions.push(question(
+    "learn-expand",
+    "intermediate",
+    `A follow-on subsystem Tick-polls ${name} to watch ${follower}. What is the expansion that keeps the same result?`,
+    [
+      `Listen for ${follower} to change, instead of polling.`,
+      "Poll twice as often.",
+      "Write the value in the constructor.",
+    ],
+    0,
+    "A listener is the expansion. Tick is the inefficiency.",
+  ));
+  return questions;
 }
 
 export function learnQuestions(system, level = "beginner") {
@@ -124,30 +210,53 @@ export function learnQuestions(system, level = "beginner") {
   return unique(beginner.concat(intermediateExtras(system)));
 }
 
+function expansionsOf(system, nodes, props, line) {
+  const name = system?.system_name || "This system";
+  const out = [];
+  const replicated = props.find((item) => item.replicated);
+  if (replicated) out.push(`${replicated.name} stays server-authored. ${name} clients read OnRep and do not write it.`);
+  const tick = nodes.find((node) => /tick/i.test(`${node.label} ${node.catalog}`));
+  if (tick) out.push(`Replace ${tick.label} in ${name} with a timer. The graph currently schedules work from Tick.`);
+  else if (nodes[0]) out.push(`${nodes[0].label} already starts ${name}. A new listener should bind there, not add a Tick.`);
+  const param = (system?.tunable_parameters || [])[0];
+  if (param) out.push(`Move ${param.label || param.key} into a data row. It is a designer number, not a literal in ${name}.`);
+  else if (line) out.push(`Keep \`${line.text}\` on line ${line.line} behind the event that owns it.`);
+  const includes = [];
+  for (const match of `${system?.cpp_header || ""}\n${system?.cpp_source || ""}`.matchAll(/#include\s+"([^"]+)"/g)) {
+    if (!match[1].endsWith(".generated.h")) includes.push(match[1]);
+  }
+  if (includes[0]) out.push(`${name} depends on ${includes[0]}. A new subsystem should include that header, not copy the function.`);
+  if (!out.length) out.push(`${name} has no graph and no replicated property yet. Add the event before you add a Tick.`);
+  return out.slice(0, 4);
+}
+
 export function pictureOf(system) {
   const source = String(system?.cpp_source || "");
   const lines = source.split("\n").slice(0, 18).map((text, index) => ({ line: index + 1, text }));
-  const header = String(system?.cpp_header || "");
-  const properties = [];
-  for (const match of header.matchAll(/UPROPERTY\s*\([^)]*\)\s*[\w:<>]+\s+(\w+)/g)) {
-    if (!properties.includes(match[1])) properties.push(match[1]);
-  }
+  const props = propertiesOf(system?.cpp_header);
   const dependencies = [];
-  for (const match of `${header}\n${source}`.matchAll(/#include\s+"([^"]+)"/g)) {
+  for (const match of `${system?.cpp_header || ""}\n${source}`.matchAll(/#include\s+"([^"]+)"/g)) {
     if (!match[1].endsWith(".generated.h") && !dependencies.includes(match[1])) dependencies.push(match[1]);
   }
-  const nodes = (system?.node_graph_nodes || []).map((node) => node.label).filter(Boolean);
-  const name = system?.system_name || "This system";
+  for (const prop of props) {
+    const label = prop.replicated ? `replicates ${prop.name}` : prop.name;
+    if (!dependencies.includes(label)) dependencies.push(label);
+  }
+  const nodes = nodeFacts(system);
+  for (const node of nodes) {
+    if (!dependencies.includes(node.label)) dependencies.push(node.label);
+  }
+  const graph = readEventGraph(system || {});
+  const wires = (graph.wires || []).map((wire) => ({
+    from: wire.from?.node || wire.from,
+    to: wire.to?.node || wire.to,
+  })).filter((wire) => wire.from && wire.to);
   return {
-    nodes: nodes.length ? nodes.slice(0, 6) : ["Begin Play", name],
+    nodes,
+    wires,
     lines,
-    properties: properties.slice(0, 8),
+    properties: props.map((item) => item.name).slice(0, 8),
     dependencies: dependencies.slice(0, 8),
-    expansions: [
-      "A listener instead of Tick",
-      "One interface instead of a cast list",
-      "Authority on the shared number",
-      "A data row for the designer number",
-    ],
+    expansions: expansionsOf(system, nodes, props, quotedLine(system)),
   };
 }

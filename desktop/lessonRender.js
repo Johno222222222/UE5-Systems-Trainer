@@ -1,0 +1,156 @@
+"use strict";
+
+// Draws a lesson figure from a real event-graph document (template or lesson graph).
+// Node positions, names, and wires come from that document.
+
+const fs = require("fs");
+const path = require("path");
+
+const LABELS = {
+  "begin-play": "Begin Play",
+  "end-play": "End Play",
+  tick: "Tick",
+  "enhanced-input": "Enhanced Input",
+  "line-trace": "Line Trace",
+  branch: "Branch",
+  "interface-call": "Interface",
+  "print-string": "Print",
+  "set-timer": "Set Timer",
+  "set-timer-event": "Timer Event",
+  "set-timer-function": "Timer Function",
+  "custom-event": "Custom Event",
+  "set-variable": "Set",
+  "get-variable": "Get",
+  "any-damage": "Any Damage",
+  "has-authority": "Has Authority",
+  "on-rep": "OnRep",
+  literal: "Literal",
+  add: "Add",
+  subtract: "Subtract",
+  multiply: "Multiply",
+  divide: "Divide",
+  clamp: "Clamp",
+  equal: "Equal",
+  greater: "Greater",
+  less: "Less",
+  and: "AND",
+  timeline: "Timeline",
+  flipflop: "FlipFlop",
+  delay: "Delay",
+  "cast-to": "Cast To",
+  "dispatcher-bind": "Bind Dispatcher",
+  "dispatcher-call": "Call Dispatcher",
+  "make-struct": "Make Struct",
+  "break-struct": "Break Struct",
+  "call-function": "Call Function",
+  "begin-overlap": "Begin Overlap",
+  sequence: "Sequence",
+  gate: "Gate",
+  "do-once": "Do Once",
+};
+
+const ROOT = path.join(__dirname, "..", "content");
+
+function esc(value) {
+  return String(value || "").replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[ch]));
+}
+
+function loadGraph(id) {
+  const candidates = [
+    path.join(ROOT, "templates", `${id}.json`),
+    path.join(ROOT, "lesson-graphs", `${id}.json`),
+  ];
+  for (const file of candidates) {
+    if (fs.existsSync(file)) return JSON.parse(fs.readFileSync(file, "utf8"));
+  }
+  return null;
+}
+
+function nodeLabel(node) {
+  if (node.label) return node.label;
+  if (node.data?.action) return node.data.action;
+  if (node.data?.variable) return `${LABELS[node.catalog] || node.catalog} ${node.data.variable}`;
+  if (node.data?.function) return node.data.function;
+  if (node.data?.name) return node.data.name;
+  return LABELS[node.catalog] || node.key || node.catalog;
+}
+
+function renderGraph(doc, { broken = false, why = "" } = {}) {
+  const graph = doc?.graph || doc;
+  const nodes = graph?.nodes || [];
+  if (!nodes.length) return "";
+  const pad = 28;
+  const minX = Math.min(...nodes.map((node) => node.x || 0));
+  const minY = Math.min(...nodes.map((node) => node.y || 0));
+  const maxX = Math.max(...nodes.map((node) => (node.x || 0) + 168));
+  const maxY = Math.max(...nodes.map((node) => (node.y || 0) + 72));
+  const width = Math.max(640, maxX - minX + pad * 2);
+  const height = Math.max(220, maxY - minY + pad * 2 + (why || broken ? 56 : 16));
+  const at = (node) => ({ x: (node.x || 0) - minX + pad, y: (node.y || 0) - minY + pad });
+  const byKey = new Map(nodes.map((node) => [node.key, node]));
+  const wires = (graph.wires || []).map((wire) => {
+    const from = byKey.get(wire.from);
+    const to = byKey.get(wire.to);
+    if (!from || !to) return "";
+    const a = at(from);
+    const b = at(to);
+    const brokenWire = broken && wire.fromPin === "Exec";
+    return `<path d="M ${a.x + 150} ${a.y + 28} C ${a.x + 190} ${a.y + 28}, ${b.x - 40} ${b.y + 28}, ${b.x} ${b.y + 28}" fill="none" stroke="${brokenWire ? "#e02424" : "#ff7a1a"}" stroke-width="${brokenWire ? 3 : 2}" ${brokenWire ? 'stroke-dasharray="6 4"' : ""}/>`;
+  }).join("");
+  const boxes = nodes.map((node) => {
+    const p = at(node);
+    const label = nodeLabel(node).slice(0, 22);
+    return `<rect x="${p.x}" y="${p.y}" width="150" height="52" rx="6" fill="#121826" stroke="#0099ff"/>
+      <text x="${p.x + 75}" y="${p.y + 30}" fill="#e8eef8" font-size="11" text-anchor="middle" font-family="sans-serif">${esc(label)}</text>`;
+  }).join("");
+  let extra = "";
+  if (broken) {
+    const first = nodes[0];
+    const p = at(first);
+    extra += `<rect x="${p.x}" y="${Math.max(8, p.y - 70)}" width="150" height="52" rx="6" fill="#2a1012" stroke="#e02424"/>
+      <text x="${p.x + 75}" y="${Math.max(8, p.y - 70) + 30}" fill="#ffb4b4" font-size="11" text-anchor="middle" font-family="sans-serif">Tick</text>
+      <path d="M ${p.x + 75} ${Math.max(8, p.y - 70) + 52} V ${p.y}" stroke="#e02424" stroke-width="3" stroke-dasharray="6 4"/>`;
+  }
+  const note = why || (broken ? "The dashed Tick wire is the bug. The solid graph is the real preset." : "");
+  const foot = note
+    ? `<rect x="16" y="${height - 48}" width="${width - 32}" height="34" rx="6" fill="#1a1208" stroke="#ff7a1a"/>
+       <text x="28" y="${height - 27}" fill="#ffb06a" font-size="12" font-family="sans-serif">WHY ${esc(note).slice(0, 140)}</text>`
+    : "";
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">
+  <rect width="${width}" height="${height}" fill="#0c1018"/>
+  ${wires}${extra}${boxes}${foot}
+</svg>`;
+}
+
+function hubSvg(title, spokes) {
+  const items = (spokes || []).slice(0, 6);
+  const left = items.filter((_, index) => index % 2 === 0);
+  const right = items.filter((_, index) => index % 2 === 1);
+  const box = (label, x, y) => `<rect x="${x}" y="${y}" width="280" height="48" rx="8" fill="#121826" stroke="#3d4d66"/>
+    <text x="${x + 14}" y="${y + 29}" fill="#9ecbff" font-size="13" font-family="sans-serif">${esc(label).slice(0, 36)}</text>`;
+  const col = (list, x) => list.map((label, index) => box(label, x, 24 + index * 62)).join("");
+  const height = Math.max(220, 24 + Math.max(left.length, right.length) * 62 + 24);
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 ${height}">
+  <rect width="920" height="${height}" fill="#0c1018"/>
+  ${col(left, 16)}${col(right, 624)}
+  <rect x="320" y="${Math.max(40, height / 2 - 48)}" width="280" height="88" rx="10" fill="#101828" stroke="#0099ff"/>
+  <text x="460" y="${Math.max(40, height / 2 - 48) + 38}" fill="#e8eef8" font-size="15" text-anchor="middle" font-family="sans-serif">${esc(title).slice(0, 28)}</text>
+  <text x="460" y="${Math.max(40, height / 2 - 48) + 60}" fill="#ff7a1a" font-size="12" text-anchor="middle" font-family="sans-serif">depends on</text>
+</svg>`;
+}
+
+function loadCppCache() {
+  const file = path.join(ROOT, "lesson-cpp.json");
+  if (!fs.existsSync(file)) return {};
+  return JSON.parse(fs.readFileSync(file, "utf8"));
+}
+
+function cppExcerpt(id) {
+  const entry = loadCppCache()[id];
+  if (!entry?.lines?.length) return [];
+  return entry.lines;
+}
+
+module.exports = { loadGraph, renderGraph, hubSvg, cppExcerpt, nodeLabel };

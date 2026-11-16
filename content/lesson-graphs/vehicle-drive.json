@@ -1,0 +1,20 @@
+{
+  "id": "vehicle-drive",
+  "title": "Vehicle drive",
+  "summary": "Throttle is an input. The server applies it.",
+  "variables": [{"name": "Throttle", "type": "float", "default": "0.f"}],
+  "graph": {
+    "kind": "event",
+    "name": "Drive",
+    "nodes": [
+      {"key": "input", "catalog": "enhanced-input", "x": 40, "y": 80, "data": {"action": "IA_Throttle"}, "note": "IA_Throttle is the axis. The chaos vehicle reads Throttle."},
+      {"key": "auth", "catalog": "has-authority", "x": 340, "y": 80, "note": "The server owns the velocity."},
+      {"key": "set", "catalog": "set-variable", "x": 640, "y": 80, "data": {"variable": "Throttle", "varType": "float"}, "note": "Write the axis. Do not replicate the wheel meshes."}
+    ],
+    "wires": [
+      {"from": "input", "fromPin": "Triggered", "to": "auth", "toPin": "Exec"},
+      {"from": "auth", "fromPin": "Exec", "to": "set", "toPin": "Exec"},
+      {"from": "input", "fromPin": "Value", "to": "set", "toPin": "Value"}
+    ]
+  }
+}
