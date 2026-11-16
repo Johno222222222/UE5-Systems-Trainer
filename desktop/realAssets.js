@@ -36,58 +36,133 @@ function cppLiteral(type, value) {
     const number = Number.parseInt(raw, 10);
     return Number.isFinite(number) ? String(number) : "0";
   }
-  const text = raw.replace(/\\/g, "\\\\").replace(/"/g, "\\\"") || "Default";
+  const text = raw.replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
   return `TEXT("${text}")`;
 }
 
+function cleanCppValue(raw) {
+  let text = String(raw ?? "").trim();
+  const wrapped = text.match(/^TEXT\s*\(\s*"([\s\S]*)"\s*\)$/);
+  if (wrapped) text = wrapped[1];
+  else if (text.startsWith("\"") && text.endsWith("\"")) text = text.slice(1, -1);
+  text = text.replace(/f$/i, "");
+  if (text.endsWith(".")) text = text.slice(0, -1);
+  return text.trim();
+}
+
 function jsonValue(type, value) {
-  const raw = String(value ?? "").trim();
+  const raw = cleanCppValue(value);
   if (type === "bool") return /^(1|true)$/i.test(raw) ? "true" : "false";
   if (type === "float") {
-    let number = raw.replace(/f$/i, "");
-    if (number.endsWith(".")) number = number.slice(0, -1);
-    if (!number || number === "0" || number === "0.0") return "0";
-    return number;
+    if (!raw || raw === "0" || raw === "0.0") return "0";
+    return raw;
   }
   if (type === "int32") {
     const number = Number.parseInt(raw, 10);
     return Number.isFinite(number) ? String(number) : "0";
   }
-  return raw.replace(/^TEXT\("/, "").replace(/"\)$/, "") || "Default";
+  if (type === "FName" && !raw) return "None";
+  return raw;
+}
+
+function inferType(raw) {
+  const text = cleanCppValue(raw);
+  if (/^(true|false)$/i.test(text)) return "bool";
+  if (/^-?\d+\.\d+$/.test(text)) return "float";
+  if (/^-?\d+$/.test(text)) return "int32";
+  return "FString";
+}
+
+function blankDefault(type, value) {
+  if (value == null || value === "") return true;
+  if ((type === "int32" || type === "float") && Number(value) === 0) return true;
+  if ((type === "FString" || type === "FName") && (value === "Default" || value === "None")) return true;
+  return false;
+}
+
+function headerFields(header) {
+  const found = [];
+  const pattern = /UPROPERTY\s*\((?:[^;]|\)\s)*?\)\s*(int32|int|float|bool|FString|FName)\s+([A-Za-z_]\w*)\s*(?:=\s*([^;]+))?/g;
+  let match = pattern.exec(String(header || ""));
+  while (match) {
+    const type = cppType(match[1]);
+    if (type) found.push({ name: ident(match[2]), type, default: jsonValue(type, match[3] || "") });
+    match = pattern.exec(String(header || ""));
+  }
+  return found;
+}
+
+function constructorValues(source, className) {
+  const found = [];
+  if (!className) return found;
+  const text = String(source || "");
+  const start = text.search(new RegExp(`\\b${className}::${className}\\s*\\(`));
+  if (start < 0) return found;
+  const after = text.slice(start);
+  let depth = 0;
+  let i = after.indexOf("(");
+  for (; i < after.length; i += 1) {
+    if (after[i] === "(") depth += 1;
+    else if (after[i] === ")") {
+      depth -= 1;
+      if (depth === 0) { i += 1; break; }
+    }
+  }
+  const brace = after.indexOf("{", i);
+  if (brace < 0) return found;
+  const init = after.slice(i, brace);
+  const initList = init.includes(":") ? init.slice(init.indexOf(":") + 1) : "";
+  let nest = 0;
+  let end = brace;
+  for (; end < after.length; end += 1) {
+    if (after[end] === "{") nest += 1;
+    else if (after[end] === "}") {
+      nest -= 1;
+      if (nest === 0) break;
+    }
+  }
+  const body = after.slice(brace + 1, end);
+  for (const match of initList.matchAll(/(\w+)\s*\(\s*([^)]+?)\s*\)/g)) found.push([match[1], cleanCppValue(match[2])]);
+  for (const match of body.matchAll(/(?:this\s*->\s*)?(\w+)\s*=\s*([^;]+);/g)) {
+    if (["if", "for", "while", "switch", "return"].includes(match[1])) continue;
+    found.push([match[1], cleanCppValue(match[2])]);
+  }
+  return found;
 }
 
 function fieldsFrom(system) {
-  const listed = Array.isArray(system?.variables) ? system.variables : [];
-  const fromList = listed.map((item) => {
+  const ranked = new Map();
+  const put = (field, rank) => {
+    if (!field?.name || !field.type) return;
+    const prev = ranked.get(field.name);
+    if (!prev || rank > prev.rank) ranked.set(field.name, { ...field, rank });
+  };
+  for (const item of Array.isArray(system?.variables) ? system.variables : []) {
     const type = cppType(item?.type);
-    if (!type) return null;
-    return { name: ident(item?.name), type, default: jsonValue(type, item?.default) };
-  }).filter(Boolean);
-  if (fromList.length) return fromList;
-
-  const header = String(system?.cpp_header || "");
-  const found = [];
-  const pattern = /UPROPERTY\s*\((?:[^;]|\)\s)*?\)\s*(int32|int|float|bool|FString|FName)\s+([A-Za-z_]\w*)\s*(?:=\s*([^;]+))?/g;
-  let match = pattern.exec(header);
-  while (match) {
-    const type = cppType(match[1]);
-    if (type) {
-      let raw = (match[3] || "").trim().replace(/f$/i, "");
-      if (type === "float" && raw.endsWith(".")) raw = raw.slice(0, -1);
-      found.push({ name: ident(match[2]), type, default: jsonValue(type, raw) });
-    }
-    match = pattern.exec(header);
+    if (!type) continue;
+    put({ name: ident(item.name), type, default: jsonValue(type, item.default) }, 1);
   }
-  if (found.length) return found;
-
-  const tunables = Array.isArray(system?.tunable_parameters) ? system.tunable_parameters : [];
-  const fromTunables = tunables.map((item) => {
-    const numeric = typeof item?.value === "number";
-    const type = numeric && !Number.isInteger(item.value) ? "float" : (numeric ? "int32" : "");
-    if (!type) return null;
-    return { name: ident(item.key || item.label), type, default: jsonValue(type, item.value) };
-  }).filter(Boolean);
-  return fromTunables.length ? fromTunables : [{ name: "Label", type: "FString", default: "Default" }];
+  for (const field of headerFields(system?.cpp_header)) put(field, 2);
+  const owner = String(system?.cpp_header || "").match(/class\s+(?:\w+_API\s+)?([UAF][A-Za-z0-9_]+)/);
+  for (const [name, raw] of constructorValues(system?.cpp_source, owner ? owner[1] : "")) {
+    const known = ranked.get(ident(name));
+    const type = known?.type || inferType(raw);
+    put({ name: ident(name), type, default: jsonValue(type, raw) }, 3);
+  }
+  if (!ranked.size) {
+    for (const item of Array.isArray(system?.tunable_parameters) ? system.tunable_parameters : []) {
+      const numeric = typeof item?.value === "number";
+      const type = numeric && !Number.isInteger(item.value) ? "float" : (numeric ? "int32" : "");
+      if (!type) continue;
+      put({ name: ident(item.key || item.label), type, default: jsonValue(type, item.value) }, 1);
+    }
+  }
+  const fields = [...ranked.values()].map(({ name, type, default: value }) => ({
+    name,
+    type,
+    default: blankDefault(type, value) && type !== "int32" && type !== "float" && type !== "bool" ? value : value,
+  }));
+  return fields.length ? fields : [{ name: "Label", type: "FString", default: "" }];
 }
 
 function generatedClass(header) {

@@ -81,20 +81,29 @@ test("compiler output maps a header line and keeps the RunUAT error", () => {
   assert.ok(issues.some((item) => /LNK2019/.test(item.message) || /unresolved external/.test(item.message)));
 });
 
-test("the Windows build command quotes plugin paths and does not call cmd /s", () => {
-  const plugin = "C:\\Unreal Projects\\Game\\Plugins\\Kit\\Kit.uplugin";
+test("the Windows build command runs RunUAT.bat through cmd.exe", () => {
+  const plugin = "C:\\Users\\borna\\AppData\\Roaming\\UE5 System Architect\\scratch\\Kit\\Kit.uplugin";
+  const uat = "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Build\\BatchFiles\\RunUAT.bat";
   const launch = windowsBuildLaunch({
-    uat: "C:\\Program Files\\Epic Games\\UE_5.8\\Engine\\Build\\BatchFiles\\RunUAT.bat",
+    uat,
     pluginPath: plugin,
     packageDir: "C:\\ue5tmp\\ue5-uat-out",
   });
+  assert.equal(launch.file, "cmd.exe");
   assert.equal(launch.options.shell, false);
   assert.equal(launch.options.windowsVerbatimArguments, true);
-  assert.equal(launch.file.includes("cmd.exe"), false);
-  assert.equal(launch.args[0], "BuildPlugin");
-  assert.equal(launch.args[1], `-Plugin="${plugin}"`);
-  assert.equal(launch.args[2], "-Package=\"C:\\ue5tmp\\ue5-uat-out\"");
-  assert.equal(launch.args.join(" ").includes("/s"), false);
+  assert.deepEqual(launch.args.slice(0, 3), ["/d", "/s", "/c"]);
+  const line = launch.args[3];
+  assert.equal(line.startsWith("\""), true);
+  assert.equal(line.endsWith("\""), true);
+  assert.match(line, /"C:\\Program Files\\Epic Games\\UE_5\.8\\Engine\\Build\\BatchFiles\\RunUAT\.bat"/);
+  assert.match(line, /-Plugin="C:\\Users\\borna\\AppData\\Roaming\\UE5 System Architect\\scratch\\Kit\\Kit\.uplugin"/);
+  assert.match(line, /-Package="C:\\ue5tmp\\ue5-uat-out"/);
+  assert.match(line, /BuildPlugin/);
+  const { commandFor } = require("../engine");
+  const spec = commandFor("C:\\Program Files\\Epic Games\\UE_5.8", plugin, "C:\\ue5tmp\\out", "win32", "C:\\ue5tmp");
+  assert.equal(spec.file, "cmd.exe");
+  assert.equal(spec.options.shell, false);
   const packaged = safePackageDir("C:\\Unreal Projects\\out", "win32", "C:\\ue5tmp");
   assert.equal(/\s/.test(packaged), false);
   assert.equal(normalizeCheck(packaged), true);
