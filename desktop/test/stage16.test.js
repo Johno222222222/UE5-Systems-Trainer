@@ -77,6 +77,32 @@ test("the release workflow still collects five installer assets under the safe n
   assert.match(workflow, /release\/\*\.deb/);
   assert.match(workflow, /release\/\*\.dmg/);
   assert.match(workflow, /release\/\*\.zip/);
+  assert.match(workflow, /node desktop\/winInstaller\.js/);
+  assert.match(workflow, /AZURE_CLIENT_ID: \$\{\{ secrets\.AZURE_CLIENT_ID \}\}/);
+  assert.match(workflow, /electron-builder --mac dmg zip/);
+  assert.match(workflow, /electron-builder --linux AppImage deb/);
+  assert.equal(pkg.build.win.signAndEditExecutable, false);
+  assert.equal(pkg.build.win.azureSignOptions, undefined);
+  const { signingEnabled, windowsBuildConfig, AZURE_SIGN } = require("../winInstaller");
+  assert.equal(signingEnabled({}), false);
+  const unsigned = windowsBuildConfig(pkg.build, {});
+  assert.equal(unsigned.signing, false);
+  assert.equal(unsigned.config.win.signAndEditExecutable, false);
+  assert.equal(unsigned.config.win.artifactName, pkg.build.win.artifactName);
+  assert.equal(unsigned.config.mac.artifactName, pkg.build.mac.artifactName);
+  const signed = windowsBuildConfig(pkg.build, {
+    AZURE_CLIENT_ID: "client",
+    AZURE_TENANT_ID: "tenant",
+    AZURE_CLIENT_SECRET: "secret",
+  });
+  assert.equal(signed.signing, true);
+  assert.equal(signed.config.win.signAndEditExecutable, true);
+  assert.equal(signed.config.win.azureSignOptions.endpoint, "https://eus.codesigning.azure.net/");
+  assert.equal(signed.config.win.azureSignOptions.codeSigningAccountName, "ue5toolsigning");
+  assert.equal(signed.config.win.azureSignOptions.certificateProfileName, "ue5tools-public");
+  assert.equal(signed.config.win.azureSignOptions.TimestampRfc3161, AZURE_SIGN.TimestampRfc3161);
+  assert.equal(signed.config.win.artifactName, pkg.build.win.artifactName);
+  assert.equal(pkg.build.win.signAndEditExecutable, false);
   const main = fs.readFileSync(path.join(__dirname, "..", "main.js"), "utf8");
   assert.match(main, /app\.setName\(DATA_FOLDER_NAME\)/);
   assert.match(fs.readFileSync(path.join(__dirname, "..", "displayName.js"), "utf8"), /UE5 System Architect/);

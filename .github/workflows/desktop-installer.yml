@@ -38,19 +38,13 @@ jobs:
         run: npm ci
 
       - name: Build the Windows installer
-        run: npx electron-builder --win nsis --publish never
+        run: node desktop/winInstaller.js
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
-          # TODO(Azure Artifact Signing): signing is intentionally off.
-          # When the certificate is ready, add these repository secrets
-          # (do not commit the values) and uncomment the lines below:
-          #   AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET
-          # Then set "signAndEditExecutable": true in package.json and add
-          # win.azureSignOptions (publisherName, endpoint, codeSigningAccountName,
-          # certificateProfileName). Until then this installer stays unsigned.
-          # AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          # AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          # AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          # Empty on a fork pull request. The script warns and still builds.
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
       - name: Upload the installer
         uses: actions/upload-artifact@v5

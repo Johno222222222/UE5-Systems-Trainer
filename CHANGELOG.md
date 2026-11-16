@@ -8,6 +8,7 @@
 - Event graph nodes for Set Timer by Event, Set Timer by Function, Break Struct, and Make Struct, plus six graph templates. Timeline emits a UTimelineComponent. Event dispatchers emit a dynamic multicast delegate. Break and Make use the struct you pick.
 - Interface Call and Cast To were already in the graph. Cast To keeps the result for the next node. An interface class sends Execute_ through ImplementsInterface. Stack stays on this computer. Integrate with AI is the model path and uses the network.
 - Systems, nodes, and templates carry a when-to-use note and a common-mistakes note. The first-run tour can be skipped.
+- The Windows installer and the app exe inside it are signed with Azure Artifact Signing when the repository secrets are present. The publisher on that certificate is John Fischer. A build without those secrets stays unsigned and still completes.
 - Version is 1.16.0.
 
 ## 1.15.0

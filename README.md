@@ -9,7 +9,7 @@ It runs on your computer. It uses the internet when it asks Gemini, OpenAI, Anth
 1. Open the latest [GitHub Release](https://github.com/Johno222222222/blueprint-builder/releases) and download the Windows installer, or use the latest successful **Desktop installer** run on this repository's GitHub Actions page and download the artifact named `ue5-system-architect-windows`.
 2. Unzip the artifact if you used Actions. A Release file is the installer itself.
 3. Run the installer (`UE5-Systems-Training-Tool-Generator-….exe`).
-4. Windows may say the app is unrecognized. That is because this installer is not code-signed. Choose **More info**, then **Run anyway**, if you trust the build.
+4. A build from this repository is signed by **John Fischer** through Azure Artifact Signing. Windows may still show a SmartScreen prompt until that signature has a reputation. A fork build has no signing secrets, so that installer stays unsigned: choose **More info**, then **Run anyway**, if you trust it.
 5. Start **UE5 Systems Training Tool Generator** from the Start menu. The window title is **UE5 Systems Training Tool/Generator**. It opens on **Home**. **Tools** is the workspace. There is no account and no sign-in.
 
 Your projects are stored on this PC, in the app data folder. Open **Settings** (the key button in the top bar) and use **Open folder** to see it. On Windows that folder is usually:
