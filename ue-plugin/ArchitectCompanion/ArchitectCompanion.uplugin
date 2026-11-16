@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "1.14.0",
+	"VersionName": "1.14.1",
 	"FriendlyName": "Architect Companion",
 	"Description": "Local link to UE5 System Architect on this computer. This plugin does not call an AI model.",
 	"Category": "Editor",

@@ -2961,9 +2961,9 @@
       ],
       "category": "App",
       "match": "always",
-      "summary": "The version label is the app's release number, such as 1.14.0, shown on feedback and update checks.",
+      "summary": "The version label is the app's release number, such as 1.14.1, shown on feedback and update checks.",
       "detail": "It is package.json's version. A saved project version is a different thing: a snapshot you can restore.",
-      "definition": "The version label is the app's release number, such as 1.14.0, shown on feedback and update checks.",
+      "definition": "The version label is the app's release number, such as 1.14.1, shown on feedback and update checks.",
       "see": [
         "version-skip",
         "restore-skip"

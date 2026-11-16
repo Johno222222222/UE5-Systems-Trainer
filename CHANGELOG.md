@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.14.1
+
+- Create and Open requests stay queued until Unreal answers that request. If the editor never answers, the app says so.
+- Building on Windows runs RunUAT through cmd.exe, so the build tool no longer fails with spawn EINVAL.
+- Data table rows, the primary data asset, and Blueprint defaults use the constructor values instead of zeros. The Blueprint comment box fits its text.
+- Version is 1.14.1.
+
 ## 1.14.0
 
 - Create in Unreal asks the paired Architect panel to make a data table, a primary data asset, and a Blueprint stub under `/Game/Architect/<SystemName>`.
