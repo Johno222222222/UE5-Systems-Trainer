@@ -86,6 +86,22 @@ test("a track quiz scores and the general courses still load beside the old ones
   assert.ok(packs.courses.some((course) => course.id === "tactical-fps-course"));
   assert.ok(packs.courses.some((course) => course.id === "general-beginner" && course.level === "beginner"));
   assert.ok(packs.courses.some((course) => course.id === "general-intermediate" && course.level === "intermediate"));
+  for (const course of packs.courses.filter((item) => item.id.startsWith("general-"))) {
+    assert.ok(course.modules.length >= 4 && course.modules.length <= 5, course.id);
+    const minQuiz = course.level === "intermediate" ? 8 : 5;
+    const prompts = new Set();
+    for (const mod of course.modules) {
+      const count = String(mod.takeaway).split(/\s+/).filter(Boolean).length;
+      assert.ok(count >= 150, `${mod.id} ${count}`);
+      assert.ok(mod.quiz.length >= minQuiz, `${mod.id} quiz ${mod.quiz.length}`);
+      assert.ok(!/is the step you build at position/i.test(mod.takeaway), mod.id);
+      for (const question of mod.quiz) {
+        const key = question.prompt.trim().toLowerCase();
+        assert.ok(!prompts.has(key), `${course.id} duplicate ${key}`);
+        prompts.add(key);
+      }
+    }
+  }
   const track = trackById("horror-beginner");
   const answers = Object.fromEntries(track.sections[0].quiz.map((question) => [question.id, question.answer]));
   const scored = scoreQuestions(track.sections[0].quiz, answers);
