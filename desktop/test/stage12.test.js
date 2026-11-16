@@ -93,6 +93,15 @@ test("send to unreal writes the module, refuses an edited file, and queues a rel
     assert.equal(first.ok, true);
     assert.equal(first.queued, true);
     assert.match(fs.readFileSync(path.join(first.path, "Source", first.plugin, "Public", "Health.h"), "utf8"), /MaxHealth/);
+    const polls = [];
+    for (let i = 0; i < 4; i += 1) {
+      polls.push(await (await fetch(`http://127.0.0.1:${info.port}/v1/pending`, {
+        headers: { "X-Companion-Token": paired.token },
+      })).json());
+    }
+    assert.equal(polls[0].command.type, "reload");
+    assert.ok(polls[0].command.id);
+    for (const poll of polls) assert.equal(poll.command.id, polls[0].command.id);
     const headerPath = path.join(first.path, "Source", first.plugin, "Public", "Health.h");
     fs.writeFileSync(headerPath, "/* player edit */\n");
     const blocked = await (await fetch(`http://127.0.0.1:${handle.port}/api/companion/send`, {

@@ -35,6 +35,7 @@ private:
 	TSharedPtr<SVerticalBox> GlossaryBox;
 	TSharedPtr<SEditableTextBox> GlossaryQuery;
 	TSharedPtr<FJsonObject> CurrentLearn;
+	FString NotifiedId;
 	FString FinishedId;
 	FString FinishedMessage;
 	TArray<FString> FinishedAssets;

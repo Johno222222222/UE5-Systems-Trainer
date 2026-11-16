@@ -448,18 +448,22 @@ void SArchitectPanel::Poll()
 	if (!CompanionLink::TakePending(Host, PortNumber, Token, Command) || !Command.IsValid()) return;
 	const FString Id = Command->GetStringField(TEXT("id"));
 	const FString CommandType = Command->GetStringField(TEXT("type"));
-	const TSharedPtr<FJsonObject>* LearnJson = nullptr;
-	if (Command->TryGetObjectField(TEXT("learn"), LearnJson) && LearnJson && LearnJson->IsValid())
-	{
-		CurrentLearn = *LearnJson;
-		ShowLearn();
-	}
 	if (!Id.IsEmpty() && Id == FinishedId)
 	{
 		FString Ignored;
 		TArray<TSharedPtr<FJsonValue>> NoChecks;
 		CompanionLink::PostResult(Host, PortNumber, Token, Id, bFinishedOk, FinishedMessage, FinishedAssets, FinishedConflicts, NoChecks, Ignored);
 		return;
+	}
+	// Polls overlap while HTTP ticks. Claim the id before any notice so a
+	// repeated poll of this request does not stack another one.
+	if (!Id.IsEmpty() && Id == NotifiedId) return;
+	NotifiedId = Id;
+	const TSharedPtr<FJsonObject>* LearnJson = nullptr;
+	if (Command->TryGetObjectField(TEXT("learn"), LearnJson) && LearnJson && LearnJson->IsValid())
+	{
+		CurrentLearn = *LearnJson;
+		ShowLearn();
 	}
 	FString Result;
 	TArray<FString> Assets;
