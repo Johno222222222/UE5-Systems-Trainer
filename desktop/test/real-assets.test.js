@@ -132,7 +132,8 @@ test("create in unreal queues the plan and open in unreal queues the asset path"
       body: JSON.stringify({ system: AMMO }),
     })).json();
     assert.equal(unpaired.ok, false);
-    assert.match(unpaired.message, /Pair the Architect panel/);
+    assert.equal(unpaired.message, "Not connected to Unreal — open the Architect panel and pair");
+    assert.equal(unpaired.queued, false);
 
     const paired = await (await fetch(`http://127.0.0.1:${info.port}/v1/pair`, {
       method: "POST",

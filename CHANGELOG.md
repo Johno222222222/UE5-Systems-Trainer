@@ -5,7 +5,7 @@
 - Create in Unreal and Send to Unreal also send the system's WHY notes. The Architect panel lists them by data table, data asset, Blueprint, and C++ class.
 - The panel can check two to four challenges against the real assets, and you can mark one done by hand. The result shows in the app with the asset name and counts toward your learning progress.
 - The panel can search the glossary.
-- One Send to Unreal shows one editor notification. Repeated polls of that request do not stack another.
+- One Send to Unreal shows one editor notification. If Unreal is not connected, Send and Create say so immediately and do not queue.
 - Version is 1.15.0. The Stage 8 plugin work is done.
 
 ## 1.14.1

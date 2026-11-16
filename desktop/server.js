@@ -1001,6 +1001,7 @@ async function startServer(options = {}) {
     port: companion.port,
     code: companion.code,
     paired: companion.paired,
+    connected: companion.connected,
     summary: companion.summary(),
     project: companion.report?.project || "",
     engine: companion.report?.engine || "",
@@ -1030,10 +1031,15 @@ async function startServer(options = {}) {
     }
   });
 
+  const NOT_CONNECTED = "Not connected to Unreal — open the Architect panel and pair";
+
   route("POST", "/api/companion/send", async (req) => {
     const body = await readJson(req);
     const system = body.system;
     if (!system?.cpp_header || !system?.cpp_source) throw new HttpError(400, "Send to Unreal needs a generated system.");
+    if (!companion.connected) {
+      return { ok: false, paired: false, connected: false, queued: false, message: NOT_CONNECTED };
+    }
     const target = path.resolve(String(body.uproject || ""));
     if (!target.toLowerCase().endsWith(".uproject") || !fs.existsSync(target)) {
       throw new HttpError(400, "Pick an Unreal project file that ends in .uproject.");
@@ -1053,7 +1059,8 @@ async function startServer(options = {}) {
       path: dest,
       paired: companion.paired,
       queued: !!command,
-      message: command ? "Files written. The editor was asked to compile." : "Files written. Pair the Architect panel, then compile in the editor.",
+      id: command?.id || "",
+      message: "Files written. The editor was asked to compile.",
     };
   });
 
@@ -1062,8 +1069,8 @@ async function startServer(options = {}) {
     const system = body.system;
     if (!system?.cpp_header || !system?.cpp_source) throw new HttpError(400, "Create in Unreal needs a generated system.");
     const plan = buildAssetPlan(system, { folder: body.folder, confirm: body.confirm === true });
-    if (!companion.paired) {
-      return { ok: false, paired: false, folder: plan.folder, message: "Pair the Architect panel in the editor first." };
+    if (!companion.connected) {
+      return { ok: false, paired: false, connected: false, queued: false, folder: plan.folder, message: NOT_CONNECTED };
     }
     const command = companion.queue({ ...plan, learn: buildEditorLearn(system, plan) });
     return {
@@ -1082,7 +1089,7 @@ async function startServer(options = {}) {
     const body = await readJson(req);
     const asset = String(body.asset || "").trim();
     if (!asset.startsWith("/Game/")) throw new HttpError(400, "Open in Unreal needs an asset under /Game.");
-    if (!companion.paired) return { ok: false, paired: false, message: "Pair the Architect panel in the editor first." };
+    if (!companion.connected) return { ok: false, paired: false, connected: false, queued: false, message: NOT_CONNECTED };
     const command = companion.queue({ type: "open-asset", asset });
     return { ok: true, queued: true, id: command.id, asset, message: "Asked the editor to open that asset." };
   });

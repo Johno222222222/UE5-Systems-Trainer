@@ -6,7 +6,7 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const { startServer } = require("../server");
-const { summarizeProject } = require("../companion");
+const { createCompanion, summarizeProject } = require("../companion");
 const { normalizeGenerateRequest, buildUserText } = require("../logic");
 
 const SYSTEM = {
@@ -70,6 +70,70 @@ test("pairing rejects a bad code and then accepts a project report", async () =>
     assert.match(context.summary, /GameplayAbilities/);
   } finally {
     await handle.close();
+  }
+});
+
+test("send and create say so immediately when unreal is not connected, and do not queue", async () => {
+  const handle = await boot();
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ue5-offline-"));
+  const uproject = path.join(dir, "Game.uproject");
+  fs.writeFileSync(uproject, JSON.stringify({ FileVersion: 3 }));
+  const offline = "Not connected to Unreal — open the Architect panel and pair";
+  try {
+    for (let i = 0; i < 4; i += 1) {
+      const sent = await (await fetch(`http://127.0.0.1:${handle.port}/api/companion/send`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uproject, system: SYSTEM }),
+      })).json();
+      assert.equal(sent.ok, false);
+      assert.equal(sent.queued, false);
+      assert.equal(sent.message, offline);
+      const created = await (await fetch(`http://127.0.0.1:${handle.port}/api/companion/assets`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ system: SYSTEM }),
+      })).json();
+      assert.equal(created.ok, false);
+      assert.equal(created.queued, false);
+      assert.equal(created.message, offline);
+    }
+    const info = await (await fetch(`http://127.0.0.1:${handle.port}/api/companion`)).json();
+    assert.equal(info.connected, false);
+    const paired = await (await fetch(`http://127.0.0.1:${info.port}/v1/pair`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: info.code }),
+    })).json();
+    const pending = await (await fetch(`http://127.0.0.1:${info.port}/v1/pending`, {
+      headers: { "X-Companion-Token": paired.token },
+    })).json();
+    assert.equal(pending.command, null);
+    const live = await (await fetch(`http://127.0.0.1:${handle.port}/api/companion`)).json();
+    assert.equal(live.connected, true);
+  } finally {
+    await handle.close();
+  }
+});
+
+test("a paired editor that stops polling is disconnected and a send is not queued", async () => {
+  let now = 1000;
+  const link = await createCompanion({ now: () => now, liveMs: 50 });
+  try {
+    const paired = await (await fetch(`http://127.0.0.1:${link.port}/v1/pair`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: link.code }),
+    })).json();
+    assert.equal(link.connected, true);
+    now = 2000;
+    assert.equal(link.connected, false);
+    assert.equal(link.paired, true);
+    const headers = { "X-Companion-Token": paired.token };
+    const pending = await (await fetch(`http://127.0.0.1:${link.port}/v1/pending`, { headers })).json();
+    assert.equal(pending.command, null);
+  } finally {
+    await link.close();
   }
 });
 
