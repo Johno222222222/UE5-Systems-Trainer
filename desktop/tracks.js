@@ -28,7 +28,7 @@ function wordsOf(section) {
 
 function attach(track) {
   const spokes = (track.sections || []).map((section) => section.title);
-  track.map = hubSvg(`${track.title} · ${track.genre}`, spokes);
+  track.map = hubSvg(track.title, spokes).replace("depends on", `${track.genre} · depends on`);
   for (const section of track.sections || []) {
     const doc = loadGraph(section.graph);
     section.image = doc ? renderGraph(doc, { why: section.why || section.title }) : "";

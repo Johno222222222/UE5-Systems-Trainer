@@ -847,7 +847,7 @@
       },
       {
         "line": 17,
-        "text": "\tRelevant = false; // node:tpl_aoi_set"
+        "text": "\tRelevant = bHit_tpl_aoi_trace; // node:tpl_aoi_set"
       },
       {
         "line": 18,
@@ -1147,7 +1147,7 @@
       },
       {
         "line": 18,
-        "text": "\t\tVisible = false; // node:tpl_fog_set"
+        "text": "\t\tVisible = true; // node:tpl_fog_set"
       },
       {
         "line": 19,
@@ -1391,7 +1391,7 @@
       },
       {
         "line": 18,
-        "text": "\t\tAlert = 0.f; // node:tpl_perception_set"
+        "text": "\t\tAlert = 1.f; // node:tpl_perception_set"
       },
       {
         "line": 19,

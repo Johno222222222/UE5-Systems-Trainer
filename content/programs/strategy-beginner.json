@@ -1,0 +1,815 @@
+{
+  "id": "strategy-beginner",
+  "genre": "strategy",
+  "level": "beginner",
+  "title": "Strategy — Beginner",
+  "summary": "An RTS loop: selection and orders, a supplies stock, fog of war, neutral camps, medals, and a save that lets fog recompute.",
+  "sections": [
+    {
+      "id": "orders",
+      "title": "Selection and orders",
+      "order": 1,
+      "graph": "orders",
+      "why": "IA_Order reaches only the selected unit, through ReceiveOrder.",
+      "depends": [
+        "IA_Order",
+        "Selected",
+        "ReceiveOrder"
+      ],
+      "reading": [
+        "A strategy order is not a move of every unit on the map. The player selects, which sets Selected on that unit, and IA_Order is the right click. The excerpt branches if (Selected) and then ProcessEvent on ReceiveOrder. A tank and a rifle squad implement the same function. The unselected units do not hear the click. Tick that searches the whole level for the cursor repeats a query the selection already answered.",
+        "UE5 selection can be a box trace once, on the press, writing Selected. It is not a per-frame overlap of every unit with the mouse. The order payload, a point or a target, belongs on the interface inputs. This sample calls the function with no parameters, which is the shape to extend, not a reason to move the unit inside the order graph. The unit's own movement consumes the order.",
+        "Formations are data on the squad, not a tick that assigns offsets. The economy spends when an order builds something. It does not run inside ReceiveOrder unless the unit's implementation asks it. Fog hides units the player has not seen. An order should not reveal them. Scoring hears a result later. It does not issue orders.",
+        "Save stores Selected only if the mode restores a selection. It always stores the order the unit is still executing, or a load resumes idle squads that were mid-march.",
+        "The figure is the real Orders graph, with that preset's node positions and wires. IA_Order is the right click. It does not move every unit. Only the selected unit takes the order. Selection is a bool on the unit, not a search of the whole level. One interface. The tank and the infantry answer the same order. The C++ beside the figure is the compiler output for this same graph. Line 9 is `if (AActor* Target_tpl_orders_call = Cast<AActor>(nullptr)) { if (UFunction* Fn_tpl_orders_call = Target_tpl_o`.",
+        "Across this track, keep IA_Order, Selected, ReceiveOrder distinct. IA_Order reaches only the selected unit, through ReceiveOrder. if (Selected) calls ReceiveOrder. Unselected units ignore IA_Order. Tick does not search the level."
+      ],
+      "assignment": {
+        "kind": "vocabulary",
+        "prompt": "Name the bool the strategy excerpt branches on, and the function ProcessEvent looks up.",
+        "accept": [
+          "Selected",
+          "ReceiveOrder"
+        ],
+        "model": "if (Selected) calls ReceiveOrder. Unselected units ignore IA_Order. Tick does not search the level."
+      },
+      "quiz": [
+        {
+          "id": "orders-q1",
+          "prompt": "What does the order excerpt branch on?",
+          "choices": [
+            "Selected",
+            "Supplies",
+            "Visible",
+            "Score"
+          ],
+          "answer": 0,
+          "why": "Only the selection receives the click."
+        },
+        {
+          "id": "orders-q2",
+          "prompt": "What function does it look up?",
+          "choices": [
+            "ReceiveOrder",
+            "Spend",
+            "Reveal",
+            "AwardMedal"
+          ],
+          "answer": 0,
+          "why": "The tank and the squad share that name."
+        },
+        {
+          "id": "orders-q3",
+          "prompt": "What is wrong with a Tick search for the cursor?",
+          "choices": [
+            "Selection already wrote Selected",
+            "ProcessEvent requires Tick",
+            "Orders cannot be interfaces",
+            "Fog requires it"
+          ],
+          "answer": 0,
+          "why": "The press did the work."
+        },
+        {
+          "id": "orders-q4",
+          "prompt": "True or false: an order should reveal units behind fog.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Fog is its own fact. An order is not vision."
+        },
+        {
+          "id": "orders-q5",
+          "prompt": "Where do formation offsets live?",
+          "choices": [
+            "On the squad data",
+            "In a tick of every member",
+            "In the score",
+            "In the save of the cursor"
+          ],
+          "answer": 0,
+          "why": "Data, not a per-frame write."
+        }
+      ]
+    },
+    {
+      "id": "economy",
+      "title": "Supplies",
+      "order": 2,
+      "graph": "economy",
+      "why": "Spend subtracts a data cost on the authority.",
+      "depends": [
+        "Spend",
+        "Has Authority",
+        "Supplies"
+      ],
+      "reading": [
+        "The strategy economy is a stock of supplies. Spend is a custom event, not Tick. The excerpt tests HasAuthority in an empty block and assigns Supplies = (Supplies - 25.f). The 25 is the sample cost. A data row should own it, so a barracks and a turret do not share a literal typed in the graph. Nest the subtract inside the authority check, or every client spends and the stocks diverge.",
+        "An order to build calls Spend. ReceiveOrder does not itself subtract, or every move order would bill the player. The unit asks the economy when the order is a purchase. Fog does not spend. Scoring does not. A refund is the same event with a negative cost, still on the authority, still from the data row.",
+        "Replicating the coin icon, or every floating number, is the expensive version. The float is the state. The UI binds to it. A Tick that drips income also drips while the match is paused and never asks whether a building exists. Income, if you add it, is a slow timer that calls the same Spend path with a negative cost.",
+        "Save stores Supplies after the server write. Loading a client's guess fills the base with money the host did not have.",
+        "The figure is the real Economy graph, with that preset's node positions and wires. Spend is the order to build. It is not Tick. Only the authority changes supplies. Read the stock before you subtract. The data row should own this cost. Twenty five is the sample. Stock minus cost. Write the new stock. Replicate the number, not the icon. The C++ beside the figure is the compiler output for this same graph. Line 7 is `if (HasAuthority()) { /* authority */ } // node:tpl_economy_auth`. Line 8 is `Supplies = (Supplies - 25.f); // node:tpl_economy_set`.",
+        "Across this track, keep Spend, Has Authority, Supplies distinct. Spend subtracts a data cost on the authority. Nest Supplies = (Supplies - 25.f) inside HasAuthority. The data row owns the cost. Spend is the event, not Tick."
+      ],
+      "assignment": {
+        "kind": "cpp",
+        "prompt": "Clients each subtract 25 from Supplies. Where must that assignment sit, and what should own the 25?",
+        "accept": [
+          "HasAuthority",
+          "data"
+        ],
+        "model": "Nest Supplies = (Supplies - 25.f) inside HasAuthority. The data row owns the cost. Spend is the event, not Tick."
+      },
+      "quiz": [
+        {
+          "id": "economy-q1",
+          "prompt": "What does the economy excerpt assign?",
+          "choices": [
+            "Supplies = (Supplies - 25.f)",
+            "Score = (Score + 10.f)",
+            "Visible = true",
+            "Selected"
+          ],
+          "answer": 0,
+          "why": "25 is the sample cost."
+        },
+        {
+          "id": "economy-q2",
+          "prompt": "What is wrong with the authority block?",
+          "choices": [
+            "It is empty and the subtract sits after it",
+            "HasAuthority cannot subtract",
+            "25 is a bool",
+            "Spend is missing"
+          ],
+          "answer": 0,
+          "why": "Nest the write."
+        },
+        {
+          "id": "economy-q3",
+          "prompt": "Who calls Spend?",
+          "choices": [
+            "A build order, not every move",
+            "Tick",
+            "Fog",
+            "The medal"
+          ],
+          "answer": 0,
+          "why": "A purchase asks the economy."
+        },
+        {
+          "id": "economy-q4",
+          "prompt": "True or false: income should drip on Tick.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "A slow timer calls Spend with a negative cost."
+        },
+        {
+          "id": "economy-q5",
+          "prompt": "What replicates?",
+          "choices": [
+            "The supplies float",
+            "The coin widget",
+            "Every floating combat text",
+            "The data asset itself"
+          ],
+          "answer": 0,
+          "why": "The UI is local."
+        }
+      ]
+    },
+    {
+      "id": "fog",
+      "title": "Fog of war",
+      "order": 3,
+      "graph": "fog",
+      "why": "Reveal runs four times a second. Visible is a team fact.",
+      "depends": [
+        "Reveal",
+        "Line of sight",
+        "Visible"
+      ],
+      "reading": [
+        "Fog of war is what this team can see. Begin Play starts Reveal on a 0.25 second looping timer in the excerpt. Reveal traces and, on a hit, assigns Visible = true. A wall blocks the trace. The bool is a team fact. It is not a widget per spectator, and it is not something a client may set to cheat the map. The sample has no authority gate. Add one before you trust the write in a networked match.",
+        "Orders must not set Visible. Buying a unit must not. A unit that walks into a cell is why the timer exists. Polling every cell on Tick reveals the whole map's cost every frame, including cells nobody moved through. 0.25 seconds is a vision pass. The replication graph, later, is how far the newly visible unit's actor travels.",
+        "The patrol of a neutral camp is hidden while Visible is false. The camp still simulates on the server. The client's UI simply does not draw it. Save may store explored cells if the design remembers the map. It does not need to store the current Visible bit if the timer will recompute it from unit positions after load.",
+        "Anti-cheat is the same sentence: clients do not write Visible. They receive it.",
+        "The figure is the real Fog of war graph, with that preset's node positions and wires. Begin Play starts the vision timer. Vision updates four times a second. Reveal is the vision pass. Line of sight from the unit. A clear trace marks the cell visible. True means this team can see the cell. Visible is replicated as a team fact, not per spectator widget. The C++ beside the figure is the compiler output for this same graph. Line 10 is `if (UWorld* World = GetWorld()) { FTimerHandle Timer_tpl_fog_timer; World->GetTimerManager().SetTimer(Timer_tp`. Line 15 is `FHitResult Hit_tpl_fog_trace; bool bHit_tpl_fog_trace = false; if (UWorld* World_tpl_fog_trace = GetWorld()) {`.",
+        "Across this track, keep Reveal, Line of sight, Visible distinct. Reveal runs four times a second. Visible is a team fact. Reveal runs every 0.25f and sets Visible = true on a hit. The authority is the writer. Clients receive the bit."
+      ],
+      "assignment": {
+        "kind": "efficiency",
+        "prompt": "Fog updates on Tick and a client writes Visible. What interval does the excerpt use, and who should be the only writer once you add the gate?",
+        "accept": [
+          "0.25",
+          "authority"
+        ],
+        "model": "Reveal runs every 0.25f and sets Visible = true on a hit. The authority is the writer. Clients receive the bit."
+      },
+      "quiz": [
+        {
+          "id": "fog-q1",
+          "prompt": "How often does the fog excerpt reveal?",
+          "choices": [
+            "Every 0.25 seconds",
+            "Every frame",
+            "On IA_Order",
+            "Once at Begin Play only"
+          ],
+          "answer": 0,
+          "why": "The timer period is 0.25f."
+        },
+        {
+          "id": "fog-q2",
+          "prompt": "What does a clear trace assign?",
+          "choices": [
+            "Visible = true",
+            "Supplies - 25",
+            "Score + 10",
+            "Selected"
+          ],
+          "answer": 0,
+          "why": "The cell is seen."
+        },
+        {
+          "id": "fog-q3",
+          "prompt": "Who must not write Visible?",
+          "choices": [
+            "The client",
+            "The server vision pass",
+            "The timer",
+            "The trace"
+          ],
+          "answer": 0,
+          "why": "That is the cheat."
+        },
+        {
+          "id": "fog-q4",
+          "prompt": "True or false: an order should reveal the destination.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Vision is the trace, not the click."
+        },
+        {
+          "id": "fog-q5",
+          "prompt": "What still simulates when Visible is false?",
+          "choices": [
+            "The neutral camp, on the server",
+            "Nothing",
+            "The client's widget",
+            "The score"
+          ],
+          "answer": 0,
+          "why": "Hidden is not deleted."
+        }
+      ]
+    },
+    {
+      "id": "patrol",
+      "title": "Neutral camps",
+      "order": 4,
+      "graph": "ai-patrol",
+      "why": "A camp walks its route on a timer while fog hides it.",
+      "depends": [
+        "AdvancePatrol",
+        "GoingRight",
+        "Visible"
+      ],
+      "reading": [
+        "A neutral camp is a patrol the player has not ordered. Begin Play sets AdvancePatrol on a 1 second timer. The A path assigns GoingRight = true. The B path is empty, so the camp's return is unfinished. Fog's Visible bit decides whether the client draws the camp. The camp graph does not write Visible, or walking would light the map.",
+        "Tick that moves the camp also moves it while the match is paused and spends a path query the timer replaced. The route is data. The player' s IA_Order does not target a camp unless the design says camps can be captured, and then capture is ReceiveOrder on a different selection, not a hijack of this timer.",
+        "Scoring does not run when the camp merely turns around. A kill of the camp calls the medal event. Supplies are not spent by a neutral walker. Save can store GoingRight so the camp resumes the same leg. It should not store the mesh.",
+        "If the camp is not visible, the server still advances it. Freezing hidden camps makes the map lie the moment the trace reveals them, because they pop at the point they were hidden, not the point they walked to.",
+        "The figure is the real AI patrol graph, with that preset's node positions and wires. Begin Play starts the patrol timer once. Set Timer by Function calls Advance Patrol. The timer calls this event. FlipFlop swaps direction each time. True means the next point is to the right. Store the direction. Do not replicate the mesh. The C++ beside the figure is the compiler output for this same graph. Line 8 is `if (UWorld* World = GetWorld()) { FTimerHandle Timer_tpl_aipatrol_timer; World->GetTimerManager().SetTimer(Tim`. Line 14 is `Flip_tpl_aipatrol_flip = !Flip_tpl_aipatrol_flip;`.",
+        "Across this track, keep AdvancePatrol, GoingRight, Visible distinct. A camp walks its route on a timer while fog hides it. AdvancePatrol keeps stepping on the server. Visible is the fog graph's bit. The client draws only when that bit is true."
+      ],
+      "assignment": {
+        "kind": "compatibility",
+        "prompt": "Hidden camps freeze. Which function should keep stepping them, and which fog bool must this graph not write?",
+        "accept": [
+          "AdvancePatrol",
+          "Visible"
+        ],
+        "model": "AdvancePatrol keeps stepping on the server. Visible is the fog graph's bit. The client draws only when that bit is true."
+      },
+      "quiz": [
+        {
+          "id": "patrol-q1",
+          "prompt": "What does the camp excerpt schedule?",
+          "choices": [
+            "AdvancePatrol at 1.f",
+            "Reveal at 0.25f",
+            "Spend",
+            "AwardMedal"
+          ],
+          "answer": 0,
+          "why": "The camp is a patrol."
+        },
+        {
+          "id": "patrol-q2",
+          "prompt": "What must it not assign?",
+          "choices": [
+            "Visible",
+            "GoingRight",
+            "The next route point",
+            "Nothing, the B path is already full"
+          ],
+          "answer": 0,
+          "why": "Vision is not a side effect of walking."
+        },
+        {
+          "id": "patrol-q3",
+          "prompt": "Why keep simulating a hidden camp?",
+          "choices": [
+            "Otherwise it pops where it was hidden, not where it walked",
+            "The client needs the mesh now",
+            "Score requires it",
+            "Spend requires it"
+          ],
+          "answer": 0,
+          "why": "The server route continues."
+        },
+        {
+          "id": "patrol-q4",
+          "prompt": "True or false: the B path already stores the return direction.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "It is empty."
+        },
+        {
+          "id": "patrol-q5",
+          "prompt": "When does scoring run for a camp?",
+          "choices": [
+            "When the camp is killed, not when it turns",
+            "Every AdvancePatrol",
+            "When fog reveals it",
+            "On Tick"
+          ],
+          "answer": 0,
+          "why": "A turn is not a medal."
+        }
+      ]
+    },
+    {
+      "id": "scoring",
+      "title": "Medals",
+      "order": 5,
+      "graph": "scoring",
+      "why": "AwardMedal adds a data value on the authority.",
+      "depends": [
+        "AwardMedal",
+        "Has Authority",
+        "Score"
+      ],
+      "reading": [
+        "A medal is a result, not an order. AwardMedal is the server event for a kill or an objective. The excerpt tests HasAuthority in an empty block and assigns Score = (Score + 10.f). Ten is the sample. The data asset should name the medal's value, the way the economy's row names a cost. Nest the add inside the authority check. A client that awards its own medal inflates the board.",
+        "The board widget reads Score. It is not replicated. Fog does not add score when a cell becomes visible. Supplies are not score. Spending and scoring can share the authority habit. They must not share the float, or a purchase lowers the kill board.",
+        "The camp patrol does not call AwardMedal when it flips GoingRight. The kill does. An order completed, a point captured, is another call with a different data value. Tick that scans for dead units rediscovers deaths the kill event already reported.",
+        "Save stores Score after the server add. A load that adds 10 again because Begin Play fires AwardMedal double-counts the match.",
+        "The figure is the real Scoring graph, with that preset's node positions and wires. AwardMedal is the server event for a kill or an objective. Score changes on the authority. Current score. The data asset should own the medal value. Ten is the sample. Score plus the medal. Write score. The board reads it. The C++ beside the figure is the compiler output for this same graph. Line 7 is `if (HasAuthority()) { /* authority */ } // node:tpl_scoring_auth`. Line 8 is `Score = (Score + 10.f); // node:tpl_scoring_set`.",
+        "Across this track, keep AwardMedal, Has Authority, Score distinct. AwardMedal adds a data value on the authority. Nest Score = (Score + 10.f) inside HasAuthority. The medal data owns the value. Begin Play must not fire AwardMedal on load."
+      ],
+      "assignment": {
+        "kind": "cpp",
+        "prompt": "The score excerpt adds 10 outside an empty HasAuthority block. What is the repair, and what should own the 10?",
+        "accept": [
+          "HasAuthority",
+          "medal"
+        ],
+        "model": "Nest Score = (Score + 10.f) inside HasAuthority. The medal data owns the value. Begin Play must not fire AwardMedal on load."
+      },
+      "quiz": [
+        {
+          "id": "scoring-q1",
+          "prompt": "What does the medal excerpt assign?",
+          "choices": [
+            "Score = (Score + 10.f)",
+            "Supplies - 25.f",
+            "Visible = true",
+            "GoingRight = true"
+          ],
+          "answer": 0,
+          "why": "10 is the sample medal."
+        },
+        {
+          "id": "scoring-q2",
+          "prompt": "Who may run that add?",
+          "choices": [
+            "The authority",
+            "Each client's board",
+            "The fog timer",
+            "The camp's flip"
+          ],
+          "answer": 0,
+          "why": "The empty block must grow around the add."
+        },
+        {
+          "id": "scoring-q3",
+          "prompt": "What reads Score?",
+          "choices": [
+            "The board widget, locally",
+            "A replicated widget actor",
+            "Fog",
+            "ReceiveOrder"
+          ],
+          "answer": 0,
+          "why": "The widget is not state."
+        },
+        {
+          "id": "scoring-q4",
+          "prompt": "True or false: revealing a fog cell should add 10.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Vision is not a medal."
+        },
+        {
+          "id": "scoring-q5",
+          "prompt": "What double-counts the match on load?",
+          "choices": [
+            "Begin Play firing AwardMedal",
+            "Storing Score",
+            "Not storing Score",
+            "The data asset"
+          ],
+          "answer": 0,
+          "why": "Load the number. Do not award it again."
+        }
+      ]
+    },
+    {
+      "id": "save",
+      "title": "Save the match",
+      "order": 6,
+      "graph": "save-load",
+      "why": "Begin Play restores supplies, score, and the route, then fog recomputes.",
+      "depends": [
+        "Begin Play",
+        "SlotValue",
+        "Supplies"
+      ],
+      "reading": [
+        "The strategy slot packs Supplies, Score, GoingRight for each camp, and the orders units are still executing. It does not pack Visible. The fog timer recomputes vision from positions after load, and a saved Visible bit would show a camp that has since walked. The excerpt assigns SlotValue = 1.f at Begin Play and LoadSlot logs Loaded. That is the pack shape. The struct fields are the ones above.",
+        "Tick that writes the slot stores a Spend that has not finished and a score medal that has not been awarded, or awards it twice if you are not careful. Write on the match event that asked for a save. Do not let Begin Play call Spend or AwardMedal. It only reads.",
+        "Selection can be dropped. The player reselects. The march order cannot be dropped, or the load shows idle units that should be halfway across the map. Store the order id and the target point. Store the formation id, not every member's offset. The offsets are data.",
+        "Apply supplies and score before the UI binds. Start camp timers after GoingRight is set. Start fog after the units are placed, so the first Reveal sees the loaded world.",
+        "The figure is the real Save / load slot graph, with that preset's node positions and wires. Begin Play writes the slot once. Do not write it from Tick. The member written into the payload. Make Struct builds the save payload. Keep the member on the component. Load is its own event. It does not run during the save. Break Struct reads one member. A print stands in for the load UI. The C++ beside the figure is the compiler output for this same graph. Line 8 is `FVector Made_tpl_saveload_make = FVector::ZeroVector; Made_tpl_saveload_make.X = 1.f; Made_tpl_saveload_make.Y`. Line 9 is `SlotValue = 1.f; // node:tpl_save-load_store`.",
+        "Across this track, keep Begin Play, SlotValue, Supplies distinct. Begin Play restores supplies, score, and the route, then fog recomputes. Reveal recomputes Visible after load. Supplies and Score are packed. Begin Play must not call Spend or AwardMedal."
+      ],
+      "assignment": {
+        "kind": "graph",
+        "prompt": "A strategy save restores Visible and the fog lies. What should recompute vision, and which two numbers are actually packed?",
+        "accept": [
+          "Reveal",
+          "Supplies"
+        ],
+        "model": "Reveal recomputes Visible after load. Supplies and Score are packed. Begin Play must not call Spend or AwardMedal."
+      },
+      "quiz": [
+        {
+          "id": "save-q1",
+          "prompt": "What does the match-save excerpt assign?",
+          "choices": [
+            "SlotValue = 1.f",
+            "Supplies - 25",
+            "Score + 10",
+            "Visible = true"
+          ],
+          "answer": 0,
+          "why": "The sample is the pack. The fields are the game's."
+        },
+        {
+          "id": "save-q2",
+          "prompt": "What is not packed?",
+          "choices": [
+            "Visible",
+            "Supplies",
+            "Score",
+            "The current order id"
+          ],
+          "answer": 0,
+          "why": "Vision is recomputed."
+        },
+        {
+          "id": "save-q3",
+          "prompt": "What must Begin Play not call?",
+          "choices": [
+            "Spend or AwardMedal",
+            "LoadSlot",
+            "The fog timer, after units exist",
+            "The camp timer, after GoingRight"
+          ],
+          "answer": 0,
+          "why": "Those events would apply the match twice."
+        },
+        {
+          "id": "save-q4",
+          "prompt": "True or false: every formation offset should be in the slot.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Store the formation id. Offsets are data."
+        },
+        {
+          "id": "save-q5",
+          "prompt": "When does the first Reveal run?",
+          "choices": [
+            "After units are placed",
+            "Before the load",
+            "On Tick from the constructor",
+            "When the player orders"
+          ],
+          "answer": 0,
+          "why": "The trace should see the loaded map."
+        }
+      ]
+    }
+  ],
+  "exam": {
+    "questions": [
+      {
+        "id": "strategy-beginner-e1",
+        "kind": "mc",
+        "prompt": "A strategy click moves every unit. What did the order graph forget to test?",
+        "choices": [
+          "Selected",
+          "Visible",
+          "Score",
+          "SlotValue"
+        ],
+        "answer": 0,
+        "why": "Only the selection receives ReceiveOrder."
+      },
+      {
+        "id": "strategy-beginner-e2",
+        "kind": "graph-repair",
+        "graph": "orders",
+        "sample": "Tick searches every unit",
+        "prompt": "The broken order graph searches the level from Tick. What does the real excerpt branch on?",
+        "choices": [
+          "Selected, then ReceiveOrder",
+          "Supplies",
+          "Visible",
+          "Score"
+        ],
+        "answer": 0,
+        "why": "Selection already happened."
+      },
+      {
+        "id": "strategy-beginner-e3",
+        "kind": "mc",
+        "prompt": "A move order subtracts supplies. Where should Spend be called?",
+        "choices": [
+          "From a purchase, not from every ReceiveOrder",
+          "From fog",
+          "From the medal",
+          "From Tick"
+        ],
+        "answer": 0,
+        "why": "Marching is not a bill."
+      },
+      {
+        "id": "strategy-beginner-e4",
+        "kind": "cpp-repair",
+        "graph": "economy",
+        "sample": "Supplies = (Supplies - 25.f); // on each client",
+        "prompt": "Each client subtracts 25. What does the excerpt assign, and what must wrap it?",
+        "choices": [
+          "Supplies = (Supplies - 25.f) inside HasAuthority",
+          "Score + 10 on the client",
+          "Visible = true",
+          "GoingRight = true"
+        ],
+        "answer": 0,
+        "why": "One stock."
+      },
+      {
+        "id": "strategy-beginner-e5",
+        "kind": "tf",
+        "prompt": "True or false: the cost 25 should stay a literal so every building matches.",
+        "choices": [
+          "True",
+          "False"
+        ],
+        "answer": 1,
+        "why": "A data row owns the cost."
+      },
+      {
+        "id": "strategy-beginner-e6",
+        "kind": "mc",
+        "prompt": "Income drips during a paused strategy match. What is dripping?",
+        "choices": [
+          "Tick, instead of a timer that calls Spend",
+          "The data row",
+          "Fog",
+          "The board"
+        ],
+        "answer": 0,
+        "why": "Income is a slow Spend."
+      },
+      {
+        "id": "strategy-beginner-e7",
+        "kind": "mc",
+        "prompt": "A client sets Visible and sees the enemy base. Who is allowed to write that bool?",
+        "choices": [
+          "The server vision pass",
+          "Any client",
+          "IA_Order",
+          "AwardMedal"
+        ],
+        "answer": 0,
+        "why": "Fog is a team fact."
+      },
+      {
+        "id": "strategy-beginner-e8",
+        "kind": "graph-repair",
+        "graph": "fog",
+        "sample": "Tick sets Visible",
+        "prompt": "The broken fog graph writes Visible from Tick. What interval does the real Reveal timer use?",
+        "choices": [
+          "0.25f",
+          "Every frame",
+          "1.f once",
+          "On save only"
+        ],
+        "answer": 0,
+        "why": "Four times a second is the pass."
+      },
+      {
+        "id": "strategy-beginner-e9",
+        "kind": "mc",
+        "prompt": "An order reveals its destination through fog. What should leave Visible alone?",
+        "choices": [
+          "ReceiveOrder",
+          "The Reveal trace",
+          "The server",
+          "The timer"
+        ],
+        "answer": 0,
+        "why": "Vision is not a click."
+      },
+      {
+        "id": "strategy-beginner-e10",
+        "kind": "mc",
+        "prompt": "A hidden camp pops at its old point when fog lifts. What was frozen?",
+        "choices": [
+          "AdvancePatrol, which should have kept running on the server",
+          "Visible, correctly",
+          "Score",
+          "Spend"
+        ],
+        "answer": 0,
+        "why": "Hidden is not paused."
+      },
+      {
+        "id": "strategy-beginner-e11",
+        "kind": "tf",
+        "prompt": "True or false: the camp's B path already has the return direction.",
+        "choices": [
+          "True",
+          "False"
+        ],
+        "answer": 1,
+        "why": "The sample's B path is empty."
+      },
+      {
+        "id": "strategy-beginner-e12",
+        "kind": "mc",
+        "prompt": "Turning a camp around adds 10 to the board. What should call AwardMedal?",
+        "choices": [
+          "The kill, not the flip",
+          "AdvancePatrol",
+          "Reveal",
+          "Spend"
+        ],
+        "answer": 0,
+        "why": "A turn is not a result."
+      },
+      {
+        "id": "strategy-beginner-e13",
+        "kind": "cpp-repair",
+        "graph": "scoring",
+        "sample": "Score = (Score + 10.f); // client",
+        "prompt": "A client adds 10 to Score. Where does that assignment belong?",
+        "choices": [
+          "Inside HasAuthority in AwardMedal",
+          "In the board widget",
+          "In Reveal",
+          "In ReceiveOrder"
+        ],
+        "answer": 0,
+        "why": "The board reads. The server writes."
+      },
+      {
+        "id": "strategy-beginner-e14",
+        "kind": "mc",
+        "prompt": "Load fires AwardMedal and the match gains another 10. What should Begin Play do?",
+        "choices": [
+          "Read the stored Score and not award it",
+          "Call AwardMedal",
+          "Call Spend",
+          "Set Visible from the slot"
+        ],
+        "answer": 0,
+        "why": "The number is already the result."
+      },
+      {
+        "id": "strategy-beginner-e15",
+        "kind": "graph-repair",
+        "graph": "save-load",
+        "sample": "Tick writes SlotValue",
+        "prompt": "The broken match save writes the slot from Tick. Which event loads a finished struct?",
+        "choices": [
+          "Begin Play",
+          "IA_Order",
+          "Reveal",
+          "AdvancePatrol"
+        ],
+        "answer": 0,
+        "why": "Tick stores a half-spent stock."
+      },
+      {
+        "id": "strategy-beginner-e16",
+        "kind": "mc",
+        "prompt": "Visible was saved and a camp appears where it no longer is. What should recompute vision?",
+        "choices": [
+          "Reveal, after units are placed",
+          "The saved bit",
+          "Spend",
+          "The board"
+        ],
+        "answer": 0,
+        "why": "Vision follows positions."
+      },
+      {
+        "id": "strategy-beginner-e17",
+        "kind": "mc",
+        "prompt": "Every squad member's offset is in the save and the file is huge. What should be stored?",
+        "choices": [
+          "The formation id",
+          "Each offset",
+          "The meshes",
+          "Visible"
+        ],
+        "answer": 0,
+        "why": "Offsets are data."
+      },
+      {
+        "id": "strategy-beginner-e18",
+        "kind": "cpp-repair",
+        "graph": "orders",
+        "sample": "void Tick()\n{\n  for (auto* Unit : All) Unit->MoveTo(Cursor);\n}",
+        "prompt": "Tick moves every strategy unit to the cursor. What should gate ReceiveOrder?",
+        "choices": [
+          "Selected",
+          "Visible",
+          "Score > 0",
+          "Supplies > 25"
+        ],
+        "answer": 0,
+        "why": "The selection is the gate."
+      },
+      {
+        "id": "strategy-beginner-e19",
+        "kind": "mc",
+        "prompt": "Supplies and Score share a float, so a barracks purchase lowers the kill board. What is the fix?",
+        "choices": [
+          "Two floats, two events",
+          "One float, so the UI is simpler",
+          "Store them in Visible",
+          "Add them on Tick"
+        ],
+        "answer": 0,
+        "why": "Spend and AwardMedal are different facts."
+      },
+      {
+        "id": "strategy-beginner-e20",
+        "kind": "mc",
+        "prompt": "A refund adds supplies on the client only. What event should run, and where?",
+        "choices": [
+          "Spend with a negative cost, on the authority",
+          "AwardMedal",
+          "Reveal",
+          "A widget write"
+        ],
+        "answer": 0,
+        "why": "A refund is still the stock."
+      }
+    ]
+  }
+}

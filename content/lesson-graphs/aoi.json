@@ -18,7 +18,8 @@
       {"from": "begin", "fromPin": "Exec", "to": "timer", "toPin": "Exec"},
       {"from": "check", "fromPin": "Exec", "to": "auth", "toPin": "Exec"},
       {"from": "auth", "fromPin": "Exec", "to": "trace", "toPin": "Exec"},
-      {"from": "trace", "fromPin": "Exec", "to": "set", "toPin": "Exec"}
+      {"from": "trace", "fromPin": "Exec", "to": "set", "toPin": "Exec"},
+      {"from": "trace", "fromPin": "Hit", "to": "set", "toPin": "Value"}
     ]
   }
 }

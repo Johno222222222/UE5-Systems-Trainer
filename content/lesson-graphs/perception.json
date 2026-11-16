@@ -12,6 +12,7 @@
       {"key": "sense", "catalog": "custom-event", "x": 40, "y": 220, "data": {"name": "Sense"}, "note": "Sight and a loud sound both arrive here."},
       {"key": "trace", "catalog": "line-trace", "x": 320, "y": 220, "note": "Line of sight. A wall blocks it."},
       {"key": "branch", "catalog": "branch", "x": 600, "y": 220, "note": "A hit raises alert. A miss does not."},
+      {"key": "one", "catalog": "literal", "x": 600, "y": 360, "data": {"varType": "float", "value": "1"}, "note": "A confirmed sight sets alert to one. A miss leaves the old value."},
       {"key": "set", "catalog": "set-variable", "x": 880, "y": 180, "data": {"variable": "Alert", "varType": "float"}, "note": "Alert is the value the stalk uses."}
     ],
     "wires": [
@@ -19,7 +20,8 @@
       {"from": "sense", "fromPin": "Exec", "to": "trace", "toPin": "Exec"},
       {"from": "trace", "fromPin": "Exec", "to": "branch", "toPin": "Exec"},
       {"from": "trace", "fromPin": "Hit", "to": "branch", "toPin": "Condition"},
-      {"from": "branch", "fromPin": "Then", "to": "set", "toPin": "Exec"}
+      {"from": "branch", "fromPin": "Then", "to": "set", "toPin": "Exec"},
+      {"from": "one", "fromPin": "Value", "to": "set", "toPin": "Value"}
     ]
   }
 }

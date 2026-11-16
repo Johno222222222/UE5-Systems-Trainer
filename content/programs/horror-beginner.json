@@ -1,0 +1,816 @@
+{
+  "id": "horror-beginner",
+  "genre": "horror",
+  "level": "beginner",
+  "title": "Horror — Beginner",
+  "summary": "A single-player horror loop: perception with sight and audio, use, a stalk on a patrol timer, a creaking door, local health, and a save that keeps Alert and IsOpen together.",
+  "sections": [
+    {
+      "id": "perception",
+      "title": "Sight and sound",
+      "order": 1,
+      "graph": "perception",
+      "why": "Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+      "depends": [
+        "Sense",
+        "Line of sight",
+        "Alert",
+        "Audio"
+      ],
+      "reading": [
+        "A horror hunter does not tick. Begin Play starts a timer, and the excerpt calls Graph_Sense every 0.2 seconds, looping. Sense line-traces. If the trace hits, the excerpt assigns Alert = 1.f. A wall on the visibility channel blocks the trace, so the hunter does not see through doors it has not opened. A loud sound, a dropped bottle or a sprint on a hard floor, calls the same Sense event. The hunter does not grow a second brain for audio.",
+        "UE5 perception components can replace this timer later. The sample keeps the rule visible: one event, a trace for line of sight, a float for how sure the hunter is. Alert at 1 is the sample's confirmed sight. A real stalk adds to Alert and lets it fall when the trace misses. The miss path in the sample does nothing, so a confirmed sight stays forever until you add the decay. That decay is a subtract on the miss, not a tick.",
+        "The player's interact trace is a different trace, from the camera, when the player uses something. It must not write Alert, or looking at the hunter would announce the player. The door timeline can play a creak, and that creak is an audio cue into Sense. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure.",
+        "Tracing every frame so the hunter never loses a peek is the expensive version, and it sees flicks the design wanted to forgive. 0.2 seconds is a glimpse. The audio cue is instant because the sound event calls Sense directly, not because the timer got faster.",
+        "The figure is the real Perception graph, with that preset's node positions and wires. Begin Play starts the sense timer once. Sense runs five times a second, not every frame. Sight and a loud sound both arrive here. Line of sight. A wall blocks it. A hit raises alert. A miss does not. A confirmed sight sets alert to one. A miss leaves the old value. Alert is the value the stalk uses. The C++ beside the figure is the compiler output for this same graph. Line 10 is `if (UWorld* World = GetWorld()) { FTimerHandle Timer_tpl_perception_timer; World->GetTimerManager().SetTimer(T`. Line 15 is `FHitResult Hit_tpl_perception_trace; bool bHit_tpl_perception_trace = false; if (UWorld* World_tpl_perception_`.",
+        "Across this track, keep Sense, Line of sight, Alert, Audio distinct. Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. SetTimer calls Sense at 0.2f. A hit assigns Alert = 1.f. A loud sound calls Sense too. Tick does not."
+      ],
+      "assignment": {
+        "kind": "graph",
+        "prompt": "The hunter traces on Tick. What interval does the excerpt use, and what does a hit assign to Alert?",
+        "accept": [
+          "0.2",
+          "Alert"
+        ],
+        "model": "SetTimer calls Sense at 0.2f. A hit assigns Alert = 1.f. A loud sound calls Sense too. Tick does not."
+      },
+      "quiz": [
+        {
+          "id": "perception-q1",
+          "prompt": "How often does the horror Sense timer fire?",
+          "choices": [
+            "Every 0.2 seconds, looping",
+            "Every frame",
+            "Once",
+            "Every 0.5 seconds"
+          ],
+          "answer": 0,
+          "why": "The excerpt's period is 0.2f."
+        },
+        {
+          "id": "perception-q2",
+          "prompt": "What does a hit assign?",
+          "choices": [
+            "Alert = 1.f",
+            "Health = 90.f",
+            "IsOpen = true",
+            "SlotValue = 1.f"
+          ],
+          "answer": 0,
+          "why": "One means the hunter is sure."
+        },
+        {
+          "id": "perception-q3",
+          "prompt": "What blocks line of sight?",
+          "choices": [
+            "A wall on the visibility channel",
+            "Any audio volume",
+            "The save slot",
+            "The player's inventory"
+          ],
+          "answer": 0,
+          "why": "The trace is visibility."
+        },
+        {
+          "id": "perception-q4",
+          "prompt": "True or false: a dropped bottle should have its own brain, separate from Sense.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Audio calls the same Sense event."
+        },
+        {
+          "id": "perception-q5",
+          "prompt": "What is missing on a miss?",
+          "choices": [
+            "A decay of Alert",
+            "Another timer at 0.01",
+            "A replicated widget",
+            "A cast to the player"
+          ],
+          "answer": 0,
+          "why": "Otherwise a sight lasts forever."
+        }
+      ]
+    },
+    {
+      "id": "interaction",
+      "title": "Use in the dark",
+      "order": 2,
+      "graph": "interact",
+      "why": "The player's look calls Interact. The hunter's Sense trace is not this graph.",
+      "depends": [
+        "IA_Interact",
+        "Line trace",
+        "Interact"
+      ],
+      "reading": [
+        "The player looks with IA_Interact. The trace starts at the camera. A hit calls Interact through ProcessEvent. A fuse, a door handle, and a hide-spot lever share that function. The hunter's Sense trace is the other graph. Mixing them makes the player announce Alert every time they look at a door, and makes the hunter try to turn valves.",
+        "The excerpt is Graph_IA_Interact: a visibility trace, then ProcessEvent on Interact if bHit, else a log that nothing can be used. The else is the dark miss. It does not raise Alert. The door's own timeline moves the mesh after Interact tells it to. This graph does not play the timeline, or every usable actor would need a door curve.",
+        "A cast to the fuse box excludes the hide spot. The function name is the contract. One trace per press is enough. A Tick trace to keep a prompt hovering is optional and separate, and it still must not write Alert.",
+        "Health, the patrol, and the save do not start here. A door that creaks after it opens is the door graph's audio cue back into Sense. The interact graph's job ended at the call.",
+        "The figure is the real Interact graph, with that preset's node positions and wires. IA_Interact fires when the player presses the interact key. Keep the key on the input action, not in this graph. A short line trace from the camera. Hit is true when something solid is in front of the player. Only talk to an actor when the trace hit. A miss should do nothing expensive. Call Interact through an interface. The door, the chest, and the switch can all answer. A The C++ beside the figure is the compiler output for this same graph. Line 10 is `FHitResult Hit_tpl_interact_trace; bool bHit_tpl_interact_trace = false; if (UWorld* World_tpl_interact_trace `. Line 13 is `if (AActor* Target_tpl_interact_call = Cast<AActor>(Hit_tpl_interact_trace.GetActor())) { if (UFunction* Fn_tp`.",
+        "Across this track, keep IA_Interact, Line trace, Interact distinct. The player's look calls Interact. The hunter's Sense trace is not this graph. ProcessEvent looks up Interact. Alert belongs to Sense. IA_Interact starts the player's trace."
+      ],
+      "assignment": {
+        "kind": "vocabulary",
+        "prompt": "Name the function the horror use excerpt looks up, and the hunter value this graph must not write.",
+        "accept": [
+          "Interact",
+          "Alert"
+        ],
+        "model": "ProcessEvent looks up Interact. Alert belongs to Sense. IA_Interact starts the player's trace."
+      },
+      "quiz": [
+        {
+          "id": "interaction-q1",
+          "prompt": "What does the horror use excerpt call?",
+          "choices": [
+            "Interact through ProcessEvent",
+            "Sense",
+            "AdvancePatrol",
+            "OnRep"
+          ],
+          "answer": 0,
+          "why": "The hit actor answers Interact."
+        },
+        {
+          "id": "interaction-q2",
+          "prompt": "What must this trace not write?",
+          "choices": [
+            "Alert",
+            "The hit bool",
+            "The miss log",
+            "The camera start"
+          ],
+          "answer": 0,
+          "why": "Alert is the hunter's float."
+        },
+        {
+          "id": "interaction-q3",
+          "prompt": "Why one function name for the fuse and the hide spot?",
+          "choices": [
+            "A cast to the fuse excludes the hide spot",
+            "ProcessEvent is faster on fuses",
+            "Doors cannot have functions",
+            "Sense requires it"
+          ],
+          "answer": 0,
+          "why": "The contract is the name."
+        },
+        {
+          "id": "interaction-q4",
+          "prompt": "True or false: the hunter should run IA_Interact to open doors.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The hunter uses Sense. The player uses Interact."
+        },
+        {
+          "id": "interaction-q5",
+          "prompt": "Who plays the door curve?",
+          "choices": [
+            "The door graph, after Interact",
+            "This trace",
+            "Tick",
+            "The save break"
+          ],
+          "answer": 0,
+          "why": "Interact asks. The door moves."
+        }
+      ]
+    },
+    {
+      "id": "stalk",
+      "title": "Stalking the route",
+      "order": 3,
+      "graph": "ai-patrol",
+      "why": "AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+      "depends": [
+        "AdvancePatrol",
+        "GoingRight",
+        "Alert"
+      ],
+      "reading": [
+        "The stalk is a patrol that can abandon the route. Begin Play sets a timer for AdvancePatrol at 1 second in the excerpt. The event flips direction and the A path assigns GoingRight = true. The B path is empty in the sample, so the walk back is unfinished. Alert, written by Sense, is what pulls the hunter off the route. This graph does not trace. If it traces, the hunter has two eyes and they will disagree.",
+        "Tick that steps the hunter also steps it during a pause menu and pays for a path the timer already chose. The route points are data. AdvancePatrol only picks the next one. When Alert is 1, a different event starts the chase. That event is not Tick either. It is a branch you add beside this timer, reading Alert.",
+        "The player's interact graph does not move the hunter. The door's IsOpen can block a route point. The hunter asks the door. It does not play the door timeline itself. Health on the hunter, if the player can fight, is a separate float from the player's health in the next lesson.",
+        "Save stores GoingRight and Alert together. Loading one without the other resumes a calm patrol while the hunter was already sure, or a chase with no direction.",
+        "The figure is the real AI patrol graph, with that preset's node positions and wires. Begin Play starts the patrol timer once. Set Timer by Function calls Advance Patrol. The timer calls this event. FlipFlop swaps direction each time. True means the next point is to the right. Store the direction. Do not replicate the mesh. The C++ beside the figure is the compiler output for this same graph. Line 8 is `if (UWorld* World = GetWorld()) { FTimerHandle Timer_tpl_aipatrol_timer; World->GetTimerManager().SetTimer(Tim`. Line 14 is `Flip_tpl_aipatrol_flip = !Flip_tpl_aipatrol_flip;`.",
+        "Across this track, keep AdvancePatrol, GoingRight, Alert distinct. AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. SetTimer calls AdvancePatrol. Alert, set to 1 by Sense, leaves the route. The stalk does not trace."
+      ],
+      "assignment": {
+        "kind": "compatibility",
+        "prompt": "The stalk traces and patrols on Tick. Which function does the excerpt's timer call, and which float from Sense should pull it off the route?",
+        "accept": [
+          "AdvancePatrol",
+          "Alert"
+        ],
+        "model": "SetTimer calls AdvancePatrol. Alert, set to 1 by Sense, leaves the route. The stalk does not trace."
+      },
+      "quiz": [
+        {
+          "id": "stalk-q1",
+          "prompt": "What does the stalk excerpt schedule?",
+          "choices": [
+            "AdvancePatrol after 1.f",
+            "Sense at 0.2f",
+            "IA_Interact",
+            "A door timeline"
+          ],
+          "answer": 0,
+          "why": "Patrol and perception are different timers."
+        },
+        {
+          "id": "stalk-q2",
+          "prompt": "What does the A path assign?",
+          "choices": [
+            "GoingRight = true",
+            "Alert = 1.f",
+            "IsOpen = true",
+            "Health = 0"
+          ],
+          "answer": 0,
+          "why": "Direction is the patrol bool."
+        },
+        {
+          "id": "stalk-q3",
+          "prompt": "What pulls the hunter off the route?",
+          "choices": [
+            "Alert from Sense",
+            "A second trace in this graph",
+            "Tick",
+            "The player's magazine"
+          ],
+          "answer": 0,
+          "why": "Sense already looked."
+        },
+        {
+          "id": "stalk-q4",
+          "prompt": "True or false: the B path is finished in the sample.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "It is empty. The walk back is missing."
+        },
+        {
+          "id": "stalk-q5",
+          "prompt": "Why must the stalk not trace?",
+          "choices": [
+            "Sense already has the eyes",
+            "Traces cannot hit walls",
+            "GoingRight is a float",
+            "Doors forbid AI"
+          ],
+          "answer": 0,
+          "why": "Two eyes disagree."
+        }
+      ]
+    },
+    {
+      "id": "door",
+      "title": "The creaking door",
+      "order": 4,
+      "graph": "door",
+      "why": "Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+      "depends": [
+        "Overlap",
+        "Timeline",
+        "IsOpen"
+      ],
+      "reading": [
+        "A horror door moves on a timeline, not on Tick. Overlap, or the Interact call from the player, plays the timeline from the start. The excerpt builds a UTimelineComponent, adds a curve with keys at 0 and 1, binds update and finished, and calls PlayFromStart. FlipFlop remembers the direction. The A path sets IsOpen true. The B path sets it false. The creak is a sound played with the timeline, and that sound calls Sense so the hunter can hear the door.",
+        "Tick that yaws the mesh every frame also yaws it while the player is holding it still, and it never knows when it has arrived. The curve knows. IsOpen is the replicated fact if another player must see the door. The mesh is local, driven by the curve. Replicating the mesh transform every frame is the expensive version of a bool.",
+        "The hunter's patrol can read IsOpen before it picks a point. It does not play this timeline. The player's use graph only calls Interact. Perception does not open doors. Save stores IsOpen so a loaded game does not shut a door the player left open, which would also replay the creak and wake the hunter for free.",
+        "Filter the overlap so the hunter and the player do not both toggle the door in one step. The other actor has to be the one the design named.",
+        "The figure is the real Door open/close graph, with that preset's node positions and wires. Begin Overlap is the player walking into the door trigger. Filter the other actor before you move the mesh. A timeline blends the door angle. The simulation jumps to Finished. In Unreal, Update would drive the mesh each tick of the curve. FlipFlop remembers the last way the door moved. The first overlap opens. The next one closes. True means open. False means closed. Set IsOpen true on the A The C++ beside the figure is the compiler output for this same graph. Line 12 is `if (!Timeline_tpl_door_timeline) { AActor* TimelineOwner_tpl_door_timeline = GetOwner(); Timeline_tpl_door_tim`. Line 17 is `Super::BeginPlay();`.",
+        "Across this track, keep Overlap, Timeline, IsOpen distinct. Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. A UTimelineComponent plays from start. IsOpen flips through FlipFlop. The creak calls Sense. Tick does not yaw the mesh."
+      ],
+      "assignment": {
+        "kind": "efficiency",
+        "prompt": "The door yaws on Tick. Which component does the excerpt create, and which bool flips?",
+        "accept": [
+          "Timeline",
+          "IsOpen"
+        ],
+        "model": "A UTimelineComponent plays from start. IsOpen flips through FlipFlop. The creak calls Sense. Tick does not yaw the mesh."
+      },
+      "quiz": [
+        {
+          "id": "door-q1",
+          "prompt": "What does the door excerpt construct?",
+          "choices": [
+            "A UTimelineComponent and a curve with keys at 0 and 1",
+            "A line trace",
+            "AdvancePatrol",
+            "A save struct"
+          ],
+          "answer": 0,
+          "why": "PlayFromStart drives the swing."
+        },
+        {
+          "id": "door-q2",
+          "prompt": "What do the two FlipFlop paths write?",
+          "choices": [
+            "IsOpen true and IsOpen false",
+            "Alert 1 and Alert 0",
+            "Health",
+            "GoingRight only"
+          ],
+          "answer": 0,
+          "why": "The bool is the door."
+        },
+        {
+          "id": "door-q3",
+          "prompt": "What should the creak call?",
+          "choices": [
+            "Sense, so the hunter hears it",
+            "Tick",
+            "The player's reload",
+            "LoadSlot"
+          ],
+          "answer": 0,
+          "why": "Audio is an input to perception."
+        },
+        {
+          "id": "door-q4",
+          "prompt": "True or false: the mesh transform should replicate every frame.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "IsOpen replicates. The curve is local."
+        },
+        {
+          "id": "door-q5",
+          "prompt": "Who must not play this timeline?",
+          "choices": [
+            "The hunter's patrol graph",
+            "The overlap, after a filter",
+            "Interact, by asking the door",
+            "The finished callback"
+          ],
+          "answer": 0,
+          "why": "The door owns its curve."
+        }
+      ]
+    },
+    {
+      "id": "health",
+      "title": "Single-player health",
+      "order": 5,
+      "graph": "health",
+      "why": "This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+      "depends": [
+        "Any Damage",
+        "Clamp",
+        "Died"
+      ],
+      "reading": [
+        "This horror lesson is single player, so health is local. The excerpt's Any Damage function assigns Health = FMath::Clamp((Health - Damage), 0.f, MaxHealth) and then branches if (Health == 0.f) to log Died. There is no HasAuthority and no OnRep, because there is no other machine. Do not paste the replicated graph here and do not leave the clamp off. A hit for more than the bar would otherwise store a negative number, and the death check for exactly zero would never pass.",
+        "The hunter calls this event when an attack lands. It does not subtract inside Sense or inside AdvancePatrol. Those graphs own Alert and direction. The door does not damage the player by opening. A trap that overlaps can call Any Damage. Tick damage, so the player bleeds while reading a note, happens with no attack.",
+        "The death log stands in for the fail function. Put the fail on the true pin, after the clamp, so a hit that does not reach zero does not restart the level. Save stores Health after the write. Loading a negative value means the clamp was skipped before the pack.",
+        "If the mode later adds a co-op partner, this is the lesson you replace with the replicated graph. Until then the local clamp is the whole rule.",
+        "The figure is the real Health & Damage graph, with that preset's node positions and wires. Any Damage runs on the server. This sample hit is 100, which is enough to empty a full bar. Read health before you write it. The next node subtracts the incoming damage from this. Health minus damage. Do this on the server. The client only shows the result. Max health is the ceiling. Healing later clamps to this same number. Zero is the floor. Health should not go negative. Clamp The C++ beside the figure is the compiler output for this same graph. Line 9 is `Health = FMath::Clamp((Health - Damage), 0.f, MaxHealth); // node:tpl_health_set`. Line 10 is `if ((Health == 0.f)) // node:tpl_health_branch`.",
+        "Across this track, keep Any Damage, Clamp, Died distinct. This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. Health = FMath::Clamp((Health - Damage), 0.f, MaxHealth). It is single player, so there is no OnRep. Death is Health == 0.f."
+      ],
+      "assignment": {
+        "kind": "cpp",
+        "prompt": "The horror health excerpt clamps after a subtract. Quote the clamp and say why this lesson has no OnRep.",
+        "accept": [
+          "Clamp",
+          "single"
+        ],
+        "model": "Health = FMath::Clamp((Health - Damage), 0.f, MaxHealth). It is single player, so there is no OnRep. Death is Health == 0.f."
+      },
+      "quiz": [
+        {
+          "id": "health-q1",
+          "prompt": "What does the single-player horror excerpt assign?",
+          "choices": [
+            "Health = FMath::Clamp((Health - Damage), 0.f, MaxHealth)",
+            "Health = 90.f after HasAuthority",
+            "Alert = 1.f",
+            "IsOpen = true"
+          ],
+          "answer": 0,
+          "why": "The local graph clamps."
+        },
+        {
+          "id": "health-q2",
+          "prompt": "Why is there no OnRep?",
+          "choices": [
+            "There is no other machine",
+            "OnRep cannot log",
+            "Clamp forbids it",
+            "The door owns health"
+          ],
+          "answer": 0,
+          "why": "This lesson is single player."
+        },
+        {
+          "id": "health-q3",
+          "prompt": "When does the death branch run?",
+          "choices": [
+            "After the clamp, when Health == 0.f",
+            "On every hit",
+            "On Tick",
+            "When Alert is 1"
+          ],
+          "answer": 0,
+          "why": "Check the new value."
+        },
+        {
+          "id": "health-q4",
+          "prompt": "True or false: Sense should subtract Health when the hunter sees the player.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "An attack calls Any Damage. Sight only sets Alert."
+        },
+        {
+          "id": "health-q5",
+          "prompt": "A negative Health loaded from a save means what was skipped?",
+          "choices": [
+            "The clamp, before the pack",
+            "The timeline",
+            "GoingRight",
+            "The interact miss log"
+          ],
+          "answer": 0,
+          "why": "The floor is zero."
+        }
+      ]
+    },
+    {
+      "id": "save",
+      "title": "Save the house",
+      "order": 6,
+      "graph": "save-load",
+      "why": "Begin Play restores Alert, Health, and IsOpen together.",
+      "depends": [
+        "Begin Play",
+        "SlotValue",
+        "LoadSlot"
+      ],
+      "reading": [
+        "The horror slot packs Alert, Health, IsOpen, and GoingRight. Leave one out and the load lies: a shut door with the hunter already sure, or an open door that replays its creak into a calm house. Begin Play loads. The excerpt assigns SlotValue = 1.f and LoadSlot logs Loaded after a break stand-in. The real struct replaces that stand-in. The fields are the ones the other graphs write.",
+        "Tick that saves on every frame stores a door halfway through its curve and an Alert that Sense has not finished decaying. The creak plays again on load because IsOpen flips. Write the struct when the timeline finishes, or when the player passes a save point, not while the curve is playing.",
+        "Input assets and the hunter's mesh are not packed. The route points are project data. The next point index, or GoingRight, is enough to resume the stalk. Health must be the clamped value. A packed negative fails the death check later in a way the player cannot see coming.",
+        "Load order: apply IsOpen without replaying the creak, then apply Alert, then start the Sense timer and the patrol timer. Starting Sense first lets it trace before the doors are in the saved pose, and the hunter learns a lie.",
+        "The figure is the real Save / load slot graph, with that preset's node positions and wires. Begin Play writes the slot once. Do not write it from Tick. The member written into the payload. Make Struct builds the save payload. Keep the member on the component. Load is its own event. It does not run during the save. Break Struct reads one member. A print stands in for the load UI. The C++ beside the figure is the compiler output for this same graph. Line 8 is `FVector Made_tpl_saveload_make = FVector::ZeroVector; Made_tpl_saveload_make.X = 1.f; Made_tpl_saveload_make.Y`. Line 9 is `SlotValue = 1.f; // node:tpl_save-load_store`.",
+        "Across this track, keep Begin Play, SlotValue, LoadSlot distinct. Begin Play restores Alert, Health, and IsOpen together. Begin Play loads. IsOpen is packed and applied without playing the creak. Alert and Health are in the same struct."
+      ],
+      "assignment": {
+        "kind": "graph",
+        "prompt": "A horror Tick save replays the creak on load. Which event should load, and which door bool must be packed without retriggering audio?",
+        "accept": [
+          "Begin Play",
+          "IsOpen"
+        ],
+        "model": "Begin Play loads. IsOpen is packed and applied without playing the creak. Alert and Health are in the same struct."
+      },
+      "quiz": [
+        {
+          "id": "save-q1",
+          "prompt": "What does the horror save excerpt assign?",
+          "choices": [
+            "SlotValue = 1.f",
+            "Alert = 1.f",
+            "IsOpen = true",
+            "Health clamped"
+          ],
+          "answer": 0,
+          "why": "The sample pack is SlotValue. The game struct holds the others."
+        },
+        {
+          "id": "save-q2",
+          "prompt": "Which set must stay consistent?",
+          "choices": [
+            "Alert, Health, IsOpen, and GoingRight",
+            "The hunter mesh and the creak asset",
+            "Only Tick",
+            "The interact miss log"
+          ],
+          "answer": 0,
+          "why": "Those four are the session."
+        },
+        {
+          "id": "save-q3",
+          "prompt": "When must the creak not play?",
+          "choices": [
+            "While applying a loaded IsOpen",
+            "When the player opens a door in play",
+            "When Sense hears a bottle",
+            "When the timeline finishes a real swing"
+          ],
+          "answer": 0,
+          "why": "A load is not a new swing."
+        },
+        {
+          "id": "save-q4",
+          "prompt": "True or false: Tick is the right time to pack a door that is mid-curve.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Wait until the timeline finishes or the player hits a save point."
+        },
+        {
+          "id": "save-q5",
+          "prompt": "What starts last on load?",
+          "choices": [
+            "The Sense and patrol timers, after IsOpen and Alert are applied",
+            "Sense, before the doors move",
+            "Tick",
+            "The creak"
+          ],
+          "answer": 0,
+          "why": "The hunter should see the saved house."
+        }
+      ]
+    }
+  ],
+  "exam": {
+    "questions": [
+      {
+        "id": "horror-beginner-e1",
+        "kind": "mc",
+        "prompt": "The hunter sees through a closed horror door. What failed the trace?",
+        "choices": [
+          "The visibility channel, which a wall should block",
+          "Alert = 1.f on a real hit",
+          "The 0.2s timer",
+          "ProcessEvent"
+        ],
+        "answer": 0,
+        "why": "Line of sight stops at the door."
+      },
+      {
+        "id": "horror-beginner-e2",
+        "kind": "graph-repair",
+        "graph": "perception",
+        "sample": "Tick traces and sets Alert",
+        "prompt": "The broken Sense graph traces from the red Tick node. What does the real excerpt schedule?",
+        "choices": [
+          "Sense every 0.2f, then Alert = 1.f on a hit",
+          "IA_Interact",
+          "A timeline",
+          "Clamp of Health"
+        ],
+        "answer": 0,
+        "why": "The timer is the glimpse."
+      },
+      {
+        "id": "horror-beginner-e3",
+        "kind": "mc",
+        "prompt": "A bottle shatter does not alert the hunter, but a second AI brain does. What should the sound call?",
+        "choices": [
+          "Sense, the same event as the trace",
+          "Tick",
+          "LoadSlot",
+          "The player's Interact"
+        ],
+        "answer": 0,
+        "why": "Audio and sight share Sense."
+      },
+      {
+        "id": "horror-beginner-e4",
+        "kind": "tf",
+        "prompt": "True or false: a missed trace should leave Alert at 1 forever.",
+        "choices": [
+          "True",
+          "False"
+        ],
+        "answer": 1,
+        "why": "The miss owes a decay."
+      },
+      {
+        "id": "horror-beginner-e5",
+        "kind": "mc",
+        "prompt": "Looking at a fuse sets Alert. Which graph wrote it?",
+        "choices": [
+          "The use trace, which must only call Interact",
+          "Sense, correctly, because the hunter was looking",
+          "The door timeline",
+          "The save"
+        ],
+        "answer": 0,
+        "why": "The player's look is not the hunter's eyes."
+      },
+      {
+        "id": "horror-beginner-e6",
+        "kind": "cpp-repair",
+        "graph": "interact",
+        "sample": "Alert = 1.f; // inside Graph_IA_Interact",
+        "prompt": "Graph_IA_Interact assigns Alert. What should it call instead?",
+        "choices": [
+          "ProcessEvent on Interact",
+          "SetTimer for Sense",
+          "FMath::Clamp on Health",
+          "PlayFromStart"
+        ],
+        "answer": 0,
+        "why": "Use asks the actor. Sense owns Alert."
+      },
+      {
+        "id": "horror-beginner-e7",
+        "kind": "mc",
+        "prompt": "The stalk traces and also runs AdvancePatrol. What is the extra trace?",
+        "choices": [
+          "A second pair of eyes. Sense already looked.",
+          "The required patrol query",
+          "The door curve",
+          "The save break"
+        ],
+        "answer": 0,
+        "why": "Alert is the signal to leave the route."
+      },
+      {
+        "id": "horror-beginner-e8",
+        "kind": "graph-repair",
+        "graph": "ai-patrol",
+        "sample": "Tick steps the hunter",
+        "prompt": "The broken stalk graph steps the hunter from Tick. What does Begin Play schedule?",
+        "choices": [
+          "AdvancePatrol at 1.f",
+          "Sense at 0.2f",
+          "A timeline",
+          "Any Damage"
+        ],
+        "answer": 0,
+        "why": "The route is a timer."
+      },
+      {
+        "id": "horror-beginner-e9",
+        "kind": "mc",
+        "prompt": "The door yawns open over many frames inside Tick and never finishes. What component should play the swing?",
+        "choices": [
+          "UTimelineComponent, PlayFromStart",
+          "The hunter",
+          "The interact miss log",
+          "Clamp"
+        ],
+        "answer": 0,
+        "why": "The curve knows when it arrives."
+      },
+      {
+        "id": "horror-beginner-e10",
+        "kind": "mc",
+        "prompt": "The creak does not wake the hunter. What was not called?",
+        "choices": [
+          "Sense, from the door audio",
+          "Tick",
+          "The death branch",
+          "LoadSlot"
+        ],
+        "answer": 0,
+        "why": "The creak is an audio cue."
+      },
+      {
+        "id": "horror-beginner-e11",
+        "kind": "tf",
+        "prompt": "True or false: IsOpen's mesh transform should replicate every frame in co-op later.",
+        "choices": [
+          "True",
+          "False"
+        ],
+        "answer": 1,
+        "why": "The bool is the state. The curve is local."
+      },
+      {
+        "id": "horror-beginner-e12",
+        "kind": "cpp-repair",
+        "graph": "health",
+        "sample": "Health = Health - Damage; // no clamp",
+        "prompt": "Horror health subtracts with no clamp and death never fires. What does the excerpt assign?",
+        "choices": [
+          "Health = FMath::Clamp((Health - Damage), 0.f, MaxHealth)",
+          "Health = 90.f inside HasAuthority",
+          "Alert = 1.f",
+          "IsOpen = true"
+        ],
+        "answer": 0,
+        "why": "Zero has to be reachable."
+      },
+      {
+        "id": "horror-beginner-e13",
+        "kind": "mc",
+        "prompt": "Sense subtracts Health when the hunter sees the player. When should damage run?",
+        "choices": [
+          "When an attack calls Any Damage",
+          "On every confirmed sight",
+          "On the door creak",
+          "On load"
+        ],
+        "answer": 0,
+        "why": "Sight is not a hit."
+      },
+      {
+        "id": "horror-beginner-e14",
+        "kind": "mc",
+        "prompt": "This lesson has no OnRep. Why?",
+        "choices": [
+          "It is single player",
+          "Clamp deleted it",
+          "Doors cannot replicate",
+          "Alert replaced it"
+        ],
+        "answer": 0,
+        "why": "There is no other machine."
+      },
+      {
+        "id": "horror-beginner-e15",
+        "kind": "graph-repair",
+        "graph": "door",
+        "sample": "Tick yaws the door",
+        "prompt": "The broken door graph yaws from Tick. Which node plays the real motion?",
+        "choices": [
+          "The timeline, then FlipFlop writes IsOpen",
+          "Sense",
+          "Any Damage",
+          "LoadSlot"
+        ],
+        "answer": 0,
+        "why": "Overlap or Interact plays the timeline."
+      },
+      {
+        "id": "horror-beginner-e16",
+        "kind": "mc",
+        "prompt": "Load replays the creak and the hunter wakes in an empty room. What was applied wrong?",
+        "choices": [
+          "IsOpen, by playing the swing again",
+          "Health, by clamping",
+          "GoingRight, by existing",
+          "The miss log"
+        ],
+        "answer": 0,
+        "why": "Apply the bool. Do not replay the curve."
+      },
+      {
+        "id": "horror-beginner-e17",
+        "kind": "cpp-repair",
+        "graph": "save-load",
+        "sample": "void Tick()\n{\n  SlotValue = Alert;\n}",
+        "prompt": "Tick stores Alert while Sense is still decaying. What should write the horror slot?",
+        "choices": [
+          "An event when the timeline finishes or the player hits a save point, loaded at Begin Play",
+          "Tick",
+          "IA_Interact",
+          "The death log"
+        ],
+        "answer": 0,
+        "why": "A finished state, then Begin Play."
+      },
+      {
+        "id": "horror-beginner-e18",
+        "kind": "mc",
+        "prompt": "Sense starts before the loaded doors are applied. What does the hunter learn?",
+        "choices": [
+          "A lie about line of sight",
+          "The correct Alert",
+          "The player's health",
+          "Nothing, timers wait"
+        ],
+        "answer": 0,
+        "why": "Timers start after IsOpen and Alert."
+      },
+      {
+        "id": "horror-beginner-e19",
+        "kind": "mc",
+        "prompt": "GoingRight was saved and Alert was not. What does the route do?",
+        "choices": [
+          "A calm patrol while the hunter was already sure, or the reverse if only Alert was saved",
+          "A correct chase",
+          "A door creak",
+          "A clamp"
+        ],
+        "answer": 0,
+        "why": "The two values are one fact."
+      },
+      {
+        "id": "horror-beginner-e20",
+        "kind": "mc",
+        "prompt": "A trap overlap subtracts inside the door graph. What should it call?",
+        "choices": [
+          "Any Damage on the health graph",
+          "Sense",
+          "AdvancePatrol",
+          "PlayFromStart"
+        ],
+        "answer": 0,
+        "why": "The door moves. Health subtracts."
+      }
+    ]
+  }
+}
