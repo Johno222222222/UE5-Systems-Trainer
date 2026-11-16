@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "1.16.0",
+	"VersionName": "1.17.0",
 	"FriendlyName": "Architect Companion",
 	"Description": "Local link to UE5 Systems Training Tool/Generator on this computer. This plugin does not call an AI model.",
 	"Category": "Editor",

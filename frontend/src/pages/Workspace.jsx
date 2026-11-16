@@ -1029,6 +1029,9 @@ export default function Workspace() {
   );
 
   const checkIssues = useMemo(() => (result ? checkSystem(result) : []), [result?.cpp_header, result?.cpp_source]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (result && checkIssues.length === 0) setOutcomeCheck(null);
+  }, [result, checkIssues.length]);
   const ignoreKeys = useMemo(() => new Set(ignores.map((i) => i.key)), [ignores]);
   const keyedIssues = useMemo(() => checkIssues.map((i) => ({ ...i, key: issueKey(i, result) })), [checkIssues]); // eslint-disable-line react-hooks/exhaustive-deps
   const activeIssues = keyedIssues.filter((i) => !ignoreKeys.has(i.key));

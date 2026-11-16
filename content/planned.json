@@ -41,6 +41,12 @@
       "title": "Module stacking",
       "status": "shipped",
       "detail": "Shipped in 1.16.0. Stack saved systems into one plugin, share interfaces and gameplay tags, and list conflicts before Create in Unreal."
+    },
+    {
+      "id": "learn-tracks",
+      "title": "Learn, programs, and courses",
+      "status": "shipped",
+      "detail": "Shipped in 1.17.0. Big Picture and a two-level quiz, genre tracks with a final exam, and shorter general courses. Glossary and node expansion wait for 1.18.0."
     }
   ]
 }

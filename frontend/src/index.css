@@ -422,7 +422,7 @@ html, body, #root {
 .graph-menu-item:hover { background: var(--surface-hover); }
 .graph-hint {
   position: fixed;
-  z-index: 40;
+  z-index: 80;
   max-width: 240px;
   padding: 6px 8px;
   border-radius: 6px;

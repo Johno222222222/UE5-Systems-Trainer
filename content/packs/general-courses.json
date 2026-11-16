@@ -1,0 +1,226 @@
+{
+  "format": "ue5-architect-pack",
+  "version": 1,
+  "courses": [
+    {
+      "id": "general-beginner",
+      "title": "Systems, beginner",
+      "summary": "A short course across FPS, third-person, horror, and strategy. The same rules, fewer pages than a program.",
+      "level": "beginner",
+      "glossary_tags": ["Core", "Networking", "Data"],
+      "pass_mark": 70,
+      "modules": [
+        {
+          "id": "look",
+          "title": "Look without Tick",
+          "takeaway": "A timer looks. Tick keeps looking while you stand still. This is true for a rifle, a horror door, and a strategy unit.",
+          "assignment": { "prompt": "Name what schedules the look.", "accept": ["timer"] },
+          "quiz": [
+            {
+              "id": "look-q",
+              "prompt": "What happens if the look trace moves onto Tick?",
+              "choices": ["It runs while nothing changed.", "It sleeps between looks.", "It runs once in the constructor."],
+              "answer": 0,
+              "why": "Tick does not sleep.",
+              "review_prompt": "What does Tick do to a look trace?"
+            }
+          ],
+          "diff": {
+            "id": "look-diff",
+            "prompt": "Which version has the bug?",
+            "review_prompt": "Which look check is the broken one?",
+            "why": "The right-hand check is Tick.",
+            "bug": "right",
+            "left": { "label": "Timer", "code": "SetTimer(Trace, 0.1, loop);" },
+            "right": { "label": "Tick", "code": "void Tick() { Trace(); }" }
+          }
+        },
+        {
+          "id": "interface",
+          "title": "One interface",
+          "takeaway": "A door, a pickup, and a strategy crate can answer one interface. A cast list grows every time you add one.",
+          "assignment": { "prompt": "What do you call instead of a cast?", "accept": ["interface"] },
+          "quiz": [
+            {
+              "id": "if-q",
+              "prompt": "What happens if you cast to every usable Blueprint?",
+              "choices": ["The list grows with every new actor.", "The interface stays one call.", "The widget decides."],
+              "answer": 0,
+              "why": "A cast chain is the inefficient version.",
+              "review_prompt": "What grows when you cast to every Blueprint?"
+            }
+          ],
+          "diff": {
+            "id": "if-diff",
+            "prompt": "Which version has the bug?",
+            "review_prompt": "Which call is the broken one?",
+            "why": "The cast chain is the bug.",
+            "bug": "right",
+            "left": { "label": "Interface", "code": "Execute_Interact(Target);" },
+            "right": { "label": "Casts", "code": "Cast<ADoor>();\nCast<APickup>();" }
+          }
+        },
+        {
+          "id": "authority",
+          "title": "Who writes the number",
+          "takeaway": "Health, ammo, and a strategy score are written with authority. The widget listens.",
+          "assignment": { "prompt": "Who writes shared health?", "accept": ["authority", "server"] },
+          "quiz": [
+            {
+              "id": "auth-q",
+              "prompt": "What happens if every client subtracts health?",
+              "choices": ["The copies disagree.", "The server copy is the only one.", "The widget owns it."],
+              "answer": 0,
+              "why": "Clients asking is not clients deciding.",
+              "review_prompt": "What happens when every client writes health?"
+            }
+          ],
+          "diff": {
+            "id": "auth-diff",
+            "prompt": "Which version has the bug?",
+            "review_prompt": "Which health line is the broken one?",
+            "why": "The bare subtract is the bug.",
+            "bug": "right",
+            "left": { "label": "Authority", "code": "if (HasAuthority()) Health -= Amount;" },
+            "right": { "label": "Any machine", "code": "Health -= Amount;" }
+          }
+        },
+        {
+          "id": "data",
+          "title": "The row owns the number",
+          "takeaway": "A weapon row, a horror item, and a strategy order can live in a data table. The widget does not invent the number.",
+          "assignment": { "prompt": "Where does the designer edit the number?", "accept": ["table", "data"] },
+          "quiz": [
+            {
+              "id": "data-q",
+              "prompt": "What happens if the magazine size is hardcoded?",
+              "choices": ["The data table row is ignored.", "The row still wins.", "The widget writes it back."],
+              "answer": 0,
+              "why": "A hardcoded number ignores the row.",
+              "review_prompt": "What does a hardcoded magazine size ignore?"
+            }
+          ],
+          "diff": {
+            "id": "data-diff",
+            "prompt": "Which version has the bug?",
+            "review_prompt": "Which magazine size is the broken one?",
+            "why": "The hardcoded size is the bug.",
+            "bug": "right",
+            "left": { "label": "Row", "code": "Magazine = Row->Magazine;" },
+            "right": { "label": "Hardcoded", "code": "Magazine = 30;" }
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-intermediate",
+      "title": "Systems, intermediate",
+      "summary": "The same general mix, with C++ repairs and a question about what you would not replicate.",
+      "level": "intermediate",
+      "glossary_tags": ["Core", "Networking", "GAS", "Data"],
+      "pass_mark": 70,
+      "modules": [
+        {
+          "id": "replicate",
+          "title": "What not to replicate",
+          "takeaway": "Replicate the number. Do not replicate the widget, the mesh, or a motion-matching pose.",
+          "assignment": { "prompt": "Name one thing you should not replicate for a health bar.", "accept": ["widget", "mesh"] },
+          "quiz": [
+            {
+              "id": "rep-q",
+              "prompt": "What happens if you replicate the health widget?",
+              "choices": ["You send the wrong thing.", "The bar stays correct and cheap.", "The server stops."],
+              "answer": 0,
+              "why": "The widget is rebuilt on each machine.",
+              "review_prompt": "What is wrong with replicating the widget?"
+            }
+          ],
+          "diff": {
+            "id": "rep-diff",
+            "prompt": "Which version has the bug?",
+            "review_prompt": "Which replicated piece is the broken one?",
+            "why": "The widget property is the bug.",
+            "bug": "right",
+            "left": { "label": "Property", "code": "UPROPERTY(ReplicatedUsing=OnRep_Health)\nfloat Health;" },
+            "right": { "label": "Widget", "code": "UPROPERTY(Replicated)\nUUserWidget* Bar;" }
+          }
+        },
+        {
+          "id": "clamp",
+          "title": "A clamp that effects cannot skip",
+          "takeaway": "A 10% attribute ceiling belongs in C++. A gameplay effect can feed it. It should not replace it.",
+          "assignment": { "prompt": "Where does the 10% clamp live?", "accept": ["c++", "cpp"] },
+          "quiz": [
+            {
+              "id": "clamp-q",
+              "prompt": "What happens if a gameplay effect writes past the clamp?",
+              "choices": ["The C++ clamp still applies if it runs after the effect.", "The effect is allowed to ignore C++.", "The widget clamps it."],
+              "answer": 0,
+              "why": "The clamp is the rule. The effect is an input.",
+              "review_prompt": "Who enforces the 10% ceiling?"
+            }
+          ],
+          "diff": {
+            "id": "clamp-diff",
+            "prompt": "Which version has the bug?",
+            "review_prompt": "Which clamp is the broken one?",
+            "why": "Skipping the clamp is the bug.",
+            "bug": "right",
+            "left": { "label": "Clamp", "code": "Value = FMath::Clamp(Value, Base * 0.9f, Base * 1.1f);" },
+            "right": { "label": "Skipped", "code": "Value = Base * Effect;" }
+          }
+        },
+        {
+          "id": "gunsmith",
+          "title": "Slots and the equipped id",
+          "takeaway": "A gunsmith can have ten slots in a data asset. Replicate the equipped id. Do not replicate every attachment mesh.",
+          "assignment": { "prompt": "What do you replicate for the gunsmith?", "accept": ["equipped", "id"] },
+          "quiz": [
+            {
+              "id": "gun-q",
+              "prompt": "What happens if every attachment mesh is replicated?",
+              "choices": ["The bandwidth goes to meshes the client can rebuild.", "The equipped id is not enough.", "The data asset stops working."],
+              "answer": 0,
+              "why": "The client can build the mesh from the id.",
+              "review_prompt": "Why not replicate every attachment mesh?"
+            }
+          ],
+          "diff": {
+            "id": "gun-diff",
+            "prompt": "Which version has the bug?",
+            "review_prompt": "Which gunsmith replicate is the broken one?",
+            "why": "Replicating the meshes is the bug.",
+            "bug": "right",
+            "left": { "label": "Id", "code": "UPROPERTY(Replicated)\nFName EquippedId;" },
+            "right": { "label": "Meshes", "code": "UPROPERTY(Replicated)\nTArray<UStaticMesh*> Parts;" }
+          }
+        },
+        {
+          "id": "repair",
+          "title": "Repair the line",
+          "takeaway": "A broken graph uses Tick. A broken health line forgets authority. The repair is the smaller change that puts the rule back.",
+          "assignment": { "prompt": "Which word is the health repair?", "accept": ["authority"] },
+          "quiz": [
+            {
+              "id": "fix-q",
+              "prompt": "Which repair fixes a look trace that is on Tick?",
+              "choices": ["A timer.", "Another Tick.", "A cast to the player."],
+              "answer": 0,
+              "why": "The timer replaces Tick.",
+              "review_prompt": "What replaces Tick for a look trace?"
+            }
+          ],
+          "diff": {
+            "id": "fix-diff",
+            "prompt": "Which version has the bug?",
+            "review_prompt": "Which repair side is the broken one?",
+            "why": "The right side is still Tick.",
+            "bug": "right",
+            "left": { "label": "Timer", "code": "SetTimer(Look, 0.1, true);" },
+            "right": { "label": "Still Tick", "code": "TickComponent() { Look(); }" }
+          }
+        }
+      ]
+    }
+  ]
+}

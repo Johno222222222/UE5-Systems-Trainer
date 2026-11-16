@@ -132,7 +132,7 @@ export default function Courses() {
               <button key={card.id} type="button" className="panel home-card text-left" data-testid={`course-card-${card.id}`} onClick={() => openCourse(card.id)}>
                 <div className="font-sub font-semibold text-[15px]">{card.title}</div>
                 <p className="mt-1 text-[12px] text-[var(--text-secondary)]">{card.summary}</p>
-                <div className="mt-2 text-[11px] font-mono text-[var(--text-muted)]">{card.modules.length} modules · pass at {card.pass_mark}</div>
+                <div className="mt-2 text-[11px] font-mono text-[var(--text-muted)]">{card.level ? `${card.level} · ` : ""}{card.modules.length} modules · pass at {card.pass_mark}</div>
               </button>
             ))}
           </div>

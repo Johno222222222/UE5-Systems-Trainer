@@ -1,8 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { api } from "../lib/api";
-import { challengesOf, readyChallenge } from "../lib/practice.mjs";
+import { readyChallenge } from "../lib/practice.mjs";
+import { learnQuestions, pictureOf } from "../lib/learnQuiz.mjs";
 import ChoiceButton from "../components/ChoiceButton";
 import { useShell } from "./ShellContext";
+
+function GraphThumb({ nodes }) {
+  return (
+    <svg viewBox="0 0 640 120" className="w-full" data-testid="learn-graph-image" role="img" aria-label="Event graph">
+      <rect width="640" height="120" fill="#0c1018" />
+      {nodes.map((label, index) => {
+        const x = 16 + index * 104;
+        return (
+          <g key={`${label}-${index}`}>
+            {index > 0 && <path d={`M ${x - 8} 58 H ${x}`} stroke="#ff7a1a" strokeWidth="2" />}
+            <rect x={x} y="36" width="96" height="40" rx="6" fill="#121826" stroke="#0099ff" />
+            <text x={x + 48} y="60" fill="#e8eef8" fontSize="10" textAnchor="middle">{label.slice(0, 16)}</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
 
 export default function Learn() {
   const shell = useShell();
@@ -11,7 +30,11 @@ export default function Learn() {
   const [note, setNote] = useState("");
   useEffect(() => shell.session.subscribe(setDraft), [shell.session]);
   const system = draft?.result;
-  const challenges = challengesOf(system);
+  const [mode, setMode] = useState("picture");
+  const [level, setLevel] = useState("beginner");
+  const [pane, setPane] = useState("graph");
+  const picture = pictureOf(system || {});
+  const challenges = learnQuestions(system, level);
   const index = Math.min(shell.learnIndex || 0, Math.max(challenges.length - 1, 0));
   const challenge = readyChallenge(challenges[index], system);
 
@@ -58,14 +81,58 @@ export default function Learn() {
       <div className="home-inner">
         <div className="eyebrow">Learn</div>
         <h1 className="font-display text-[36px] font-extrabold uppercase tracking-wider leading-none mt-1">{system.system_name || "This system"}</h1>
-        <p className="mt-2 text-[13px] text-[var(--text-secondary)]">Question {challenges.length ? index + 1 : 0} of {challenges.length}. Answering these does not call the model.</p>
-        {!challenge && (
+        <div className="mt-3 flex flex-wrap gap-2" data-testid="learn-modes">
+          <button type="button" className={`chip ${mode === "picture" ? "active" : ""}`} data-testid="learn-mode-picture" onClick={() => setMode("picture")}>Big Picture</button>
+          <button type="button" className={`chip ${mode === "quiz" ? "active" : ""}`} data-testid="learn-mode-quiz" onClick={() => setMode("quiz")}>Quiz</button>
+        </div>
+        {mode === "picture" && (
+          <div className="mt-4" data-testid="learn-picture">
+            <div className="panel p-3">
+              {pane === "graph" && <GraphThumb nodes={picture.nodes} />}
+              {pane === "cpp" && (
+                <pre className="text-[12px] font-mono text-[var(--text-secondary)] overflow-auto" data-testid="learn-cpp">
+                  {picture.lines.map((row) => `${String(row.line).padStart(3, " ")}  ${row.text}`).join("\n") || "No C++ yet."}
+                </pre>
+              )}
+              {pane === "dependencies" && (
+                <ul data-testid="learn-dependencies">{picture.dependencies.map((item) => <li key={item} className="text-[13px]">{item}</li>)}</ul>
+              )}
+              {pane === "expansions" && (
+                <ul data-testid="learn-expansions">{picture.expansions.map((item) => <li key={item} className="text-[13px]">{item}</li>)}</ul>
+              )}
+              {pane === "properties" && (
+                <ul data-testid="learn-properties">{(picture.properties.length ? picture.properties : ["No UPROPERTY yet."]).map((item) => <li key={item} className="text-[13px]">{item}</li>)}</ul>
+              )}
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {[
+                ["graph", "Event graph"],
+                ["cpp", "C++"],
+                ["dependencies", "Dependencies"],
+                ["expansions", "Expansions"],
+                ["properties", "Properties"],
+              ].map(([id, label]) => (
+                <button key={id} type="button" className={`chip ${pane === id ? "active" : ""}`} data-testid={`learn-pane-${id}`} onClick={() => setPane(id)}>{label}</button>
+              ))}
+            </div>
+          </div>
+        )}
+        {mode === "quiz" && (
+          <>
+            <div className="mt-3 flex flex-wrap gap-2" data-testid="learn-levels">
+              <button type="button" className={`chip ${level === "beginner" ? "active" : ""}`} data-testid="learn-level-beginner" onClick={() => { setLevel("beginner"); setPicked(null); }}>Beginner</button>
+              <button type="button" className={`chip ${level === "intermediate" ? "active" : ""}`} data-testid="learn-level-intermediate" onClick={() => { setLevel("intermediate"); setPicked(null); }}>Intermediate</button>
+            </div>
+            <p className="mt-2 text-[13px] text-[var(--text-secondary)]">Question {challenges.length ? index + 1 : 0} of {challenges.length}. Answering these does not call the model.</p>
+          </>
+        )}
+        {mode === "quiz" && !challenge && (
           <div className="mt-6" data-testid="learn-no-challenges">
             <p className="text-[13px] font-mono text-[var(--text-muted)]">This system has no practice questions yet.</p>
             <button type="button" className="ue-btn mt-3" data-testid="learn-open-courses" onClick={() => shell.go("courses")}>Open courses</button>
           </div>
         )}
-        {challenge && (
+        {mode === "quiz" && challenge && (
           <div className="panel p-4 mt-6" data-testid="learn-challenge">
             <div className="font-sub font-semibold text-[16px]">{challenge.prompt || challenge.title}</div>
             <div className="mt-3 flex flex-col gap-2">
