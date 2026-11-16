@@ -94,10 +94,6 @@ function normalizeBuildPath(value) {
   return text;
 }
 
-function quoteValue(value) {
-  return `"${String(value).replace(/"/g, "")}"`;
-}
-
 function pathJoin(root, name) {
   if (!root) return name;
   const sep = root.includes("\\") ? "\\" : "/";
@@ -118,21 +114,29 @@ function safePackageDir(requested, platform, scratchRoot) {
   return "/tmp/ue5-uat-out";
 }
 
-// Spawn RunUAT.bat directly. Do not wrap the whole line in cmd /s /c.
-// That extra quote layer turns "C:\..." into a UNC-looking path and splits
-// -Plugin values that contain spaces.
+function quoteCmd(value) {
+  return `"${String(value).replace(/"/g, "")}"`;
+}
+
+// Node on process.platform win32 throws EINVAL if spawn is given a .bat or
+// .cmd directly (CVE-2024-27980). Run it through cmd.exe instead.
+// /s strips one pair of quotes around the whole line, so the line is wrapped
+// once more. Paths with spaces stay quoted inside that.
 function windowsBuildLaunch({ uat, pluginPath, packageDir }) {
   const bat = normalizeBuildPath(uat);
   const plugin = normalizeBuildPath(pluginPath);
   const out = normalizeBuildPath(packageDir);
+  const inner = [
+    quoteCmd(bat),
+    "BuildPlugin",
+    `-Plugin=${quoteCmd(plugin)}`,
+    `-Package=${quoteCmd(out)}`,
+    "-Rocket",
+  ].join(" ");
+  // process.platform win32 cannot spawn a .bat. cmd.exe runs the quoted line.
   return {
-    file: bat,
-    args: [
-      "BuildPlugin",
-      `-Plugin=${quoteValue(plugin)}`,
-      `-Package=${quoteValue(out)}`,
-      "-Rocket",
-    ],
+    file: "cmd.exe",
+    args: ["/d", "/s", "/c", `"${inner}"`],
     options: { shell: false, windowsVerbatimArguments: true },
   };
 }
@@ -195,7 +199,7 @@ function commandFor(engineRoot, uplugin, outputDir, platform, scratchRoot) {
   const os = platform || process.platform;
   const uat = runUatFile(engineRoot, os);
   const packaged = safePackageDir(outputDir, os, scratchRoot);
-  if (os === "win32" && process.platform === "win32") {
+  if (os === "win32") {
     return windowsBuildLaunch({ uat, pluginPath: uplugin, packageDir: packaged });
   }
   return {

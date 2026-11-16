@@ -215,7 +215,14 @@ void SArchitectPanel::Poll()
 	const int32 PortNumber = FCString::Atoi(*Port);
 	TSharedPtr<FJsonObject> Command;
 	if (!CompanionLink::TakePending(Host, PortNumber, Token, Command) || !Command.IsValid()) return;
+	const FString Id = Command->GetStringField(TEXT("id"));
 	const FString CommandType = Command->GetStringField(TEXT("type"));
+	if (!Id.IsEmpty() && Id == FinishedId)
+	{
+		FString Ignored;
+		CompanionLink::PostResult(Host, PortNumber, Token, Id, bFinishedOk, FinishedMessage, FinishedAssets, FinishedConflicts, Ignored);
+		return;
+	}
 	FString Result;
 	TArray<FString> Assets;
 	TArray<FString> Conflicts;
@@ -234,9 +241,17 @@ void SArchitectPanel::Poll()
 	}
 	else
 	{
-		return;
+		bOk = false;
+		Result = FString::Printf(TEXT("The editor does not understand request %s."), *CommandType);
 	}
+	FinishedId = Id;
+	bFinishedOk = bOk;
+	FinishedMessage = Result;
+	FinishedAssets = Assets;
+	FinishedConflicts = Conflicts;
 	FString Ignored;
-	CompanionLink::PostResult(Host, PortNumber, Token, bOk, Result, Assets, Conflicts, Ignored);
-	SetStatus(Result.IsEmpty() ? TEXT("The editor finished the request.") : Result);
+	const bool bPosted = CompanionLink::PostResult(Host, PortNumber, Token, Id, bOk, Result, Assets, Conflicts, Ignored);
+	SetStatus(bPosted
+		? (Result.IsEmpty() ? TEXT("The editor finished the request.") : Result)
+		: TEXT("The editor finished, but the app did not accept the answer."));
 }
