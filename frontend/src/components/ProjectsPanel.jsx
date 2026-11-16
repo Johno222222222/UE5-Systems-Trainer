@@ -86,7 +86,7 @@ export default function ProjectsPanel({ refreshKey, currentId, onOpen, onDeleted
       </div>
       {items.length >= 2 && (
         <div className="flex flex-wrap gap-1.5 mb-2">
-          <button className="ue-btn flex-1 min-w-[8rem] justify-center whitespace-normal text-center !border-[var(--accent-purple)] !text-[var(--accent-purple)]" onClick={stack} disabled={busy || sel.length < 2 || sel.length > 4} title="Merge into one integrated system with AI" data-testid="stack-systems-button">
+          <button className="ue-btn flex-1 min-w-[8rem] justify-center whitespace-normal text-center !border-[var(--accent-purple)] !text-[var(--accent-purple)]" onClick={stack} disabled={busy || sel.length < 2 || sel.length > 4} title="Combine the ticked systems into one plugin, share interfaces, and list conflicts" data-testid="stack-systems-button">
             <Combine size={13} /> {sel.length < 2 ? "Tick 2+ to stack" : sel.length > 4 ? "Stack up to 4" : `Stack ${sel.length}`}
           </button>
           <button className="ue-btn flex-1 min-w-[8rem] justify-center whitespace-normal text-center" onClick={() => onBundle(sel)} disabled={sel.length < 2} title="Export the ticked projects as one Unreal plugin, one module each" data-testid="bundle-plugin-button">

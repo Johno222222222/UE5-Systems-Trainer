@@ -1,0 +1,34 @@
+{
+  "id": "inventory-slot",
+  "title": "Inventory slot",
+  "summary": "Overlap branches, then an interface message uses the slot.",
+  "when_to_use": "Use this when a pickup should fill one slot through an interface, not a cast to the item Blueprint.",
+  "common_mistakes": "A common mistake is to Cast To the item class, or to change the stack on the client.",
+  "glossary": ["interface-call", "inventory"],
+  "variables": [
+    {"name": "StackCount", "type": "float", "default": "0.f"}
+  ],
+  "graph": {
+    "kind": "event",
+    "name": "Slot",
+    "nodes": [
+      {"key": "overlap", "catalog": "begin-overlap", "x": 40, "y": 80, "note": "Begin Overlap is the item touching the pawn."},
+      {"key": "count", "catalog": "get-variable", "x": 40, "y": 280, "data": {"variable": "StackCount", "varType": "float"}, "note": "Read the stack the component already owns."},
+      {"key": "zero", "catalog": "literal", "x": 40, "y": 420, "data": {"varType": "float", "value": "0"}, "note": "Zero means the slot is empty."},
+      {"key": "more", "catalog": "greater", "x": 220, "y": 300, "note": "Greater asks if the stack is above zero."},
+      {"key": "branch", "catalog": "branch", "x": 460, "y": 80, "note": "Branch before the interface call."},
+      {"key": "call", "catalog": "interface-call", "x": 640, "y": 40, "data": {"function": "AddToSlot"}, "note": "Call the interface. Do not cast."},
+      {"key": "store", "catalog": "set-variable", "x": 640, "y": 220, "data": {"variable": "StackCount", "varType": "float"}, "note": "The else path keeps the current count."}
+    ],
+    "wires": [
+      {"from": "overlap", "fromPin": "Exec", "to": "branch", "toPin": "Exec"},
+      {"from": "count", "fromPin": "Value", "to": "more", "toPin": "A"},
+      {"from": "zero", "fromPin": "Value", "to": "more", "toPin": "B"},
+      {"from": "more", "fromPin": "Result", "to": "branch", "toPin": "Condition"},
+      {"from": "branch", "fromPin": "Then", "to": "call", "toPin": "Exec"},
+      {"from": "overlap", "fromPin": "Other Actor", "to": "call", "toPin": "Target"},
+      {"from": "branch", "fromPin": "Else", "to": "store", "toPin": "Exec"},
+      {"from": "count", "fromPin": "Value", "to": "store", "toPin": "Value"}
+    ]
+  }
+}

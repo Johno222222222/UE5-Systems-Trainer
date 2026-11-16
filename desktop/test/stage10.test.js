@@ -163,9 +163,9 @@ test("graph templates load, teach, and simulate", async () => {
   const sim = await lib("simulate.mjs");
   const loaded = loadGraphTemplates();
   assert.deepEqual(loaded.problems, []);
-  assert.equal(loaded.templates.length, 6);
+  assert.equal(loaded.templates.length, 12);
   const ids = loaded.templates.map((item) => item.id).sort();
-  assert.deepEqual(ids, ["door", "health", "interact", "pickup", "tactical-ammo", "timer"]);
+  assert.deepEqual(ids, ["ai-patrol", "door", "gas-effect", "health", "interact", "inventory-slot", "pickup", "pickup-wait", "replicated-health", "save-load", "tactical-ammo", "timer"]);
   const pkg = require("../../package.json");
   assert.ok(pkg.build.files.some((item) => String(item).includes("content/templates")));
   const dirs = templateDirs({ appPath: path.join(os.tmpdir(), "missing-app"), resourcesPath: path.join(os.tmpdir(), "missing-resources") });
@@ -328,7 +328,7 @@ test("the graph template route serves the bundled files", async () => {
     const response = await fetch(`http://127.0.0.1:${handle.port}/api/graph-templates`);
     const body = await response.json();
     assert.equal(response.status, 200);
-    assert.equal(body.templates.length, 6);
+    assert.equal(body.templates.length, 12);
     assert.equal(body.problems.length, 0);
   } finally {
     await handle.close();

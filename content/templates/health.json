@@ -2,6 +2,8 @@
   "id": "health",
   "title": "Health & Damage",
   "summary": "Any Damage subtracts, clamps, and branches on death.",
+  "when_to_use": "Use this when damage should change health in one place and a branch should hear death.",
+  "common_mistakes": "A common mistake is to subtract health on Tick, or to forget the authority check before Replication.",
   "variables": [
     {"name": "Health", "type": "float", "default": "100.f"},
     {"name": "MaxHealth", "type": "float", "default": "100.f"}

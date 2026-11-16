@@ -1,0 +1,32 @@
+{
+  "id": "save-load",
+  "title": "Save / load slot",
+  "summary": "Begin Play makes a vector payload, and a custom event breaks it back out.",
+  "when_to_use": "Use this when a save slot should be one struct you make once and break when you load.",
+  "common_mistakes": "A common mistake is to save on Tick, or to Break Struct before Make Struct has set the member.",
+  "glossary": ["struct", "data-asset"],
+  "variables": [
+    {"name": "SlotValue", "type": "float", "default": "0.f"}
+  ],
+  "graph": {
+    "kind": "event",
+    "name": "Save",
+    "nodes": [
+      {"key": "begin", "catalog": "begin-play", "x": 40, "y": 80, "note": "Begin Play writes the slot once. Do not write it from Tick."},
+      {"key": "amount", "catalog": "literal", "x": 40, "y": 240, "data": {"varType": "float", "value": "1"}, "note": "The member written into the payload."},
+      {"key": "make", "catalog": "make-struct", "x": 320, "y": 80, "data": {"struct": "FVector", "member": "X"}, "note": "Make Struct builds the save payload."},
+      {"key": "store", "catalog": "set-variable", "x": 620, "y": 80, "data": {"variable": "SlotValue", "varType": "float"}, "note": "Keep the member on the component."},
+      {"key": "load", "catalog": "custom-event", "x": 40, "y": 420, "data": {"name": "LoadSlot"}, "note": "Load is its own event. It does not run during the save."},
+      {"key": "break", "catalog": "break-struct", "x": 320, "y": 420, "data": {"struct": "FHitResult", "member": "Distance"}, "note": "Break Struct reads one member."},
+      {"key": "show", "catalog": "print-string", "x": 620, "y": 420, "data": {"text": "Loaded"}, "note": "A print stands in for the load UI."}
+    ],
+    "wires": [
+      {"from": "begin", "fromPin": "Exec", "to": "make", "toPin": "Exec"},
+      {"from": "amount", "fromPin": "Value", "to": "make", "toPin": "Value"},
+      {"from": "make", "fromPin": "Exec", "to": "store", "toPin": "Exec"},
+      {"from": "amount", "fromPin": "Value", "to": "store", "toPin": "Value"},
+      {"from": "load", "fromPin": "Exec", "to": "break", "toPin": "Exec"},
+      {"from": "break", "fromPin": "Exec", "to": "show", "toPin": "Exec"}
+    ]
+  }
+}

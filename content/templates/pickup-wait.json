@@ -1,0 +1,25 @@
+{
+  "id": "pickup-wait",
+  "title": "Pickup after a delay",
+  "summary": "Input waits with Delay, casts once, then calls the interface.",
+  "when_to_use": "Use this when a pickup should wait a moment and then call an interface, with one Cast To at most.",
+  "common_mistakes": "A common mistake is a Cast To chain for every item, or a Delay that never finishes because it was started on Tick.",
+  "glossary": ["interface-call", "enhanced-input"],
+  "variables": [],
+  "graph": {
+    "kind": "event",
+    "name": "Pickup",
+    "nodes": [
+      {"key": "input", "catalog": "enhanced-input", "x": 40, "y": 80, "data": {"action": "IA_Interact"}, "note": "Enhanced Input starts the wait. Tick does not."},
+      {"key": "delay", "catalog": "delay", "x": 340, "y": 80, "data": {"seconds": 0.2}, "note": "Delay is the short pause before the pickup."},
+      {"key": "cast", "catalog": "cast-to", "x": 620, "y": 80, "data": {"className": "AActor"}, "note": "One Cast To, then the interface."},
+      {"key": "call", "catalog": "interface-call", "x": 900, "y": 80, "data": {"function": "Interact"}, "note": "Interface message. The next pickup does not need a new cast."}
+    ],
+    "wires": [
+      {"from": "input", "fromPin": "Triggered", "to": "delay", "toPin": "Exec"},
+      {"from": "delay", "fromPin": "Completed", "to": "cast", "toPin": "Exec"},
+      {"from": "cast", "fromPin": "Exec", "to": "call", "toPin": "Exec"},
+      {"from": "cast", "fromPin": "As", "to": "call", "toPin": "Target"}
+    ]
+  }
+}

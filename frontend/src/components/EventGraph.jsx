@@ -539,7 +539,7 @@ export default function EventGraph({
           <div data-testid="graph-templates">
             {graphTemplates.map((template) => (
               <div key={template.id} className="graph-lib-item" data-testid={`template-${template.id}`}>
-                <span title={template.summary}>{template.title}</span>
+                <span title={[template.when_to_use, template.common_mistakes].filter(Boolean).join(" ")}>{template.title}</span>
                 <button type="button" className="graph-lib-add" aria-label={`Insert ${template.title}`} onClick={() => insertTemplate(template, "insert")}>+</button>
                 <button type="button" className="graph-lib-add" aria-label={`Open ${template.title}`} onClick={() => insertTemplate(template, "new")}>↗</button>
               </div>
@@ -776,6 +776,8 @@ export default function EventGraph({
         {selectedNode && (
           <div className="graph-inspector panel p-2" data-testid="graph-inspector" data-graph-chrome onPointerDown={(event) => event.stopPropagation()}>
             <div className="text-[12px] font-semibold">{selectedNode.label}</div>
+            {selectedNode.whenToUse && <p className="mt-1 text-[11px] text-[var(--text-secondary)]" data-testid="node-when"><GlossaryText text={selectedNode.whenToUse} /></p>}
+            {selectedNode.commonMistakes && <p className="mt-1 text-[11px] text-[var(--text-muted)]" data-testid="node-mistakes"><GlossaryText text={selectedNode.commonMistakes} /></p>}
             {selectedNode.catalog === "print-string" && (
               <input className="graph-search mt-1" aria-label="Print text" key={`${selectedNode.id}-${selectedNode.data?.text || ""}`} defaultValue={selectedNode.data?.text || ""} onBlur={(event) => { if (event.target.value !== (selectedNode.data?.text || "")) commit(setNodeData(graph, selectedNode.id, { text: event.target.value })); }} />
             )}

@@ -1,0 +1,29 @@
+{
+  "id": "replicated-health",
+  "title": "Replicated health",
+  "summary": "Damage checks authority, then OnRep hears the replicated health.",
+  "when_to_use": "Use this when health should change on the server and the UI should hear OnRep.",
+  "common_mistakes": "A common mistake is to subtract health on the client, or to replicate the widget.",
+  "glossary": ["replication"],
+  "variables": [
+    {"name": "Health", "type": "float", "default": "100.f"}
+  ],
+  "graph": {
+    "kind": "event",
+    "name": "Health",
+    "nodes": [
+      {"key": "damage", "catalog": "any-damage", "x": 40, "y": 80, "note": "Any Damage is the request. Authority decides."},
+      {"key": "auth", "catalog": "has-authority", "x": 320, "y": 80, "note": "Has Authority keeps the change on the server."},
+      {"key": "amount", "catalog": "literal", "x": 320, "y": 260, "data": {"varType": "float", "value": "90"}, "note": "A stand-in for health after the hit."},
+      {"key": "set", "catalog": "set-variable", "x": 620, "y": 80, "data": {"variable": "Health", "varType": "float"}, "note": "Set the replicated health."},
+      {"key": "rep", "catalog": "on-rep", "x": 40, "y": 360, "data": {"variable": "Health"}, "note": "OnRep runs on the clients that hear the property."},
+      {"key": "show", "catalog": "print-string", "x": 340, "y": 360, "data": {"text": "Health changed"}, "note": "The UI listens. It does not decide the number."}
+    ],
+    "wires": [
+      {"from": "damage", "fromPin": "Exec", "to": "auth", "toPin": "Exec"},
+      {"from": "auth", "fromPin": "Exec", "to": "set", "toPin": "Exec"},
+      {"from": "amount", "fromPin": "Value", "to": "set", "toPin": "Value"},
+      {"from": "rep", "fromPin": "Exec", "to": "show", "toPin": "Exec"}
+    ]
+  }
+}

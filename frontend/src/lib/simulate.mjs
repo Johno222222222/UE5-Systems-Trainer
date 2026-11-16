@@ -14,6 +14,7 @@ const ROLES = {
 const PASS = new Set([
   "begin-play", "end-play", "tick", "enhanced-input", "begin-overlap", "end-overlap", "hit",
   "any-damage", "point-damage", "on-rep", "custom-event", "dispatcher-bind", "dispatcher-call",
+  "set-timer-event", "set-timer-function", "break-struct", "make-struct", "cast-to",
   "entry", "macro-in", "server-rpc", "client-rpc", "multicast-rpc",
 ]);
 
@@ -189,6 +190,9 @@ function evalOutValue(state, graph, node, pin, seen) {
   if ((catalog === "any-damage" || catalog === "point-damage") && pin.name === "Damage") return num(node.data?.sample ?? 25);
   if ((catalog === "begin-overlap" || catalog === "end-overlap" || catalog === "hit") && pin.name === "Other Actor") return "OtherActor";
   if (catalog === "timeline" && pin.name === "Alpha") return 1;
+  if (catalog === "break-struct" && pin.name === "Value") return num(node.data?.sample ?? 1);
+  if (catalog === "make-struct" && pin.name === "Struct") return node.data?.struct || "Struct";
+  if (catalog === "cast-to" && pin.name === "As") return node.data?.className || "AActor";
   if (catalog === "foreach" && pin.name === "Element") return local.Element ?? "A";
   if (catalog === "forloop" && pin.name === "Index") return local.Index ?? 0;
   return defaultFor(pin.type);
@@ -380,16 +384,37 @@ function execute(state, graph, doc, node, job) {
     return finish(state);
   }
 
-  if (catalog === "set-timer") {
+  if (catalog === "set-timer" || catalog === "set-timer-event" || catalog === "set-timer-function") {
     const seconds = num(valueInto(state, graph, node, "Time") || node.data?.seconds || 0);
     mem.fires = (mem.fires || 0) + 1;
-    const eventName = node.data?.event;
+    const eventName = catalog === "set-timer-function" ? node.data?.function : node.data?.event;
     const target = eventName && (graph.nodes || []).find((item) => item.catalog === "custom-event" && item.data?.name === eventName);
     state.note = `Timer set for ${formatValue(seconds)}s. Simulated with no wait.`;
     if (target && mem.fires <= TIMER_CAP) {
       state.stack.push({ nodeId: target.id, wireId: null, pinId: null, depth: state.depth || 0 });
       state.note += ` ${eventName} will fire (${mem.fires}/${TIMER_CAP}).`;
     } else if (target) state.note += " Timer loop stopped at the cap.";
+    pushFirstExec(state, graph, node);
+    return finish(state);
+  }
+
+  if (catalog === "cast-to") {
+    state.locals = { ...state.locals, [node.id]: { As: node.data?.className || "AActor" } };
+    state.note = `Cast To ${node.data?.className || "AActor"}.`;
+    pushFirstExec(state, graph, node);
+    return finish(state);
+  }
+
+  if (catalog === "break-struct") {
+    state.locals = { ...state.locals, [node.id]: { Value: num(node.data?.sample ?? 1) } };
+    state.note = `Break ${node.data?.struct || "struct"} . ${node.data?.member || "Value"}.`;
+    pushFirstExec(state, graph, node);
+    return finish(state);
+  }
+
+  if (catalog === "make-struct") {
+    state.locals = { ...state.locals, [node.id]: { Struct: node.data?.struct || "Struct" } };
+    state.note = `Make ${node.data?.struct || "struct"}.`;
     pushFirstExec(state, graph, node);
     return finish(state);
   }

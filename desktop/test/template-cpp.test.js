@@ -46,7 +46,7 @@ function fresh() {
 }
 
 test("every template inserts into a fresh system and an existing one without a self-assignment", async () => {
-  const ids = ["pickup", "health", "door", "interact", "timer", "tactical-ammo"];
+  const ids = fs.readdirSync(path.join(__dirname, "..", "..", "content", "templates")).filter((name) => name.endsWith(".json")).map((name) => name.replace(/\.json$/, ""));
   for (const id of ids) {
     const template = loadTemplate(id);
     const blank = await emit(fresh(), template, "insert", "event");
@@ -67,7 +67,7 @@ test("every template inserts into a fresh system and an existing one without a s
 
 test("every template keeps its header first and avoids bare float suffixes", async () => {
   const { graph } = await libs();
-  for (const id of ["pickup", "health", "door", "interact", "timer", "tactical-ammo"]) {
+  for (const id of fs.readdirSync(path.join(__dirname, "..", "..", "content", "templates")).filter((name) => name.endsWith(".json")).map((name) => name.replace(/\.json$/, ""))) {
     const { source } = await emit(fresh(), loadTemplate(id), "insert", "event");
     assert.match(source, /^#include "Kit\.h"/, id);
     assert.equal(/(?<![\d.])\d+f\b/.test(source), false, `${id} has a bare float suffix`);

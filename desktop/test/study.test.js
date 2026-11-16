@@ -99,7 +99,7 @@ test("each modify task passes only with the right settings", () => {
 });
 
 test("a quiz scores against the pass mark and a wrong answer is reworded for the next three sessions", () => {
-  const course = loadPacks().courses[0];
+  const course = loadPacks().courses.find((item) => item.id === "tactical-fps-course");
   const mod = course.modules[0];
   const good = { answers: {}, diff: mod.diff.bug, assignment: "500 and ignore the player" };
   for (const question of mod.quiz) good.answers[question.id] = question.answer;

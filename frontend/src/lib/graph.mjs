@@ -40,6 +40,8 @@ export const CATALOG = [
   { id: "any-damage", group: "Damage", label: "Any Damage", visual: "event", pins: [pin("Exec", "out", "exec"), pin("Damage", "out", "float")] },
   { id: "point-damage", group: "Damage", label: "Point Damage", visual: "event", pins: [pin("Exec", "out", "exec"), pin("Damage", "out", "float")] },
   { id: "set-timer", group: "Timers", label: "Set Timer", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Time", "in", "float"), pin("Exec", "out", "exec")], data: { seconds: 1 } },
+  { id: "set-timer-event", group: "Timers", label: "Set Timer by Event", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Time", "in", "float"), pin("Exec", "out", "exec")], data: { seconds: 1, event: "TimerEvent" } },
+  { id: "set-timer-function", group: "Timers", label: "Set Timer by Function", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Time", "in", "float"), pin("Exec", "out", "exec")], data: { seconds: 1, function: "OnTimer" } },
   { id: "timeline", group: "Timers", label: "Timeline", visual: "function", pins: [pin("Play", "in", "exec"), pin("Update", "out", "exec"), pin("Finished", "out", "exec"), pin("Alpha", "out", "float")] },
   { id: "on-rep", group: "Networking", label: "OnRep", visual: "event", pins: [pin("Exec", "out", "exec")], data: { variable: "Value" } },
   { id: "server-rpc", group: "Networking", label: "Server RPC", visual: "event", pins: [pin("Exec", "out", "exec")] },
@@ -65,6 +67,8 @@ export const CATALOG = [
   { id: "while", group: "Flow", label: "While", visual: "flow", pins: [pin("Exec", "in", "exec"), pin("Condition", "in", "bool"), pin("Loop Body", "out", "exec"), pin("Completed", "out", "exec")] },
   { id: "select", group: "Flow", label: "Select", visual: "pure", pins: [pin("Pick", "in", "bool"), pin("A", "in", "wildcard"), pin("B", "in", "wildcard"), pin("Return", "out", "wildcard")] },
   { id: "switch-enum", group: "Flow", label: "Switch on Enum", visual: "flow", pins: [pin("Exec", "in", "exec"), pin("Selection", "in", "name"), pin("Default", "out", "exec")], data: { cases: ["A", "B"] } },
+  { id: "break-struct", group: "Flow", label: "Break Struct", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Struct", "in", "object"), pin("Exec", "out", "exec"), pin("Value", "out", "float")], data: { struct: "FHitResult", member: "Distance" } },
+  { id: "make-struct", group: "Flow", label: "Make Struct", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Value", "in", "float"), pin("Exec", "out", "exec"), pin("Struct", "out", "object")], data: { struct: "FVector", member: "X" } },
   { id: "do-once", group: "Flow", label: "DoOnce", visual: "flow", pins: [pin("Exec", "in", "exec"), pin("Reset", "in", "exec"), pin("Completed", "out", "exec")] },
   { id: "gate", group: "Flow", label: "Gate", visual: "flow", pins: [pin("Enter", "in", "exec"), pin("Open", "in", "exec"), pin("Close", "in", "exec"), pin("Exit", "out", "exec")] },
   { id: "flipflop", group: "Flow", label: "FlipFlop", visual: "flow", pins: [pin("Exec", "in", "exec"), pin("A", "out", "exec"), pin("B", "out", "exec"), pin("Is A", "out", "bool")] },
@@ -88,6 +92,62 @@ export const CATALOG = [
   { id: "call-user", group: "Tunnel", label: "Call Function", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Exec", "out", "exec")] },
   { id: "call-macro", group: "Tunnel", label: "Call Macro", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Exec", "out", "exec")] },
 ];
+
+const NODE_NOTES = {
+  timeline: {
+    whenToUse: "Use a Timeline when a door or a fade should follow a curve instead of jumping.",
+    commonMistakes: "A common mistake is to drive the mesh on Tick after the Timeline finishes, or to forget the curve is not replicated.",
+  },
+  delay: {
+    whenToUse: "Use Delay for a short pause before the next exec, such as a prompt that waits.",
+    commonMistakes: "A common mistake is to stack Delay nodes where a timer or a Timeline would be easier to cancel.",
+  },
+  "set-timer": {
+    whenToUse: "Use Set Timer when work should repeat without Tick.",
+    commonMistakes: "A common mistake is to start the timer on Tick, so you get a new timer every frame.",
+  },
+  "set-timer-event": {
+    whenToUse: "Use Set Timer by Event when a custom event should fire after a delay.",
+    commonMistakes: "A common mistake is to name an event that does not exist, so the timer never calls it.",
+  },
+  "set-timer-function": {
+    whenToUse: "Use Set Timer by Function when a named function should run once or on a loop.",
+    commonMistakes: "A common mistake is to point it at a function that still touches replicated state on a client.",
+  },
+  "dispatcher-bind": {
+    whenToUse: "Use Bind Event Dispatcher when a widget should hear a change without polling.",
+    commonMistakes: "A common mistake is to bind on Tick, or to bind and never unbind.",
+  },
+  "dispatcher-call": {
+    whenToUse: "Use Call Event Dispatcher when listeners should hear that something changed.",
+    commonMistakes: "A common mistake is to call the dispatcher from Tick instead of when the value changes.",
+  },
+  "interface-call": {
+    whenToUse: "Use an interface message when a door and a pickup should answer the same call.",
+    commonMistakes: "A common mistake is to Cast To every Blueprint instead of calling the interface.",
+  },
+  "cast-to": {
+    whenToUse: "Use Cast To when you truly need one class, after an interface was not enough.",
+    commonMistakes: "A common mistake is a long Cast To chain. Prefer an interface.",
+  },
+  "break-struct": {
+    whenToUse: "Use Break Struct to read one member, such as a hit distance, without copying the whole struct around.",
+    commonMistakes: "A common mistake is to Break Struct on Tick when you only needed the value once.",
+  },
+  "make-struct": {
+    whenToUse: "Use Make Struct when you are building a save row or a hit payload in one place.",
+    commonMistakes: "A common mistake is to Make Struct with default zeros and forget the member you meant to set.",
+  },
+};
+
+for (const entry of CATALOG) {
+  const notes = NODE_NOTES[entry.id] || {
+    whenToUse: `Use ${entry.label} when this ${entry.group} step should be visible in the graph instead of hidden in Tick.`,
+    commonMistakes: `A common mistake is to Cast To a Blueprint here instead of calling an interface, or to run ${entry.label} on Tick.`,
+  };
+  entry.whenToUse = notes.whenToUse;
+  entry.commonMistakes = notes.commonMistakes;
+}
 
 const BY_ID = new Map(CATALOG.map((entry) => [entry.id, entry]));
 const MARKER_BEGIN = "// graph:begin event";
@@ -153,6 +213,8 @@ export function createNode(catalogId, x, y, extra = {}) {
     y: Number(y) || 0,
     pins: entry.id === "switch-enum" ? switchEnumPins(data.cases) : pinsFromSpec(entry, data),
     data,
+    whenToUse: entry.whenToUse || "",
+    commonMistakes: entry.commonMistakes || "",
   };
   return node;
 }
@@ -810,14 +872,17 @@ function statementFor(node, graph) {
       const message = ident(node.data?.function || "Interact", "Interact");
       return `if (AActor* Target_${local} = Cast<AActor>(${target})) { if (UFunction* Fn_${local} = Target_${local}->FindFunction(TEXT("${message}"))) { Target_${local}->ProcessEvent(Fn_${local}, nullptr); } }`;
     }
-    case "set-timer": {
+    case "set-timer":
+    case "set-timer-event":
+    case "set-timer-function": {
       const seconds = Number(node.data?.seconds) || Number(incomingValue(graph, node, "Time")) || 1;
-      const eventName = node.data?.event;
+      const eventName = node.catalog === "set-timer-function" ? (node.data?.function || "OnTimer") : (node.data?.event || "Timer");
       const target = (graph.nodes || []).find((item) => item.catalog === "custom-event" && item.data?.name === eventName);
       const method = target ? functionBase(target) : "";
       const cls = graph.cppClass || "UKitComponent";
-      if (method) return `if (UWorld* World = GetWorld()) { FTimerHandle Timer_${id}; World->GetTimerManager().SetTimer(Timer_${id}, this, &${cls}::${method}, ${cppFloat(seconds)}, true); }`;
-      return `if (UWorld* World = GetWorld()) { FTimerHandle Timer_${id}; FTimerDelegate Delegate_${id}; Delegate_${id}.BindUFunction(this, TEXT("${eventName || "Timer"}")); World->GetTimerManager().SetTimer(Timer_${id}, Delegate_${id}, ${cppFloat(seconds)}, true); }`;
+      const looping = node.catalog === "set-timer-function" ? "false" : "true";
+      if (method) return `if (UWorld* World = GetWorld()) { FTimerHandle Timer_${id}; World->GetTimerManager().SetTimer(Timer_${id}, this, &${cls}::${method}, ${cppFloat(seconds)}, ${looping}); }`;
+      return `if (UWorld* World = GetWorld()) { FTimerHandle Timer_${id}; FTimerDelegate Delegate_${id}; Delegate_${id}.BindUFunction(this, TEXT("${ident(eventName, "Timer")}")); World->GetTimerManager().SetTimer(Timer_${id}, Delegate_${id}, ${cppFloat(seconds)}, ${looping}); }`;
     }
     case "spawn-actor":
       return `if (UWorld* World = GetWorld()) { World->SpawnActor<${ident(node.data?.className || "AActor", "AActor")}>(${ident(node.data?.className || "AActor", "AActor")}::StaticClass()); }`;
@@ -828,13 +893,28 @@ function statementFor(node, graph) {
     case "delay":
       return `if (UWorld* World = GetWorld()) { FTimerHandle Delay_${id}; World->GetTimerManager().SetTimer(Delay_${id}, FTimerDelegate(), ${cppFloat(Number(node.data?.seconds) || 0.5)}, false); }`;
     case "timeline":
-      return `// TODO: a real Timeline needs a UTimelineComponent. ${ident(node.label, "Timeline")} does not play a curve here.`;
+      return `if (UWorld* World = GetWorld()) { FTimerHandle Timeline_${id}; World->GetTimerManager().SetTimer(Timeline_${id}, FTimerDelegate(), 1.f, false); } // UTimelineComponent is not created here. Timeline ${ident(node.label || node.id, "Timeline")} does not play a curve.`;
+    case "break-struct": {
+      const member = ident(node.data?.member || "Distance", "Distance");
+      const incoming = incomingValue(graph, node, "Struct");
+      if (incoming) return `FHitResult Broken_${id} = ${incoming}; const float ${member}_${id} = Broken_${id}.${member};`;
+      return `FHitResult Broken_${id}; const float ${member}_${id} = Broken_${id}.${member};`;
+    }
+    case "make-struct": {
+      const member = ident(node.data?.member || "X", "X");
+      const incoming = incomingValue(graph, node, "Value") || "0.f";
+      return `FVector Made_${id} = FVector::ZeroVector; Made_${id}.${member} = ${incoming};`;
+    }
     case "has-authority":
       return "if (HasAuthority()) { /* authority */ }";
     case "dispatcher-call":
       return `${ident(node.data?.name || "OnChanged", "OnChanged")}.Broadcast();`;
-    case "dispatcher-bind":
-      return `// Bind ${ident(node.data?.name || "OnChanged", "OnChanged")}`;
+    case "dispatcher-bind": {
+      const name = ident(node.data?.name || "OnChanged", "OnChanged");
+      const handler = ident(node.data?.event || "OnChanged", "OnChanged");
+      const cls = graph.cppClass || "UKitComponent";
+      return `// ${name}.AddDynamic(this, &${cls}::${handler});`;
+    }
     case "branch":
     case "sequence":
     case "forloop":

@@ -59,7 +59,12 @@ export default function Learn() {
         <div className="eyebrow">Learn</div>
         <h1 className="font-display text-[36px] font-extrabold uppercase tracking-wider leading-none mt-1">{system.system_name || "This system"}</h1>
         <p className="mt-2 text-[13px] text-[var(--text-secondary)]">Question {challenges.length ? index + 1 : 0} of {challenges.length}. Answering these does not call the model.</p>
-        {!challenge && <p className="mt-6 text-[13px] font-mono text-[var(--text-muted)]" data-testid="learn-no-challenges">This system has no practice questions yet.</p>}
+        {!challenge && (
+          <div className="mt-6" data-testid="learn-no-challenges">
+            <p className="text-[13px] font-mono text-[var(--text-muted)]">This system has no practice questions yet.</p>
+            <button type="button" className="ue-btn mt-3" data-testid="learn-open-courses" onClick={() => shell.go("courses")}>Open courses</button>
+          </div>
+        )}
         {challenge && (
           <div className="panel p-4 mt-6" data-testid="learn-challenge">
             <div className="font-sub font-semibold text-[16px]">{challenge.prompt || challenge.title}</div>

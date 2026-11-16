@@ -225,7 +225,7 @@ export default function NodeGraph({ nodes = [], edges = [], whyByNode = {}, onNo
 
       {nodes.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center text-slate-500 text-sm font-mono" data-testid="graph-empty">
-          — generate a system to populate the event graph —
+          Nothing here yet. Generate a system, or stack saved projects from the list.
         </div>
       )}
     </div>

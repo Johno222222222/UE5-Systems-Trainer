@@ -75,9 +75,11 @@ export default function Programs() {
   const [mapId, setMapId] = useState("interaction");
   const [error, setError] = useState("");
   const [packProblems, setPackProblems] = useState([]);
+  const [courses, setCourses] = useState([]);
 
   const refreshCards = () => api.get("/study").then((r) => {
     setCards(r.data?.programs || []);
+    setCourses(r.data?.courses || []);
     setPackProblems(r.data?.problems || []);
   }).catch((err) => setError(errorText(err)));
 
@@ -201,6 +203,18 @@ export default function Programs() {
         <div className="eyebrow mt-3">Program</div>
         <h1 className="font-display text-[36px] font-extrabold uppercase tracking-wider leading-none mt-1">{program.title}</h1>
         <p className="mt-2 text-[13px] text-[var(--text-secondary)] max-w-2xl">{program.summary}</p>
+        {(program.related_courses || []).length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2" data-testid="program-related-courses">
+            {(program.related_courses || []).map((id) => {
+              const course = courses.find((item) => item.id === id);
+              return (
+                <button key={id} type="button" className="chip" data-testid={`program-course-${id}`} onClick={() => shell.go("courses")}>
+                  {course?.title || id}
+                </button>
+              );
+            })}
+          </div>
+        )}
         <div className="mt-4 flex flex-wrap gap-2">
           {VIEWS.map(([id, label]) => (
             <button key={id} type="button" className={`chip ${view === id ? "active" : ""}`} data-testid={`program-view-${id}`} onClick={() => setView(id)}>{label}</button>

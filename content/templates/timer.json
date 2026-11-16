@@ -2,6 +2,8 @@
   "id": "timer",
   "title": "Timer loop",
   "summary": "Begin Play sets a timer by event, and the event sets it again.",
+  "when_to_use": "Use this when a look or a pulse should run on a timer instead of Tick.",
+  "common_mistakes": "A common mistake is to start the timer inside the event without a cap, or to use Tick.",
   "variables": [],
   "graph": {
     "kind": "event",

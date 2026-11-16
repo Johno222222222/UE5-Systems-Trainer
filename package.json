@@ -1,7 +1,7 @@
 {
   "name": "ue5-system-architect",
-  "productName": "UE5 System Architect",
-  "version": "1.15.0",
+  "productName": "UE5 Systems Training Tool Generator",
+  "version": "1.16.0",
   "description": "A local desktop app for designing Unreal Engine 5 gameplay systems.",
   "main": "desktop/main.js",
   "private": true,
@@ -25,7 +25,8 @@
   },
   "build": {
     "appId": "app.ue5.system-architect",
-    "productName": "UE5 System Architect",
+    "productName": "UE5 Systems Training Tool Generator",
+    "executableName": "UE5-Systems-Training-Tool-Generator",
     "icon": "desktop/icons/icon.png",
     "directories": {
       "output": "release"
@@ -48,24 +49,32 @@
     "win": {
       "target": ["nsis"],
       "icon": "desktop/icons/icon.ico",
-      "signAndEditExecutable": false
+      "signAndEditExecutable": false,
+      "artifactName": "UE5-Systems-Training-Tool-Generator-${version}-${arch}.${ext}"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "shortcutName": "UE5 System Architect",
+      "shortcutName": "UE5 Systems Training Tool Generator",
+      "uninstallDisplayName": "UE5 Systems Training Tool/Generator",
       "installerIcon": "desktop/icons/icon.ico",
       "uninstallerIcon": "desktop/icons/icon.ico"
     },
     "linux": {
       "target": ["AppImage", "deb"],
       "category": "Development",
-      "maintainer": "Johno <johno222222222@users.noreply.github.com>"
+      "maintainer": "Johno <johno222222222@users.noreply.github.com>",
+      "artifactName": "UE5-Systems-Training-Tool-Generator-${version}-${arch}.${ext}",
+      "desktop": {
+        "Name": "UE5 Systems Training Tool/Generator",
+        "Comment": "Design Unreal Engine gameplay systems on this computer."
+      }
     },
     "mac": {
       "target": ["dmg", "zip"],
       "identity": null,
-      "category": "public.app-category.developer-tools"
+      "category": "public.app-category.developer-tools",
+      "artifactName": "UE5-Systems-Training-Tool-Generator-${version}-${arch}.${ext}"
     }
   }
 }

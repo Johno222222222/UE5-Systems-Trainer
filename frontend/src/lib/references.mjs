@@ -8,6 +8,24 @@ export const INTRO = {
   isnt: "It is not a full game generator. Review the code before you ship it.",
 };
 
+export const TOUR = [
+  {
+    id: "what",
+    title: "Before you start",
+    body: "This is a UE5 architecture and learning tool. It is not a full game generator. Review the code before you ship it.",
+  },
+  {
+    id: "stack",
+    title: "Stack systems",
+    body: "Save two or more systems, tick them under Projects, and press Stack. Shared interfaces stay once. Conflicts are listed before Create in Unreal.",
+  },
+  {
+    id: "courses",
+    title: "Courses",
+    body: "Programs and Courses keep scores on this computer. GAS basics, replication, and data tables are in the course list.",
+  },
+];
+
 export function introSeen(storage) {
   try { return storage.getItem(LS_INTRO) === "1"; }
   catch { return false; }

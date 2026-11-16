@@ -137,7 +137,7 @@ function createCompanion({ now = () => Date.now(), timeoutMs = 20000, liveMs = 6
       }
       touch();
       if (req.method === "GET" && url.pathname === "/v1/status") {
-        send(res, 200, { ok: true, app: "UE5 System Architect", paired: true });
+        send(res, 200, { ok: true, app: require("./displayName").DISPLAY_NAME, paired: true });
         return;
       }
       if (req.method === "POST" && url.pathname === "/v1/report") {

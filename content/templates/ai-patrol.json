@@ -1,0 +1,29 @@
+{
+  "id": "ai-patrol",
+  "title": "AI patrol",
+  "summary": "Begin Play sets a timer by function, and FlipFlop picks the next patrol way.",
+  "when_to_use": "Use this when a guard should walk a route on a timer instead of Tick.",
+  "common_mistakes": "A common mistake is to patrol on Tick, or to start a new timer every time the function runs.",
+  "glossary": ["timer"],
+  "variables": [
+    {"name": "GoingRight", "type": "bool", "default": "true"}
+  ],
+  "graph": {
+    "kind": "event",
+    "name": "Patrol",
+    "nodes": [
+      {"key": "begin", "catalog": "begin-play", "x": 40, "y": 80, "note": "Begin Play starts the patrol timer once."},
+      {"key": "timer", "catalog": "set-timer-function", "x": 320, "y": 80, "data": {"seconds": 1, "function": "AdvancePatrol"}, "note": "Set Timer by Function calls Advance Patrol."},
+      {"key": "advance", "catalog": "custom-event", "x": 40, "y": 280, "data": {"name": "AdvancePatrol"}, "note": "The timer calls this event."},
+      {"key": "flip", "catalog": "flipflop", "x": 320, "y": 280, "note": "FlipFlop swaps direction each time."},
+      {"key": "yes", "catalog": "literal", "x": 320, "y": 460, "data": {"varType": "bool", "value": "true"}, "pinType": "bool", "note": "True means the next point is to the right."},
+      {"key": "set", "catalog": "set-variable", "x": 620, "y": 280, "data": {"variable": "GoingRight", "varType": "bool"}, "pinType": "bool", "note": "Store the direction. Do not replicate the mesh."}
+    ],
+    "wires": [
+      {"from": "begin", "fromPin": "Exec", "to": "timer", "toPin": "Exec"},
+      {"from": "advance", "fromPin": "Exec", "to": "flip", "toPin": "Exec"},
+      {"from": "flip", "fromPin": "A", "to": "set", "toPin": "Exec"},
+      {"from": "yes", "fromPin": "Value", "to": "set", "toPin": "Value"}
+    ]
+  }
+}

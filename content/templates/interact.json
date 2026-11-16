@@ -2,6 +2,8 @@
   "id": "interact",
   "title": "Interact",
   "summary": "A look trace, then an interface call on whatever was hit.",
+  "when_to_use": "Use this when a trace should call an interface on the actor you look at.",
+  "common_mistakes": "A common mistake is a Cast To chain, or a trace that runs on Tick.",
   "variables": [],
   "graph": {
     "kind": "event",

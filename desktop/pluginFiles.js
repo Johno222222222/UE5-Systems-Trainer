@@ -41,7 +41,7 @@ function uplugin(module, system, plugins) {
     FriendlyName: system?.system_name || module,
     Description: String(system?.summary || "").slice(0, 300),
     Category: "Gameplay",
-    CreatedBy: "UE5 System Architect",
+    CreatedBy: require("./displayName").DISPLAY_NAME,
     CanContainContent: false,
     IsBetaVersion: false,
     Installed: false,

@@ -18,7 +18,7 @@ startServer({
   port: process.env.UE5_PORT || 47321,
   appVersion,
 }).then((handle) => {
-  console.log(`UE5 System Architect API http://127.0.0.1:${handle.port}`);
+  console.log(`${require("./displayName").DISPLAY_NAME} API http://127.0.0.1:${handle.port}`);
   console.log(`Data folder ${handle.dataDir}`);
 }).catch((exc) => {
   console.error(exc);
