@@ -70,6 +70,55 @@ test("the asset plan names a data table, a primary asset, and a blueprint stub",
   const map = pluginFileMap(AMMO);
   assert.match(map.files["Source/WeaponAmmoKit/Public/WeaponAmmoStatsRow.h"], /FTableRowBase/);
   assert.match(map.files["Source/WeaponAmmoKit/Private/WeaponAmmoData.cpp"], /GetPrimaryAssetId/);
+
+  const inventory = buildAssetPlan({
+    system_name: "Grid Weapon Inventory Component",
+    cpp_header: `#pragma once
+#include "CoreMinimal.h"
+#include "UJFInventory.generated.h"
+UCLASS()
+class UJFInventory : public UActorComponent
+{
+	GENERATED_BODY()
+public:
+	UJFInventory();
+	UPROPERTY(EditAnywhere) int32 InventoryColumns;
+	UPROPERTY(EditAnywhere) int32 InventoryRows;
+	UPROPERTY(EditAnywhere) float MaxWeightLimit;
+	UPROPERTY(EditAnywhere) float InteractionReach;
+	UPROPERTY(EditAnywhere) FName AttachmentSocket;
+};
+`,
+    cpp_source: `UJFInventory::UJFInventory()
+	: InventoryColumns(5)
+{
+	InventoryRows = 2;
+	MaxWeightLimit = 100.f;
+	InteractionReach = 250.f;
+	AttachmentSocket = TEXT("hand_r");
+}
+`,
+    variables: [
+      { name: "InventoryColumns", type: "int", default: "0" },
+      { name: "InventoryRows", type: "int", default: "0" },
+      { name: "MaxWeightLimit", type: "float", default: "0" },
+      { name: "InteractionReach", type: "float", default: "0" },
+      { name: "AttachmentSocket", type: "name", default: "" },
+    ],
+  });
+  const rifle = inventory.table.rows.find((row) => row.name === "Rifle").values;
+  const sidearm = inventory.table.rows.find((row) => row.name === "Sidearm").values;
+  assert.equal(rifle.InventoryColumns, "5");
+  assert.equal(rifle.InventoryRows, "2");
+  assert.equal(rifle.MaxWeightLimit, "100");
+  assert.equal(rifle.InteractionReach, "250");
+  assert.equal(rifle.AttachmentSocket, "hand_r");
+  assert.equal(sidearm.InventoryColumns, "2");
+  assert.equal(sidearm.InventoryRows, "1");
+  assert.equal(sidearm.MaxWeightLimit, "50");
+  assert.equal(sidearm.InteractionReach, "125");
+  assert.equal(inventory.primary.values.InventoryColumns, "5");
+  assert.equal(inventory.blueprint.variables.find((item) => item.name === "InventoryColumns").default, "5");
 });
 
 test("create in unreal queues the plan and open in unreal queues the asset path", async () => {
@@ -109,10 +158,15 @@ test("create in unreal queues the plan and open in unreal queues the asset path"
     assert.equal(pending.command.blueprint.asset, "BP_WeaponAmmo");
     assert.equal(pending.command.confirm, false);
 
+    const againPending = await (await fetch(`http://127.0.0.1:${info.port}/v1/pending`, {
+      headers: { "X-Companion-Token": paired.token },
+    })).json();
+    assert.equal(againPending.command.id, pending.command.id);
     const posted = await fetch(`http://127.0.0.1:${info.port}/v1/result`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Companion-Token": paired.token },
       body: JSON.stringify({
+        id: pending.command.id,
         ok: true,
         message: "Created 3 assets in /Game/Architect/Weapons.",
         assets: [
@@ -127,21 +181,6 @@ test("create in unreal queues the plan and open in unreal queues the asset path"
     assert.equal(seen.result.assets.length, 2);
     assert.match(seen.result.message, /Created 3 assets/);
 
-    const blocked = await (await fetch(`http://127.0.0.1:${info.port}/v1/result`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Companion-Token": paired.token },
-      body: JSON.stringify({
-        ok: false,
-        message: "These assets already exist. Confirm in the app before replacing them.",
-        assets: [],
-        conflicts: ["/Game/Architect/Weapons/DT_WeaponAmmoStats.DT_WeaponAmmoStats"],
-      }),
-    })).json();
-    assert.equal(blocked.ok, true);
-    const again = await (await fetch(`http://127.0.0.1:${handle.port}/api/companion`)).json();
-    assert.equal(again.result.ok, false);
-    assert.equal(again.result.conflicts.length, 1);
-
     const replaced = await (await fetch(`http://127.0.0.1:${handle.port}/api/companion/assets`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -152,6 +191,22 @@ test("create in unreal queues the plan and open in unreal queues the asset path"
       headers: { "X-Companion-Token": paired.token },
     })).json();
     assert.equal(queued.command.confirm, true);
+    assert.equal(queued.command.id, replaced.id);
+    const blocked = await (await fetch(`http://127.0.0.1:${info.port}/v1/result`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Companion-Token": paired.token },
+      body: JSON.stringify({
+        id: queued.command.id,
+        ok: false,
+        message: "These assets already exist. Confirm in the app before replacing them.",
+        assets: [],
+        conflicts: ["/Game/Architect/Weapons/DT_WeaponAmmoStats.DT_WeaponAmmoStats"],
+      }),
+    })).json();
+    assert.equal(blocked.ok, true);
+    const again = await (await fetch(`http://127.0.0.1:${handle.port}/api/companion`)).json();
+    assert.equal(again.result.ok, false);
+    assert.equal(again.result.conflicts.length, 1);
 
     const opened = await (await fetch(`http://127.0.0.1:${handle.port}/api/companion/open`, {
       method: "POST",
@@ -171,7 +226,55 @@ test("create in unreal queues the plan and open in unreal queues the asset path"
       body: JSON.stringify({ asset: "/Engine/Foo" }),
     });
     assert.equal(outside.status, 400);
+    await (await fetch(`http://127.0.0.1:${info.port}/v1/result`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Companion-Token": paired.token },
+      body: JSON.stringify({ id: openCommand.command.id, ok: true, message: "Opened.", assets: [], conflicts: [] }),
+    })).json();
   } finally {
     await handle.close();
+  }
+});
+
+test("several companion requests stay queued until each one is answered", async () => {
+  const { createCompanion } = require("../companion");
+  let now = 1000;
+  const link = await createCompanion({ now: () => now, timeoutMs: 50 });
+  try {
+    const paired = await (await fetch(`http://127.0.0.1:${link.port}/v1/pair`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: link.code }),
+    })).json();
+    const headers = { "Content-Type": "application/json", "X-Companion-Token": paired.token };
+    const first = link.queue({ type: "create-assets", folder: "/Game/Architect/One" });
+    const second = link.queue({ type: "create-assets", folder: "/Game/Architect/Two" });
+    const third = link.queue({ type: "open-asset", asset: "/Game/Architect/One/BP_One.BP_One" });
+    const take = async () => (await fetch(`http://127.0.0.1:${link.port}/v1/pending`, { headers })).json();
+    const ack = async (id, message) => fetch(`http://127.0.0.1:${link.port}/v1/result`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ id, ok: true, message, assets: [], conflicts: [] }),
+    });
+    const one = await take();
+    const oneAgain = await take();
+    assert.equal(one.command.id, first.id);
+    assert.equal(oneAgain.command.id, first.id);
+    assert.equal(one.command.folder, "/Game/Architect/One");
+    await ack(first.id, "Created one.");
+    const two = await take();
+    assert.equal(two.command.id, second.id);
+    assert.equal(two.command.folder, "/Game/Architect/Two");
+    await ack(second.id, "Created two.");
+    const open = await take();
+    assert.equal(open.command.id, third.id);
+    assert.equal(open.command.type, "open-asset");
+    now = 5000;
+    link.sweep();
+    assert.match(link.lastResult.message, /did not answer/);
+    const after = await take();
+    assert.equal(after.command, null);
+  } finally {
+    await link.close();
   }
 });

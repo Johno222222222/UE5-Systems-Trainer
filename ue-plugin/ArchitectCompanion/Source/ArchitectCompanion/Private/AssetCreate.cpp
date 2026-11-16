@@ -304,16 +304,51 @@ bool AssetCreate::Create(const TSharedRef<FJsonObject>& Command, TArray<FString>
 	}
 	if (UEdGraph* Graph = FBlueprintEditorUtils::FindEventGraph(Blueprint))
 	{
+		const FString Text = (*BlueprintJson)->GetStringField(TEXT("comment"));
+		FString Wrapped;
+		int32 LineCount = 1;
+		int32 Column = 0;
+		for (const TCHAR Ch : Text)
+		{
+			Wrapped.AppendChar(Ch);
+			if (Ch == TEXT('\n')) { LineCount += 1; Column = 0; continue; }
+			Column += 1;
+			if (Column >= 62 && Ch == TEXT(' '))
+			{
+				Wrapped.AppendChar(TEXT('\n'));
+				LineCount += 1;
+				Column = 0;
+			}
+		}
 		UEdGraphNode_Comment* Comment = NewObject<UEdGraphNode_Comment>(Graph);
-		Comment->NodeComment = (*BlueprintJson)->GetStringField(TEXT("comment"));
-		Comment->NodePosX = -240;
-		Comment->NodePosY = -220;
-		Comment->NodeWidth = 520;
-		Comment->NodeHeight = 180;
+		Comment->NodeComment = Wrapped;
+		Comment->NodePosX = -280;
+		Comment->NodePosY = -40 - (LineCount * 22);
+		Comment->NodeWidth = 760;
+		int32 Height = 48 + (LineCount * 22);
+		if (Height < 140) Height = 140;
+		if (Height > 720) Height = 720;
+		Comment->NodeHeight = Height;
 		Comment->CreateNewGuid();
 		Graph->AddNode(Comment, false, false);
 	}
 	FKismetEditorUtilities::CompileBlueprint(Blueprint);
+	if (Blueprint->GeneratedClass)
+	{
+		if (UObject* Defaults = Blueprint->GeneratedClass->GetDefaultObject())
+		{
+			Defaults->Modify();
+			if ((*BlueprintJson)->TryGetArrayField(TEXT("variables"), Variables))
+			{
+				for (const TSharedPtr<FJsonValue>& Item : *Variables)
+				{
+					const TSharedPtr<FJsonObject> Variable = Item.IsValid() ? Item->AsObject() : nullptr;
+					if (!Variable.IsValid()) continue;
+					ApplyValue(Blueprint->GeneratedClass, reinterpret_cast<uint8*>(Defaults), Variable->GetStringField(TEXT("name")), Variable->GetStringField(TEXT("default")));
+				}
+			}
+		}
+	}
 	FAssetRegistryModule::AssetCreated(Blueprint);
 	if (!SaveAsset(Blueprint, SaveMessage))
 	{

@@ -971,7 +971,9 @@ async function startServer(options = {}) {
     return candidates.find((dir) => fs.existsSync(path.join(dir, "ArchitectCompanion.uplugin"))) || "";
   }
 
-  route("GET", "/api/companion", async () => ({
+  route("GET", "/api/companion", async () => {
+    if (typeof companion.sweep === "function") companion.sweep();
+    return {
     host: "127.0.0.1",
     port: companion.port,
     code: companion.code,
@@ -981,7 +983,8 @@ async function startServer(options = {}) {
     engine: companion.report?.engine || "",
     classes: Array.isArray(companion.report?.classes) ? companion.report.classes.slice(0, 24) : [],
     result: companion.lastResult,
-  }));
+    };
+  });
 
   route("POST", "/api/companion/rotate", async () => ({ code: companion.rotate() }));
 
@@ -1039,7 +1042,6 @@ async function startServer(options = {}) {
     if (!companion.paired) {
       return { ok: false, paired: false, folder: plan.folder, message: "Pair the Architect panel in the editor first." };
     }
-    companion.clearResult();
     const command = companion.queue(plan);
     return {
       ok: true,

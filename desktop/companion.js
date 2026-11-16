@@ -56,12 +56,55 @@ function summarizeProject(report, limit = 700) {
   return text.length > limit ? `${text.slice(0, limit - 1)}…` : text;
 }
 
-function createCompanion() {
+function createCompanion({ now = () => Date.now(), timeoutMs = 20000 } = {}) {
   let code = pairingCode();
   let token = "";
   let report = null;
-  let pending = null;
   let lastResult = null;
+  const queue = [];
+
+  function settle(item, result) {
+    item.state = "done";
+    item.result = result;
+    if (!lastResult || lastResult.id === item.id) lastResult = result;
+  }
+
+  function sweep() {
+    const time = now();
+    for (const item of queue) {
+      if (item.state === "done") continue;
+      const started = item.deliveredAt || item.queuedAt;
+      if (time - started < timeoutMs) continue;
+      const waiting = item.state === "queued";
+      settle(item, {
+        id: item.id,
+        ok: false,
+        message: waiting
+          ? "Unreal did not pick up this request. Open the Architect panel and check that it is still paired."
+          : "Unreal did not answer. The Architect panel may still be busy, or the request was lost.",
+        assets: [],
+        conflicts: [],
+      });
+    }
+    while (queue.length && queue[0].state === "done") queue.shift();
+  }
+
+  function enqueue(command) {
+    const id = crypto.randomBytes(8).toString("hex");
+    const body = { id, ...command };
+    queue.push({ id, state: "queued", queuedAt: now(), command: body });
+    lastResult = {
+      id,
+      ok: true,
+      pending: true,
+      message: command.type === "open-asset"
+        ? "Waiting for Unreal to open that asset."
+        : `Waiting for Unreal to handle ${command.type || "the request"}.`,
+      assets: [],
+      conflicts: [],
+    };
+    return body;
+  }
 
   const server = http.createServer(async (req, res) => {
     const remote = req.socket.remoteAddress || "";
@@ -96,13 +139,23 @@ function createCompanion() {
         return;
       }
       if (req.method === "GET" && url.pathname === "/v1/pending") {
-        const command = pending;
-        pending = null;
-        send(res, 200, { command });
+        sweep();
+        const head = queue.find((item) => item.state !== "done");
+        if (head && head.state === "queued") {
+          head.state = "delivered";
+          head.deliveredAt = now();
+        }
+        send(res, 200, { command: head ? head.command : null });
         return;
       }
       if (req.method === "POST" && url.pathname === "/v1/result") {
-        lastResult = await readBody(req);
+        const body = await readBody(req);
+        const id = String(body.id || "");
+        const item = queue.find((entry) => entry.id === id);
+        if (item) settle(item, { ...body, id });
+        else if (id && lastResult && lastResult.id === id) lastResult = { ...body, id };
+        else if (!id) lastResult = body;
+        while (queue.length && queue[0].state === "done") queue.shift();
         send(res, 200, { ok: true });
         return;
       }
@@ -125,7 +178,8 @@ function createCompanion() {
         get lastResult() { return lastResult; },
         summary() { return summarizeProject(report); },
         clearResult() { lastResult = null; },
-        queue(command) { pending = { id: crypto.randomBytes(4).toString("hex"), ...command }; return pending; },
+        sweep,
+        queue: enqueue,
         close: () => new Promise((done) => server.close(done)),
       });
     });

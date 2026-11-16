@@ -113,9 +113,10 @@ bool CompanionLink::TakePending(const FString& Host, int32 Port, const FString& 
 	return OutCommand.IsValid() && !OutCommand->GetStringField(TEXT("type")).IsEmpty();
 }
 
-bool CompanionLink::PostResult(const FString& Host, int32 Port, const FString& Token, bool bOk, const FString& Message, const TArray<FString>& Assets, const TArray<FString>& Conflicts, FString& OutError)
+bool CompanionLink::PostResult(const FString& Host, int32 Port, const FString& Token, const FString& Id, bool bOk, const FString& Message, const TArray<FString>& Assets, const TArray<FString>& Conflicts, FString& OutError)
 {
 	TSharedRef<FJsonObject> Body = MakeShared<FJsonObject>();
+	Body->SetStringField(TEXT("id"), Id);
 	Body->SetBoolField(TEXT("ok"), bOk);
 	Body->SetStringField(TEXT("message"), Message);
 	TArray<TSharedPtr<FJsonValue>> AssetValues;

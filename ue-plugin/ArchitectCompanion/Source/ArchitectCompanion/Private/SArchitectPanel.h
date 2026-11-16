@@ -26,5 +26,10 @@ private:
 	FString Status = TEXT("Not paired");
 	FString ProjectName;
 	FString EngineVersion;
+	FString FinishedId;
+	FString FinishedMessage;
+	TArray<FString> FinishedAssets;
+	TArray<FString> FinishedConflicts;
+	bool bFinishedOk = false;
 	FTSTicker::FDelegateHandle Ticker;
 };
