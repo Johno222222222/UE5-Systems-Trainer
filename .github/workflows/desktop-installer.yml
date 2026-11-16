@@ -19,22 +19,39 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Delete previous workflow artifacts
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # The cloud-agent token cannot delete artifacts. This job uses the
-          # workflow token, which has actions: write. Release assets are not listed here.
+          # actions: write on this workflow lets GITHUB_TOKEN delete Actions artifacts.
+          # This calls only the Actions artifacts API. Release assets are a different API and are never listed or deleted.
+          list=$(mktemp)
+          page=1
           while true; do
-            ids=$(gh api "repos/${{ github.repository }}/actions/artifacts?per_page=100" --jq '.artifacts[].id')
-            if [ -z "$ids" ]; then
-              echo "No workflow artifacts left."
+            if ! json=$(gh api "repos/${{ github.repository }}/actions/artifacts?per_page=100&page=${page}"); then
+              echo "::warning::Could not list workflow artifacts (page ${page}). Continuing so the installers still build."
               break
             fi
-            for id in $ids; do
-              gh api -X DELETE "repos/${{ github.repository }}/actions/artifacts/${id}"
-              echo "deleted ${id}"
-            done
+            count=$(echo "$json" | jq '.artifacts | length')
+            echo "$json" | jq -r --argjson run "${{ github.run_id }}" '.artifacts[] | select(.workflow_run.id != $run) | "\(.id) \(.name)"' >> "$list" || echo "::warning::Could not read the artifact list on page ${page}."
+            if [ "$count" -lt 100 ]; then
+              break
+            fi
+            page=$((page + 1))
           done
+          if [ ! -s "$list" ]; then
+            echo "No workflow artifacts from earlier runs."
+            exit 0
+          fi
+          while read -r id name; do
+            [ -z "$id" ] && continue
+            if gh api -X DELETE "repos/${{ github.repository }}/actions/artifacts/${id}"; then
+              echo "deleted artifact ${id} (${name})"
+            else
+              echo "::warning::Could not delete workflow artifact ${id} (${name}). Continuing."
+            fi
+          done < "$list"
+          exit 0
 
   windows:
     name: Windows installer
