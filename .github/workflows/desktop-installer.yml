@@ -14,8 +14,31 @@ permissions:
   actions: write
 
 jobs:
+  free-quota:
+    name: Free artifact quota
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete previous workflow artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # The cloud-agent token cannot delete artifacts. This job uses the
+          # workflow token, which has actions: write. Release assets are not listed here.
+          while true; do
+            ids=$(gh api "repos/${{ github.repository }}/actions/artifacts?per_page=100" --jq '.artifacts[].id')
+            if [ -z "$ids" ]; then
+              echo "No workflow artifacts left."
+              break
+            fi
+            for id in $ids; do
+              gh api -X DELETE "repos/${{ github.repository }}/actions/artifacts/${id}"
+              echo "deleted ${id}"
+            done
+          done
+
   windows:
     name: Windows installer
+    needs: free-quota
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v5
@@ -52,9 +75,11 @@ jobs:
           name: ue5-system-architect-windows
           path: release/*.exe
           if-no-files-found: error
+          retention-days: 5
 
   macos:
     name: macOS archive
+    needs: free-quota
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v5
@@ -89,9 +114,11 @@ jobs:
             release/*.dmg
             release/*.zip
           if-no-files-found: error
+          retention-days: 5
 
   linux:
     name: Linux packages
+    needs: free-quota
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -129,6 +156,7 @@ jobs:
             release/*.AppImage
             release/*.deb
           if-no-files-found: error
+          retention-days: 5
 
   plugin-includes:
     name: Plugin include check

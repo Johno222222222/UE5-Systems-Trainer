@@ -1032,7 +1032,7 @@ function statementFor(node, graph) {
       return parts.join(" ");
     }
     case "has-authority":
-      return "if (HasAuthority()) { /* authority */ }";
+      return "";
     case "dispatcher-call":
       return `${dispatcherMember(node)}.Broadcast();`;
     case "dispatcher-bind": {
@@ -1112,6 +1112,13 @@ function emitBody(graph, node, indent, seen, out) {
   if (node.catalog === "timeline") {
     const line = statementFor(node, graph);
     if (line) out.push(`${indent}${line} // node:${node.id}`);
+    return;
+  }
+  if (node.catalog === "has-authority") {
+    out.push(`${indent}if (HasAuthority()) // node:${node.id}`);
+    out.push(`${indent}{`);
+    if (execOut[0]) emitBody(graph, outgoing(graph, node, execOut[0].id), `${indent}\t`, nextSeen, out);
+    out.push(`${indent}}`);
     return;
   }
   if (node.catalog === "cast-to") {

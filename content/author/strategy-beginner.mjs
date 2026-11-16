@@ -31,7 +31,7 @@ const sections = [
     why: "Spend subtracts a data cost on the authority.",
     depends: ["Spend", "Has Authority", "Supplies"],
     paragraphs: [
-      `The strategy economy is a stock of supplies. Spend is a custom event, not Tick. The excerpt tests HasAuthority in an empty block and assigns Supplies = (Supplies - 25.f). The 25 is the sample cost. A data row should own it, so a barracks and a turret do not share a literal typed in the graph. Nest the subtract inside the authority check, or every client spends and the stocks diverge.`,
+      `The strategy economy is a stock of supplies. Spend is a custom event, not Tick. The excerpt assigns Supplies = (Supplies - 25.f) inside if (HasAuthority()). The 25 is the sample cost. A data row should own it, so a barracks and a turret do not share a literal typed in the graph. A client that subtracts outside that check spends a private stock, and the copies diverge.`,
       `An order to build calls Spend. ReceiveOrder does not itself subtract, or every move order would bill the player. The unit asks the economy when the order is a purchase. Fog does not spend. Scoring does not. A refund is the same event with a negative cost, still on the authority, still from the data row.`,
       `Replicating the coin icon, or every floating number, is the expensive version. The float is the state. The UI binds to it. A Tick that drips income also drips while the match is paused and never asks whether a building exists. Income, if you add it, is a slow timer that calls the same Spend path with a negative cost.`,
       `Save stores Supplies after the server write. Loading a client's guess fills the base with money the host did not have.`,
@@ -39,7 +39,7 @@ const sections = [
     assignment: { kind: "cpp", prompt: "Clients each subtract 25 from Supplies. Where must that assignment sit, and what should own the 25?", accept: ["HasAuthority", "data"], model: "Nest Supplies = (Supplies - 25.f) inside HasAuthority. The data row owns the cost. Spend is the event, not Tick." },
     quiz: [
       ["What does the economy excerpt assign?", ["Supplies = (Supplies - 25.f)", "Score = (Score + 10.f)", "Visible = true", "Selected"], 0, "25 is the sample cost."],
-      ["What is wrong with the authority block?", ["It is empty and the subtract sits after it", "HasAuthority cannot subtract", "25 is a bool", "Spend is missing"], 0, "Nest the write."],
+      ["Where does the economy excerpt subtract Supplies?", ["Inside if (HasAuthority())", "On every client, after the check", "In the widget", "On Tick"], 0, "The subtract is already in the authority block. 25 should become a data row."],
       ["Who calls Spend?", ["A build order, not every move", "Tick", "Fog", "The medal"], 0, "A purchase asks the economy."],
       ["True or false: income should drip on Tick.", YN, 1, "A slow timer calls Spend with a negative cost."],
       ["What replicates?", ["The supplies float", "The coin widget", "Every floating combat text", "The data asset itself"], 0, "The UI is local."],
@@ -97,15 +97,15 @@ const sections = [
     why: "AwardMedal adds a data value on the authority.",
     depends: ["AwardMedal", "Has Authority", "Score"],
     paragraphs: [
-      `A medal is a result, not an order. AwardMedal is the server event for a kill or an objective. The excerpt tests HasAuthority in an empty block and assigns Score = (Score + 10.f). Ten is the sample. The data asset should name the medal's value, the way the economy's row names a cost. Nest the add inside the authority check. A client that awards its own medal inflates the board.`,
+      `A medal is a result, not an order. AwardMedal is the server event for a kill or an objective. The excerpt assigns Score = (Score + 10.f) inside if (HasAuthority()). Ten is the sample. The data asset should name the medal's value, the way the economy's row names a cost. A client that awards its own medal, outside that check, inflates the board. The board then shows a number the host never granted.`,
       `The board widget reads Score. It is not replicated. Fog does not add score when a cell becomes visible. Supplies are not score. Spending and scoring can share the authority habit. They must not share the float, or a purchase lowers the kill board.`,
       `The camp patrol does not call AwardMedal when it flips GoingRight. The kill does. An order completed, a point captured, is another call with a different data value. Tick that scans for dead units rediscovers deaths the kill event already reported.`,
       `Save stores Score after the server add. A load that adds 10 again because Begin Play fires AwardMedal double-counts the match.`,
     ],
-    assignment: { kind: "cpp", prompt: "The score excerpt adds 10 outside an empty HasAuthority block. What is the repair, and what should own the 10?", accept: ["HasAuthority", "medal"], model: "Nest Score = (Score + 10.f) inside HasAuthority. The medal data owns the value. Begin Play must not fire AwardMedal on load." },
+    assignment: { kind: "cpp", prompt: "The score excerpt adds 10 inside HasAuthority. What should own that 10, and what must Begin Play not call?", accept: ["medal", "AwardMedal"], model: "Score = (Score + 10.f) is already inside HasAuthority. The medal data owns the value. Begin Play must not fire AwardMedal on load." },
     quiz: [
       ["What does the medal excerpt assign?", ["Score = (Score + 10.f)", "Supplies - 25.f", "Visible = true", "GoingRight = true"], 0, "10 is the sample medal."],
-      ["Who may run that add?", ["The authority", "Each client's board", "The fog timer", "The camp's flip"], 0, "The empty block must grow around the add."],
+      ["Who may run that add?", ["The authority", "Each client's board", "The fog timer", "The camp's flip"], 0, "The add already sits inside HasAuthority."],
       ["What reads Score?", ["The board widget, locally", "A replicated widget actor", "Fog", "ReceiveOrder"], 0, "The widget is not state."],
       ["True or false: revealing a fog cell should add 10.", YN, 1, "Vision is not a medal."],
       ["What double-counts the match on load?", ["Begin Play firing AwardMedal", "Storing Score", "Not storing Score", "The data asset"], 0, "Load the number. Do not award it again."],

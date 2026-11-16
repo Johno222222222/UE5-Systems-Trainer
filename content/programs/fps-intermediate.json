@@ -273,9 +273,9 @@
       "reading": [
         "Area of interest is how a large FPS stops shipping every actor to every client. Project JOHNO's netcode note is the same rule: relevance is a server fact. A pawn across the map is not replicated just because its widget exists. The sample graph stands in for that test. Begin Play starts a timer. Twice a second, CheckAOI runs, the authority traces, and Relevant is set from the hit.",
         "UE5's replication graph is the production version of this timer. It groups actors by cell and by team. The sample cannot build that graph in one event, so it uses a line trace as the stand-in and writes a bool. The interval in the generated timer is 0.5f, looping. That is a relevancy pass, not a render pass. Clients that are not relevant never receive the actor's properties.",
-        "The excerpt shows SetTimer for Graph_CheckAOI at 0.5f, then HasAuthority, then the trace, then Relevant = bHit. The authority if in the sample is an empty block before the trace. Read that as a defect to repair: the relevance write has to sit inside the authority, or a client can mark itself relevant and pull actors the server meant to hide. The widget is never the replicated object.",
+        "The excerpt shows SetTimer for Graph_CheckAOI at 0.5f. Inside CheckAOI, if (HasAuthority()) wraps the trace and Relevant = bHit. A client that writes Relevant outside that check can mark itself relevant and pull actors the server meant to hide. The widget is never the replicated object.",
         "Interaction, the weapon, and health still run for a relevant pawn. They do not each run their own relevancy test. EW gear that listens for signals should use the same relevance gate, or a jammer across the map costs bandwidth for a noise nobody can hear. Destruction debris should die out of relevance quickly. A Tick that asks every connection about every actor is the failure mode this timer replaces.",
-        "The figure is the real Area of interest graph, with that preset's node positions and wires. Begin Play starts the relevance timer. Relevance is checked twice a second, not every frame. CheckAOI is the relevancy pass. The server decides who is relevant. A stand-in for distance. A real AOI uses the replication graph. Relevant gates replication. The widget is not replicated. The C++ beside the figure is the compiler output for this same graph. Line 10 is `if (UWorld* World = GetWorld()) { FTimerHandle Timer_tpl_aoi_timer; World->GetTimerManager().SetTimer(Timer_tp`. Line 15 is `if (HasAuthority()) { /* authority */ } // node:tpl_aoi_auth`.",
+        "The figure is the real Area of interest graph, with that preset's node positions and wires. Begin Play starts the relevance timer. Relevance is checked twice a second, not every frame. CheckAOI is the relevancy pass. The server decides who is relevant. A stand-in for distance. A real AOI uses the replication graph. Relevant gates replication. The widget is not replicated. The C++ beside the figure is the compiler output for this same graph. Line 10 is `if (UWorld* World = GetWorld()) { FTimerHandle Timer_tpl_aoi_timer; World->GetTimerManager().SetTimer(Timer_tp`. Line 15 is `if (HasAuthority()) // node:tpl_aoi_auth`.",
         "Across this track, keep CheckAOI, Has Authority, Relevant, Replication graph distinct. The server decides Relevant on a timer, not on Tick. SetTimer calls CheckAOI at 0.5f. Relevant = bHit, inside HasAuthority. Tick is not the pass."
       ],
       "assignment": {
@@ -336,15 +336,15 @@
         },
         {
           "id": "aoi-q5",
-          "prompt": "What does the empty HasAuthority block in the excerpt mean for the write?",
+          "prompt": "Where does the AOI excerpt assign Relevant = bHit?",
           "choices": [
-            "The write can still run on a client until it is nested inside the check",
-            "The write is already safe",
-            "HasAuthority replicates the widget",
-            "The timer is cancelled"
+            "Inside if (HasAuthority()) in CheckAOI",
+            "On the client, after the timer",
+            "In the widget",
+            "In Begin Play, before the timer"
           ],
           "answer": 0,
-          "why": "An empty if does not guard the next line."
+          "why": "The trace and the write sit in the authority block."
         },
         {
           "id": "aoi-q6",
@@ -524,20 +524,20 @@
       ],
       "reading": [
         "Project JOHNO treats a body as attributes, not as one bar only. A limb has its own float. A normal hit may drop that limb, but not through the floor the design set: 10% of the limb's max. The clamp is the rule. The sample graph is the replicated health graph, because the networking rule is the same whether the float is named Health or LeftArm. Any Damage arrives. Only the authority writes. Clients hear OnRep.",
-        "The generated function is Graph_AnyDamage. It tests HasAuthority in an empty block, then assigns Health = 90.f. That 90 is the sample literal standing in for a computed result. Read the empty block as the bug the medical kit has to close: the assignment must be inside the authority test, and the value must be the clamped result, not a literal typed on the client. A limb at 100 with a max of 100 does not go to 0 from a bruise. The floor is 0.1 times max. A dedicated downed state, not this clamp, is what crosses zero.",
+        "The generated function is Graph_AnyDamage. if (HasAuthority()) contains Health = 90.f. That 90 is the sample literal standing in for a computed result. The authority gate is already around the write. The medical rule still replaces 90 with the clamped result, not a literal typed beside the check. A limb at 100 with a max of 100 does not go to 0 from a bruise. The floor is 0.1 times max. A dedicated downed state, not this clamp, is what crosses zero.",
         "OnRep_Health in the excerpt logs that health changed. That is the client notify. A hit flash, a limp, or a blood widget belongs there. Subtracting again inside OnRep double-applies the hit. The limb widget reads the float. It is not replicated.",
         "Ballistics calls this damage event. It does not write the limb. The gunsmith does not. Save stores the limb floats after the authority has written them. A medic item in the inventory calls the same event with a negative damage, still on the authority, and the same clamp keeps the limb at or under its max. EW and vehicles do not own limbs. A destroyed vehicle is a different health component.",
-        "The figure is the real Replicated health graph, with that preset's node positions and wires. Any Damage is the request. Authority decides. Has Authority keeps the change on the server. A stand-in for health after the hit. Set the replicated health. OnRep runs on the clients that hear the property. The UI listens. It does not decide the number. The C++ beside the figure is the compiler output for this same graph. Line 9 is `if (HasAuthority()) { /* authority */ } // node:tpl_replicated-health_auth`. Line 10 is `Health = 90.f; // node:tpl_replicated-health_set`.",
-        "Across this track, keep Any Damage, Has Authority, OnRep, Limb clamp distinct. The server writes the float. A limb does not fall below 10% from a normal hit. Nest the write inside if (HasAuthority()). A normal hit clamps the limb to 10% of its max. OnRep only notifies."
+        "The figure is the real Replicated health graph, with that preset's node positions and wires. Any Damage is the request. Authority decides. Has Authority keeps the change on the server. A stand-in for health after the hit. Set the replicated health. OnRep runs on the clients that hear the property. The UI listens. It does not decide the number. The C++ beside the figure is the compiler output for this same graph. Line 9 is `if (HasAuthority()) // node:tpl_replicated-health_auth`. Line 11 is `Health = 90.f; // node:tpl_replicated-health_set`.",
+        "Across this track, keep Any Damage, Has Authority, OnRep, Limb clamp distinct. The server writes the float. A limb does not fall below 10% from a normal hit. Health = 90.f already sits inside if (HasAuthority()). Replace 90 with a clamp to 10% of max. OnRep only notifies."
       ],
       "assignment": {
         "kind": "cpp",
-        "prompt": "The excerpt assigns Health = 90.f outside an empty HasAuthority block. Where must that write move, and what floor does a limb use?",
+        "prompt": "The excerpt assigns Health = 90.f inside HasAuthority. What should replace that literal, and what floor does a limb use?",
         "accept": [
-          "HasAuthority",
+          "clamp",
           "10"
         ],
-        "model": "Nest the write inside if (HasAuthority()). A normal hit clamps the limb to 10% of its max. OnRep only notifies."
+        "model": "Health = 90.f already sits inside if (HasAuthority()). Replace 90 with a clamp to 10% of max. OnRep only notifies."
       },
       "quiz": [
         {
@@ -554,15 +554,15 @@
         },
         {
           "id": "limbs-q2",
-          "prompt": "What is wrong with that assignment as emitted?",
+          "prompt": "What is still wrong with Health = 90.f inside the authority check?",
           "choices": [
-            "It sits outside an empty HasAuthority block",
-            "It uses a float",
+            "It is a literal, not the 10% clamp",
+            "The authority check should be removed",
             "OnRep is missing from the file",
             "90 is above 100"
           ],
           "answer": 0,
-          "why": "The write is not guarded."
+          "why": "The gate is correct. The value should be the clamp."
         },
         {
           "id": "limbs-q3",
@@ -774,10 +774,10 @@
       ],
       "reading": [
         "The Project JOHNO gunsmith is a data record with ten slots. A slot holds an attachment id: optic, magazine, barrel, and the rest. The graph does not store transforms. IA_Equip selects a slot. The authority writes EquippedId. The owning client builds the visible weapon from the data asset that id names. A radial menu and a number key both send IA_Equip. The graph cannot tell them apart, and it should not try.",
-        "The excerpt is short. Graph_IA_Equip tests HasAuthority in an empty block, then assigns EquippedId = IA_Equip. The empty block is the same defect as the health sample: the assignment has to nest inside the check, or a client predicts an id the server will overwrite, and the mesh pops. The ten slot records never travel as actors. They live in the asset.",
+        "The excerpt is short. Graph_IA_Equip assigns EquippedId = IA_Equip inside if (HasAuthority()). A client that writes the id outside that check predicts a weapon the server will overwrite, and the mesh pops. The ten slot records never travel as actors. They live in the asset.",
         "Spawning ten components on every equip replicates sockets the client can read from the asset. That is the expensive version. One id is the cheap version. Wear and heat from the ballistics graph hang off the equipped weapon, not off each slot. Swapping the id does not reset another player's limb medical state.",
         "Inventory stores the weapon item that points at the same asset. Save stores EquippedId, not the meshes. Movement and GASP do not read it, except that a heavy weapon might change Speed through an ability, which is a different write. The L2 radial menu is just another sender of IA_Equip.",
-        "The figure is the real Gunsmith graph, with that preset's node positions and wires. IA_Equip picks a slot. The radial menu can send the same action. The server decides the equipped id. Replicate EquippedId. The client builds the mesh from the data asset. The C++ beside the figure is the compiler output for this same graph. Line 7 is `if (HasAuthority()) { /* authority */ } // node:tpl_gunsmith_auth`. Line 8 is `EquippedId = IA_Equip; // node:tpl_gunsmith_set`.",
+        "The figure is the real Gunsmith graph, with that preset's node positions and wires. IA_Equip picks a slot. The radial menu can send the same action. The server decides the equipped id. Replicate EquippedId. The client builds the mesh from the data asset. The C++ beside the figure is the compiler output for this same graph. Line 7 is `if (HasAuthority()) // node:tpl_gunsmith_auth`. Line 9 is `EquippedId = IA_Equip; // node:tpl_gunsmith_set`.",
         "Across this track, keep IA_Equip, EquippedId, Ten slots distinct. Ten slots stay in the data asset. EquippedId is what replicates. EquippedId = IA_Equip, nested inside HasAuthority. The data record holds ten slots. The client builds meshes."
       ],
       "assignment": {
@@ -816,12 +816,12 @@
         },
         {
           "id": "gunsmith-q3",
-          "prompt": "What must happen to the empty HasAuthority block?",
+          "prompt": "Where does the gunsmith excerpt assign EquippedId?",
           "choices": [
-            "The EquippedId write moves inside it",
-            "It should be deleted and the client should write the id",
-            "It should tick",
-            "It should replicate meshes"
+            "Inside if (HasAuthority())",
+            "On the client, beside the check",
+            "On Tick",
+            "In OnRep"
           ],
           "answer": 0,
           "why": "The server owns the id."
@@ -1083,9 +1083,9 @@
       {
         "id": "fps-intermediate-e6",
         "kind": "mc",
-        "prompt": "A client sets Relevant true and actors pop in across the map. Which check was an empty block?",
+        "prompt": "A client sets Relevant true and actors pop in across the map. Where does the real excerpt assign Relevant = bHit?",
         "choices": [
-          "HasAuthority before Relevant = bHit",
+          "Inside HasAuthority in CheckAOI",
           "IA_Move > 0.f",
           "Magazine < MagSize",
           "The limb clamp"
@@ -1206,7 +1206,7 @@
         "kind": "cpp-repair",
         "graph": "gunsmith",
         "sample": "EquippedId = IA_Equip; // outside HasAuthority",
-        "prompt": "EquippedId is assigned outside an empty HasAuthority block. What is the repair?",
+        "prompt": "This broken sample assigns EquippedId outside HasAuthority. The real excerpt nests it. What is the repair for the sample?",
         "choices": [
           "Nest EquippedId = IA_Equip inside the authority check",
           "Delete the id and replicate meshes",

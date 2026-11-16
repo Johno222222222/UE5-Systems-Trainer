@@ -374,21 +374,21 @@
         "OnRep"
       ],
       "reading": [
-        "Third-person health is a replicated float with a body the other players can see. Any Damage is the event. The excerpt tests HasAuthority in an empty block and then assigns Health = 90.f. The 90 is a sample literal. The empty block is the defect: a hit reaction on every client must not be what writes the float, or two players see two different bodies fall. Nest the assignment inside the authority check, and compute the value instead of typing 90.",
+        "Third-person health is a replicated float with a body the other players can see. Any Damage is the event. The excerpt assigns Health = 90.f inside if (HasAuthority()). The 90 is a sample literal. A hit reaction on a client must not be a second write, or two players see two different bodies fall. Replace 90 with the computed value. Leave the authority block where the compiler put it.",
         "OnRep_Health logs that health changed. On a third-person pawn that notify plays the flinch on the mesh everyone can see. It does not subtract again. The camera does not shake from this function. The local client can shake from the notify. The weapon calls the damage event. It does not assign Health.",
         "The magazine, the aim bool, and the squadmate's patrol are unrelated floats. Save stores Health after the server writes it. A Tick that drains health, so the third-person mesh can bleed, ignores the event and bleeds while the player is standing in a menu.",
         "A client that predicts the flinch is fine. A client that predicts the number is the snap you see when the server float arrives.",
-        "The figure is the real Replicated health graph, with that preset's node positions and wires. Any Damage is the request. Authority decides. Has Authority keeps the change on the server. A stand-in for health after the hit. Set the replicated health. OnRep runs on the clients that hear the property. The UI listens. It does not decide the number. The C++ beside the figure is the compiler output for this same graph. Line 9 is `if (HasAuthority()) { /* authority */ } // node:tpl_replicated-health_auth`. Line 10 is `Health = 90.f; // node:tpl_replicated-health_set`.",
-        "Across this track, keep Any Damage, Has Authority, OnRep distinct. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. Put the write inside HasAuthority. OnRep plays the flinch and does not subtract."
+        "The figure is the real Replicated health graph, with that preset's node positions and wires. Any Damage is the request. Authority decides. Has Authority keeps the change on the server. A stand-in for health after the hit. Set the replicated health. OnRep runs on the clients that hear the property. The UI listens. It does not decide the number. The C++ beside the figure is the compiler output for this same graph. Line 9 is `if (HasAuthority()) // node:tpl_replicated-health_auth`. Line 11 is `Health = 90.f; // node:tpl_replicated-health_set`.",
+        "Across this track, keep Any Damage, Has Authority, OnRep distinct. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. The write is already inside HasAuthority. Replace 90 with the computed health. OnRep plays the flinch and does not subtract."
       ],
       "assignment": {
         "kind": "cpp",
-        "prompt": "The third-person excerpt assigns Health = 90.f after an empty HasAuthority block. What is the repair, and what should OnRep play?",
+        "prompt": "The third-person excerpt assigns Health = 90.f inside HasAuthority. What should replace 90, and what should OnRep play?",
         "accept": [
-          "HasAuthority",
+          "clamp",
           "OnRep"
         ],
-        "model": "Put the write inside HasAuthority. OnRep plays the flinch and does not subtract."
+        "model": "The write is already inside HasAuthority. Replace 90 with the computed health. OnRep plays the flinch and does not subtract."
       },
       "quiz": [
         {
@@ -405,15 +405,15 @@
         },
         {
           "id": "health-q2",
-          "prompt": "What is wrong with the authority test as emitted?",
+          "prompt": "What is still a sample in the third-person health excerpt?",
           "choices": [
-            "The block is empty and the write sits after it",
-            "HasAuthority cannot be called",
-            "90 is a bool",
-            "OnRep is absent"
+            "Health = 90.f, a literal inside the authority block",
+            "An empty HasAuthority block",
+            "A missing OnRep",
+            "A tick drain"
           ],
           "answer": 0,
-          "why": "The write is unguarded."
+          "why": "The gate is real. 90 stands in for the math."
         },
         {
           "id": "health-q3",
@@ -860,7 +860,7 @@
         "kind": "cpp-repair",
         "graph": "replicated-health",
         "sample": "Health = 90.f; // after an empty HasAuthority",
-        "prompt": "The third-person health write sits outside HasAuthority. What is the repair?",
+        "prompt": "This broken sample writes Health after an empty HasAuthority. The real excerpt nests the assignment. What is the repair for the sample?",
         "choices": [
           "Nest Health's assignment inside HasAuthority",
           "Subtract again in OnRep",

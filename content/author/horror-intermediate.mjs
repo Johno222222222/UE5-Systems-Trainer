@@ -109,12 +109,12 @@ const sections = [
     why: "Even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
     depends: ["Any Damage", "Has Authority", "OnRep"],
     paragraphs: [
-      `Co-op horror adds a second machine, so the local clamp lesson is no longer enough. The excerpt assigns Health = 90.f after an empty HasAuthority block, and OnRep logs the change. Nest the write. Replace 90 with a clamp. A normal hit does not drop a limb below 10% of its max. The downed state is what crosses zero. OnRep plays the limp on every proxy. It does not subtract again.`,
+      `Co-op horror adds a second machine, so the local clamp lesson is no longer enough. The excerpt assigns Health = 90.f inside if (HasAuthority()), and OnRep logs the change. Replace 90 with a clamp. A normal hit does not drop a limb below 10% of its max. The downed state is what crosses zero. OnRep plays the limp on every proxy. It does not subtract again.`,
       `The hunter's attack calls Any Damage on the server. A client that applies the bite locally so the screen punches early will snap when the server float arrives. The screen punch can be predicted. The number cannot. Sense does not write Health. A sight is not a bite.`,
       `Fear can read the limb. It does not assign it. Inventory's medkit calls the same event with a heal, still inside the authority, still clamped at max. Save stores the limb after that write. The door and the patrol do not have a copy of the player's limb.`,
       `The single-player graph's FMath::Clamp line is the math. This graph adds the authority gate around it. Skipping the gate because the mode feels single player on a listen server still lets the remote client disagree.`,
     ],
-    assignment: { kind: "cpp", prompt: "A co-op bite writes the limb on the client. Where must the excerpt's Health assignment move, and what is the 10% floor on a max of 70?", accept: ["HasAuthority", "7"], model: "Inside HasAuthority. The floor is 7. OnRep limps and does not subtract. Sense does not write Health." },
+    assignment: { kind: "cpp", prompt: "A co-op bite writes the limb on the client. Where does the excerpt already assign Health, and what is the 10% floor on a max of 70?", accept: ["HasAuthority", "7"], model: "Health = 90.f is already inside HasAuthority. The floor is 7. OnRep limps and does not subtract. Sense does not write Health." },
     quiz: [
       ["What does the co-op horror health excerpt assign?", ["Health = 90.f", "Alert = 1.f", "IsOpen = true", "GoingRight = true"], 0, "90 is the sample literal to replace with a clamp."],
       ["A limb maxes at 70. Where does a bruise stop?", ["7", "0", "10", "90"], 0, "Ten percent of 70."],

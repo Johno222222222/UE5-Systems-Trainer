@@ -551,55 +551,55 @@
       },
       {
         "line": 9,
-        "text": "\tif (HasAuthority()) { /* authority */ } // node:tpl_replicated-health_auth"
+        "text": "\tif (HasAuthority()) // node:tpl_replicated-health_auth"
       },
       {
         "line": 10,
-        "text": "\tHealth = 90.f; // node:tpl_replicated-health_set"
-      },
-      {
-        "line": 11,
-        "text": "}"
-      },
-      {
-        "line": 13,
-        "text": "void UKitComponent::OnRep_Health() // node:tpl_replicated-health_rep"
-      },
-      {
-        "line": 14,
-        "text": "{"
-      },
-      {
-        "line": 15,
-        "text": "\tUE_LOG(LogTemp, Display, TEXT(\"%s\"), TEXT(\"Health changed\")); // node:tpl_replicated-health_show"
-      },
-      {
-        "line": 16,
-        "text": "}"
-      },
-      {
-        "line": 18,
-        "text": "void UKitComponent::BeginPlay()"
-      },
-      {
-        "line": 19,
-        "text": "{"
-      },
-      {
-        "line": 20,
-        "text": "\tSuper::BeginPlay();"
-      },
-      {
-        "line": 21,
-        "text": "\tif (AActor* Owner = GetOwner())"
-      },
-      {
-        "line": 22,
         "text": "\t{"
       },
       {
+        "line": 11,
+        "text": "\t\tHealth = 90.f; // node:tpl_replicated-health_set"
+      },
+      {
+        "line": 12,
+        "text": "\t}"
+      },
+      {
+        "line": 13,
+        "text": "}"
+      },
+      {
+        "line": 15,
+        "text": "void UKitComponent::OnRep_Health() // node:tpl_replicated-health_rep"
+      },
+      {
+        "line": 16,
+        "text": "{"
+      },
+      {
+        "line": 17,
+        "text": "\tUE_LOG(LogTemp, Display, TEXT(\"%s\"), TEXT(\"Health changed\")); // node:tpl_replicated-health_show"
+      },
+      {
+        "line": 18,
+        "text": "}"
+      },
+      {
+        "line": 20,
+        "text": "void UKitComponent::BeginPlay()"
+      },
+      {
+        "line": 21,
+        "text": "{"
+      },
+      {
+        "line": 22,
+        "text": "\tSuper::BeginPlay();"
+      },
+      {
         "line": 23,
-        "text": "\t\tOwner->OnTakeAnyDamage.AddDynamic(this, &UKitComponent::Graph_AnyDamage_tpl_replicatedhealth_damage);"
+        "text": "\tif (AActor* Owner = GetOwner())"
       }
     ]
   },
@@ -839,39 +839,39 @@
       },
       {
         "line": 15,
-        "text": "\tif (HasAuthority()) { /* authority */ } // node:tpl_aoi_auth"
+        "text": "\tif (HasAuthority()) // node:tpl_aoi_auth"
       },
       {
         "line": 16,
-        "text": "\tFHitResult Hit_tpl_aoi_trace; bool bHit_tpl_aoi_trace = false; if (UWorld* World_tpl_aoi_trace = GetWorld()) { const FVector Start_tpl_aoi_trace = GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector; bHit_tpl_aoi_trace = World_tpl_aoi_trace->LineTraceSingleByChannel(Hit_tpl_aoi_trace, Start_tpl_aoi_trace, Start_tpl_aoi_trace + FVector(200.f, 0.f, 0.f), ECC_Visibility); } // node:tpl_aoi_trace"
+        "text": "\t{"
       },
       {
         "line": 17,
-        "text": "\tRelevant = bHit_tpl_aoi_trace; // node:tpl_aoi_set"
+        "text": "\t\tFHitResult Hit_tpl_aoi_trace; bool bHit_tpl_aoi_trace = false; if (UWorld* World_tpl_aoi_trace = GetWorld()) { const FVector Start_tpl_aoi_trace = GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector; bHit_tpl_aoi_trace = World_tpl_aoi_trace->LineTraceSingleByChannel(Hit_tpl_aoi_trace, Start_tpl_aoi_trace, Start_tpl_aoi_trace + FVector(200.f, 0.f, 0.f), ECC_Visibility); } // node:tpl_aoi_trace"
       },
       {
         "line": 18,
-        "text": "}"
+        "text": "\t\tRelevant = bHit_tpl_aoi_trace; // node:tpl_aoi_set"
+      },
+      {
+        "line": 19,
+        "text": "\t}"
       },
       {
         "line": 20,
-        "text": "void UKitComponent::BeginPlay()"
-      },
-      {
-        "line": 21,
-        "text": "{"
+        "text": "}"
       },
       {
         "line": 22,
-        "text": "\tSuper::BeginPlay();"
+        "text": "void UKitComponent::BeginPlay()"
       },
       {
         "line": 23,
-        "text": "\tGraph_BeginPlay_tpl_aoi_begin();"
+        "text": "{"
       },
       {
         "line": 24,
-        "text": "}"
+        "text": "\tSuper::BeginPlay();"
       }
     ]
   },
@@ -891,34 +891,42 @@
       },
       {
         "line": 10,
-        "text": "\tif (HasAuthority()) { /* authority */ } // node:tpl_artillery_auth"
+        "text": "\tif (HasAuthority()) // node:tpl_artillery_auth"
       },
       {
         "line": 11,
-        "text": "\tFHitResult Hit_tpl_artillery_trace; bool bHit_tpl_artillery_trace = false; if (UWorld* World_tpl_artillery_trace = GetWorld()) { const FVector Start_tpl_artillery_trace = GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector; bHit_tpl_artillery_trace = World_tpl_artillery_trace->LineTraceSingleByChannel(Hit_tpl_artillery_trace, Start_tpl_artillery_trace, Start_tpl_artillery_trace + FVector(200.f, 0.f, 0.f), ECC_Visibility); } // node:tpl_artillery_trace"
+        "text": "\t{"
       },
       {
         "line": 12,
-        "text": "\tShells = (Shells - 1.f); // node:tpl_artillery_set"
+        "text": "\t\tFHitResult Hit_tpl_artillery_trace; bool bHit_tpl_artillery_trace = false; if (UWorld* World_tpl_artillery_trace = GetWorld()) { const FVector Start_tpl_artillery_trace = GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector; bHit_tpl_artillery_trace = World_tpl_artillery_trace->LineTraceSingleByChannel(Hit_tpl_artillery_trace, Start_tpl_artillery_trace, Start_tpl_artillery_trace + FVector(200.f, 0.f, 0.f), ECC_Visibility); } // node:tpl_artillery_trace"
       },
       {
         "line": 13,
-        "text": "}"
+        "text": "\t\tShells = (Shells - 1.f); // node:tpl_artillery_set"
       },
       {
         "line": 14,
-        "text": "// graph:end event"
+        "text": "\t}"
+      },
+      {
+        "line": 15,
+        "text": "}"
       },
       {
         "line": 16,
-        "text": "// graph:begin variables"
-      },
-      {
-        "line": 17,
-        "text": "// No graph variables."
+        "text": "// graph:end event"
       },
       {
         "line": 18,
+        "text": "// graph:begin variables"
+      },
+      {
+        "line": 19,
+        "text": "// No graph variables."
+      },
+      {
+        "line": 20,
         "text": "// graph:end variables"
       }
     ]
@@ -1075,30 +1083,38 @@
       },
       {
         "line": 7,
-        "text": "\tif (HasAuthority()) { /* authority */ } // node:tpl_economy_auth"
+        "text": "\tif (HasAuthority()) // node:tpl_economy_auth"
       },
       {
         "line": 8,
-        "text": "\tSupplies = (Supplies - 25.f); // node:tpl_economy_set"
+        "text": "\t{"
       },
       {
         "line": 9,
-        "text": "}"
+        "text": "\t\tSupplies = (Supplies - 25.f); // node:tpl_economy_set"
       },
       {
         "line": 10,
-        "text": "// graph:end event"
+        "text": "\t}"
+      },
+      {
+        "line": 11,
+        "text": "}"
       },
       {
         "line": 12,
-        "text": "// graph:begin variables"
-      },
-      {
-        "line": 13,
-        "text": "// No graph variables."
+        "text": "// graph:end event"
       },
       {
         "line": 14,
+        "text": "// graph:begin variables"
+      },
+      {
+        "line": 15,
+        "text": "// No graph variables."
+      },
+      {
+        "line": 16,
         "text": "// graph:end variables"
       }
     ]
@@ -1187,30 +1203,38 @@
       },
       {
         "line": 7,
-        "text": "\tif (HasAuthority()) { /* authority */ } // node:tpl_gunsmith_auth"
+        "text": "\tif (HasAuthority()) // node:tpl_gunsmith_auth"
       },
       {
         "line": 8,
-        "text": "\tEquippedId = IA_Equip; // node:tpl_gunsmith_set"
+        "text": "\t{"
       },
       {
         "line": 9,
-        "text": "}"
+        "text": "\t\tEquippedId = IA_Equip; // node:tpl_gunsmith_set"
       },
       {
         "line": 10,
-        "text": "// graph:end event"
+        "text": "\t}"
+      },
+      {
+        "line": 11,
+        "text": "}"
       },
       {
         "line": 12,
-        "text": "// graph:begin variables"
-      },
-      {
-        "line": 13,
-        "text": "// No graph variables."
+        "text": "// graph:end event"
       },
       {
         "line": 14,
+        "text": "// graph:begin variables"
+      },
+      {
+        "line": 15,
+        "text": "// No graph variables."
+      },
+      {
+        "line": 16,
         "text": "// graph:end variables"
       }
     ]
@@ -1431,30 +1455,38 @@
       },
       {
         "line": 7,
-        "text": "\tif (HasAuthority()) { /* authority */ } // node:tpl_scoring_auth"
+        "text": "\tif (HasAuthority()) // node:tpl_scoring_auth"
       },
       {
         "line": 8,
-        "text": "\tScore = (Score + 10.f); // node:tpl_scoring_set"
+        "text": "\t{"
       },
       {
         "line": 9,
-        "text": "}"
+        "text": "\t\tScore = (Score + 10.f); // node:tpl_scoring_set"
       },
       {
         "line": 10,
-        "text": "// graph:end event"
+        "text": "\t}"
+      },
+      {
+        "line": 11,
+        "text": "}"
       },
       {
         "line": 12,
-        "text": "// graph:begin variables"
-      },
-      {
-        "line": 13,
-        "text": "// No graph variables."
+        "text": "// graph:end event"
       },
       {
         "line": 14,
+        "text": "// graph:begin variables"
+      },
+      {
+        "line": 15,
+        "text": "// No graph variables."
+      },
+      {
+        "line": 16,
         "text": "// graph:end variables"
       }
     ]
@@ -1475,30 +1507,38 @@
       },
       {
         "line": 7,
-        "text": "\tif (HasAuthority()) { /* authority */ } // node:tpl_vehicle-drive_auth"
+        "text": "\tif (HasAuthority()) // node:tpl_vehicle-drive_auth"
       },
       {
         "line": 8,
-        "text": "\tThrottle = IA_Throttle; // node:tpl_vehicle-drive_set"
+        "text": "\t{"
       },
       {
         "line": 9,
-        "text": "}"
+        "text": "\t\tThrottle = IA_Throttle; // node:tpl_vehicle-drive_set"
       },
       {
         "line": 10,
-        "text": "// graph:end event"
+        "text": "\t}"
+      },
+      {
+        "line": 11,
+        "text": "}"
       },
       {
         "line": 12,
-        "text": "// graph:begin variables"
-      },
-      {
-        "line": 13,
-        "text": "// No graph variables."
+        "text": "// graph:end event"
       },
       {
         "line": 14,
+        "text": "// graph:begin variables"
+      },
+      {
+        "line": 15,
+        "text": "// No graph variables."
+      },
+      {
+        "line": 16,
         "text": "// graph:end variables"
       }
     ]

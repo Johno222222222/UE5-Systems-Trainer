@@ -268,10 +268,10 @@
       ],
       "reading": [
         "A third-person pawn is expensive to replicate because the mesh is large and the animation is busy. Area of interest drops pawns the player cannot see. The sample starts CheckAOI from Begin Play on a 0.5 second looping timer. The authority traces. The excerpt assigns Relevant = bHit. Clients that are not relevant do not receive the pawn, so they also do not receive its GASP speed or its equipped id.",
-        "The HasAuthority test in the excerpt is an empty block before the trace. Nest the relevance write inside it. A client that sets Relevant on its own pawn pulls every cosmetic the server had culled, including other players' shoulder cameras. The camera is not replicated. The pawn is.",
+        "The excerpt puts the trace and Relevant = bHit inside if (HasAuthority()). A client that sets Relevant on its own pawn pulls every cosmetic the server had culled, including other players' shoulder cameras. The camera is not replicated. The pawn is.",
         "The weapon, the limbs, and the gunsmith id replicate only while Relevant is true. They do not run their own timers. A vehicle the player can hear but not see may stay relevant by a larger radius. That radius is data on the vehicle, not a tick of every wheel. Debris from destruction should leave relevance quickly.",
         "Shortening 0.5 to every frame turns the pass into Tick. Lengthening it makes pop-in obvious on a third-person mesh, which is large on screen. 0.5 is the sample. The replication graph is the production system that replaces the trace.",
-        "The figure is the real Area of interest graph, with that preset's node positions and wires. Begin Play starts the relevance timer. Relevance is checked twice a second, not every frame. CheckAOI is the relevancy pass. The server decides who is relevant. A stand-in for distance. A real AOI uses the replication graph. Relevant gates replication. The widget is not replicated. The C++ beside the figure is the compiler output for this same graph. Line 10 is `if (UWorld* World = GetWorld()) { FTimerHandle Timer_tpl_aoi_timer; World->GetTimerManager().SetTimer(Timer_tp`. Line 15 is `if (HasAuthority()) { /* authority */ } // node:tpl_aoi_auth`.",
+        "The figure is the real Area of interest graph, with that preset's node positions and wires. Begin Play starts the relevance timer. Relevance is checked twice a second, not every frame. CheckAOI is the relevancy pass. The server decides who is relevant. A stand-in for distance. A real AOI uses the replication graph. Relevant gates replication. The widget is not replicated. The C++ beside the figure is the compiler output for this same graph. Line 10 is `if (UWorld* World = GetWorld()) { FTimerHandle Timer_tpl_aoi_timer; World->GetTimerManager().SetTimer(Timer_tp`. Line 15 is `if (HasAuthority()) // node:tpl_aoi_auth`.",
         "Across this track, keep CheckAOI, Relevant, Has Authority distinct. Distant third-person pawns drop out on the 0.5s CheckAOI timer. CheckAOI runs every 0.5f. Relevant = bHit belongs inside HasAuthority."
       ],
       "assignment": {
@@ -310,15 +310,15 @@
         },
         {
           "id": "aoi-q3",
-          "prompt": "What must be nested inside HasAuthority?",
+          "prompt": "Where does the third-person AOI excerpt assign Relevant?",
           "choices": [
-            "The Relevant write",
-            "The GASP query",
-            "The shoulder boom",
-            "The radial widget"
+            "Inside if (HasAuthority()), with the trace",
+            "After the check, on the client",
+            "In the shoulder boom",
+            "In the radial widget"
           ],
           "answer": 0,
-          "why": "The empty block does not guard the next line."
+          "why": "The write is already in the authority block."
         },
         {
           "id": "aoi-q4",
@@ -517,21 +517,21 @@
         "10% clamp"
       ],
       "reading": [
-        "Other players see a third-person limp, so the limb float has to be one number. Any Damage is the event. The excerpt assigns Health = 90.f after an empty HasAuthority block. Nest the write, and replace 90 with the clamped result. Project JOHNO's rule: a normal hit does not drop a limb below 10% of its max. A max of 50 floors at 5. Crossing zero is a downed state, not this clamp.",
+        "Other players see a third-person limp, so the limb float has to be one number. Any Damage is the event. The excerpt assigns Health = 90.f inside if (HasAuthority()). Replace 90 with the clamped result. Project JOHNO's rule: a normal hit does not drop a limb below 10% of its max. A max of 50 floors at 5. Crossing zero is a downed state, not this clamp.",
         "OnRep_Health is where the third-person mesh limps. Everyone who has the pawn relevant plays that reaction from the float. Subtracting inside OnRep makes the limp worse on every machine that receives the property. The local camera shake is also the notify, and only on the owning client.",
         "Ballistics calls the event. The gunsmith does not. A medic item in the inventory calls the same event with healing, still on the authority, and the clamp also caps the heal at max. Save stores the limb after the server write. The shoulder camera does not store a copy of the limb.",
         "A client that writes the limb so the third-person body reacts early will snap when the server float arrives. Play the reaction from the notify. Do not invent the number.",
-        "The figure is the real Replicated health graph, with that preset's node positions and wires. Any Damage is the request. Authority decides. Has Authority keeps the change on the server. A stand-in for health after the hit. Set the replicated health. OnRep runs on the clients that hear the property. The UI listens. It does not decide the number. The C++ beside the figure is the compiler output for this same graph. Line 9 is `if (HasAuthority()) { /* authority */ } // node:tpl_replicated-health_auth`. Line 10 is `Health = 90.f; // node:tpl_replicated-health_set`.",
-        "Across this track, keep Any Damage, Has Authority, 10% clamp distinct. The server writes the limb. A normal hit stops at 10% of max. OnRep plays the limp. Inside HasAuthority, clamp to 10% of max, which is 5 when max is 50. OnRep plays the limp."
+        "The figure is the real Replicated health graph, with that preset's node positions and wires. Any Damage is the request. Authority decides. Has Authority keeps the change on the server. A stand-in for health after the hit. Set the replicated health. OnRep runs on the clients that hear the property. The UI listens. It does not decide the number. The C++ beside the figure is the compiler output for this same graph. Line 9 is `if (HasAuthority()) // node:tpl_replicated-health_auth`. Line 11 is `Health = 90.f; // node:tpl_replicated-health_set`.",
+        "Across this track, keep Any Damage, Has Authority, 10% clamp distinct. The server writes the limb. A normal hit stops at 10% of max. OnRep plays the limp. Health = 90.f is already inside HasAuthority. Clamp to 10% of max, which is 5 when max is 50. OnRep plays the limp."
       ],
       "assignment": {
         "kind": "cpp",
-        "prompt": "A third-person limb max is 50 and a bruise empties it. What floor should the clamp use, and where must Health's write sit in the excerpt?",
+        "prompt": "A third-person limb max is 50 and a bruise empties it. What floor should the clamp use, and where does the excerpt already put Health = 90.f?",
         "accept": [
           "HasAuthority",
           "percent"
         ],
-        "model": "Inside HasAuthority, clamp to 10% of max, which is 5 when max is 50. OnRep plays the limp."
+        "model": "Health = 90.f is already inside HasAuthority. Clamp to 10% of max, which is 5 when max is 50. OnRep plays the limp."
       },
       "quiz": [
         {
@@ -618,15 +618,15 @@
         },
         {
           "id": "limbs-q8",
-          "prompt": "Why is the empty HasAuthority block a bug here?",
+          "prompt": "Health = 90.f is inside HasAuthority. What is still wrong with it?",
           "choices": [
-            "The 90.f write is not guarded",
-            "90 is too precise",
+            "90 is a literal, not the 10% clamp",
+            "The authority check should be deleted",
             "OnRep is missing",
             "The mesh cannot limp"
           ],
           "answer": 0,
-          "why": "Nest the assignment."
+          "why": "The gate is correct. The value should be the clamp."
         }
       ]
     },
@@ -642,11 +642,11 @@
         "Ten slots"
       ],
       "reading": [
-        "The third-person body shows the weapon other players see, so the equipped id has to match. The gunsmith record has ten slots. IA_Equip, from a number key or from the radial menu, is the selection. The excerpt assigns EquippedId = IA_Equip after an empty HasAuthority block. Nest that write. The owning client and the proxies build the mesh from the asset. They do not each invent an id.",
+        "The third-person body shows the weapon other players see, so the equipped id has to match. The gunsmith record has ten slots. IA_Equip, from a number key or from the radial menu, is the selection. The excerpt assigns EquippedId = IA_Equip inside if (HasAuthority()). The owning client and the proxies build the mesh from the asset. They do not each invent an id.",
         "Replicating ten socket transforms so the third-person magazine, optic, and barrel match is the expensive version. One id is enough, and the asset says which socket each slot uses. Wear and heat hang off the equipped weapon. A cosmetic slot does not reset heat unless it is the barrel.",
         "GASP may change the aim pose when the id changes, by reading the asset's anim set. It does not write EquippedId. The camera does not. Inventory holds the item that points at the same asset. Save stores the id. AOI means a non-relevant pawn does not send the id at all.",
         "A client that writes the id locally shows a weapon the server will replace, and the third-person mesh pops in other players' views. That pop is the bug the authority gate prevents.",
-        "The figure is the real Gunsmith graph, with that preset's node positions and wires. IA_Equip picks a slot. The radial menu can send the same action. The server decides the equipped id. Replicate EquippedId. The client builds the mesh from the data asset. The C++ beside the figure is the compiler output for this same graph. Line 7 is `if (HasAuthority()) { /* authority */ } // node:tpl_gunsmith_auth`. Line 8 is `EquippedId = IA_Equip; // node:tpl_gunsmith_set`.",
+        "The figure is the real Gunsmith graph, with that preset's node positions and wires. IA_Equip picks a slot. The radial menu can send the same action. The server decides the equipped id. Replicate EquippedId. The client builds the mesh from the data asset. The C++ beside the figure is the compiler output for this same graph. Line 7 is `if (HasAuthority()) // node:tpl_gunsmith_auth`. Line 9 is `EquippedId = IA_Equip; // node:tpl_gunsmith_set`.",
         "Across this track, keep IA_Equip, EquippedId, Ten slots distinct. The third-person mesh builds from EquippedId. Ten slots stay in the asset. EquippedId = IA_Equip inside HasAuthority. Ten slots stay in the asset. Proxies build the mesh."
       ],
       "assignment": {
@@ -767,11 +767,11 @@
         "Throttle"
       ],
       "reading": [
-        "Leaving the third-person pawn for a vehicle is a different component. IA_Throttle is the axis. The excerpt tests HasAuthority in an empty block and assigns Throttle = IA_Throttle. Nest the write. The chaos vehicle reads Throttle. It does not read the on-foot Speed of 600 or 200. Copying Speed into Throttle launches the car at a sprint number that means something else.",
+        "Leaving the third-person pawn for a vehicle is a different component. IA_Throttle is the axis. The excerpt assigns Throttle = IA_Throttle inside if (HasAuthority()). The chaos vehicle reads Throttle. It does not read the on-foot Speed of 600 or 200. Copying Speed into Throttle launches the car at a sprint number that means something else.",
         "The shoulder camera disables while seated. IA_Aim does not steer. The gunsmith id may name a mounted weapon, and that weapon's heat is not the rifle's Heat. Artillery, if the vehicle is a gun, spends shells on its own event. It does not add 0.05 to the rifle. Wheels are local meshes driven by the simulated throttle. Replicating each wheel transform is the expensive version.",
         "AOI for a vehicle can use a larger radius, because a truck is visible farther than a person. That is data, not a tick of the suspension. The player pawn's GASP database pauses while seated. It does not keep writing Speed into the vehicle.",
         "Save stores Throttle only if the mode restores a moving vehicle. More often it stores fuel, which is a sibling of the economy's supplies, and the vehicle id. The on-foot slot and the vehicle slot can share a struct layout. They should not share the Speed field.",
-        "The figure is the real Vehicle drive graph, with that preset's node positions and wires. IA_Throttle is the axis. The chaos vehicle reads Throttle. The server owns the velocity. Write the axis. Do not replicate the wheel meshes. The C++ beside the figure is the compiler output for this same graph. Line 7 is `if (HasAuthority()) { /* authority */ } // node:tpl_vehicle-drive_auth`. Line 8 is `Throttle = IA_Throttle; // node:tpl_vehicle-drive_set`.",
+        "The figure is the real Vehicle drive graph, with that preset's node positions and wires. IA_Throttle is the axis. The chaos vehicle reads Throttle. The server owns the velocity. Write the axis. Do not replicate the wheel meshes. The C++ beside the figure is the compiler output for this same graph. Line 7 is `if (HasAuthority()) // node:tpl_vehicle-drive_auth`. Line 9 is `Throttle = IA_Throttle; // node:tpl_vehicle-drive_set`.",
         "Across this track, keep IA_Throttle, Has Authority, Throttle distinct. IA_Throttle is the axis. The server writes Throttle. The on-foot Speed stays separate. Throttle = IA_Throttle inside HasAuthority. Speed stays on the pawn. The shoulder camera disables."
       ],
       "assignment": {
@@ -1091,15 +1091,15 @@
       {
         "id": "tps-intermediate-e7",
         "kind": "mc",
-        "prompt": "Relevant is true on a client that forced it. What is empty in the AOI excerpt?",
+        "prompt": "Relevant is true on a client that forced it. Where does the real AOI excerpt assign Relevant = bHit?",
         "choices": [
-          "The HasAuthority block before Relevant = bHit",
-          "The timer",
-          "The trace",
-          "Begin Play"
+          "Inside HasAuthority",
+          "After the check, on the next line",
+          "In Begin Play",
+          "In the shoulder camera"
         ],
         "answer": 0,
-        "why": "Nest the write."
+        "why": "The write is already inside the authority block."
       },
       {
         "id": "tps-intermediate-e8",
