@@ -40,6 +40,7 @@ const ENGINE_PREFIXES = [
   "Containers/",
   "Templates/",
   "Logging/",
+  "Curves/",
 ];
 
 const SYMBOL_HEADERS = [

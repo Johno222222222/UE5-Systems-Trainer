@@ -426,6 +426,18 @@ function execute(state, graph, doc, node, job) {
     return finish(state);
   }
 
+  if (catalog === "dispatcher-call") {
+    const name = node.data?.name || "OnChanged";
+    state.note = `Broadcast ${name}.`;
+    for (const bind of (graph.nodes || []).filter((item) => item.catalog === "dispatcher-bind" && (item.data?.name || "OnChanged") === name)) {
+      const eventName = bind.data?.event;
+      const target = eventName && (graph.nodes || []).find((item) => item.catalog === "custom-event" && item.data?.name === eventName);
+      if (target) state.stack.push({ nodeId: target.id, wireId: null, pinId: null, depth: state.depth || 0 });
+    }
+    pushFirstExec(state, graph, node);
+    return finish(state);
+  }
+
   if (catalog === "delay") {
     state.note = "Delay is skipped in the simulation.";
     pushNamed(state, graph, node, "Completed") || pushFirstExec(state, graph, node);

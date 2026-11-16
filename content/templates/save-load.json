@@ -22,7 +22,7 @@
     ],
     "wires": [
       {"from": "begin", "fromPin": "Exec", "to": "make", "toPin": "Exec"},
-      {"from": "amount", "fromPin": "Value", "to": "make", "toPin": "Value"},
+      {"from": "amount", "fromPin": "Value", "to": "make", "toPin": "X"},
       {"from": "make", "fromPin": "Exec", "to": "store", "toPin": "Exec"},
       {"from": "amount", "fromPin": "Value", "to": "store", "toPin": "Value"},
       {"from": "load", "fromPin": "Exec", "to": "break", "toPin": "Exec"},

@@ -67,8 +67,8 @@ export const CATALOG = [
   { id: "while", group: "Flow", label: "While", visual: "flow", pins: [pin("Exec", "in", "exec"), pin("Condition", "in", "bool"), pin("Loop Body", "out", "exec"), pin("Completed", "out", "exec")] },
   { id: "select", group: "Flow", label: "Select", visual: "pure", pins: [pin("Pick", "in", "bool"), pin("A", "in", "wildcard"), pin("B", "in", "wildcard"), pin("Return", "out", "wildcard")] },
   { id: "switch-enum", group: "Flow", label: "Switch on Enum", visual: "flow", pins: [pin("Exec", "in", "exec"), pin("Selection", "in", "name"), pin("Default", "out", "exec")], data: { cases: ["A", "B"] } },
-  { id: "break-struct", group: "Flow", label: "Break Struct", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Struct", "in", "object"), pin("Exec", "out", "exec"), pin("Value", "out", "float")], data: { struct: "FHitResult", member: "Distance" } },
-  { id: "make-struct", group: "Flow", label: "Make Struct", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Value", "in", "float"), pin("Exec", "out", "exec"), pin("Struct", "out", "object")], data: { struct: "FVector", member: "X" } },
+  { id: "break-struct", group: "Flow", label: "Break Struct", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Struct", "in", "object"), pin("Exec", "out", "exec")], data: { struct: "FHitResult" } },
+  { id: "make-struct", group: "Flow", label: "Make Struct", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Exec", "out", "exec"), pin("Struct", "out", "object")], data: { struct: "FVector" } },
   { id: "do-once", group: "Flow", label: "DoOnce", visual: "flow", pins: [pin("Exec", "in", "exec"), pin("Reset", "in", "exec"), pin("Completed", "out", "exec")] },
   { id: "gate", group: "Flow", label: "Gate", visual: "flow", pins: [pin("Enter", "in", "exec"), pin("Open", "in", "exec"), pin("Close", "in", "exec"), pin("Exit", "out", "exec")] },
   { id: "flipflop", group: "Flow", label: "FlipFlop", visual: "flow", pins: [pin("Exec", "in", "exec"), pin("A", "out", "exec"), pin("B", "out", "exec"), pin("Is A", "out", "bool")] },
@@ -192,12 +192,69 @@ function clone(value) {
 }
 
 function pinsFromSpec(entry, data) {
+  if (entry.id === "break-struct" || entry.id === "make-struct") return structPins(entry.id, data);
   return entry.pins.map((item) => {
     const type = (entry.id === "set-variable" || entry.id === "get-variable" || entry.id === "literal") && item.name === "Value"
       ? (data.varType || item.type || "float")
       : item.type;
     return { id: pinSlug(item.dir, item.name), name: item.name, dir: item.dir, type };
   });
+}
+
+export const ENGINE_STRUCTS = [
+  { name: "FVector", construct: "FVector::ZeroVector", members: [{ name: "X", type: "float" }, { name: "Y", type: "float" }, { name: "Z", type: "float" }] },
+  { name: "FRotator", construct: "FRotator::ZeroRotator", members: [{ name: "Pitch", type: "float" }, { name: "Yaw", type: "float" }, { name: "Roll", type: "float" }] },
+  { name: "FTransform", construct: "FTransform::Identity", members: [{ name: "Location", type: "vector" }, { name: "Rotation", type: "rotator" }, { name: "Scale", type: "vector" }] },
+  { name: "FHitResult", construct: "FHitResult()", members: [{ name: "bBlockingHit", type: "bool" }, { name: "Distance", type: "float" }, { name: "Time", type: "float" }, { name: "Location", type: "vector" }, { name: "ImpactPoint", type: "vector" }, { name: "Normal", type: "vector" }] },
+];
+
+export function structsInHeader(header) {
+  const out = [];
+  const typeMap = { bool: "bool", int32: "int", float: "float", FString: "string", FName: "name", FVector: "vector", FRotator: "rotator", FTransform: "object" };
+  for (const match of String(header || "").matchAll(/struct\s+(?:\w+_API\s+)?(F[A-Za-z0-9_]+)\s*(?::\s*public\s+[A-Za-z0-9_]+)?\s*\{([^}]*)\}/g)) {
+    if (ENGINE_STRUCTS.some((item) => item.name === match[1])) continue;
+    const members = [];
+    for (const line of match[2].split("\n")) {
+      const field = line.match(/\b(bool|int32|float|FString|FName|FVector|FRotator|FTransform)\s+([A-Za-z_]\w*)\s*(?:=|;)/);
+      if (field) members.push({ name: field[2], type: typeMap[field[1]] || "float" });
+    }
+    if (members.length) out.push({ name: match[1], members, construct: `${match[1]}()`, source: "header" });
+  }
+  return out;
+}
+
+export function structChoices(doc, header) {
+  const list = ENGINE_STRUCTS.map((item) => ({ ...item, source: "engine" }));
+  for (const item of structsInHeader(header)) {
+    if (!list.some((entry) => entry.name === item.name)) list.push(item);
+  }
+  for (const variable of doc?.variables || []) {
+    if (variable?.type !== "struct" || !variable.structName) continue;
+    const name = ident(variable.structName, "FCustomStruct");
+    if (list.some((entry) => entry.name === name)) continue;
+    const members = Array.isArray(variable.members) && variable.members.length ? variable.members : [{ name: "Value", type: "float" }];
+    list.push({ name, members, construct: `${name}()`, source: "variable" });
+  }
+  return list;
+}
+
+export function resolveStruct(data, choices) {
+  const name = ident(data?.struct || "FVector", "FVector");
+  const known = (choices || ENGINE_STRUCTS).find((item) => item.name === name) || ENGINE_STRUCTS.find((item) => item.name === name);
+  if (known) return known;
+  const members = Array.isArray(data?.members) && data.members.length ? data.members : [{ name: "Value", type: "float" }];
+  return { name, members, construct: `${name}()` };
+}
+
+function structPins(catalogId, data) {
+  const spec = resolveStruct(data);
+  const memberDir = catalogId === "break-struct" ? "out" : "in";
+  const pins = [pin("Exec", "in", "exec")];
+  if (catalogId === "break-struct") pins.push(pin("Struct", "in", "object"));
+  for (const member of spec.members) pins.push(pin(member.name, memberDir, member.type || "float"));
+  pins.push(pin("Exec", "out", "exec"));
+  if (catalogId === "make-struct") pins.push(pin("Struct", "out", "object"));
+  return pins.map((item) => ({ id: pinSlug(item.dir, item.name), name: item.name, dir: item.dir, type: item.type }));
 }
 
 export function createNode(catalogId, x, y, extra = {}) {
@@ -235,6 +292,8 @@ function labelFor(catalog, data, fallback) {
   if (catalog === "get-variable") return `Get ${data.variable || "Variable"}`;
   if (catalog === "literal") return String(data.value ?? data.varType ?? fallback);
   if (catalog === "interface-call") return data.function || fallback;
+  if (catalog === "cast-to") return `Cast To ${data.className || "AActor"}`;
+  if (catalog === "break-struct" || catalog === "make-struct") return `${catalog === "break-struct" ? "Break" : "Make"} ${data.struct || "Struct"}`;
   if (catalog === "line-trace") return "Line Trace";
   if (catalog === "call-function") return data.function || fallback;
   if (catalog === "custom-event") return data.name || "Custom Event";
@@ -679,6 +738,7 @@ export function setNodeData(graph, nodeId, patch) {
       const type = data.varType || "float";
       pins = node.pins.map((item) => (item.name === "Value" ? { ...item, type } : item));
     }
+    if (node.catalog === "break-struct" || node.catalog === "make-struct") pins = structPins(node.catalog, data);
     return { ...node, data, pins, label: labelFor(node.catalog, data, node.label) };
   });
   const next = { ...graph, nodes };
@@ -821,6 +881,10 @@ function exprFor(graph, node, seen = new Set(), outPin = null) {
     case "not": return `(!${arg("A", "false")})`;
     case "select": return `(${arg("Pick", "true")} ? ${arg("A", "0")} : ${arg("B", "0")})`;
     case "line-trace": return outPin?.name === "Hit Actor" ? `Hit_${ident(node.id, "Trace")}.GetActor()` : `bHit_${ident(node.id, "Trace")}`;
+    case "cast-to": return `Cast_${ident(node.id, "Cast")}`;
+    case "make-struct": return `Made_${ident(node.id, "Make")}`;
+    case "break-struct": return breakMemberExpr(node, outPin);
+    case "timeline": return outPin?.name === "Alpha" ? "Alpha" : "0.f";
     case "any-damage":
     case "point-damage": return "Damage";
     case "begin-overlap":
@@ -840,6 +904,61 @@ function incomingValue(graph, node, pinName, seen = new Set()) {
   if (!source) return "";
   const sourcePin = source.pins.find((item) => item.id === wire.from.pin) || null;
   return exprFor(graph, source, seen, sourcePin);
+}
+
+function cppDefault(type) {
+  if (type === "bool") return "false";
+  if (type === "int") return "0";
+  if (type === "vector") return "FVector::ZeroVector";
+  if (type === "rotator") return "FRotator::ZeroRotator";
+  if (type === "string") return "TEXT(\"\")";
+  if (type === "name") return "NAME_None";
+  if (type === "object" || type === "struct") return "nullptr";
+  return "0.f";
+}
+
+function assignStructMember(structName, local, member, value) {
+  if (structName === "FTransform" && member === "Location") return `${local}.SetLocation(${value});`;
+  if (structName === "FTransform" && member === "Rotation") return `${local}.SetRotation((${value}).Quaternion());`;
+  if (structName === "FTransform" && member === "Scale") return `${local}.SetScale3D(${value});`;
+  return `${local}.${member} = ${value};`;
+}
+
+function breakMemberExpr(node, outPin) {
+  const local = `Broken_${ident(node.id, "Break")}`;
+  const member = outPin?.name;
+  if (!member || member === "Exec" || member === "Struct") return local;
+  if (resolveStruct(node.data).name === "FTransform") {
+    if (member === "Location") return `${local}.GetLocation()`;
+    if (member === "Rotation") return `${local}.GetRotation().Rotator()`;
+    if (member === "Scale") return `${local}.GetScale3D()`;
+  }
+  return `${local}.${member}`;
+}
+
+function interfacePair(raw) {
+  const name = ident(raw || "", "");
+  if (!name || name === "Interface") return null;
+  if (name.startsWith("U") && name.length > 1) return { u: name, i: `I${name.slice(1)}` };
+  if (name.startsWith("I") && name.length > 1) return { u: `U${name.slice(1)}`, i: name };
+  return { u: `U${name}`, i: `I${name}` };
+}
+
+function dispatcherMember(node) {
+  return ident(node.data?.name || "OnChanged", "OnChanged");
+}
+
+function dispatcherHandler(graph, node) {
+  const eventName = node.data?.event || node.data?.name || "OnChanged";
+  const target = (graph.nodes || []).find((item) => item.catalog === "custom-event" && item.data?.name === eventName);
+  if (target) return functionBase(target);
+  return `On${dispatcherMember(node)}Bound_${ident(node.id, "Bind")}`;
+}
+
+function timelineStatement(node, graph) {
+  const id = ident(node.id, "Timeline");
+  const cls = graph.cppClass || "UKitComponent";
+  return `if (!Timeline_${id}) { AActor* TimelineOwner_${id} = GetOwner(); Timeline_${id} = NewObject<UTimelineComponent>(TimelineOwner_${id} ? static_cast<UObject*>(TimelineOwner_${id}) : static_cast<UObject*>(this)); Timeline_${id}->PrimaryComponentTick.bCanEverTick = true; Timeline_${id}->SetComponentTickEnabled(true); if (TimelineOwner_${id}) { Timeline_${id}->RegisterComponent(); } UCurveFloat* Curve_${id} = NewObject<UCurveFloat>(this); Curve_${id}->FloatCurve.AddKey(0.f, 0.f); Curve_${id}->FloatCurve.AddKey(1.f, 1.f); FOnTimelineFloat Update_${id}; Update_${id}.BindDynamic(this, &${cls}::OnTimelineUpdate_${id}); Timeline_${id}->AddInterpFloat(Curve_${id}, Update_${id}); FOnTimelineEvent Finished_${id}; Finished_${id}.BindDynamic(this, &${cls}::OnTimelineFinished_${id}); Timeline_${id}->SetTimelineFinishedFunc(Finished_${id}); } Timeline_${id}->PlayFromStart();`;
 }
 
 function statementFor(node, graph) {
@@ -870,6 +989,8 @@ function statementFor(node, graph) {
       const local = ident(node.id, "Call");
       const target = incomingValue(graph, node, "Target") || "nullptr";
       const message = ident(node.data?.function || "Interact", "Interact");
+      const pair = interfacePair(node.data?.interface);
+      if (pair) return `if (AActor* Target_${local} = Cast<AActor>(${target})) { if (Target_${local}->GetClass()->ImplementsInterface(${pair.u}::StaticClass())) { ${pair.i}::Execute_${message}(Target_${local}); } }`;
       return `if (AActor* Target_${local} = Cast<AActor>(${target})) { if (UFunction* Fn_${local} = Target_${local}->FindFunction(TEXT("${message}"))) { Target_${local}->ProcessEvent(Fn_${local}, nullptr); } }`;
     }
     case "set-timer":
@@ -888,32 +1009,36 @@ function statementFor(node, graph) {
       return `if (UWorld* World = GetWorld()) { World->SpawnActor<${ident(node.data?.className || "AActor", "AActor")}>(${ident(node.data?.className || "AActor", "AActor")}::StaticClass()); }`;
     case "cast-to": {
       const wired = incomingValue(graph, node, "Object") || "nullptr";
-      return `if (${ident(node.data?.className || "AActor", "AActor")}* Cast_${id} = Cast<${ident(node.data?.className || "AActor", "AActor")}>(${wired})) { /* cast ok */ }`;
+      const clsName = ident(node.data?.className || "AActor", "AActor");
+      return `${clsName}* Cast_${id} = Cast<${clsName}>(${wired});`;
     }
     case "delay":
       return `if (UWorld* World = GetWorld()) { FTimerHandle Delay_${id}; World->GetTimerManager().SetTimer(Delay_${id}, FTimerDelegate(), ${cppFloat(Number(node.data?.seconds) || 0.5)}, false); }`;
     case "timeline":
-      return `if (UWorld* World = GetWorld()) { FTimerHandle Timeline_${id}; World->GetTimerManager().SetTimer(Timeline_${id}, FTimerDelegate(), 1.f, false); } // UTimelineComponent is not created here. Timeline ${ident(node.label || node.id, "Timeline")} does not play a curve.`;
+      return timelineStatement(node, graph);
     case "break-struct": {
-      const member = ident(node.data?.member || "Distance", "Distance");
-      const incoming = incomingValue(graph, node, "Struct");
-      if (incoming) return `FHitResult Broken_${id} = ${incoming}; const float ${member}_${id} = Broken_${id}.${member};`;
-      return `FHitResult Broken_${id}; const float ${member}_${id} = Broken_${id}.${member};`;
+      const spec = resolveStruct(node.data);
+      const incoming = incomingValue(graph, node, "Struct") || spec.construct;
+      return `${spec.name} Broken_${id} = ${incoming};`;
     }
     case "make-struct": {
-      const member = ident(node.data?.member || "X", "X");
-      const incoming = incomingValue(graph, node, "Value") || "0.f";
-      return `FVector Made_${id} = FVector::ZeroVector; Made_${id}.${member} = ${incoming};`;
+      const spec = resolveStruct(node.data);
+      const parts = [`${spec.name} Made_${id} = ${spec.construct};`];
+      for (const member of spec.members) {
+        const wired = incomingValue(graph, node, member.name);
+        const value = wired || (spec.name === "FTransform" && member.name === "Scale" ? "FVector::OneVector" : cppDefault(member.type));
+        parts.push(assignStructMember(spec.name, `Made_${id}`, member.name, value));
+      }
+      return parts.join(" ");
     }
     case "has-authority":
       return "if (HasAuthority()) { /* authority */ }";
     case "dispatcher-call":
-      return `${ident(node.data?.name || "OnChanged", "OnChanged")}.Broadcast();`;
+      return `${dispatcherMember(node)}.Broadcast();`;
     case "dispatcher-bind": {
-      const name = ident(node.data?.name || "OnChanged", "OnChanged");
-      const handler = ident(node.data?.event || "OnChanged", "OnChanged");
+      const name = dispatcherMember(node);
       const cls = graph.cppClass || "UKitComponent";
-      return `// ${name}.AddDynamic(this, &${cls}::${handler});`;
+      return `${name}.AddDynamic(this, &${cls}::${dispatcherHandler(graph, node)});`;
     }
     case "branch":
     case "sequence":
@@ -984,6 +1109,20 @@ function emitBody(graph, node, indent, seen, out) {
     if (done) emitBody(graph, outgoing(graph, node, done.id), indent, nextSeen, out);
     return;
   }
+  if (node.catalog === "timeline") {
+    const line = statementFor(node, graph);
+    if (line) out.push(`${indent}${line} // node:${node.id}`);
+    return;
+  }
+  if (node.catalog === "cast-to") {
+    const line = statementFor(node, graph);
+    if (line) out.push(`${indent}${line} // node:${node.id}`);
+    out.push(`${indent}if (Cast_${ident(node.id, "Cast")})`);
+    out.push(`${indent}{`);
+    if (execOut[0]) emitBody(graph, outgoing(graph, node, execOut[0].id), `${indent}\t`, nextSeen, out);
+    out.push(`${indent}}`);
+    return;
+  }
   if (execOut.length > 1) {
     out.push(`${indent}// node:${node.id}`);
     const line = statementFor(node, graph);
@@ -1003,7 +1142,9 @@ function emitBody(graph, node, indent, seen, out) {
 
 function cppForType(spec) {
   const map = { bool: "bool", int: "int32", float: "float", vector: "FVector", rotator: "FRotator", string: "FString", name: "FName", object: "UObject*", actor: "AActor*" };
-  const base = spec?.type === "enum" ? ident(spec.enumName || "EGraph", "EGraph") : (map[spec?.type] || "float");
+  const base = spec?.type === "struct"
+    ? ident(spec.structName || "FCustomStruct", "FCustomStruct")
+    : spec?.type === "enum" ? ident(spec.enumName || "EGraph", "EGraph") : (map[spec?.type] || "float");
   return spec?.array ? `TArray<${base.replace("*", "")}>` : base;
 }
 
@@ -1079,25 +1220,29 @@ export function syncCpp(system, graph) {
     if (event.catalog === "point-damage") actorBinds.push(`Owner->OnTakePointDamage.AddDynamic(this, &${cls}::${base});`);
   }
   const outsideGraph = (text) => String(text || "").replace(/\/\/ graph:begin[\s\S]*?\/\/ graph:end[^\n]*\n?/g, "");
+  const beginNodes = events.filter((event) => event.catalog === "begin-play");
   const alreadyBegins = new RegExp(`\\b${cls}::BeginPlay\\s*\\(`).test(outsideGraph(system?.cpp_source))
     || /\bvoid\s+BeginPlay\s*\(/.test(outsideGraph(system?.cpp_header));
-  if ((componentBinds.length || actorBinds.length) && !alreadyBegins) {
+  if ((componentBinds.length || actorBinds.length || beginNodes.length) && !alreadyBegins) {
     headerLines.push("\tvirtual void BeginPlay() override;");
     sourceLines.push(`void ${cls}::BeginPlay()`);
     sourceLines.push("{");
     sourceLines.push("\tSuper::BeginPlay();");
-    sourceLines.push("\tif (AActor* Owner = GetOwner())");
-    sourceLines.push("\t{");
-    for (const line of actorBinds) sourceLines.push(`\t\t${line}`);
-    if (componentBinds.length) {
-      sourceLines.push("\t\tTArray<UPrimitiveComponent*> Prims;");
-      sourceLines.push("\t\tOwner->GetComponents<UPrimitiveComponent>(Prims);");
-      sourceLines.push("\t\tfor (UPrimitiveComponent* Prim : Prims)");
-      sourceLines.push("\t\t{");
-      for (const line of componentBinds) sourceLines.push(`\t\t\t${line}`);
-      sourceLines.push("\t\t}");
+    if (actorBinds.length || componentBinds.length) {
+      sourceLines.push("\tif (AActor* Owner = GetOwner())");
+      sourceLines.push("\t{");
+      for (const line of actorBinds) sourceLines.push(`\t\t${line}`);
+      if (componentBinds.length) {
+        sourceLines.push("\t\tTArray<UPrimitiveComponent*> Prims;");
+        sourceLines.push("\t\tOwner->GetComponents<UPrimitiveComponent>(Prims);");
+        sourceLines.push("\t\tfor (UPrimitiveComponent* Prim : Prims)");
+        sourceLines.push("\t\t{");
+        for (const line of componentBinds) sourceLines.push(`\t\t\t${line}`);
+        sourceLines.push("\t\t}");
+      }
+      sourceLines.push("\t}");
     }
-    sourceLines.push("\t}");
+    for (const event of beginNodes) sourceLines.push(`\t${functionBase(event)}();`);
     sourceLines.push("}");
     sourceLines.push("");
   }
@@ -1145,6 +1290,11 @@ export function syncCpp(system, graph) {
     body.push("}");
     return { name: fn.name, header, source: body.join("\n") };
   });
+  const isComponent = /\bpublic\s+[UA][A-Za-z0-9_]*Component\b/.test(String(system?.cpp_header || ""));
+  const alreadyTicks = /\bTickComponent\s*\(/.test(outsideGraph(system?.cpp_header)) || /\bTickComponent\s*\(/.test(outsideGraph(system?.cpp_source));
+  const support = graphSupport([eventGraph, ...docItems.filter((item) => item && item !== eventGraph && Array.isArray(item.nodes))], cls, isComponent && !alreadyTicks);
+  headerLines.push(...support.header);
+  if (support.source.length) sourceLines.push(support.source.join("\n"));
   let header = spliceMarked(system?.cpp_header || "", headerLines.join("\n"), true);
   let source = spliceMarked(system?.cpp_source || "", sourceLines.join("\n").trimEnd(), false);
   header = stripNamedRegions(header, "function");
@@ -1155,8 +1305,15 @@ export function syncCpp(system, graph) {
     header = upsertRegion(header, `// graph:begin function ${block.name}`, `// graph:end function ${block.name}`, block.header, true);
     source = upsertRegion(source, `// graph:begin function ${block.name}`, `// graph:end function ${block.name}`, block.source, false);
   }
+  header = upsertBeforeClass(header, support.beforeClass);
+  if (/UTimelineComponent/.test(header) || /UTimelineComponent/.test(source)) {
+    header = ensureHeaderInclude(header, "Components/ActorComponent.h");
+    header = ensureHeaderInclude(header, "Components/TimelineComponent.h");
+  }
   const needs = [
     [/GetWorld\s*\(/, "Engine/World.h"],
+    [/UTimelineComponent|FOnTimelineFloat|FOnTimelineEvent|PlayFromStart/, "Components/TimelineComponent.h"],
+    [/UCurveFloat|FloatCurve/, "Curves/CurveFloat.h"],
     [/FHitResult|LineTraceSingleByChannel|OnComponentBeginOverlap|OnComponentEndOverlap|OnComponentHit/, "Engine/HitResult.h"],
     [/UPrimitiveComponent/, "Components/PrimitiveComponent.h"],
     [/GetOwner\s*\(|->Destroy\s*\(|OnTakeAnyDamage|OnTakePointDamage|GetActorLocation/, "GameFramework/Actor.h"],
@@ -1171,6 +1328,89 @@ export function syncCpp(system, graph) {
   const stateLines = stateMembers(stateNodes(eventGraph, docItems));
   if (stateLines.length) header = upsertRegion(header, "// graph:begin variables", "// graph:end variables", [...variableHeader, ...stateLines].join("\n"), true);
   return { cpp_header: header, cpp_source: source, lines: lineIndex(header, source) };
+}
+
+function graphSupport(graphs, cls, allowTick) {
+  const header = [];
+  const source = [];
+  const beforeClass = [];
+  const seenTimeline = new Set();
+  const seenDelegate = new Set();
+  const seenHandler = new Set();
+  const timelines = [];
+  for (const graph of graphs) {
+    if (!graph) continue;
+    const withClass = { ...graph, cppClass: cls, nodes: graph.nodes || [], wires: graph.wires || [] };
+    for (const node of withClass.nodes) {
+      if (node?.catalog === "timeline" && !seenTimeline.has(node.id)) {
+        seenTimeline.add(node.id);
+        timelines.push(node);
+        const id = ident(node.id, "Timeline");
+        header.push("\tUPROPERTY()");
+        header.push(`\tUTimelineComponent* Timeline_${id} = nullptr;`);
+        header.push("\tUFUNCTION()");
+        header.push(`\tvoid OnTimelineUpdate_${id}(float Alpha);`);
+        header.push("\tUFUNCTION()");
+        header.push(`\tvoid OnTimelineFinished_${id}();`);
+        const updatePin = (node.pins || []).find((item) => item.name === "Update" && item.dir === "out");
+        const finishedPin = (node.pins || []).find((item) => item.name === "Finished" && item.dir === "out");
+        source.push(`void ${cls}::OnTimelineUpdate_${id}(float Alpha)`, "{");
+        emitBody(withClass, updatePin ? outgoing(withClass, node, updatePin.id) : null, "\t", new Set([node.id]), source);
+        source.push("}", "");
+        source.push(`void ${cls}::OnTimelineFinished_${id}()`, "{");
+        emitBody(withClass, finishedPin ? outgoing(withClass, node, finishedPin.id) : null, "\t", new Set([node.id]), source);
+        source.push("}", "");
+      }
+      if ((node?.catalog === "dispatcher-call" || node?.catalog === "dispatcher-bind") && !seenDelegate.has(dispatcherMember(node))) {
+        const name = dispatcherMember(node);
+        seenDelegate.add(name);
+        beforeClass.push(`DECLARE_DYNAMIC_MULTICAST_DELEGATE(F${name}Delegate);`);
+        header.push('\tUPROPERTY(BlueprintAssignable, Category="Graph")');
+        header.push(`\tF${name}Delegate ${name};`);
+      }
+      if (node?.catalog === "dispatcher-bind") {
+        const handler = dispatcherHandler(withClass, node);
+        const boundEvent = withClass.nodes.find((item) => item.catalog === "custom-event" && functionBase(item) === handler);
+        if (!boundEvent && !seenHandler.has(handler)) {
+          seenHandler.add(handler);
+          header.push("\tUFUNCTION()");
+          header.push(`\tvoid ${handler}();`);
+          source.push(`void ${cls}::${handler}()`, "{", "}", "");
+        }
+      }
+    }
+  }
+  if (timelines.length && allowTick) {
+    header.push("\tvirtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;");
+    source.push(`void ${cls}::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)`, "{", "\tSuper::TickComponent(DeltaTime, TickType, ThisTickFunction);");
+    for (const node of timelines) {
+      const id = ident(node.id, "Timeline");
+      source.push(`\tif (Timeline_${id}) { Timeline_${id}->TickComponent(DeltaTime, TickType, nullptr); }`);
+    }
+    source.push("}", "");
+  }
+  return { header, source, beforeClass };
+}
+
+function upsertBeforeClass(header, lines) {
+  const begin = "// graph:begin dispatchers";
+  const end = "// graph:end dispatchers";
+  const start = header.indexOf(begin);
+  const stop = header.indexOf(end);
+  const without = start >= 0 && stop > start ? `${header.slice(0, start)}${header.slice(stop + end.length)}` : header;
+  if (!lines || !lines.length) return without;
+  const block = `${begin}\n${lines.join("\n")}\n${end}\n`;
+  const at = without.search(/\bUCLASS\b/);
+  if (at < 0) return `${without.trimEnd()}\n\n${block}`;
+  return `${without.slice(0, at)}${block}${without.slice(at)}`;
+}
+
+function ensureHeaderInclude(header, include) {
+  if (String(header).includes(`"${include}"`)) return header;
+  const line = `#include "${include}"`;
+  const generated = String(header).match(/#include\s+"[^"]+\.generated\.h"/);
+  if (generated) return `${header.slice(0, generated.index)}${line}\n${header.slice(generated.index)}`;
+  return `${line}\n${header}`;
 }
 
 function insertCppInclude(source, include) {
@@ -1428,6 +1668,7 @@ export const VALUE_TYPES = [
   { id: "object", label: "Object" },
   { id: "actor", label: "Actor" },
   { id: "enum", label: "Enum" },
+  { id: "struct", label: "Struct" },
 ];
 
 function dataPins(list, dir, exec) {
@@ -1575,6 +1816,8 @@ export function addVariable(doc, patch = {}) {
     type: patch.type || "float",
     array: !!patch.array,
     enumName: patch.enumName || "",
+    structName: patch.structName || "",
+    members: Array.isArray(patch.members) ? patch.members : [],
     default: patch.default ?? "",
     replicated: !!patch.replicated,
     repNotify: !!patch.repNotify,
@@ -1583,6 +1826,7 @@ export function addVariable(doc, patch = {}) {
 }
 
 function variablePinType(variable) {
+  if (variable?.type === "struct") return "object";
   return canonicalType(variable?.type === "actor" ? "object" : (variable?.type || "float"), "");
 }
 

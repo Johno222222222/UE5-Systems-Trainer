@@ -627,13 +627,38 @@ export default function Workspace() {
       setTab("graph");
       const conflicts = stacked.stack_map?.conflicts?.length || 0;
       toast.success(`Stacked into ${stacked.system_name}`, {
-        description: conflicts ? `${conflicts} conflict${conflicts === 1 ? "" : "s"} to review` : `Create in Unreal uses ${data.folder}`,
+        description: conflicts ? `${conflicts} conflict${conflicts === 1 ? "" : "s"} to review. Built on this computer.` : `Create in Unreal uses ${data.folder}. Built on this computer.`,
       });
       return true;
     } catch (e) {
       toast.error(errorText(e));
       return false;
     }
+  };
+
+  const integrateSelected = async (ids) => {
+    let systems;
+    try {
+      systems = await Promise.all(ids.map((id) => api.get(`/projects/${id}`).then((r) => r.data.system)));
+    } catch (e) {
+      toast.error(errorText(e));
+      return false;
+    }
+    const stackPrompt = `Stack these systems into one integrated system: ${systems.map((item) => item.system_name).join(" + ")}`;
+    const ok = await runSynthesis({
+      ...currentInputs,
+      prompt: stackPrompt,
+      extra_modules: [],
+      designer_notes: notes,
+      stack_systems: systems.map(compactForApi),
+    }, { ...currentInputs, prompt: stackPrompt, extra_modules: [] }, (data) => `Integrated into ${data.system_name}`);
+    if (ok) {
+      setPrompt(stackPrompt);
+      setExtra([]);
+      setProject(null);
+      setIgnores([]);
+    }
+    return ok;
   };
 
   const toggleModule = (name) => {
@@ -1552,7 +1577,7 @@ export default function Workspace() {
           </div>
 
           <ProjectsPanel refreshKey={projRefresh} currentId={project?.project_id} onOpen={openProject}
-            onDeleted={(id) => { if (project?.project_id === id) setProject(null); }} onStack={stackSelected} onBundle={(ids, preset) => setBundle({ ids, preset })} busy={loading} />
+            onDeleted={(id) => { if (project?.project_id === id) setProject(null); }} onStack={stackSelected} onIntegrate={integrateSelected} onBundle={(ids, preset) => setBundle({ ids, preset })} busy={loading} />
         </aside>
 
         {/* CENTER STAGE */}
@@ -1580,7 +1605,7 @@ export default function Workspace() {
               {result?.stack_map && (
                 <div className="mt-2 text-[11px]" data-testid="stack-report">
                   <div className="eyebrow mb-1">Stack</div>
-                  {result.stack_map.folder && <div className="text-[var(--text-secondary)]">Create in Unreal uses {result.stack_map.folder}.</div>}
+                  {result.stack_map.folder && <div className="text-[var(--text-secondary)]">Create in Unreal uses {result.stack_map.folder}. Stack built this on this computer and did not call the model.</div>}
                   {(result.stack_map.dependencies || []).map((item) => (
                     <div key={`${item.name}-${item.base}`} className="text-[var(--text-secondary)]" data-testid={`stack-dep-${item.name}`}>{item.name} depends on {item.base}</div>
                   ))}
