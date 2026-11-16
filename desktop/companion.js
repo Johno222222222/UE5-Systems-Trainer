@@ -5,6 +5,7 @@
 
 const http = require("http");
 const crypto = require("crypto");
+const { searchGlossary } = require("./editorLearn");
 
 const LOOPBACK = new Set(["127.0.0.1", "::1", "::ffff:127.0.0.1"]);
 const GAMEPLAY = /Actor|Component|Character|Pawn|GameMode|GameState|Controller|PlayerState|Interface|HUD|Widget/i;
@@ -56,7 +57,7 @@ function summarizeProject(report, limit = 700) {
   return text.length > limit ? `${text.slice(0, limit - 1)}…` : text;
 }
 
-function createCompanion({ now = () => Date.now(), timeoutMs = 20000 } = {}) {
+function createCompanion({ now = () => Date.now(), timeoutMs = 20000, glossary = [] } = {}) {
   let code = pairingCode();
   let token = "";
   let report = null;
@@ -153,10 +154,13 @@ function createCompanion({ now = () => Date.now(), timeoutMs = 20000 } = {}) {
         const id = String(body.id || "");
         const item = queue.find((entry) => entry.id === id);
         if (item) settle(item, { ...body, id });
-        else if (id && lastResult && lastResult.id === id) lastResult = { ...body, id };
-        else if (!id) lastResult = body;
+        else lastResult = { ...body, id };
         while (queue.length && queue[0].state === "done") queue.shift();
         send(res, 200, { ok: true });
+        return;
+      }
+      if (req.method === "GET" && url.pathname === "/v1/glossary") {
+        send(res, 200, { terms: searchGlossary(glossary, url.searchParams.get("q")) });
         return;
       }
       send(res, 404, { error: "Not found" });

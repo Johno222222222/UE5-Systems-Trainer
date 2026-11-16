@@ -115,6 +115,7 @@ function recordAnswer(progress, entry) {
     project_id: entry.project_id || null,
     challenge_index: Number(entry.challenge_index) || 0,
     correct: !!entry.correct,
+    asset: String(entry.asset || "").slice(0, 180),
     at: entry.at || new Date().toISOString(),
   };
   const without = answered.filter((item) => item.id !== id);

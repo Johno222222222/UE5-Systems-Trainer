@@ -3,6 +3,7 @@
 #include "HttpManager.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
+#include "GenericPlatform/GenericPlatformHttp.h"
 #include "Serialization/JsonSerializer.h"
 #include "Serialization/JsonWriter.h"
 #include "Modules/ModuleManager.h"
@@ -113,12 +114,13 @@ bool CompanionLink::TakePending(const FString& Host, int32 Port, const FString& 
 	return OutCommand.IsValid() && !OutCommand->GetStringField(TEXT("type")).IsEmpty();
 }
 
-bool CompanionLink::PostResult(const FString& Host, int32 Port, const FString& Token, const FString& Id, bool bOk, const FString& Message, const TArray<FString>& Assets, const TArray<FString>& Conflicts, FString& OutError)
+bool CompanionLink::PostResult(const FString& Host, int32 Port, const FString& Token, const FString& Id, bool bOk, const FString& Message, const TArray<FString>& Assets, const TArray<FString>& Conflicts, const TArray<TSharedPtr<FJsonValue>>& Checks, FString& OutError)
 {
 	TSharedRef<FJsonObject> Body = MakeShared<FJsonObject>();
 	Body->SetStringField(TEXT("id"), Id);
 	Body->SetBoolField(TEXT("ok"), bOk);
 	Body->SetStringField(TEXT("message"), Message);
+	if (Checks.Num()) Body->SetArrayField(TEXT("checks"), Checks);
 	TArray<TSharedPtr<FJsonValue>> AssetValues;
 	for (const FString& Asset : Assets) AssetValues.Add(MakeShared<FJsonValueString>(Asset));
 	TArray<TSharedPtr<FJsonValue>> ConflictValues;
@@ -128,6 +130,27 @@ bool CompanionLink::PostResult(const FString& Host, int32 Port, const FString& T
 	FString Text;
 	int32 Status = 0;
 	return PostJson(BaseUrl(Host, Port) + TEXT("/v1/result"), Token, Body, Text, Status);
+}
+
+bool CompanionLink::SearchGlossary(const FString& Host, int32 Port, const FString& Token, const FString& Query, TArray<TSharedPtr<FJsonValue>>& OutTerms, FString& OutError)
+{
+	FString Text;
+	const FString Url = BaseUrl(Host, Port) + TEXT("/v1/glossary?q=") + FGenericPlatformHttp::UrlEncode(Query);
+	if (!GetText(Url, Token, Text))
+	{
+		OutError = TEXT("The glossary request did not reach the app.");
+		return false;
+	}
+	TSharedPtr<FJsonObject> Parsed;
+	const TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Text);
+	if (!FJsonSerializer::Deserialize(Reader, Parsed) || !Parsed.IsValid())
+	{
+		OutError = TEXT("The glossary reply was not understood.");
+		return false;
+	}
+	const TArray<TSharedPtr<FJsonValue>>* Terms = nullptr;
+	if (Parsed->TryGetArrayField(TEXT("terms"), Terms) && Terms) OutTerms = *Terms;
+	return true;
 }
 
 FString CompanionLink::TryLiveCompile()

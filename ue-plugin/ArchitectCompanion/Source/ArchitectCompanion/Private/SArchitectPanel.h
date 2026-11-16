@@ -18,6 +18,11 @@ private:
 	void Poll();
 	void SetStatus(const FString& Text);
 	void AcceptPairingText(const FString& Raw, int32 Field);
+	void ShowLearn();
+	FReply CheckChallenges();
+	FReply MarkManual(FString ChallengeId);
+	FReply SearchGlossary();
+	void PostChecks(const TArray<TSharedPtr<FJsonValue>>& Checks, const FString& Message);
 
 	FString Host = TEXT("127.0.0.1");
 	FString Port = TEXT("0");
@@ -26,6 +31,10 @@ private:
 	FString Status = TEXT("Not paired");
 	FString ProjectName;
 	FString EngineVersion;
+	TSharedPtr<SVerticalBox> LearnBox;
+	TSharedPtr<SVerticalBox> GlossaryBox;
+	TSharedPtr<SEditableTextBox> GlossaryQuery;
+	TSharedPtr<FJsonObject> CurrentLearn;
 	FString FinishedId;
 	FString FinishedMessage;
 	TArray<FString> FinishedAssets;

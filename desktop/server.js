@@ -60,6 +60,7 @@ const { detectEngine, compilePlugin } = require("./engine");
 const { moduleName, writePlugin, copyTree, enablePlugin } = require("./pluginFiles");
 const { createCompanion, summarizeProject } = require("./companion");
 const { buildAssetPlan } = require("./realAssets");
+const { buildEditorLearn } = require("./editorLearn");
 
 const OWNER = "You";
 const REF_LIMIT = 10 * 1024 * 1024;
@@ -342,7 +343,12 @@ function textFromBytes(data) {
 async function startServer(options = {}) {
   const dataDir = options.dataDir;
   if (!dataDir) throw new Error("dataDir is required");
-  const companion = await createCompanion();
+  let glossaryTerms = [];
+  try {
+    glossaryTerms = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "content", "glossary.json"), "utf8")).terms || [];
+  } catch { /* the panel search stays empty */ }
+  const companion = await createCompanion({ glossary: glossaryTerms });
+  const recordedLearn = new Set();
   fs.mkdirSync(path.join(dataDir, "files"), { recursive: true });
   const store = createStore(path.join(dataDir, "library.json"));
   const secrets = createSecrets(path.join(dataDir, "secrets.json"), path.join(dataDir, "secret.key"), options.codec);
@@ -973,6 +979,23 @@ async function startServer(options = {}) {
 
   route("GET", "/api/companion", async () => {
     if (typeof companion.sweep === "function") companion.sweep();
+    const result = companion.lastResult;
+    if (result?.checks && result.id && !recordedLearn.has(result.id)) {
+      recordedLearn.add(result.id);
+      await store.update((data) => {
+        let progress = data.progress;
+        result.checks.forEach((check, index) => {
+          progress = recordAnswer(progress, {
+            system_name: result.systemName || result.checks[0]?.systemName || "System",
+            challenge_index: 100 + index,
+            correct: !!check.pass,
+            asset: check.asset || "",
+          });
+        });
+        data.progress = progress;
+        return {};
+      });
+    }
     return {
     host: "127.0.0.1",
     port: companion.port,
@@ -1023,7 +1046,7 @@ async function startServer(options = {}) {
       if (exc.statusCode === 409) return { ok: false, conflicts: exc.conflicts || [], path: dest };
       throw exc;
     }
-    const command = companion.paired ? companion.queue({ type: "reload", module: written.module }) : null;
+    const command = companion.paired ? companion.queue({ type: "reload", module: written.module, learn: buildEditorLearn(system) }) : null;
     return {
       ok: true,
       plugin: written.module,
@@ -1042,7 +1065,7 @@ async function startServer(options = {}) {
     if (!companion.paired) {
       return { ok: false, paired: false, folder: plan.folder, message: "Pair the Architect panel in the editor first." };
     }
-    const command = companion.queue(plan);
+    const command = companion.queue({ ...plan, learn: buildEditorLearn(system, plan) });
     return {
       ok: true,
       queued: true,

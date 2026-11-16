@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.15.0
+
+- Create in Unreal and Send to Unreal also send the system's WHY notes. The Architect panel lists them by data table, data asset, Blueprint, and C++ class.
+- The panel can check two to four challenges against the real assets, and you can mark one done by hand. The result shows in the app with the asset name and counts toward your learning progress.
+- The panel can search the glossary.
+- Version is 1.15.0. The Stage 8 plugin work is done.
+
 ## 1.14.1
 
 - Create and Open requests stay queued until Unreal answers that request. If the editor never answers, the app says so.

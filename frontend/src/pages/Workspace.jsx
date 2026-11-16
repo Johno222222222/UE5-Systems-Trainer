@@ -1469,6 +1469,15 @@ export default function Workspace() {
                 }
               }}>Use project classes</button>
               {companion?.result?.message && <p className="mt-1 text-[10.5px] font-mono text-[var(--text-muted)]" data-testid="companion-result">{companion.result.message}</p>}
+              {!!companion?.result?.checks?.length && (
+                <div className="mt-2" data-testid="editor-checks">
+                  {companion.result.checks.map((check) => (
+                    <p key={check.id} className="mt-1 text-[10.5px] font-mono text-[var(--text-secondary)]" data-testid={`editor-check-${check.id}`}>
+                      {check.pass ? "Pass" : "Not yet"} · {check.asset}
+                    </p>
+                  ))}
+                </div>
+              )}
               {!!companion?.result?.conflicts?.length && companion.result.ok === false && (
                 <button type="button" className="ue-btn !py-1 !px-2 !text-[11px] mt-2" data-testid="replace-assets" onClick={async () => {
                   try {

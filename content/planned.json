@@ -4,7 +4,7 @@
       "id": "ue-companion",
       "title": "UE companion plugin",
       "status": "planned",
-      "detail": "Part 1 is in 1.12.0: a local companion panel, Send to Unreal, and a class list. Later phases still cover reading a Blueprint and a live compile inside the editor."
+      "detail": "Shipped through 1.15.0. The Stage 8 plugin work is done: pairing, Send to Unreal, real assets, and learning in the editor."
     },
     {
       "id": "mac-signing",
@@ -27,8 +27,8 @@
     {
       "id": "learning-in-editor",
       "title": "Learning in the editor",
-      "status": "planned",
-      "detail": "Next, in 1.15.0. The companion panel does not teach inside Unreal yet."
+      "status": "shipped",
+      "detail": "Shipped in 1.15.0. The Architect panel shows WHY notes, checks challenges on the created assets, and can search the glossary."
     },
     {
       "id": "linux-packages",
