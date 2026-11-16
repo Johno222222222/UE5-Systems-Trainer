@@ -7,6 +7,7 @@
       "title": "Tactical FPS foundation",
       "summary": "Interaction, inventory, weapon wear, and replication. You study the pieces, then load a starter project you can build on.",
       "glossary_tags": ["Core", "Networking", "Inventory", "Input", "App"],
+      "related_courses": ["gas-basics", "replication-basics", "data-driven"],
       "modules": [
         {
           "id": "interaction",

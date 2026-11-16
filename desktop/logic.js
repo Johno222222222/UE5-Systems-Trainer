@@ -230,6 +230,23 @@ const TEMPLATES = [
   },
 ];
 
+const SYSTEM_NOTES = {
+  combat: ["Use this when melee hits, combos, and hit reactions should live on a component.", "A common mistake is to put the combo on Tick, or to Cast To every weapon Blueprint."],
+  inventory: ["Use this when a grid of slots should read stack size from a data asset.", "A common mistake is to let the widget decide the stack, or to ignore the data table row."],
+  dialogue: ["Use this when a conversation should branch from a data table instead of a chain of casts.", "A common mistake is to hardcode every line in the character."],
+  ai_guard: ["Use this when a guard should patrol, chase, and search without Tick doing all of it.", "A common mistake is to replicate the whole animation instead of the state."],
+  save: ["Use this when a slot should be one struct you write and read back.", "A common mistake is to save on Tick, or to Break Struct before the member is set."],
+  vehicle: ["Use this when throttle, brake, and boost should be a vehicle component.", "A common mistake is to drive the mesh from Tick on every client."],
+  gas: ["Use this when abilities should activate by gameplay tag through the Gameplay Ability System.", "A common mistake is a Cast To per ability, or a second health float beside the attribute."],
+  interaction: ["Use this when a trace should call an interface on the actor you look at.", "A common mistake is a Cast To chain, or a trace that runs on Tick."],
+};
+for (const template of TEMPLATES) {
+  const notes = SYSTEM_NOTES[template.id];
+  if (!notes) continue;
+  template.when_to_use = notes[0];
+  template.common_mistakes = notes[1];
+}
+
 function usageDay(date = new Date()) {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/Los_Angeles",

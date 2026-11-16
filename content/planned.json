@@ -4,7 +4,7 @@
       "id": "ue-companion",
       "title": "UE companion plugin",
       "status": "planned",
-      "detail": "Shipped through 1.15.0. The Stage 8 plugin work is done: pairing, Send to Unreal, real assets, and learning in the editor."
+      "detail": "Shipped through 1.16.0. Pairing, Send to Unreal, real assets, learning in the editor, and stacking into one Create request."
     },
     {
       "id": "mac-signing",
@@ -35,6 +35,12 @@
       "title": "Linux packages",
       "status": "in progress",
       "detail": "AppImage and deb are built next to the Windows installer. They are unsigned, the same way the Windows build is unsigned today."
+    },
+    {
+      "id": "module-stacking",
+      "title": "Module stacking",
+      "status": "shipped",
+      "detail": "Shipped in 1.16.0. Stack saved systems into one plugin, share interfaces and gameplay tags, and list conflicts before Create in Unreal."
     }
   ]
 }

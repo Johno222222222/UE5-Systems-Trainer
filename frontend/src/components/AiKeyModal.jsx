@@ -284,7 +284,7 @@ export default function AiKeyModal({ current, onSave, onClose, required, onClear
           <p className="text-[12px] text-[var(--text-secondary)] leading-relaxed" data-testid="about-is">{INTRO.is}</p>
           <p className="text-[12px] text-[var(--text-secondary)] leading-relaxed mt-1" data-testid="about-isnt">{INTRO.isnt}</p>
           <p className="text-[10.5px] font-mono text-[var(--text-muted)] mt-2" data-testid="settings-about">
-            UE5 System Architect {aboutVersion}
+            UE5 Systems Training Tool/Generator {aboutVersion}
           </p>
         </div>
         <div className="flex gap-2 justify-end pt-1">

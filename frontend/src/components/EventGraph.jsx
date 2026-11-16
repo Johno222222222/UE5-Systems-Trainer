@@ -9,7 +9,7 @@ import {
   commitHistory, createHistory, createNode, deleteGraph, deleteVariable, duplicateParts, explainGraph,
   GRAPH_LAYOUT, graphWarnings, pickWireTarget, pinCenter, pinColor, placeCall, placeNodes, readDocument,
   readEventGraph, redoHistory, removeParts, renameGraph, setFunctionSignature, setNodeData, snapValue,
-  systemSymbols, tryWire, undoHistory, updateVariable, VALUE_TYPES, variableNode,
+  structChoices, systemSymbols, tryWire, undoHistory, updateVariable, VALUE_TYPES, variableNode,
 } from "../lib/graph.mjs";
 
 const NODE_W = GRAPH_LAYOUT.nodeW;
@@ -44,7 +44,7 @@ function VariableEditor({ variable, onChange, onDelete }) {
   if (!variable) return null;
   return (
     <div className="mt-2" data-testid="variable-editor">
-      <select className="graph-search" aria-label="Variable type" value={variable.type} onChange={(event) => onChange({ type: event.target.value })}>
+      <select className="graph-search" aria-label="Variable type" value={variable.type} onChange={(event) => onChange(event.target.value === "struct" ? { type: "struct", structName: variable.structName || "FCustomStruct", members: variable.members?.length ? variable.members : [{ name: "Value", type: "float" }] } : { type: event.target.value })}>
         {VALUE_TYPES.map((type) => <option key={type.id} value={type.id}>{type.label}</option>)}
       </select>
       <input className="graph-search mt-1" aria-label="Default value" defaultValue={variable.default || ""} onBlur={(event) => onChange({ default: event.target.value })} />
@@ -52,6 +52,12 @@ function VariableEditor({ variable, onChange, onDelete }) {
       <label className="flex items-center gap-2 text-[11px]"><input type="checkbox" checked={!!variable.replicated} onChange={(event) => onChange({ replicated: event.target.checked })} /> Replicated</label>
       <label className="flex items-center gap-2 text-[11px]"><input type="checkbox" checked={!!variable.repNotify} onChange={(event) => onChange({ repNotify: event.target.checked, replicated: event.target.checked || variable.replicated })} /> RepNotify</label>
       {variable.type === "enum" && <input className="graph-search mt-1" aria-label="Enum name" defaultValue={variable.enumName || ""} placeholder="Enum name" onBlur={(event) => onChange({ enumName: event.target.value })} />}
+      {variable.type === "struct" && (
+        <>
+          <input className="graph-search mt-1" aria-label="Struct name" defaultValue={variable.structName || "FCustomStruct"} placeholder="FCustomStruct" onBlur={(event) => onChange({ type: "struct", structName: event.target.value || "FCustomStruct", members: variable.members?.length ? variable.members : [{ name: "Value", type: "float" }] })} />
+          <input className="graph-search mt-1" aria-label="Struct members" defaultValue={(variable.members || []).map((item) => `${item.name}:${item.type}`).join(", ")} placeholder="Value:float, Flag:bool" onBlur={(event) => onChange({ members: parsePins(event.target.value) })} />
+        </>
+      )}
       <button type="button" className="ue-btn !py-0.5 !px-1.5 !text-[10px] mt-1" onClick={() => onDelete(variable.id)}>Delete variable</button>
     </div>
   );
@@ -539,7 +545,7 @@ export default function EventGraph({
           <div data-testid="graph-templates">
             {graphTemplates.map((template) => (
               <div key={template.id} className="graph-lib-item" data-testid={`template-${template.id}`}>
-                <span title={template.summary}>{template.title}</span>
+                <span title={[template.when_to_use, template.common_mistakes].filter(Boolean).join(" ")}>{template.title}</span>
                 <button type="button" className="graph-lib-add" aria-label={`Insert ${template.title}`} onClick={() => insertTemplate(template, "insert")}>+</button>
                 <button type="button" className="graph-lib-add" aria-label={`Open ${template.title}`} onClick={() => insertTemplate(template, "new")}>↗</button>
               </div>
@@ -776,6 +782,8 @@ export default function EventGraph({
         {selectedNode && (
           <div className="graph-inspector panel p-2" data-testid="graph-inspector" data-graph-chrome onPointerDown={(event) => event.stopPropagation()}>
             <div className="text-[12px] font-semibold">{selectedNode.label}</div>
+            {selectedNode.whenToUse && <p className="mt-1 text-[11px] text-[var(--text-secondary)]" data-testid="node-when"><GlossaryText text={selectedNode.whenToUse} /></p>}
+            {selectedNode.commonMistakes && <p className="mt-1 text-[11px] text-[var(--text-muted)]" data-testid="node-mistakes"><GlossaryText text={selectedNode.commonMistakes} /></p>}
             {selectedNode.catalog === "print-string" && (
               <input className="graph-search mt-1" aria-label="Print text" key={`${selectedNode.id}-${selectedNode.data?.text || ""}`} defaultValue={selectedNode.data?.text || ""} onBlur={(event) => { if (event.target.value !== (selectedNode.data?.text || "")) commit(setNodeData(graph, selectedNode.id, { text: event.target.value })); }} />
             )}
@@ -787,6 +795,23 @@ export default function EventGraph({
                 {!symbols.variables.length && <option value={selectedNode.data?.variable || "Value"}>{selectedNode.data?.variable || "Value"}</option>}
                 {symbols.variables.map((item) => <option key={item.name} value={item.name}>{item.label}</option>)}
               </select>
+            )}
+            {(selectedNode.catalog === "break-struct" || selectedNode.catalog === "make-struct") && (
+              <select className="graph-search mt-1" aria-label="Struct type" data-testid="struct-type" value={selectedNode.data?.struct || "FVector"} onChange={(event) => {
+                const choice = structChoices(doc, system?.cpp_header).find((item) => item.name === event.target.value);
+                commit(setNodeData(graph, selectedNode.id, { struct: event.target.value, members: choice?.members || [] }));
+              }}>
+                {structChoices(doc, system?.cpp_header).map((item) => <option key={item.name} value={item.name}>{item.name}</option>)}
+              </select>
+            )}
+            {selectedNode.catalog === "cast-to" && (
+              <input className="graph-search mt-1" aria-label="Cast class" data-testid="cast-class" key={`${selectedNode.id}-${selectedNode.data?.className || ""}`} defaultValue={selectedNode.data?.className || "AActor"} onBlur={(event) => { if (event.target.value !== (selectedNode.data?.className || "")) commit(setNodeData(graph, selectedNode.id, { className: event.target.value || "AActor" })); }} />
+            )}
+            {selectedNode.catalog === "interface-call" && (
+              <>
+                <input className="graph-search mt-1" aria-label="Interface function" data-testid="interface-function" key={`${selectedNode.id}-fn-${selectedNode.data?.function || ""}`} defaultValue={selectedNode.data?.function || "Interact"} onBlur={(event) => { if (event.target.value !== (selectedNode.data?.function || "")) commit(setNodeData(graph, selectedNode.id, { function: event.target.value || "Interact" })); }} />
+                <input className="graph-search mt-1" aria-label="Interface class" data-testid="interface-class" key={`${selectedNode.id}-if-${selectedNode.data?.interface || ""}`} defaultValue={selectedNode.data?.interface || ""} placeholder="UInterface class, optional" onBlur={(event) => { if (event.target.value !== (selectedNode.data?.interface || "")) commit(setNodeData(graph, selectedNode.id, { interface: event.target.value })); }} />
+              </>
             )}
             {selectedNode.catalog === "call-function" && (
               <select className="graph-search mt-1" aria-label="Function" value={selectedNode.data?.function || ""} onChange={(event) => commit(setNodeData(graph, selectedNode.id, { function: event.target.value }))}>

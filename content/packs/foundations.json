@@ -1,0 +1,506 @@
+{
+  "format": "ue5-architect-pack",
+  "version": 1,
+  "programs": [
+    {
+      "id": "foundations",
+      "title": "GAS, replication, and data",
+      "summary": "Three short steps, then the courses for Gameplay Ability System, replication, and data-driven design.",
+      "glossary_tags": ["GAS", "Networking", "Data"],
+      "related_courses": ["gas-basics", "replication-basics", "data-driven"],
+      "modules": [
+        {
+          "id": "gas",
+          "title": "GAS basics",
+          "steps": [
+            {
+              "id": "activate-by-tag",
+              "title": "Activate by tag",
+              "reveal": { "nodes": ["Ability"], "functions": ["Activate"] },
+              "predict": {
+                "prompt": "How should a Gameplay Ability System ability start?",
+                "choices": ["By gameplay tag through the ability system.", "By Cast To the ability Blueprint.", "On Tick."],
+                "answer": 0,
+                "why": "The ability system checks cost and cooldown when you activate by tag."
+              },
+              "why": "The ability system checks cost and cooldown when you activate by tag.",
+              "task": "Type the word for the label that starts the ability.",
+              "accept": ["tag", "gameplay tag"]
+            }
+          ]
+        },
+        {
+          "id": "replication",
+          "title": "Replication",
+          "steps": [
+            {
+              "id": "server-decides",
+              "title": "The server decides",
+              "reveal": { "nodes": ["Authority"], "functions": ["ApplyDamage"] },
+              "predict": {
+                "prompt": "Who changes replicated health?",
+                "choices": ["The server, when it has authority.", "Every client.", "The widget."],
+                "answer": 0,
+                "why": "Clients can ask. The authority writes the property other machines see."
+              },
+              "why": "Clients can ask. The authority writes the property other machines see.",
+              "task": "Type who is allowed to change health.",
+              "accept": ["server", "authority"]
+            }
+          ]
+        },
+        {
+          "id": "data",
+          "title": "Data",
+          "steps": [
+            {
+              "id": "row-owns-number",
+              "title": "The row owns the number",
+              "reveal": { "nodes": ["Data Table"], "functions": ["ReadRow"] },
+              "predict": {
+                "prompt": "Where does magazine size live?",
+                "choices": ["In a data table row.", "In the widget.", "In a comment."],
+                "answer": 0,
+                "why": "A data table row is the number designers edit. The widget only draws it."
+              },
+              "why": "A data table row is the number designers edit. The widget only draws it.",
+              "task": "Type the asset that holds the row.",
+              "accept": ["table", "data table"]
+            }
+          ]
+        }
+      ],
+      "modify_tasks": [
+        {
+          "id": "ability-tag",
+          "title": "Activate by tag",
+          "prompt": "Turn on tag activation and leave Tick off.",
+          "fields": [
+            { "key": "activate_by_tag", "label": "Activate by gameplay tag", "kind": "bool" },
+            { "key": "use_tick", "label": "Run the ability on Tick", "kind": "bool" }
+          ],
+          "pass": { "all": [{ "key": "activate_by_tag", "eq": true }, { "key": "use_tick", "eq": false }] },
+          "hints": [
+            { "key": "activate_by_tag", "text": "The ability is not started by tag." },
+            { "key": "use_tick", "text": "Tick is still running the ability." }
+          ],
+          "pass_detail": "The ability starts by tag, and Tick stays off.",
+          "fail_detail": "Those settings do not pass this task."
+        },
+        {
+          "id": "server-health",
+          "title": "Server health",
+          "prompt": "Health changes only with authority.",
+          "fields": [{ "key": "authority_only", "label": "Authority writes health", "kind": "bool" }],
+          "pass": { "key": "authority_only", "eq": true },
+          "hints": [{ "key": "authority_only", "text": "A client can still write health." }],
+          "pass_detail": "Only authority writes health.",
+          "fail_detail": "Those settings do not pass this task."
+        },
+        {
+          "id": "onrep-ui",
+          "title": "OnRep for the UI",
+          "prompt": "The UI reads OnRep. It does not tick.",
+          "fields": [
+            { "key": "ui_onrep", "label": "UI listens to OnRep", "kind": "bool" },
+            { "key": "ui_tick", "label": "UI reads health on Tick", "kind": "bool" }
+          ],
+          "pass": { "all": [{ "key": "ui_onrep", "eq": true }, { "key": "ui_tick", "eq": false }] },
+          "hints": [
+            { "key": "ui_onrep", "text": "The UI is not listening to OnRep." },
+            { "key": "ui_tick", "text": "The UI is still ticking." }
+          ],
+          "pass_detail": "The UI listens to OnRep.",
+          "fail_detail": "Those settings do not pass this task."
+        },
+        {
+          "id": "table-row",
+          "title": "A data table row",
+          "prompt": "Magazine size comes from a data table, not the widget.",
+          "fields": [
+            { "key": "use_data_table", "label": "Read a data table", "kind": "bool" },
+            { "key": "widget_owns_number", "label": "The widget owns the number", "kind": "bool" }
+          ],
+          "pass": { "all": [{ "key": "use_data_table", "eq": true }, { "key": "widget_owns_number", "eq": false }] },
+          "hints": [
+            { "key": "use_data_table", "text": "The number is not in a data table." },
+            { "key": "widget_owns_number", "text": "The widget still owns the number." }
+          ],
+          "pass_detail": "The row owns the number.",
+          "fail_detail": "Those settings do not pass this task."
+        },
+        {
+          "id": "data-asset",
+          "title": "A data asset for the item",
+          "prompt": "The item definition is a data asset.",
+          "fields": [{ "key": "use_data_asset", "label": "Use a data asset", "kind": "bool" }],
+          "pass": { "key": "use_data_asset", "eq": true },
+          "hints": [{ "key": "use_data_asset", "text": "The item is not a data asset." }],
+          "pass_detail": "The item is a data asset.",
+          "fail_detail": "Those settings do not pass this task."
+        }
+      ],
+      "compares": [
+        {
+          "id": "tag-vs-cast",
+          "title": "Tag or a cast",
+          "feature": "How an ability starts",
+          "note": "This path activates by gameplay tag. A cast chain grows every time you add an ability.",
+          "left": {
+            "label": "Cast chain",
+            "body": "Cast to BP_Dash.\nCast to BP_Heal.\nEach new ability edits the character."
+          },
+          "right": {
+            "label": "Gameplay tag",
+            "body": "The ability system activates by tag.\nCost and cooldown are checked there.\nThe character does not cast to each ability."
+          }
+        }
+      ],
+      "map": {
+        "nodes": [
+          { "id": "input", "title": "Input", "detail": "The key asks the ability system. It does not apply damage itself." },
+          { "id": "interaction", "title": "Interaction", "detail": "An interface reaches the actor. A cast list does not." },
+          { "id": "health", "title": "Health", "detail": "Authority writes health. OnRep tells the UI." },
+          { "id": "ui", "title": "UI", "detail": "The widget reads a data table row and OnRep. It does not own the rules." }
+        ]
+      },
+      "starter": {
+        "system_name": "Foundations",
+        "summary": "A health component the courses can build on. Authority writes health.",
+        "when_to_use": "Use this starter when you want one replicated health component before you add GAS or a data table.",
+        "common_mistakes": "A common mistake is to change health on the client, or to put the number only in the widget.",
+        "cpp_header": "#pragma once\n#include \"CoreMinimal.h\"\n#include \"Components/ActorComponent.h\"\n#include \"Net/UnrealNetwork.h\"\n#include \"Foundations.generated.h\"\n\nUCLASS(ClassGroup=(Game), meta=(BlueprintSpawnableComponent))\nclass UFoundationsHealthComponent : public UActorComponent\n{\n\tGENERATED_BODY()\npublic:\n\tUFoundationsHealthComponent();\n\tvoid ApplyDamage(float Amount);\nprotected:\n\tUPROPERTY(ReplicatedUsing=OnRep_Health)\n\tfloat Health = 100.f;\n\tUFUNCTION()\n\tvoid OnRep_Health();\n\tvirtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;\n};\n",
+        "cpp_source": "#include \"Foundations.h\"\n#include \"Net/UnrealNetwork.h\"\n\nUFoundationsHealthComponent::UFoundationsHealthComponent()\n{\n\tSetIsReplicatedByDefault(true);\n\tPrimaryComponentTick.bCanEverTick = false;\n}\n\nvoid UFoundationsHealthComponent::ApplyDamage(float Amount)\n{\n\tif (!GetOwner() || !GetOwner()->HasAuthority()) return;\n\tHealth = FMath::Clamp(Health - Amount, 0.f, 100.f);\n}\n\nvoid UFoundationsHealthComponent::OnRep_Health()\n{\n\tHealth = FMath::Clamp(Health, 0.f, 100.f);\n}\n\nvoid UFoundationsHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const\n{\n\tSuper::GetLifetimeReplicatedProps(OutLifetimeProps);\n\tDOREPLIFETIME(UFoundationsHealthComponent, Health);\n}\n"
+      }
+    }
+  ],
+  "courses": [
+    {
+      "id": "gas-basics",
+      "title": "GAS basics",
+      "summary": "The ability system, attributes, activating by tag, and effects. Scores stay on this computer.",
+      "glossary_tags": ["GAS"],
+      "pass_mark": 70,
+      "modules": [
+        {
+          "id": "asc",
+          "title": "The ability system",
+          "takeaway": "The ability system component owns activate, cost, and cooldown. The character does not.",
+          "assignment": { "prompt": "Name the component that activates abilities.", "accept": ["ability", "asc"] },
+          "quiz": [
+            {
+              "id": "asc-who",
+              "prompt": "What owns an ability's cost check?",
+              "choices": ["The ability system.", "The widget.", "Tick."],
+              "answer": 0,
+              "why": "The ability system checks cost before the ability runs.",
+              "review_prompt": "Which piece checks an ability's cost?"
+            }
+          ],
+          "diff": {
+            "id": "asc-diff",
+            "prompt": "Which version has the bug?",
+            "review_prompt": "One of these ability starts is the broken one. Which side?",
+            "why": "Tick skips the cost check the ability system would have done.",
+            "bug": "right",
+            "left": { "label": "Ability system", "code": "AbilitySystem->TryActivateAbilitiesByTag(Tag);" },
+            "right": { "label": "Tick", "code": "void Tick() { Dash(); }" }
+          }
+        },
+        {
+          "id": "attributes",
+          "title": "Attributes",
+          "takeaway": "Health as an attribute is one number the ability system can change. Do not keep a second health float.",
+          "assignment": { "prompt": "Where does this course keep health?", "accept": ["attribute"] },
+          "quiz": [
+            {
+              "id": "attr-where",
+              "prompt": "Where does GAS health live?",
+              "choices": ["On an attribute set.", "Only in the widget.", "In a comment."],
+              "answer": 0,
+              "why": "The attribute set is the number effects change.",
+              "review_prompt": "What holds GAS health?"
+            }
+          ],
+          "diff": {
+            "id": "attr-diff",
+            "prompt": "Which version has the bug?",
+            "review_prompt": "One health store is the broken one. Which side?",
+            "why": "A second float drifts away from the attribute.",
+            "bug": "right",
+            "left": { "label": "Attribute", "code": "Health.SetCurrentValue(Next);" },
+            "right": { "label": "Second float", "code": "WidgetHealth = WidgetHealth - Amount;" }
+          }
+        },
+        {
+          "id": "activate",
+          "title": "Activate by tag",
+          "takeaway": "Activate by gameplay tag so a new ability does not need a new cast.",
+          "assignment": { "prompt": "What do you activate by?", "accept": ["tag"] },
+          "quiz": [
+            {
+              "id": "tag-how",
+              "prompt": "How does this course start an ability?",
+              "choices": ["By gameplay tag.", "By Cast To.", "On Tick."],
+              "answer": 0,
+              "why": "A tag stays stable when you add another ability.",
+              "review_prompt": "How is the ability started?"
+            }
+          ],
+          "diff": {
+            "id": "tag-diff",
+            "prompt": "Which version has the bug?",
+            "review_prompt": "One start path is the broken one. Which side?",
+            "why": "The cast has to be edited for every new ability.",
+            "bug": "right",
+            "left": { "label": "Tag", "code": "TryActivateAbilitiesByTag(Ability.Dash);" },
+            "right": { "label": "Cast", "code": "Cast<ABP_Dash>(Actor)->Dash();" }
+          }
+        },
+        {
+          "id": "effects",
+          "title": "Effects",
+          "takeaway": "A gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
+          "assignment": { "prompt": "What applies the cooldown?", "accept": ["effect"] },
+          "quiz": [
+            {
+              "id": "fx-who",
+              "prompt": "What applies the cooldown?",
+              "choices": ["A gameplay effect.", "The widget.", "Begin Play."],
+              "answer": 0,
+              "why": "The effect is the cost and the cooldown.",
+              "review_prompt": "What applies cooldown?"
+            }
+          ],
+          "diff": {
+            "id": "fx-diff",
+            "prompt": "Which version has the bug?",
+            "review_prompt": "One cost path is the broken one. Which side?",
+            "why": "Subtracting by hand and applying an effect spends the cost twice.",
+            "bug": "right",
+            "left": { "label": "Effect", "code": "ApplyGameplayEffect(CostAndCooldown);" },
+            "right": { "label": "Twice", "code": "Mana = Mana - Cost;\nApplyGameplayEffect(CostAndCooldown);" }
+          }
+        }
+      ]
+    },
+    {
+      "id": "replication-basics",
+      "title": "Multiplayer replication",
+      "summary": "Authority, replicated properties, OnRep, and RPCs. Scores stay on this computer.",
+      "glossary_tags": ["Networking"],
+      "pass_mark": 70,
+      "modules": [
+        {
+          "id": "authority",
+          "title": "Authority",
+          "takeaway": "The machine with authority writes shared gameplay state. A client can ask.",
+          "assignment": { "prompt": "Who writes shared health?", "accept": ["authority", "server"] },
+          "quiz": [
+            {
+              "id": "auth-who",
+              "prompt": "Who writes replicated health?",
+              "choices": ["The authority.", "Every client.", "The widget."],
+              "answer": 0,
+              "why": "If every client writes it, the copies disagree.",
+              "review_prompt": "Who is allowed to write replicated health?"
+            }
+          ],
+          "diff": {
+            "id": "auth-diff",
+            "prompt": "Which version has the bug?",
+            "review_prompt": "One damage path is the broken one. Which side?",
+            "why": "The client path changes health the server did not agree to.",
+            "bug": "right",
+            "left": { "label": "Authority", "code": "if (HasAuthority()) Health -= Amount;" },
+            "right": { "label": "Any machine", "code": "Health -= Amount;" }
+          }
+        },
+        {
+          "id": "property",
+          "title": "Replicated properties",
+          "takeaway": "Replicate the number. Do not replicate the mesh or the widget.",
+          "assignment": { "prompt": "What do you replicate for health?", "accept": ["health", "property"] },
+          "quiz": [
+            {
+              "id": "prop-what",
+              "prompt": "What should replicate for a health bar?",
+              "choices": ["The health property.", "The widget.", "The static mesh."],
+              "answer": 0,
+              "why": "The property is small. The widget is rebuilt on each machine.",
+              "review_prompt": "What replicates for the health bar?"
+            }
+          ],
+          "diff": {
+            "id": "prop-diff",
+            "prompt": "Which version has the bug?",
+            "review_prompt": "One replicated piece is the broken one. Which side?",
+            "why": "Replicating the widget sends the wrong thing.",
+            "bug": "right",
+            "left": { "label": "Property", "code": "UPROPERTY(ReplicatedUsing=OnRep_Health)\nfloat Health;" },
+            "right": { "label": "Widget", "code": "UPROPERTY(Replicated)\nUUserWidget* HealthBar;" }
+          }
+        },
+        {
+          "id": "onrep",
+          "title": "OnRep",
+          "takeaway": "OnRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+          "assignment": { "prompt": "What runs when replicated health arrives?", "accept": ["onrep", "on rep"] },
+          "quiz": [
+            {
+              "id": "onrep-when",
+              "prompt": "When does OnRep run?",
+              "choices": ["When the replicated value arrives.", "Every Tick.", "In the constructor."],
+              "answer": 0,
+              "why": "OnRep is the arrival of the property, not a frame loop.",
+              "review_prompt": "When does OnRep run?"
+            }
+          ],
+          "diff": {
+            "id": "onrep-diff",
+            "prompt": "Which version has the bug?",
+            "review_prompt": "One OnRep is the broken one. Which side?",
+            "why": "OnRep should not apply the damage again.",
+            "bug": "right",
+            "left": { "label": "Hear it", "code": "void OnRep_Health() { PlayHit(); }" },
+            "right": { "label": "Apply again", "code": "void OnRep_Health() { Health -= 10.f; }" }
+          }
+        },
+        {
+          "id": "rpc",
+          "title": "RPCs",
+          "takeaway": "A server RPC asks. The server function decides. Do not trust the client's number.",
+          "assignment": { "prompt": "Which RPC asks the server to act?", "accept": ["server"] },
+          "quiz": [
+            {
+              "id": "rpc-which",
+              "prompt": "Which RPC should a client use to ask for damage?",
+              "choices": ["A server RPC.", "A client RPC.", "A multicast that writes health."],
+              "answer": 0,
+              "why": "The server RPC is the request. The server still checks it.",
+              "review_prompt": "Which RPC asks the server?"
+            }
+          ],
+          "diff": {
+            "id": "rpc-diff",
+            "prompt": "Which version has the bug?",
+            "review_prompt": "One request is the broken one. Which side?",
+            "why": "The multicast writes health on every machine from the client's number.",
+            "bug": "right",
+            "left": { "label": "Server RPC", "code": "UFUNCTION(Server, Reliable)\nvoid ServerApply(float Amount);" },
+            "right": { "label": "Client writes", "code": "UFUNCTION(NetMulticast)\nvoid AllApply() { Health -= ClientAmount; }" }
+          }
+        }
+      ]
+    },
+    {
+      "id": "data-driven",
+      "title": "Data-driven design",
+      "summary": "Data tables, row structs, and data assets. Scores stay on this computer.",
+      "glossary_tags": ["Data"],
+      "pass_mark": 70,
+      "modules": [
+        {
+          "id": "table",
+          "title": "Data tables",
+          "takeaway": "A data table is a list of rows designers can edit without a code change.",
+          "assignment": { "prompt": "What holds one row per weapon?", "accept": ["table", "data table"] },
+          "quiz": [
+            {
+              "id": "table-what",
+              "prompt": "What is a data table for?",
+              "choices": ["Rows of designer data.", "The player widget.", "A replicated mesh."],
+              "answer": 0,
+              "why": "The table is the list. The game reads a row.",
+              "review_prompt": "What is a data table for?"
+            }
+          ],
+          "diff": {
+            "id": "table-diff",
+            "prompt": "Which version has the bug?",
+            "review_prompt": "One magazine size is the broken one. Which side?",
+            "why": "A hardcoded size ignores the row designers edit.",
+            "bug": "right",
+            "left": { "label": "Row", "code": "const FWeaponRow* Row = Table->FindRow<FWeaponRow>(Id);" },
+            "right": { "label": "Hardcoded", "code": "Magazine = 30;" }
+          }
+        },
+        {
+          "id": "row",
+          "title": "Row struct",
+          "takeaway": "The row struct is the shape of one table row. It inherits FTableRowBase.",
+          "assignment": { "prompt": "What does the row struct inherit?", "accept": ["tablerow", "table row", "ftablerowbase"] },
+          "quiz": [
+            {
+              "id": "row-base",
+              "prompt": "What does a data table row inherit?",
+              "choices": ["FTableRowBase.", "AActor.", "UUserWidget."],
+              "answer": 0,
+              "why": "FTableRowBase is the row type Unreal expects.",
+              "review_prompt": "What does the row struct inherit?"
+            }
+          ],
+          "diff": {
+            "id": "row-diff",
+            "prompt": "Which version has the bug?",
+            "review_prompt": "One row type is the broken one. Which side?",
+            "why": "An actor is not a table row.",
+            "bug": "right",
+            "left": { "label": "Row", "code": "struct FWeaponRow : public FTableRowBase { int32 Magazine; };" },
+            "right": { "label": "Actor", "code": "class AWeaponRow : public AActor {};" }
+          }
+        },
+        {
+          "id": "asset",
+          "title": "Data assets",
+          "takeaway": "A data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+          "assignment": { "prompt": "What kind of asset is one item definition?", "accept": ["data asset", "asset"] },
+          "quiz": [
+            {
+              "id": "asset-what",
+              "prompt": "What is a primary data asset good for here?",
+              "choices": ["One item definition.", "The player's tick.", "A replicated widget."],
+              "answer": 0,
+              "why": "The asset is the definition. Many pickups can point at it.",
+              "review_prompt": "What is the data asset for?"
+            }
+          ],
+          "diff": {
+            "id": "asset-diff",
+            "prompt": "Which version has the bug?",
+            "review_prompt": "One item definition is the broken one. Which side?",
+            "why": "Copying the numbers onto every actor drifts.",
+            "bug": "right",
+            "left": { "label": "Data asset", "code": "UPROPERTY(EditAnywhere)\nUItemData* Item;" },
+            "right": { "label": "Copied numbers", "code": "int32 MaxStack = 10; // pasted on every actor" }
+          }
+        },
+        {
+          "id": "reader",
+          "title": "Who reads the row",
+          "takeaway": "The component reads the row. The widget does not decide magazine size.",
+          "assignment": { "prompt": "Who reads the row and applies it?", "accept": ["component"] },
+          "quiz": [
+            {
+              "id": "reader-who",
+              "prompt": "Who should read the weapon row?",
+              "choices": ["The weapon component.", "The widget.", "The material."],
+              "answer": 0,
+              "why": "The component owns the rule. The widget draws the result.",
+              "review_prompt": "Who reads the weapon row?"
+            }
+          ],
+          "diff": {
+            "id": "reader-diff",
+            "prompt": "Which version has the bug?",
+            "review_prompt": "One reader is the broken one. Which side?",
+            "why": "The widget should not be the authority for magazine size.",
+            "bug": "right",
+            "left": { "label": "Component", "code": "Magazine = Row->Magazine;" },
+            "right": { "label": "Widget", "code": "Magazine = HealthText->GetText();" }
+          }
+        }
+      ]
+    }
+  ]
+}

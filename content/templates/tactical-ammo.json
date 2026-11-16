@@ -2,6 +2,8 @@
   "id": "tactical-ammo",
   "title": "Tactical FPS: Ammo & Reload",
   "summary": "Reload fills the magazine from reserve, or refuses when it cannot.",
+  "when_to_use": "Use this when reload should move rounds from reserve into the magazine.",
+  "common_mistakes": "A common mistake is to reload on the client, or to bind IA_Reload in two systems.",
   "variables": [
     {"name": "Magazine", "type": "int", "default": "10"},
     {"name": "MagSize", "type": "int", "default": "30"},

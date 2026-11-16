@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.16.0
+
+- The window title, About box, header, and Start menu say UE5 Systems Training Tool/Generator. Installer files are named UE5-Systems-Training-Tool-Generator. The data folder name is unchanged so saved projects stay put.
+- Stack saved systems into one plugin. Shared interfaces and gameplay tags stay once. Duplicate classes are renamed. The same input action or replicated property is listed with a fix. Create in Unreal uses `/Game/Architect/<StackName>` and still asks before overwrite.
+- Courses for GAS basics, multiplayer replication, and data-driven design, linked from the learning paths.
+- Event graph nodes for Set Timer by Event, Set Timer by Function, Break Struct, and Make Struct, plus six graph templates. Timeline emits a UTimelineComponent. Event dispatchers emit a dynamic multicast delegate. Break and Make use the struct you pick.
+- Interface Call and Cast To were already in the graph. Cast To keeps the result for the next node. An interface class sends Execute_ through ImplementsInterface. Stack stays on this computer. Integrate with AI is the model path and uses the network.
+- Systems, nodes, and templates carry a when-to-use note and a common-mistakes note. The first-run tour can be skipped.
+- The Windows installer and the app exe inside it are signed with Azure Artifact Signing when the repository secrets are present. The publisher on that certificate is John Fischer. A build without those secrets stays unsigned and still completes.
+- Version is 1.16.0.
+
 ## 1.15.0
 
 - Create in Unreal and Send to Unreal also send the system's WHY notes. The Architect panel lists them by data table, data asset, Blueprint, and C++ class.

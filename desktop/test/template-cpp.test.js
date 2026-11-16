@@ -46,7 +46,7 @@ function fresh() {
 }
 
 test("every template inserts into a fresh system and an existing one without a self-assignment", async () => {
-  const ids = ["pickup", "health", "door", "interact", "timer", "tactical-ammo"];
+  const ids = fs.readdirSync(path.join(__dirname, "..", "..", "content", "templates")).filter((name) => name.endsWith(".json")).map((name) => name.replace(/\.json$/, ""));
   for (const id of ids) {
     const template = loadTemplate(id);
     const blank = await emit(fresh(), template, "insert", "event");
@@ -67,7 +67,7 @@ test("every template inserts into a fresh system and an existing one without a s
 
 test("every template keeps its header first and avoids bare float suffixes", async () => {
   const { graph } = await libs();
-  for (const id of ["pickup", "health", "door", "interact", "timer", "tactical-ammo"]) {
+  for (const id of fs.readdirSync(path.join(__dirname, "..", "..", "content", "templates")).filter((name) => name.endsWith(".json")).map((name) => name.replace(/\.json$/, ""))) {
     const { source } = await emit(fresh(), loadTemplate(id), "insert", "event");
     assert.match(source, /^#include "Kit\.h"/, id);
     assert.equal(/(?<![\d.])\d+f\b/.test(source), false, `${id} has a bare float suffix`);
@@ -117,6 +117,14 @@ test("the other five templates emit the math, the trace, and the timer they show
   assert.match(door.header, /bool IsOpen = false;/);
   assert.match(door.header, /bool Flip_tpl_door_flip = false;/);
   assert.match(door.source, /UTimelineComponent/);
+  assert.match(door.source, /FOnTimelineFloat/);
+  assert.match(door.source, /FOnTimelineEvent/);
+  assert.match(door.source, /PlayFromStart/);
+  assert.match(door.source, /AddInterpFloat/);
+  assert.match(door.source, /UCurveFloat/);
+  assert.match(door.header, /TickComponent/);
+  assert.match(door.source, /OnTimelineFinished_/);
+  assert.match(door.source, /OnTimelineUpdate_/);
   assert.match(door.source, /^#include "Kit\.h"/);
 
   const interact = await emit(fresh(), loadTemplate("interact"), "insert", "event");
@@ -134,4 +142,49 @@ test("the other five templates emit the math, the trace, and the timer they show
   assert.match(ammo.source, /Reserve = \(Reserve - Needed\);/);
   assert.match(ammo.header, /int32 Magazine = 10;/);
   assert.match(ammo.header, /int32 Reserve = 90;/);
+});
+
+test("timeline, dispatchers, cast, and struct pins emit the types the graph names", async () => {
+  const { graph } = await libs();
+  const gas = await emit(fresh(), loadTemplate("gas-effect"), "insert", "event");
+  assert.match(gas.header, /DECLARE_DYNAMIC_MULTICAST_DELEGATE\(FOnEffectDelegate\)/);
+  assert.match(gas.header, /BlueprintAssignable/);
+  assert.match(gas.source, /OnEffect\.Broadcast\(\)/);
+  assert.match(gas.source, /OnEffect\.AddDynamic\(this, &UKitComponent::/);
+  assert.match(gas.header, /UFUNCTION\(\)/);
+
+  const save = await emit(fresh(), loadTemplate("save-load"), "insert", "event");
+  assert.match(save.source, /FVector Made_/);
+  assert.match(save.source, /\.X =/);
+  assert.match(save.source, /FHitResult Broken_/);
+  assert.doesNotMatch(save.source, /FHitResult Made_/);
+
+  const vector = graph.createNode("make-struct", 0, 0, { data: { struct: "FVector" } });
+  assert.ok(vector.pins.some((pin) => pin.name === "X" && pin.dir === "in"));
+  assert.ok(vector.pins.some((pin) => pin.name === "Y" && pin.dir === "in"));
+  assert.ok(vector.pins.some((pin) => pin.name === "Z" && pin.dir === "in"));
+  const rotator = graph.setNodeData({ nodes: [vector], wires: [] }, vector.id, { struct: "FRotator" });
+  const turned = rotator.nodes[0];
+  assert.deepEqual(turned.pins.filter((pin) => pin.type !== "exec" && pin.name !== "Struct").map((pin) => pin.name), ["Pitch", "Yaw", "Roll"]);
+  const custom = graph.createNode("break-struct", 0, 0, { data: { struct: "FSaveSlot", members: [{ name: "Slot", type: "int" }, { name: "Flag", type: "bool" }] } });
+  assert.deepEqual(custom.pins.filter((pin) => pin.dir === "out" && pin.type !== "exec").map((pin) => pin.name), ["Slot", "Flag"]);
+
+  const cast = graph.createNode("cast-to", 0, 0, { id: "cast", data: { className: "APawn" } });
+  const call = graph.createNode("interface-call", 200, 0, { id: "call", data: { function: "Interact", interface: "UStackInteractable" } });
+  const begin = graph.createNode("begin-play", 0, 0, { id: "begin" });
+  const link = (from, to) => ({
+    id: `${from.id}-${to.id}`,
+    from: { node: from.id, pin: from.pins.find((pin) => pin.dir === "out" && pin.type === "exec").id },
+    to: { node: to.id, pin: to.pins.find((pin) => pin.dir === "in" && pin.type === "exec").id },
+  });
+  const doc = {
+    cpp_header: HEADER,
+    cpp_source: SOURCE,
+    items: [{ id: "event", kind: "event", name: "Event Graph", nodes: [begin, cast, call], wires: [link(begin, cast), link(cast, call)] }],
+  };
+  const synced = graph.commitDocument({ cpp_header: HEADER, cpp_source: SOURCE }, doc).system.cpp_source;
+  assert.match(synced, /APawn\* Cast_cast = Cast<APawn>/);
+  assert.match(synced, /if \(Cast_cast\)/);
+  assert.match(synced, /ImplementsInterface\(UStackInteractable::StaticClass\(\)\)/);
+  assert.match(synced, /IStackInteractable::Execute_Interact/);
 });

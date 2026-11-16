@@ -2,6 +2,8 @@
   "id": "door",
   "title": "Door open/close",
   "summary": "Overlap plays a timeline, and FlipFlop toggles the open flag.",
+  "when_to_use": "Use this when a door should play a Timeline and remember open or closed.",
+  "common_mistakes": "A common mistake is to move the door on Tick, or to replicate the mesh instead of the open flag.",
   "variables": [
     {"name": "IsOpen", "type": "bool", "default": "false"}
   ],

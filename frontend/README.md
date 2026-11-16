@@ -1,6 +1,6 @@
 # Workspace UI
 
-This is the React workspace for UE5 System Architect. The desktop app builds it and serves it locally.
+This is the React workspace for UE5 Systems Training Tool/Generator. The desktop app builds it and serves it locally.
 
 See the README in the project root for how to install, add an API key, and build the Windows installer.
 

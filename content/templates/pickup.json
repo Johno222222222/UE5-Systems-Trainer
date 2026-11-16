@@ -2,6 +2,8 @@
   "id": "pickup",
   "title": "Pickup",
   "summary": "Overlap adds one to ammo, then destroys the pickup.",
+  "when_to_use": "Use this when walking over a pickup should add one and remove the actor.",
+  "common_mistakes": "A common mistake is to destroy the pickup on a client, or to Cast To the ammo class.",
   "variables": [
     {"name": "Ammo", "type": "int", "default": "0"}
   ],

@@ -3,7 +3,7 @@ import {
   Boxes, Car, FilePlus, FolderOpen, Hand, HardDrive, History, Layers, MessagesSquare, Package, Shield, Sparkles, Swords,
 } from "lucide-react";
 import { api } from "../lib/api";
-import { INTRO, introSeen, markIntroSeen } from "../lib/references.mjs";
+import { TOUR, introSeen, markIntroSeen } from "../lib/references.mjs";
 import { rankProjects } from "../lib/shell.mjs";
 import { useShell } from "./ShellContext";
 
@@ -77,6 +77,7 @@ export default function Home() {
     try { return !introSeen(window.localStorage); }
     catch { return false; }
   });
+  const [tourStep, setTourStep] = useState(0);
   const ranked = rankProjects(projects);
   const startHere = examples.find((item) => item.id === "start-here") || null;
   const templateCards = examples.filter((item) => item.kind === "template");
@@ -128,7 +129,7 @@ export default function Home() {
   return (
     <div className="home-screen" data-testid="home-screen">
       <div className="home-inner">
-        <div className="eyebrow">UE5 System Architect</div>
+        <div className="eyebrow">UE5 Systems Training Tool/Generator</div>
         <h1 className="font-display text-[40px] font-extrabold uppercase tracking-wider leading-none mt-1">Home</h1>
         <p className="mt-2 text-[13px] text-[var(--text-secondary)] max-w-xl">
           Recent systems, a new project, or a template. The workspace itself is under Tools.
@@ -137,9 +138,10 @@ export default function Home() {
 
         {introOn && (
           <div className="panel p-4 mt-5" data-testid="first-run-intro">
-            <div className="eyebrow mb-2">Before you start</div>
-            <p className="text-[13px] text-[var(--text-primary)]" data-testid="intro-is">{INTRO.is}</p>
-            <p className="mt-1 text-[13px] text-[var(--text-secondary)]" data-testid="intro-isnt">{INTRO.isnt}</p>
+            <div className="eyebrow mb-2" data-testid="intro-title">{TOUR[tourStep]?.title || "Before you start"}</div>
+            {tourStep === 0 && <p className="text-[13px] text-[var(--text-primary)]" data-testid="intro-is">This is a UE5 architecture and learning tool.</p>}
+            {tourStep === 0 && <p className="mt-1 text-[13px] text-[var(--text-secondary)]" data-testid="intro-isnt">It is not a full game generator. Review the code before you ship it.</p>}
+            {tourStep > 0 && <p className="text-[13px] text-[var(--text-secondary)]" data-testid="intro-step">{TOUR[tourStep]?.body}</p>}
             <div className="mt-3 flex flex-wrap gap-2">
               <button
                 type="button"
@@ -150,7 +152,10 @@ export default function Home() {
               >
                 Open Start Here
               </button>
-              <button type="button" className="ue-btn" data-testid="intro-dismiss" onClick={dismissIntro}>Keep browsing</button>
+              {tourStep < TOUR.length - 1 && (
+                <button type="button" className="ue-btn" data-testid="intro-next" onClick={() => setTourStep(tourStep + 1)}>Next</button>
+              )}
+              <button type="button" className="ue-btn" data-testid="intro-dismiss" onClick={dismissIntro}>Skip</button>
             </div>
           </div>
         )}
@@ -371,7 +376,7 @@ export default function Home() {
         <div data-testid="stats-strip-slot" className="home-reserve" />
 
         <footer className="home-footer" data-testid="app-version">
-          UE5 System Architect <span data-testid="app-version-number">{shell.version}</span>
+          UE5 Systems Training Tool/Generator <span data-testid="app-version-number">{shell.version}</span>
         </footer>
       </div>
     </div>

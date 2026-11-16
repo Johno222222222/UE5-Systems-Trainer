@@ -104,7 +104,7 @@ function requestFor({ provider, model, apiKey, system, user, images, maxTokens, 
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
         "HTTP-Referer": "http://127.0.0.1",
-        "X-Title": "UE5 System Architect",
+        "X-Title": require("./displayName").DISPLAY_NAME,
       },
       body: {
         model,

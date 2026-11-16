@@ -62,10 +62,10 @@ function readme(name, system, files, apiMacro, deps) {
     "## In this folder",
     "- `SETUP.md`: step-by-step editor setup, with the reason for each step",
     "- `BLUEPRINT_PSEUDOCODE.md`: the event graph logic, with Why notes",
-    "- `system.json`: the full generated system; import it back into UE5 System Architect",
+    "- `system.json`: the full generated system; import it back into UE5 Systems Training Tool/Generator",
   );
   if (system.network_notes) lines.push("", "## Replication", system.network_notes);
-  lines.push("", `_Exported from UE5 System Architect project "${name}"._`);
+  lines.push("", `_Exported from UE5 Systems Training Tool/Generator project "${name}"._`);
   return lines.join("\n");
 }
 
@@ -140,7 +140,7 @@ function upluginJson(friendly, description, modules, enginePlugins) {
     FriendlyName: friendly,
     Description: (description || "").slice(0, 300),
     Category: "Gameplay",
-    CreatedBy: "UE5 System Architect",
+    CreatedBy: "UE5 Systems Training Tool/Generator",
     CanContainContent: false,
     IsBetaVersion: false,
     Installed: false,
@@ -210,7 +210,7 @@ function badgeLines(issues) {
   return [
     BADGE,
     "",
-    `**Compile-checked** by UE5 System Architect on ${new Date().toISOString().slice(0, 10)}: no errors found${warns.length ? `, ${warns.length} warning${warns.length === 1 ? "" : "s"}` : ", no warnings"}.`,
+    `**Compile-checked** by UE5 Systems Training Tool/Generator on ${new Date().toISOString().slice(0, 10)}: no errors found${warns.length ? `, ${warns.length} warning${warns.length === 1 ? "" : "s"}` : ", no warnings"}.`,
     ...warns.map((w) => `- Warning ${where(w)}: ${w.message}`),
     "",
     "_Pattern check (plus any AI review run before export). It catches common mistakes but isn't a full compile, so build once in Unreal to be sure._",
@@ -239,10 +239,10 @@ function pluginReadme(name, system, plugin, files, deps, enginePlugins, issues) 
     `- \`Source/${plugin}/Private/${plugin}Module.cpp\`: module entry point`,
     `- \`Source/${plugin}/Public/${files.h}\` and \`Private/${files.cpp}\`: the generated system, with its export macro set to \`${plugin.toUpperCase()}_API\``,
     "- `SETUP.md`, `BLUEPRINT_PSEUDOCODE.md`: editor setup and graph logic with Why notes",
-    "- `system.json`: re-import into UE5 System Architect",
+    "- `system.json`: re-import into UE5 Systems Training Tool/Generator",
   ];
   if (system.network_notes) lines.push("", "## Replication", system.network_notes);
-  lines.push("", `_Exported from UE5 System Architect project "${name}"._`);
+  lines.push("", `_Exported from UE5 Systems Training Tool/Generator project "${name}"._`);
   return lines.join("\n");
 }
 
@@ -346,7 +346,7 @@ export async function buildBundleZip(plugin, plan, checks = null, report = null)
     "",
     ...EXTRAS_README,
     "",
-    "_Exported from UE5 System Architect._",
+    "_Exported from UE5 Systems Training Tool/Generator._",
   ].join("\n"));
   return { blob: await zip.generateAsync({ type: "blob" }), filename: `${plugin}.zip` };
 }

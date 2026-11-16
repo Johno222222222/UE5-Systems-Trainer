@@ -9,6 +9,8 @@ import {
   FilePlus, MessageSquarePlus
 } from "lucide-react";
 import EventGraph from "../components/EventGraph";
+import GlossaryText from "../components/GlossaryText";
+import { systemNotes } from "../lib/contextNotes.mjs";
 import { commitDocument, commitGraphEdit, graphText, readEventGraph } from "../lib/graph.mjs";
 import AnnotatedPseudocode from "../components/AnnotatedPseudocode";
 import SetupGuide from "../components/SetupGuide";
@@ -135,6 +137,7 @@ function TemplateCard({ tpl, onPick }) {
         <div className="flex-1 min-w-0">
           <div className="font-sub font-semibold text-[13px] text-[var(--text-primary)] leading-tight truncate">{tpl.title}</div>
           <div className="text-[11px] text-[var(--text-muted)] mt-0.5 font-mono truncate">{tpl.tagline}</div>
+          {tpl.when_to_use && <div className="text-[10px] text-[var(--text-muted)] mt-1 truncate" title={tpl.common_mistakes || ""}>{tpl.when_to_use}</div>}
         </div>
       </div>
     </button>
@@ -607,14 +610,48 @@ export default function Workspace() {
       toast.error(errorText(e));
       return false;
     }
-    const stackPrompt = `Stack these systems into one integrated system: ${systems.map((x) => x.system_name).join(" + ")}`;
+    const stackName = systems.map((item) => item.system_name).join(" + ");
+    try {
+      const { data } = await api.post("/stack", { systems, name: stackName });
+      const stacked = data.system;
+      if (!stacked?.cpp_header) {
+        toast.error("Those systems could not be stacked");
+        return false;
+      }
+      setResult(stacked);
+      setPrompt(`Stack ${stackName}`);
+      setExtra([]);
+      setProject(null);
+      setIgnores([]);
+      setPreviousResult(null);
+      setTab("graph");
+      const conflicts = stacked.stack_map?.conflicts?.length || 0;
+      toast.success(`Stacked into ${stacked.system_name}`, {
+        description: conflicts ? `${conflicts} conflict${conflicts === 1 ? "" : "s"} to review. Built on this computer.` : `Create in Unreal uses ${data.folder}. Built on this computer.`,
+      });
+      return true;
+    } catch (e) {
+      toast.error(errorText(e));
+      return false;
+    }
+  };
+
+  const integrateSelected = async (ids) => {
+    let systems;
+    try {
+      systems = await Promise.all(ids.map((id) => api.get(`/projects/${id}`).then((r) => r.data.system)));
+    } catch (e) {
+      toast.error(errorText(e));
+      return false;
+    }
+    const stackPrompt = `Stack these systems into one integrated system: ${systems.map((item) => item.system_name).join(" + ")}`;
     const ok = await runSynthesis({
       ...currentInputs,
       prompt: stackPrompt,
       extra_modules: [],
       designer_notes: notes,
       stack_systems: systems.map(compactForApi),
-    }, { ...currentInputs, prompt: stackPrompt, extra_modules: [] }, (d) => `Stacked into ${d.system_name}`);
+    }, { ...currentInputs, prompt: stackPrompt, extra_modules: [] }, (data) => `Integrated into ${data.system_name}`);
     if (ok) {
       setPrompt(stackPrompt);
       setExtra([]);
@@ -1195,7 +1232,7 @@ export default function Workspace() {
             <Cpu size={16} className="text-[var(--unreal-orange)]" />
           </div>
           <div>
-            <div className="font-display text-[16px] font-extrabold uppercase tracking-wider leading-none">UE5 System Architect</div>
+            <div className="font-display text-[16px] font-extrabold uppercase tracking-wider leading-none">UE5 Systems Training Tool/Generator</div>
             <div className="app-subtitle text-[10px] font-mono text-[var(--text-muted)] uppercase tracking-widest mt-0.5">Modular · AI-driven · Blueprint + C++</div>
           </div>
         </div>
@@ -1540,7 +1577,7 @@ export default function Workspace() {
           </div>
 
           <ProjectsPanel refreshKey={projRefresh} currentId={project?.project_id} onOpen={openProject}
-            onDeleted={(id) => { if (project?.project_id === id) setProject(null); }} onStack={stackSelected} onBundle={(ids, preset) => setBundle({ ids, preset })} busy={loading} />
+            onDeleted={(id) => { if (project?.project_id === id) setProject(null); }} onStack={stackSelected} onIntegrate={integrateSelected} onBundle={(ids, preset) => setBundle({ ids, preset })} busy={loading} />
         </aside>
 
         {/* CENTER STAGE */}
@@ -1557,8 +1594,29 @@ export default function Workspace() {
                 </div>
               )}
               <div className="text-[11px] font-mono text-[var(--text-secondary)] truncate mt-1">
-                {result?.summary || "Describe a system on the left, tune the dials, press Synthesize."}
+                {result?.summary || "Describe a system on the left, tune the dials, press Synthesize. Saved systems can be stacked from Projects."}
               </div>
+              {result && (
+                <div className="mt-2 text-[11px] text-[var(--text-secondary)] max-w-3xl" data-testid="system-context">
+                  <div data-testid="system-when"><GlossaryText text={`When to use: ${systemNotes(result).when}`} /></div>
+                  <div className="mt-1" data-testid="system-mistakes"><GlossaryText text={`Common mistakes: ${systemNotes(result).mistakes}`} /></div>
+                </div>
+              )}
+              {result?.stack_map && (
+                <div className="mt-2 text-[11px]" data-testid="stack-report">
+                  <div className="eyebrow mb-1">Stack</div>
+                  {result.stack_map.folder && <div className="text-[var(--text-secondary)]">Create in Unreal uses {result.stack_map.folder}. Stack built this on this computer and did not call the model.</div>}
+                  {(result.stack_map.dependencies || []).map((item) => (
+                    <div key={`${item.name}-${item.base}`} className="text-[var(--text-secondary)]" data-testid={`stack-dep-${item.name}`}>{item.name} depends on {item.base}</div>
+                  ))}
+                  {(result.stack_map.conflicts || []).map((item) => (
+                    <div key={`${item.kind}-${item.name}`} data-testid={`stack-fix-${item.name}`}>
+                      <div className="text-[var(--accent-red)]">{item.message}</div>
+                      {item.fix && <div className="text-[var(--text-secondary)]">{item.fix}</div>}
+                    </div>
+                  ))}
+                </div>
+              )}
               {outcomeCheck?.length > 0 && (
                 <div className="mt-2 panel p-2.5" data-testid="outcome-check">
                   <div className="eyebrow mb-1">Outcome check</div>

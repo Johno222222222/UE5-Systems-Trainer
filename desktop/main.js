@@ -7,8 +7,10 @@ const { app, BrowserWindow, shell, safeStorage, dialog } = require("electron");
 const path = require("path");
 const fs = require("fs");
 const { startServer } = require("./server");
+const { DISPLAY_NAME, DATA_FOLDER_NAME } = require("./displayName");
 
-app.setName("UE5 System Architect");
+// DATA_FOLDER_NAME keeps userData where existing installs already save projects.
+app.setName(DATA_FOLDER_NAME);
 
 if (process.env.UE5_NO_SANDBOX === "1") {
   app.commandLine.appendSwitch("no-sandbox");
@@ -97,7 +99,7 @@ async function openWorkspace() {
     minWidth: 1024,
     minHeight: 640,
     backgroundColor: "#0B0E14",
-    title: "UE5 System Architect",
+    title: DISPLAY_NAME,
     autoHideMenuBar: true,
     icon: fs.existsSync(iconPath) ? iconPath : undefined,
     webPreferences: {

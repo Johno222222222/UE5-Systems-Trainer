@@ -55,7 +55,8 @@ const {
 } = require("./logic");
 const { knownLocks, checkConstraints } = require("./constraints");
 const { repairCommonCpp } = require("./repair");
-const { stackMap } = require("./stackMap");
+const { stackMap, composeStack } = require("./stackMap");
+const { DISPLAY_NAME } = require("./displayName");
 const { detectEngine, compilePlugin } = require("./engine");
 const { moduleName, writePlugin, copyTree, enablePlugin } = require("./pluginFiles");
 const { createCompanion, summarizeProject } = require("./companion");
@@ -581,7 +582,7 @@ async function startServer(options = {}) {
   }
 
   route("GET", "/api/", async () => ({
-    message: "UE5 System Architect",
+    message: DISPLAY_NAME,
     desktop: true,
     models: ALLOWED_MODELS,
     version: appVersion,
@@ -1335,6 +1336,15 @@ async function startServer(options = {}) {
       cases: (Array.isArray(data.cases) ? data.cases : []).map((c) => String(c).slice(0, 120)).slice(0, 12),
       model: llm.model,
     };
+  });
+
+  route("POST", "/api/stack", async (req) => {
+    const body = await readJson(req);
+    try {
+      return composeStack(body.systems, { name: body.name });
+    } catch (exc) {
+      throw new HttpError(exc.statusCode || 400, exc.message);
+    }
   });
 
   route("GET", "/api/projects", async () => ({
