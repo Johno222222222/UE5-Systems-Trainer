@@ -222,6 +222,8 @@ export default function Workspace() {
   const [assetFolder, setAssetFolder] = useState("");
   const [exportNote, setExportNote] = useState("");
   const [companion, setCompanion] = useState(null);
+  const [sendBusy, setSendBusy] = useState("");
+  const [createBusy, setCreateBusy] = useState("");
   const costWait = useRef(null);
   const [keyModal, setKeyModal] = useState(null); // null | "edit" | "required"
   const [saving, setSaving] = useState(false);
@@ -287,6 +289,11 @@ export default function Workspace() {
     const timer = setInterval(pull, 4000);
     return () => { alive = false; clearInterval(timer); };
   }, []);
+
+  useEffect(() => {
+    if (sendBusy && companion?.result?.id === sendBusy && companion.result.pending !== true) setSendBusy("");
+    if (createBusy && companion?.result?.id === createBusy && companion.result.pending !== true) setCreateBusy("");
+  }, [companion, sendBusy, createBusy]);
 
   useEffect(() => {
     api.get("/app").then((r) => setAppInfo(r.data || {})).catch(() => {});
@@ -1441,7 +1448,6 @@ export default function Workspace() {
               <div className="mt-1 flex items-center gap-2">
                 <p className="text-[11px] font-mono text-[var(--text-secondary)] flex-1" data-testid="companion-code">
                   {companion ? `127.0.0.1:${companion.port} · ${companion.code}` : "Starting the local link"}
-                  {companion?.paired ? " · paired" : " · not paired"}
                 </p>
                 <button type="button" className="ue-btn !py-1 !px-2 !text-[11px] shrink-0" data-testid="companion-copy" disabled={!companion} onClick={async () => {
                   const line = `127.0.0.1:${companion.port} · ${companion.code}`;
@@ -1453,6 +1459,9 @@ export default function Workspace() {
                   }
                 }}><Copy size={12} /> Copy</button>
               </div>
+              <p className={`mt-1 text-[12px] font-semibold ${companion?.connected ? "text-[var(--text-secondary)]" : "text-[#e8c547]"}`} data-testid="companion-link">
+                {!companion ? "Starting the local link" : companion.connected ? "Connected to Unreal" : "Disconnected. Open the Architect panel and pair."}
+              </p>
               {companion?.project && <p className="mt-1 text-[11px] text-[var(--text-secondary)]" data-testid="companion-project">{companion.project} · {companion.engine}</p>}
               {!!companion?.classes?.length && (
                 <p className="mt-1 text-[10.5px] font-mono text-[var(--text-muted)]" data-testid="companion-classes">
@@ -1469,6 +1478,15 @@ export default function Workspace() {
                 }
               }}>Use project classes</button>
               {companion?.result?.message && <p className="mt-1 text-[10.5px] font-mono text-[var(--text-muted)]" data-testid="companion-result">{companion.result.message}</p>}
+              {!!companion?.result?.checks?.length && (
+                <div className="mt-2" data-testid="editor-checks">
+                  {companion.result.checks.map((check) => (
+                    <p key={check.id} className="mt-1 text-[10.5px] font-mono text-[var(--text-secondary)]" data-testid={`editor-check-${check.id}`}>
+                      {check.pass ? "Pass" : "Not yet"} · {check.asset}
+                    </p>
+                  ))}
+                </div>
+              )}
               {!!companion?.result?.conflicts?.length && companion.result.ok === false && (
                 <button type="button" className="ue-btn !py-1 !px-2 !text-[11px] mt-2" data-testid="replace-assets" onClick={async () => {
                   try {
@@ -2054,40 +2072,66 @@ export default function Workspace() {
                 toast.error(errorText(err));
               }
             }}>Install companion</button>
-            <button type="button" className="ue-btn ue-btn-primary" data-testid="send-to-unreal" onClick={async () => {
+            <button type="button" className="ue-btn ue-btn-primary" data-testid="send-to-unreal" disabled={!!sendBusy} onClick={async () => {
+              if (!companion?.connected) {
+                const message = "Not connected to Unreal — open the Architect panel and pair";
+                setExportNote(message);
+                toast.error(message);
+                return;
+              }
               const send = async (confirm) => api.post("/companion/send", { uproject: exportPath, system: result, confirm });
               try {
                 const { data } = await send(false);
+                if (data.connected === false) {
+                  setExportNote(data.message);
+                  toast.error(data.message);
+                  return;
+                }
                 if (data.ok === false) {
                   if (window.confirm(`Replace edited files?\n${(data.conflicts || []).slice(0, 6).join("\n")}`)) {
                     const again = await send(true);
+                    if (again.data.connected === false) {
+                      setExportNote(again.data.message);
+                      toast.error(again.data.message);
+                      return;
+                    }
+                    if (again.data.id) setSendBusy(again.data.id);
                     setExportNote(again.data.message || "Sent");
                     toast.success(again.data.message || "Sent to Unreal");
                   }
                   return;
                 }
+                if (data.id) setSendBusy(data.id);
                 setExportNote(data.message);
                 toast.success(data.message || "Sent to Unreal");
               } catch (err) {
                 setExportNote(errorText(err));
                 toast.error(errorText(err));
               }
-            }}>Send to Unreal</button>
-            <button type="button" className="ue-btn ue-btn-primary" data-testid="create-in-unreal" onClick={async () => {
+            }}>{sendBusy ? "Sending…" : "Send to Unreal"}</button>
+            <button type="button" className="ue-btn ue-btn-primary" data-testid="create-in-unreal" disabled={!!createBusy} onClick={async () => {
+              if (!companion?.connected) {
+                const message = "Not connected to Unreal — open the Architect panel and pair";
+                setExportNote(message);
+                toast.error(message);
+                return;
+              }
               const create = async (confirm) => api.post("/companion/assets", { system: result, folder: assetFolder, confirm });
               try {
                 const { data } = await create(false);
-                if (data.ok === false) {
-                  setExportNote(data.message || "Pair the Architect panel first.");
+                if (data.connected === false || data.ok === false) {
+                  setExportNote(data.message || "Not connected to Unreal — open the Architect panel and pair");
+                  toast.error(data.message || "Create did not start");
                   return;
                 }
+                if (data.id) setCreateBusy(data.id);
                 setExportNote(data.message);
                 toast.success(data.message || "Asked Unreal to create assets");
               } catch (err) {
                 setExportNote(errorText(err));
                 toast.error(errorText(err));
               }
-            }}>Create in Unreal</button>
+            }}>{createBusy ? "Sending…" : "Create in Unreal"}</button>
           </div>
           {exportNote && <p className="mt-3 text-[12px] font-mono text-[var(--text-secondary)]" data-testid="export-project-result">{exportNote}</p>}
         </Modal>

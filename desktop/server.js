@@ -60,6 +60,7 @@ const { detectEngine, compilePlugin } = require("./engine");
 const { moduleName, writePlugin, copyTree, enablePlugin } = require("./pluginFiles");
 const { createCompanion, summarizeProject } = require("./companion");
 const { buildAssetPlan } = require("./realAssets");
+const { buildEditorLearn } = require("./editorLearn");
 
 const OWNER = "You";
 const REF_LIMIT = 10 * 1024 * 1024;
@@ -342,7 +343,12 @@ function textFromBytes(data) {
 async function startServer(options = {}) {
   const dataDir = options.dataDir;
   if (!dataDir) throw new Error("dataDir is required");
-  const companion = await createCompanion();
+  let glossaryTerms = [];
+  try {
+    glossaryTerms = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "content", "glossary.json"), "utf8")).terms || [];
+  } catch { /* the panel search stays empty */ }
+  const companion = await createCompanion({ glossary: glossaryTerms });
+  const recordedLearn = new Set();
   fs.mkdirSync(path.join(dataDir, "files"), { recursive: true });
   const store = createStore(path.join(dataDir, "library.json"));
   const secrets = createSecrets(path.join(dataDir, "secrets.json"), path.join(dataDir, "secret.key"), options.codec);
@@ -973,11 +979,29 @@ async function startServer(options = {}) {
 
   route("GET", "/api/companion", async () => {
     if (typeof companion.sweep === "function") companion.sweep();
+    const result = companion.lastResult;
+    if (result?.checks && result.id && !recordedLearn.has(result.id)) {
+      recordedLearn.add(result.id);
+      await store.update((data) => {
+        let progress = data.progress;
+        result.checks.forEach((check, index) => {
+          progress = recordAnswer(progress, {
+            system_name: result.systemName || result.checks[0]?.systemName || "System",
+            challenge_index: 100 + index,
+            correct: !!check.pass,
+            asset: check.asset || "",
+          });
+        });
+        data.progress = progress;
+        return {};
+      });
+    }
     return {
     host: "127.0.0.1",
     port: companion.port,
     code: companion.code,
     paired: companion.paired,
+    connected: companion.connected,
     summary: companion.summary(),
     project: companion.report?.project || "",
     engine: companion.report?.engine || "",
@@ -1007,10 +1031,15 @@ async function startServer(options = {}) {
     }
   });
 
+  const NOT_CONNECTED = "Not connected to Unreal — open the Architect panel and pair";
+
   route("POST", "/api/companion/send", async (req) => {
     const body = await readJson(req);
     const system = body.system;
     if (!system?.cpp_header || !system?.cpp_source) throw new HttpError(400, "Send to Unreal needs a generated system.");
+    if (!companion.connected) {
+      return { ok: false, paired: false, connected: false, queued: false, message: NOT_CONNECTED };
+    }
     const target = path.resolve(String(body.uproject || ""));
     if (!target.toLowerCase().endsWith(".uproject") || !fs.existsSync(target)) {
       throw new HttpError(400, "Pick an Unreal project file that ends in .uproject.");
@@ -1023,14 +1052,15 @@ async function startServer(options = {}) {
       if (exc.statusCode === 409) return { ok: false, conflicts: exc.conflicts || [], path: dest };
       throw exc;
     }
-    const command = companion.paired ? companion.queue({ type: "reload", module: written.module }) : null;
+    const command = companion.paired ? companion.queue({ type: "reload", module: written.module, learn: buildEditorLearn(system) }) : null;
     return {
       ok: true,
       plugin: written.module,
       path: dest,
       paired: companion.paired,
       queued: !!command,
-      message: command ? "Files written. The editor was asked to compile." : "Files written. Pair the Architect panel, then compile in the editor.",
+      id: command?.id || "",
+      message: "Files written. The editor was asked to compile.",
     };
   });
 
@@ -1039,10 +1069,10 @@ async function startServer(options = {}) {
     const system = body.system;
     if (!system?.cpp_header || !system?.cpp_source) throw new HttpError(400, "Create in Unreal needs a generated system.");
     const plan = buildAssetPlan(system, { folder: body.folder, confirm: body.confirm === true });
-    if (!companion.paired) {
-      return { ok: false, paired: false, folder: plan.folder, message: "Pair the Architect panel in the editor first." };
+    if (!companion.connected) {
+      return { ok: false, paired: false, connected: false, queued: false, folder: plan.folder, message: NOT_CONNECTED };
     }
-    const command = companion.queue(plan);
+    const command = companion.queue({ ...plan, learn: buildEditorLearn(system, plan) });
     return {
       ok: true,
       queued: true,
@@ -1059,7 +1089,7 @@ async function startServer(options = {}) {
     const body = await readJson(req);
     const asset = String(body.asset || "").trim();
     if (!asset.startsWith("/Game/")) throw new HttpError(400, "Open in Unreal needs an asset under /Game.");
-    if (!companion.paired) return { ok: false, paired: false, message: "Pair the Architect panel in the editor first." };
+    if (!companion.connected) return { ok: false, paired: false, connected: false, queued: false, message: NOT_CONNECTED };
     const command = companion.queue({ type: "open-asset", asset });
     return { ok: true, queued: true, id: command.id, asset, message: "Asked the editor to open that asset." };
   });

@@ -1,9 +1,12 @@
 #include "SArchitectPanel.h"
 #include "CompanionLink.h"
 #include "AssetCreate.h"
+#include "LearnCheck.h"
 #include "ProjectScan.h"
 #include "Misc/EngineVersion.h"
 #include "Misc/App.h"
+#include "Misc/Guid.h"
+#include "Styling/CoreStyle.h"
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Input/SEditableTextBox.h"
 #include "Widgets/Text/STextBlock.h"
@@ -155,6 +158,38 @@ void SArchitectPanel::Construct(const FArguments& InArgs)
 			[
 				SNew(SButton).Text(FText::FromString(TEXT("Send project"))).OnClicked(this, &SArchitectPanel::SendProject)
 			]
+			+ SVerticalBox::Slot().AutoHeight().Padding(0.f, 14.f, 0.f, 4.f)
+			[
+				SNew(STextBlock).Text(FText::FromString(TEXT("Learn"))).Font(FCoreStyle::GetDefaultFontStyle("Bold", 14))
+			]
+			+ SVerticalBox::Slot().FillHeight(1.f)
+			[
+				SNew(SScrollBox)
+				+ SScrollBox::Slot()
+				[
+					SAssignNew(LearnBox, SVerticalBox)
+				]
+				+ SScrollBox::Slot().Padding(0.f, 12.f, 0.f, 0.f)
+				[
+					SNew(SVerticalBox)
+					+ SVerticalBox::Slot().AutoHeight()
+					[
+						SNew(STextBlock).Text(FText::FromString(TEXT("Glossary"))).Font(FCoreStyle::GetDefaultFontStyle("Bold", 12))
+					]
+					+ SVerticalBox::Slot().AutoHeight().Padding(0.f, 4.f)
+					[
+						SAssignNew(GlossaryQuery, SEditableTextBox).HintText(FText::FromString(TEXT("Search a term")))
+					]
+					+ SVerticalBox::Slot().AutoHeight().Padding(0.f, 4.f)
+					[
+						SNew(SButton).Text(FText::FromString(TEXT("Search"))).OnClicked(this, &SArchitectPanel::SearchGlossary)
+					]
+					+ SVerticalBox::Slot().AutoHeight()
+					[
+						SAssignNew(GlossaryBox, SVerticalBox)
+					]
+				]
+			]
 		]
 	];
 	Ticker = FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateLambda([this](float)
@@ -209,6 +244,202 @@ FReply SArchitectPanel::SendProject()
 	return FReply::Handled();
 }
 
+void SArchitectPanel::ShowLearn()
+{
+	if (!LearnBox.IsValid()) return;
+	LearnBox->ClearChildren();
+	if (!CurrentLearn.IsValid())
+	{
+		LearnBox->AddSlot().AutoHeight()
+		[
+			SNew(STextBlock).Text(FText::FromString(TEXT("Create in Unreal or Send to Unreal to load notes for this system."))).AutoWrapText(true)
+		];
+		return;
+	}
+	const TArray<TSharedPtr<FJsonValue>>* Groups = nullptr;
+	if (CurrentLearn->TryGetArrayField(TEXT("groups"), Groups) && Groups)
+	{
+		for (const TSharedPtr<FJsonValue>& GroupValue : *Groups)
+		{
+			const TSharedPtr<FJsonObject> Group = GroupValue.IsValid() ? GroupValue->AsObject() : nullptr;
+			if (!Group.IsValid()) continue;
+			LearnBox->AddSlot().AutoHeight().Padding(0.f, 8.f, 0.f, 2.f)
+			[
+				SNew(STextBlock).Text(FText::FromString(Group->GetStringField(TEXT("kind")) + TEXT(" · ") + Group->GetStringField(TEXT("title")))).Font(FCoreStyle::GetDefaultFontStyle("Bold", 11))
+			];
+			const TArray<TSharedPtr<FJsonValue>>* Notes = nullptr;
+			if (!Group->TryGetArrayField(TEXT("notes"), Notes) || !Notes) continue;
+			for (const TSharedPtr<FJsonValue>& NoteValue : *Notes)
+			{
+				const TSharedPtr<FJsonObject> Note = NoteValue.IsValid() ? NoteValue->AsObject() : nullptr;
+				if (!Note.IsValid()) continue;
+				LearnBox->AddSlot().AutoHeight().Padding(0.f, 2.f)
+				[
+					SNew(STextBlock).Text(FText::FromString(Note->GetStringField(TEXT("one_line")))).AutoWrapText(true)
+				];
+				const FString Tradeoff = Note->GetStringField(TEXT("tradeoff"));
+				const FString Mistake = Note->GetStringField(TEXT("common_mistake"));
+				if (!Tradeoff.IsEmpty())
+				{
+					LearnBox->AddSlot().AutoHeight()
+					[
+						SNew(STextBlock).Text(FText::FromString(TEXT("Tradeoff: ") + Tradeoff)).AutoWrapText(true)
+					];
+				}
+				if (!Mistake.IsEmpty())
+				{
+					LearnBox->AddSlot().AutoHeight().Padding(0.f, 0.f, 0.f, 4.f)
+					[
+						SNew(STextBlock).Text(FText::FromString(TEXT("Common mistake: ") + Mistake)).AutoWrapText(true)
+					];
+				}
+			}
+		}
+	}
+	const TArray<TSharedPtr<FJsonValue>>* Challenges = nullptr;
+	if (CurrentLearn->TryGetArrayField(TEXT("challenges"), Challenges) && Challenges)
+	{
+		LearnBox->AddSlot().AutoHeight().Padding(0.f, 8.f, 0.f, 2.f)
+		[
+			SNew(SButton).Text(FText::FromString(TEXT("Check"))).OnClicked(this, &SArchitectPanel::CheckChallenges)
+		];
+		for (const TSharedPtr<FJsonValue>& Item : *Challenges)
+		{
+			const TSharedPtr<FJsonObject> Challenge = Item.IsValid() ? Item->AsObject() : nullptr;
+			if (!Challenge.IsValid()) continue;
+			const FString Id = Challenge->GetStringField(TEXT("id"));
+			const bool bManual = Challenge->GetBoolField(TEXT("manual"));
+			LearnBox->AddSlot().AutoHeight().Padding(0.f, 6.f, 0.f, 0.f)
+			[
+				SNew(STextBlock).Text(FText::FromString(Challenge->GetStringField(TEXT("prompt")))).AutoWrapText(true)
+			];
+			if (bManual)
+			{
+				LearnBox->AddSlot().AutoHeight()
+				[
+					SNew(SButton).Text(FText::FromString(TEXT("I did this"))).OnClicked_Lambda([this, Id]() { return MarkManual(Id); })
+				];
+			}
+		}
+	}
+}
+
+void SArchitectPanel::PostChecks(const TArray<TSharedPtr<FJsonValue>>& Checks, const FString& Message)
+{
+	if (Token.IsEmpty())
+	{
+		SetStatus(TEXT("Pair first."));
+		return;
+	}
+	FString Error;
+	TArray<FString> NoAssets;
+	TArray<FString> NoConflicts;
+	CompanionLink::PostResult(Host, FCString::Atoi(*Port), Token, FGuid::NewGuid().ToString(), true, Message, NoAssets, NoConflicts, Checks, Error);
+	SetStatus(Error.IsEmpty() ? Message : Error);
+}
+
+FReply SArchitectPanel::CheckChallenges()
+{
+	if (!CurrentLearn.IsValid()) return FReply::Handled();
+	const TArray<TSharedPtr<FJsonValue>>* Challenges = nullptr;
+	if (!CurrentLearn->TryGetArrayField(TEXT("challenges"), Challenges) || !Challenges) return FReply::Handled();
+	TArray<TSharedPtr<FJsonValue>> Checks;
+	int32 Passed = 0;
+	int32 Automatic = 0;
+	for (const TSharedPtr<FJsonValue>& Item : *Challenges)
+	{
+		const TSharedPtr<FJsonObject> Challenge = Item.IsValid() ? Item->AsObject() : nullptr;
+		if (!Challenge.IsValid() || Challenge->GetBoolField(TEXT("manual"))) continue;
+		Automatic += 1;
+		const TSharedPtr<FJsonObject>* CheckJson = nullptr;
+		bool bPass = false;
+		FString Hint = Challenge->GetStringField(TEXT("hint"));
+		if (Challenge->TryGetObjectField(TEXT("check"), CheckJson) && CheckJson && CheckJson->IsValid())
+		{
+			LearnCheck::Evaluate((*CheckJson).ToSharedRef(), bPass, Hint);
+		}
+		if (bPass) Passed += 1;
+		TSharedRef<FJsonObject> Row = MakeShared<FJsonObject>();
+		Row->SetStringField(TEXT("id"), Challenge->GetStringField(TEXT("id")));
+		Row->SetBoolField(TEXT("pass"), bPass);
+		Row->SetBoolField(TEXT("manual"), false);
+		Row->SetStringField(TEXT("hint"), Hint);
+		Row->SetStringField(TEXT("asset"), Challenge->GetStringField(TEXT("asset")));
+		Row->SetStringField(TEXT("systemName"), CurrentLearn->GetStringField(TEXT("systemName")));
+		Checks.Add(MakeShared<FJsonValueObject>(Row));
+	}
+	PostChecks(Checks, FString::Printf(TEXT("%d of %d checks passed."), Passed, Automatic));
+	return FReply::Handled();
+}
+
+FReply SArchitectPanel::MarkManual(FString ChallengeId)
+{
+	if (!CurrentLearn.IsValid()) return FReply::Handled();
+	const TArray<TSharedPtr<FJsonValue>>* Challenges = nullptr;
+	if (!CurrentLearn->TryGetArrayField(TEXT("challenges"), Challenges) || !Challenges) return FReply::Handled();
+	for (const TSharedPtr<FJsonValue>& Item : *Challenges)
+	{
+		const TSharedPtr<FJsonObject> Challenge = Item.IsValid() ? Item->AsObject() : nullptr;
+		if (!Challenge.IsValid() || Challenge->GetStringField(TEXT("id")) != ChallengeId) continue;
+		TSharedRef<FJsonObject> Row = MakeShared<FJsonObject>();
+		Row->SetStringField(TEXT("id"), ChallengeId);
+		Row->SetBoolField(TEXT("pass"), true);
+		Row->SetBoolField(TEXT("manual"), true);
+		Row->SetStringField(TEXT("hint"), TEXT("Marked done in the editor."));
+		Row->SetStringField(TEXT("asset"), Challenge->GetStringField(TEXT("asset")));
+		Row->SetStringField(TEXT("systemName"), CurrentLearn->GetStringField(TEXT("systemName")));
+		TArray<TSharedPtr<FJsonValue>> Checks;
+		Checks.Add(MakeShared<FJsonValueObject>(Row));
+		PostChecks(Checks, TEXT("Marked done."));
+		break;
+	}
+	return FReply::Handled();
+}
+
+FReply SArchitectPanel::SearchGlossary()
+{
+	if (!GlossaryBox.IsValid()) return FReply::Handled();
+	GlossaryBox->ClearChildren();
+	if (Token.IsEmpty())
+	{
+		SetStatus(TEXT("Pair first."));
+		return FReply::Handled();
+	}
+	TArray<TSharedPtr<FJsonValue>> Terms;
+	FString Error;
+	const FString Query = GlossaryQuery.IsValid() ? GlossaryQuery->GetText().ToString() : FString();
+	if (!CompanionLink::SearchGlossary(Host, FCString::Atoi(*Port), Token, Query, Terms, Error))
+	{
+		SetStatus(Error);
+		return FReply::Handled();
+	}
+	if (!Terms.Num())
+	{
+		GlossaryBox->AddSlot().AutoHeight()[SNew(STextBlock).Text(FText::FromString(TEXT("No matching term."))).AutoWrapText(true)];
+		return FReply::Handled();
+	}
+	for (const TSharedPtr<FJsonValue>& Item : Terms)
+	{
+		const TSharedPtr<FJsonObject> Term = Item.IsValid() ? Item->AsObject() : nullptr;
+		if (!Term.IsValid()) continue;
+		FString See;
+		const TArray<TSharedPtr<FJsonValue>>* SeeList = nullptr;
+		if (Term->TryGetArrayField(TEXT("see"), SeeList) && SeeList)
+		{
+			for (const TSharedPtr<FJsonValue>& Name : *SeeList) See += (See.IsEmpty() ? TEXT("") : TEXT(", ")) + Name->AsString();
+		}
+		GlossaryBox->AddSlot().AutoHeight().Padding(0.f, 6.f, 0.f, 0.f)
+		[
+			SNew(STextBlock).Text(FText::FromString(Term->GetStringField(TEXT("term")))).Font(FCoreStyle::GetDefaultFontStyle("Bold", 11))
+		];
+		GlossaryBox->AddSlot().AutoHeight()[SNew(STextBlock).Text(FText::FromString(Term->GetStringField(TEXT("summary")))).AutoWrapText(true)];
+		const FString Detail = Term->GetStringField(TEXT("detail"));
+		if (!Detail.IsEmpty()) GlossaryBox->AddSlot().AutoHeight()[SNew(STextBlock).Text(FText::FromString(Detail)).AutoWrapText(true)];
+		if (!See.IsEmpty()) GlossaryBox->AddSlot().AutoHeight()[SNew(STextBlock).Text(FText::FromString(TEXT("See also: ") + See)).AutoWrapText(true)];
+	}
+	return FReply::Handled();
+}
+
 void SArchitectPanel::Poll()
 {
 	if (Token.IsEmpty()) return;
@@ -220,8 +451,19 @@ void SArchitectPanel::Poll()
 	if (!Id.IsEmpty() && Id == FinishedId)
 	{
 		FString Ignored;
-		CompanionLink::PostResult(Host, PortNumber, Token, Id, bFinishedOk, FinishedMessage, FinishedAssets, FinishedConflicts, Ignored);
+		TArray<TSharedPtr<FJsonValue>> NoChecks;
+		CompanionLink::PostResult(Host, PortNumber, Token, Id, bFinishedOk, FinishedMessage, FinishedAssets, FinishedConflicts, NoChecks, Ignored);
 		return;
+	}
+	// Polls overlap while HTTP ticks. Claim the id before any notice so a
+	// repeated poll of this request does not stack another one.
+	if (!Id.IsEmpty() && Id == NotifiedId) return;
+	NotifiedId = Id;
+	const TSharedPtr<FJsonObject>* LearnJson = nullptr;
+	if (Command->TryGetObjectField(TEXT("learn"), LearnJson) && LearnJson && LearnJson->IsValid())
+	{
+		CurrentLearn = *LearnJson;
+		ShowLearn();
 	}
 	FString Result;
 	TArray<FString> Assets;
@@ -250,7 +492,8 @@ void SArchitectPanel::Poll()
 	FinishedAssets = Assets;
 	FinishedConflicts = Conflicts;
 	FString Ignored;
-	const bool bPosted = CompanionLink::PostResult(Host, PortNumber, Token, Id, bOk, Result, Assets, Conflicts, Ignored);
+	TArray<TSharedPtr<FJsonValue>> NoChecks;
+	const bool bPosted = CompanionLink::PostResult(Host, PortNumber, Token, Id, bOk, Result, Assets, Conflicts, NoChecks, Ignored);
 	SetStatus(bPosted
 		? (Result.IsEmpty() ? TEXT("The editor finished the request.") : Result)
 		: TEXT("The editor finished, but the app did not accept the answer."));

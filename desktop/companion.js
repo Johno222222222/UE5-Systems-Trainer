@@ -5,6 +5,7 @@
 
 const http = require("http");
 const crypto = require("crypto");
+const { searchGlossary } = require("./editorLearn");
 
 const LOOPBACK = new Set(["127.0.0.1", "::1", "::ffff:127.0.0.1"]);
 const GAMEPLAY = /Actor|Component|Character|Pawn|GameMode|GameState|Controller|PlayerState|Interface|HUD|Widget/i;
@@ -56,12 +57,16 @@ function summarizeProject(report, limit = 700) {
   return text.length > limit ? `${text.slice(0, limit - 1)}…` : text;
 }
 
-function createCompanion({ now = () => Date.now(), timeoutMs = 20000 } = {}) {
+function createCompanion({ now = () => Date.now(), timeoutMs = 20000, liveMs = 6000, glossary = [] } = {}) {
   let code = pairingCode();
   let token = "";
   let report = null;
   let lastResult = null;
+  let lastSeen = 0;
   const queue = [];
+
+  function touch() { lastSeen = now(); }
+  function connected() { return !!token && now() - lastSeen <= liveMs; }
 
   function settle(item, result) {
     item.state = "done";
@@ -121,6 +126,7 @@ function createCompanion({ now = () => Date.now(), timeoutMs = 20000 } = {}) {
           return;
         }
         token = crypto.randomBytes(16).toString("hex");
+        touch();
         send(res, 200, { token });
         return;
       }
@@ -129,6 +135,7 @@ function createCompanion({ now = () => Date.now(), timeoutMs = 20000 } = {}) {
         send(res, 401, { error: "Pair this editor with the code shown in the app." });
         return;
       }
+      touch();
       if (req.method === "GET" && url.pathname === "/v1/status") {
         send(res, 200, { ok: true, app: "UE5 System Architect", paired: true });
         return;
@@ -153,10 +160,13 @@ function createCompanion({ now = () => Date.now(), timeoutMs = 20000 } = {}) {
         const id = String(body.id || "");
         const item = queue.find((entry) => entry.id === id);
         if (item) settle(item, { ...body, id });
-        else if (id && lastResult && lastResult.id === id) lastResult = { ...body, id };
-        else if (!id) lastResult = body;
+        else lastResult = { ...body, id };
         while (queue.length && queue[0].state === "done") queue.shift();
         send(res, 200, { ok: true });
+        return;
+      }
+      if (req.method === "GET" && url.pathname === "/v1/glossary") {
+        send(res, 200, { terms: searchGlossary(glossary, url.searchParams.get("q")) });
         return;
       }
       send(res, 404, { error: "Not found" });
@@ -174,6 +184,7 @@ function createCompanion({ now = () => Date.now(), timeoutMs = 20000 } = {}) {
         get code() { return code; },
         rotate() { code = pairingCode(); token = ""; return code; },
         get paired() { return !!token; },
+        get connected() { return connected(); },
         get report() { return report; },
         get lastResult() { return lastResult; },
         summary() { return summarizeProject(report); },
