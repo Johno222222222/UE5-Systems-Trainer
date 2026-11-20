@@ -2,1930 +2,1422 @@
   "id": "fps-intermediate",
   "sections": {
     "l2-input": {
-      "plainEnglish": "In plain English: The L2 layer remaps the button. The graph still starts at the action. What the function actually does is a line trace from the aim, then Interact on the actor that was hit. the possessed pawn's input action is who is allowed to do it.",
-      "whyGame": "In a real match, tracing on Tick so a prompt stays fresh while the player stands still looks almost right and then costs a query, a desync, or a double write. the radial menu widget stays on its own event so this lesson does not swallow it.",
+      "plainEnglish": "Hold the aim button and a second input layer swaps what the other buttons mean. The use graph still starts when its action fires. The layer never puts a trace on Tick.",
+      "whyGame": "Players expect the same Interact event after they rebind a paddle. If the layer is implemented as a Tick that reads raw keys, every new pad layout becomes a code change.",
       "expansions": [
-        {
-          "title": "L2 input and radial menus listener",
-          "detail": "A follow-on in FPS — Intermediate should bind to IA_Interact after the hit bool is true. It should not poll l2 input and radial menus."
-        },
-        {
-          "title": "L2 input and radial menus data",
-          "detail": "Numbers a designer tunes for l2 input and radial menus belong on a data row. a line trace from the aim, then Interact on the actor that was hit can read that row without a new function."
-        },
-        {
-          "title": "L2 input and radial menus neighbor",
-          "detail": "the radial menu widget must not be implemented inside Enhanced Input for IA_Interact. The L2 layer remaps the button. The graph still starts at the action."
-        }
+        { "title": "Radial menu", "detail": "While the layer is held, a face button can open a radial. Releasing the layer returns that button to fire." },
+        { "title": "Ping", "detail": "Ping can be a third action on the same layer. It does not replace the use trace." },
+        { "title": "Hold versus tap", "detail": "A tap can stay on the base context. Only the hold pushes the L2 layer." }
       ],
       "quiz": [
         {
-          "id": "fps-intermediate-l2-input-s1",
+          "id": "fpsi-l2-1",
           "kind": "mc",
-          "prompt": "The L2 layer remaps the button. The graph still starts at the action. When `void UKitComponent::Graph_IA_Interact_tpl_interact_input() // node:tpl_interact_input` runs, what does the player get?",
+          "prompt": "Holding the aim button swaps which actions the other buttons fire. What still starts the use trace?",
           "choices": [
-            "a line trace from the aim, then Interact on the actor that was hit. That keeps the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "The line tracing on Tick so a prompt stays fresh while the player stands still. That would break the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "The constructor writes the result before a pawn exists. That would break the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "the radial menu widget overwrites the value on every client. That would break the rule that the L2 layer remaps the button. The graph still starts at the action."
+            "Whatever action the active layer bound, through its Triggered pin",
+            "A poll of the keyboard inside Tick",
+            "The radial widget deciding the trace origin",
+            "The heat value crossing 0.05"
           ],
           "answer": 0,
-          "why": "a line trace from the aim, then Interact on the actor that was hit"
+          "why": "Layers remap actions. They do not replace the event."
         },
         {
-          "id": "fps-intermediate-l2-input-s2",
+          "id": "fpsi-l2-2",
           "kind": "mc",
-          "prompt": "The L2 layer remaps the button. The graph still starts at the action. Where does Enhanced Input for IA_Interact sit relative to IA_Interact?",
+          "prompt": "Graph_IA_Interact_tpl_interact_input still appears under the L2 layer. What did not change?",
           "choices": [
-            "Enhanced Input for IA_Interact runs after the hit bool is true. IA_Interact reaches that gate through Triggered. That keeps the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "Enhanced Input for IA_Interact runs before IA_Interact, so the write does not wait for the player. That would break the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "Enhanced Input for IA_Interact sits on Tick while IA_Interact is idle. That would break the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "Enhanced Input for IA_Interact sits in OnRep and applies the change a second time. That would break the rule that the L2 layer remaps the button. The graph still starts at the action."
+            "The function still means the player asked for a use",
+            "The function now means the barrel heated up",
+            "The function now loads the save slot",
+            "The function now writes Relevant"
           ],
           "answer": 0,
-          "why": "IA_Interact is the start."
+          "why": "Same action, possibly a different physical button."
         },
         {
-          "id": "fps-intermediate-l2-input-s3",
-          "kind": "tf",
-          "prompt": "True or false: The L2 layer remaps the button. The graph still starts at the action.",
+          "id": "fpsi-l2-3",
+          "kind": "mc",
+          "prompt": "The radial menu opens from the layer. Which node must not move onto the use trace to build that menu?",
           "choices": [
-            "True",
-            "False"
+            "A widget spawn, which is the menu's job rather than the look's job",
+            "Branch on the hit bool",
+            "The interface call on a hit",
+            "The miss log"
           ],
           "answer": 0,
-          "why": "The L2 layer remaps the button. The graph still starts at the action."
+          "why": "The look reports a hit. The menu is another action."
         },
         {
-          "id": "fps-intermediate-l2-input-s4",
-          "kind": "tf",
-          "prompt": "True or false: The L2 layer remaps the button. The graph still starts at the action. You keep that promise by tracing on Tick so a prompt stays fresh while the player stands still.",
+          "id": "fpsi-l2-4",
+          "kind": "mc",
+          "prompt": "Someone reads the raw gamepad button inside Tick whenever the layer might be held. What breaks on a new controller layout?",
           "choices": [
-            "True",
-            "False"
+            "The code names a button that the new layout moved",
+            "IA_Interact stops compiling",
+            "Heat can no longer increase",
+            "Limbs drop below zero"
           ],
+          "answer": 0,
+          "why": "The mapping context is how layouts change without code."
+        },
+        {
+          "id": "fpsi-l2-5",
+          "kind": "mc",
+          "prompt": "A player taps the button instead of holding it. The base context still has fire. What should happen?",
+          "choices": [
+            "Fire runs. The L2 layer never pushed, so use and the radial stay put",
+            "The use trace runs because any press is use",
+            "Relevant flips",
+            "The magazine clamps to zero"
+          ],
+          "answer": 0,
+          "why": "Hold pushes the layer. Tap does not."
+        },
+        {
+          "id": "fpsi-l2-6",
+          "kind": "mc",
+          "prompt": "Where does the extra mapping context get added while aiming?",
+          "choices": [
+            "On the possessed pawn or the player controller, for the hold",
+            "On every weapon mesh",
+            "Inside OnRep of EquippedId",
+            "On the data table row"
+          ],
+          "answer": 0,
+          "why": "The same owner as the base context."
+        },
+        {
+          "id": "fpsi-l2-7",
+          "kind": "tf",
+          "prompt": "True or false: an input layer may remap a button without moving the use trace onto Tick.",
+          "choices": ["True", "False"],
+          "answer": 0,
+          "why": "Remap the action. Keep the event."
+        },
+        {
+          "id": "fpsi-l2-8",
+          "kind": "tf",
+          "prompt": "True or false: the radial menu should be drawn by the line trace's true pin.",
+          "choices": ["True", "False"],
           "answer": 1,
-          "why": "the possessed pawn's input action is the real writer."
+          "why": "The true pin calls Interact. The menu is its own action."
         },
         {
-          "id": "fps-intermediate-l2-input-s5",
+          "id": "fpsi-l2-9",
           "kind": "mc",
-          "prompt": "The L2 layer remaps the button. The graph still starts at the action. Who may commit the change?",
+          "prompt": "A streamer rebinds the layer to a back paddle. Which asset do they edit?",
           "choices": [
-            "the possessed pawn's input action. That keeps the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "Every client writes it so the result feels instant. That would break the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "The widget writes it because that is what the player is looking at. That would break the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "The constructor writes it once, and IA_Interact never fires. That would break the rule that the L2 layer remaps the button. The graph still starts at the action."
+            "The mapping context for that hold",
+            "Graph_IA_Interact itself",
+            "The heat add of 0.05",
+            "The limb clamp at ten percent"
           ],
           "answer": 0,
-          "why": "the possessed pawn's input action"
+          "why": "Bindings live in the context."
         },
         {
-          "id": "fps-intermediate-l2-input-s6",
-          "kind": "mc",
-          "prompt": "The L2 layer remaps the button. The graph still starts at the action. What has to be true before Enhanced Input for IA_Interact writes?",
-          "choices": [
-            "the hit bool is true. That keeps the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "IA_Interact has not fired and the graph is only hoping. That would break the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "Tick has run one frame even though nothing changed. That would break the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "the radial menu widget has already performed this write. That would break the rule that the L2 layer remaps the button. The graph still starts at the action."
-          ],
-          "answer": 0,
-          "why": "the hit bool is true"
-        },
-        {
-          "id": "fps-intermediate-l2-input-s7",
+          "id": "fpsi-l2-10",
           "kind": "tf",
-          "prompt": "True or false: The L2 layer remaps the button. The graph still starts at the action. IA_Interact is the start, and Triggered is the pin that continues into the write.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "IA_Interact through Triggered."
-        },
-        {
-          "id": "fps-intermediate-l2-input-s8",
-          "kind": "mc",
-          "prompt": "The L2 layer remaps the button. The graph still starts at the action. Delete IA_Interact and leave the rest of the FPS — Intermediate compiled. What does the player lose?",
-          "choices": [
-            "L2 input and radial menus never starts, because nothing else fires Triggered. That keeps the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "Nothing visible, because Tick still does the work. That would break the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "the radial menu widget quietly takes over the job. That would break the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "The next travel's constructor writes it. That would break the rule that the L2 layer remaps the button. The graph still starts at the action."
-          ],
-          "answer": 0,
-          "why": "IA_Interact is the only start."
-        },
-        {
-          "id": "fps-intermediate-l2-input-s9",
-          "kind": "mc",
-          "prompt": "The L2 layer remaps the button. The graph still starts at the action. Which broken schedule is the one to refuse?",
-          "choices": [
-            "tracing on Tick so a prompt stays fresh while the player stands still. That keeps the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "Leaving the real work on IA_Interact. That would break the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "Waiting until the hit bool is true before the write. That would break the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "Keeping the possessed pawn's input action as the only writer. That would break the rule that the L2 layer remaps the button. The graph still starts at the action."
-          ],
-          "answer": 0,
-          "why": "tracing on Tick so a prompt stays fresh while the player stands still"
-        },
-        {
-          "id": "fps-intermediate-l2-input-s10",
-          "kind": "mc",
-          "prompt": "The L2 layer remaps the button. The graph still starts at the action. the radial menu widget wants to live in this same function. What stays separate?",
-          "choices": [
-            "the radial menu widget keeps its own event. This function only handles a line trace from the aim, then Interact on the actor that was hit. That keeps the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "the radial menu widget is inlined so one Tick serves both jobs. That would break the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "the radial menu widget writes the value from the client. That would break the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "the radial menu widget runs inside OnRep after this write. That would break the rule that the L2 layer remaps the button. The graph still starts at the action."
-          ],
-          "answer": 0,
-          "why": "One event, one job."
-        },
-        {
-          "id": "fps-intermediate-l2-input-s11",
-          "kind": "mc",
-          "prompt": "The L2 layer remaps the button. The graph still starts at the action. A teammate also applies the write from OnRep, so the game need not wait for the possessed pawn's input action. What goes wrong?",
-          "choices": [
-            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "The widget stops drawing until Tick resumes. That would break the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "IA_Interact stops firing. That would break the rule that the L2 layer remaps the button. The graph still starts at the action."
-          ],
-          "answer": 0,
-          "why": "OnRep shows the result."
-        },
-        {
-          "id": "fps-intermediate-l2-input-s12",
-          "kind": "mc",
-          "prompt": "The L2 layer remaps the button. The graph still starts at the action. Which gate sits immediately in front of the write?",
-          "choices": [
-            "the hit bool is true, reached from IA_Interact via Triggered. That keeps the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "A Tick frame, even when IA_Interact is idle. That would break the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "A cast to every Blueprint that might show up. That would break the rule that the L2 layer remaps the button. The graph still starts at the action.",
-            "A save reload, which would replay the change at the wrong moment. That would break the rule that the L2 layer remaps the button. The graph still starts at the action."
-          ],
-          "answer": 0,
-          "why": "the hit bool is true is the gate."
+          "prompt": "True or false: releasing the aim hold should leave the L2 actions active until respawn.",
+          "choices": ["True", "False"],
+          "answer": 1,
+          "why": "Releasing the hold pops the layer."
         }
       ]
     },
     "gasp": {
-      "plainEnglish": "In plain English: Motion matching reads the gait. The graph only writes Speed. What the function actually does is Speed set to 600 while the axis is pushed, or 200 when it is released. the move action, compared greater than zero is who is allowed to do it.",
-      "whyGame": "In a real match, writing Speed from Tick so the gait updates even in a menu looks almost right and then costs a query, a desync, or a double write. motion matching stays on its own event so this lesson does not swallow it.",
+      "plainEnglish": "Motion matching plays the run or the walk by reading Speed. This graph's only job is to write Speed when the stick changes. It does not sample animation curves.",
+      "whyGame": "If the anim graph also writes Speed, the stick and the pose fight. If Tick writes 600 whenever the menu is open, motion matching plays a sprint during a buy phase.",
       "expansions": [
-        {
-          "title": "GASP movement listener",
-          "detail": "A follow-on in FPS — Intermediate should bind to IA_Move after the stick or key actually changed. It should not poll gasp movement."
-        },
-        {
-          "title": "GASP movement data",
-          "detail": "Numbers a designer tunes for gasp movement belong on a data row. Speed set to 600 while the axis is pushed, or 200 when it is released can read that row without a new function."
-        },
-        {
-          "title": "GASP movement neighbor",
-          "detail": "motion matching must not be implemented inside Enhanced Input for IA_Move. Motion matching reads the gait. The graph only writes Speed."
-        }
+        { "title": "Strafe", "detail": "A sideways pose can read the same Speed plus an axis sign. It should not add a second writer." },
+        { "title": "Stop", "detail": "Releasing the stick writes the walk or zero. The stop pose is chosen from that number." },
+        { "title": "Crouch blend", "detail": "Crouch can be another float the matcher reads. The move action still owns Speed." }
       ],
       "quiz": [
         {
-          "id": "fps-intermediate-gasp-s1",
+          "id": "fpsi-gasp-1",
           "kind": "mc",
-          "prompt": "Motion matching reads the gait. The graph only writes Speed. When `void UKitComponent::Graph_IA_Move_tpl_movement_input() // node:tpl_movement_input` runs, what does the player get?",
+          "prompt": "Motion matching needs a gait. What does this graph actually store?",
           "choices": [
-            "Speed set to 600 while the axis is pushed, or 200 when it is released. That keeps the rule that motion matching reads the gait. The graph only writes Speed.",
-            "The line writing Speed from Tick so the gait updates even in a menu. That would break the rule that motion matching reads the gait. The graph only writes Speed.",
-            "The constructor writes the result before a pawn exists. That would break the rule that motion matching reads the gait. The graph only writes Speed.",
-            "motion matching overwrites the value on every client. That would break the rule that motion matching reads the gait. The graph only writes Speed."
+            "Speed, from the stick, for the matcher to read",
+            "A bone transform every frame",
+            "The aim-layer mapping",
+            "Shells remaining"
           ],
           "answer": 0,
-          "why": "Speed set to 600 while the axis is pushed, or 200 when it is released"
+          "why": "The graph writes the number. The matcher plays the pose."
         },
         {
-          "id": "fps-intermediate-gasp-s2",
+          "id": "fpsi-gasp-2",
           "kind": "mc",
-          "prompt": "Motion matching reads the gait. The graph only writes Speed. Where does Enhanced Input for IA_Move sit relative to IA_Move?",
+          "prompt": "Speed = 600.f sits on the true side of the move branch. When is that line correct?",
           "choices": [
-            "Enhanced Input for IA_Move runs after the stick or key actually changed. IA_Move reaches that gate through the axis value. That keeps the rule that motion matching reads the gait. The graph only writes Speed.",
-            "Enhanced Input for IA_Move runs before IA_Move, so the write does not wait for the player. That would break the rule that motion matching reads the gait. The graph only writes Speed.",
-            "Enhanced Input for IA_Move sits on Tick while IA_Move is idle. That would break the rule that motion matching reads the gait. The graph only writes Speed.",
-            "Enhanced Input for IA_Move sits in OnRep and applies the change a second time. That would break the rule that motion matching reads the gait. The graph only writes Speed."
+            "When the axis is greater than zero",
+            "When the pawn is in a menu",
+            "When heat increased",
+            "When a limb hit was clamped"
           ],
           "answer": 0,
-          "why": "IA_Move is the start."
+          "why": "Pushed stick, sprint number."
         },
         {
-          "id": "fps-intermediate-gasp-s3",
-          "kind": "tf",
-          "prompt": "True or false: Motion matching reads the gait. The graph only writes Speed.",
+          "id": "fpsi-gasp-3",
+          "kind": "mc",
+          "prompt": "The animation blueprint wants to write Speed from the current pose. What loop does that create?",
           "choices": [
-            "True",
-            "False"
+            "The pose and the stick overwrite each other",
+            "A cleaner gait, because the pose knows best",
+            "Relevant updates for free",
+            "The magazine clamp runs twice"
           ],
           "answer": 0,
-          "why": "Motion matching reads the gait. The graph only writes Speed."
+          "why": "One writer. The matcher is a reader."
         },
         {
-          "id": "fps-intermediate-gasp-s4",
-          "kind": "tf",
-          "prompt": "True or false: Motion matching reads the gait. The graph only writes Speed. You keep that promise by writing Speed from Tick so the gait updates even in a menu.",
+          "id": "fpsi-gasp-4",
+          "kind": "mc",
+          "prompt": "Tick forces Speed = 600 during a buy menu. What does motion matching play?",
           "choices": [
-            "True",
-            "False"
+            "A sprint, even though the stick is idle",
+            "A correct idle, because Tick is ignored by the matcher",
+            "The reload montage",
+            "Menus are assumed to freeze the gait number"
           ],
+          "answer": 0,
+          "why": "The matcher believes the number."
+        },
+        {
+          "id": "fpsi-gasp-5",
+          "kind": "mc",
+          "prompt": "The false path writes 200. A player eases off the stick mid-stride. Which pose should be allowed to start?",
+          "choices": [
+            "The slower gait that reads 200",
+            "The sprint, until the magazine is empty",
+            "The death pose",
+            "The equip swap"
+          ],
+          "answer": 0,
+          "why": "Released axis selects the walk literal."
+        },
+        {
+          "id": "fpsi-gasp-6",
+          "kind": "mc",
+          "prompt": "Where should a designer change 600 and 200 without touching the anim graph?",
+          "choices": [
+            "In the literals or a data row the move function reads",
+            "Inside the pose database",
+            "On the L2 radial widget",
+            "In OnRep of Relevant"
+          ],
+          "answer": 0,
+          "why": "The number is gameplay data. The matcher only reads it."
+        },
+        {
+          "id": "fpsi-gasp-7",
+          "kind": "tf",
+          "prompt": "True or false: motion matching should read Speed rather than write it.",
+          "choices": ["True", "False"],
+          "answer": 0,
+          "why": "The stick owns the write."
+        },
+        {
+          "id": "fpsi-gasp-8",
+          "kind": "tf",
+          "prompt": "True or false: the move graph should sample the current pose to decide Speed.",
+          "choices": ["True", "False"],
           "answer": 1,
-          "why": "the move action, compared greater than zero is the real writer."
+          "why": "That inverts reader and writer."
         },
         {
-          "id": "fps-intermediate-gasp-s5",
+          "id": "fpsi-gasp-9",
           "kind": "mc",
-          "prompt": "Motion matching reads the gait. The graph only writes Speed. Who may commit the change?",
+          "prompt": "A stance system sets Speed to 120 while aiming. The move graph then ticks. What survives?",
           "choices": [
-            "the move action, compared greater than zero. That keeps the rule that motion matching reads the gait. The graph only writes Speed.",
-            "Every client writes it so the result feels instant. That would break the rule that motion matching reads the gait. The graph only writes Speed.",
-            "The widget writes it because that is what the player is looking at. That would break the rule that motion matching reads the gait. The graph only writes Speed.",
-            "The constructor writes it once, and IA_Move never fires. That would break the rule that motion matching reads the gait. The graph only writes Speed."
+            "Only if the move graph is not on Tick. Otherwise 600 or 200 replaces 120",
+            "The stance speed survives because frames respect other writers",
+            "The two writers cancel and the pawn stops",
+            "The limb percent"
           ],
           "answer": 0,
-          "why": "the move action, compared greater than zero"
+          "why": "Tick stomps the stance."
         },
         {
-          "id": "fps-intermediate-gasp-s6",
-          "kind": "mc",
-          "prompt": "Motion matching reads the gait. The graph only writes Speed. What has to be true before Enhanced Input for IA_Move writes?",
-          "choices": [
-            "the stick or key actually changed. That keeps the rule that motion matching reads the gait. The graph only writes Speed.",
-            "IA_Move has not fired and the graph is only hoping. That would break the rule that motion matching reads the gait. The graph only writes Speed.",
-            "Tick has run one frame even though nothing changed. That would break the rule that motion matching reads the gait. The graph only writes Speed.",
-            "motion matching has already performed this write. That would break the rule that motion matching reads the gait. The graph only writes Speed."
-          ],
-          "answer": 0,
-          "why": "the stick or key actually changed"
-        },
-        {
-          "id": "fps-intermediate-gasp-s7",
+          "id": "fpsi-gasp-10",
           "kind": "tf",
-          "prompt": "True or false: Motion matching reads the gait. The graph only writes Speed. IA_Move is the start, and the axis value is the pin that continues into the write.",
-          "choices": [
-            "True",
-            "False"
-          ],
+          "prompt": "True or false: Graph_IA_Move is still the function that chooses 600 or 200.",
+          "choices": ["True", "False"],
           "answer": 0,
-          "why": "IA_Move through the axis value."
-        },
-        {
-          "id": "fps-intermediate-gasp-s8",
-          "kind": "mc",
-          "prompt": "Motion matching reads the gait. The graph only writes Speed. Delete IA_Move and leave the rest of the FPS — Intermediate compiled. What does the player lose?",
-          "choices": [
-            "GASP movement never starts, because nothing else fires the axis value. That keeps the rule that motion matching reads the gait. The graph only writes Speed.",
-            "Nothing visible, because Tick still does the work. That would break the rule that motion matching reads the gait. The graph only writes Speed.",
-            "motion matching quietly takes over the job. That would break the rule that motion matching reads the gait. The graph only writes Speed.",
-            "The next travel's constructor writes it. That would break the rule that motion matching reads the gait. The graph only writes Speed."
-          ],
-          "answer": 0,
-          "why": "IA_Move is the only start."
-        },
-        {
-          "id": "fps-intermediate-gasp-s9",
-          "kind": "mc",
-          "prompt": "Motion matching reads the gait. The graph only writes Speed. Which broken schedule is the one to refuse?",
-          "choices": [
-            "writing Speed from Tick so the gait updates even in a menu. That keeps the rule that motion matching reads the gait. The graph only writes Speed.",
-            "Leaving the real work on IA_Move. That would break the rule that motion matching reads the gait. The graph only writes Speed.",
-            "Waiting until the stick or key actually changed before the write. That would break the rule that motion matching reads the gait. The graph only writes Speed.",
-            "Keeping the move action, compared greater than zero as the only writer. That would break the rule that motion matching reads the gait. The graph only writes Speed."
-          ],
-          "answer": 0,
-          "why": "writing Speed from Tick so the gait updates even in a menu"
-        },
-        {
-          "id": "fps-intermediate-gasp-s10",
-          "kind": "mc",
-          "prompt": "Motion matching reads the gait. The graph only writes Speed. motion matching wants to live in this same function. What stays separate?",
-          "choices": [
-            "motion matching keeps its own event. This function only handles Speed set to 600 while the axis is pushed, or 200 when it is released. That keeps the rule that motion matching reads the gait. The graph only writes Speed.",
-            "motion matching is inlined so one Tick serves both jobs. That would break the rule that motion matching reads the gait. The graph only writes Speed.",
-            "motion matching writes the value from the client. That would break the rule that motion matching reads the gait. The graph only writes Speed.",
-            "motion matching runs inside OnRep after this write. That would break the rule that motion matching reads the gait. The graph only writes Speed."
-          ],
-          "answer": 0,
-          "why": "One event, one job."
-        },
-        {
-          "id": "fps-intermediate-gasp-s11",
-          "kind": "mc",
-          "prompt": "Motion matching reads the gait. The graph only writes Speed. A teammate also applies the write from OnRep, so the game need not wait for the move action, compared greater than zero. What goes wrong?",
-          "choices": [
-            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that motion matching reads the gait. The graph only writes Speed.",
-            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that motion matching reads the gait. The graph only writes Speed.",
-            "The widget stops drawing until Tick resumes. That would break the rule that motion matching reads the gait. The graph only writes Speed.",
-            "IA_Move stops firing. That would break the rule that motion matching reads the gait. The graph only writes Speed."
-          ],
-          "answer": 0,
-          "why": "OnRep shows the result."
-        },
-        {
-          "id": "fps-intermediate-gasp-s12",
-          "kind": "mc",
-          "prompt": "Motion matching reads the gait. The graph only writes Speed. Which gate sits immediately in front of the write?",
-          "choices": [
-            "the stick or key actually changed, reached from IA_Move via the axis value. That keeps the rule that motion matching reads the gait. The graph only writes Speed.",
-            "A Tick frame, even when IA_Move is idle. That would break the rule that motion matching reads the gait. The graph only writes Speed.",
-            "A cast to every Blueprint that might show up. That would break the rule that motion matching reads the gait. The graph only writes Speed.",
-            "A save reload, which would replay the change at the wrong moment. That would break the rule that motion matching reads the gait. The graph only writes Speed."
-          ],
-          "answer": 0,
-          "why": "the stick or key actually changed is the gate."
+          "why": "Motion matching did not replace that function."
         }
       ]
     },
     "aoi": {
-      "plainEnglish": "In plain English: The server decides Relevant on a timer, not on Tick. What the function actually does is Relevant set from a trace on a 0.5 second timer. the server timer is who is allowed to do it.",
-      "whyGame": "In a real match, forcing Relevant true from Tick, or copying the fog Visible bit looks almost right and then costs a query, a desync, or a double write. fog of war stays on its own event so this lesson does not swallow it.",
+      "plainEnglish": "About twice a second the server traces and stores whether this actor is still relevant. Clients do not set that bit, and fog's Visible flag is a different fact.",
+      "whyGame": "Forcing Relevant true from Tick keeps every distant rifle replicating. Copying Visible into Relevant hides people who are in fog but still close enough to matter, or the reverse.",
       "expansions": [
-        {
-          "title": "Area of interest listener",
-          "detail": "A follow-on in FPS — Intermediate should bind to CheckAOI after the interest trace returns. It should not poll area of interest."
-        },
-        {
-          "title": "Area of interest data",
-          "detail": "Numbers a designer tunes for area of interest belong on a data row. Relevant set from a trace on a 0.5 second timer can read that row without a new function."
-        },
-        {
-          "title": "Area of interest neighbor",
-          "detail": "fog of war must not be implemented inside Set Relevant. The server decides Relevant on a timer, not on Tick."
-        }
+        { "title": "Squad exception", "detail": "Squadmates can stay relevant without a hit. That exception is still decided on the server timer, not on Tick." },
+        { "title": "Vehicle", "detail": "A vehicle can use a larger radius on the same CheckAOI pass." },
+        { "title": "Dormancy", "detail": "A failed interest check can allow dormancy. The fog bit must not be the switch." }
       ],
       "quiz": [
         {
-          "id": "fps-intermediate-aoi-s1",
+          "id": "fpsi-aoi-1",
           "kind": "mc",
-          "prompt": "The server decides Relevant on a timer, not on Tick. When `Relevant = bHit_tpl_aoi_trace; // node:tpl_aoi_set` runs, what does the player get?",
+          "prompt": "Relevant is decided how often in this lesson?",
           "choices": [
-            "Relevant set from a trace on a 0.5 second timer. That keeps the rule that the server decides Relevant on a timer, not on Tick.",
-            "The line forcing Relevant true from Tick, or copying the fog Visible bit. That would break the rule that the server decides Relevant on a timer, not on Tick.",
-            "The constructor writes the result before a pawn exists. That would break the rule that the server decides Relevant on a timer, not on Tick.",
-            "fog of war overwrites the value on every client. That would break the rule that the server decides Relevant on a timer, not on Tick."
+            "On a timer of about half a second",
+            "Every rendered frame",
+            "Only when the player reloads",
+            "Only inside the anim blueprint"
           ],
           "answer": 0,
-          "why": "Relevant set from a trace on a 0.5 second timer"
+          "why": "CheckAOI is scheduled at 0.5 seconds."
         },
         {
-          "id": "fps-intermediate-aoi-s2",
+          "id": "fpsi-aoi-2",
           "kind": "mc",
-          "prompt": "The server decides Relevant on a timer, not on Tick. Where does Set Relevant sit relative to CheckAOI?",
+          "prompt": "Relevant = bHit stores the interest trace. What must that line not copy instead?",
           "choices": [
-            "Set Relevant runs after the interest trace returns. CheckAOI reaches that gate through the timer. That keeps the rule that the server decides Relevant on a timer, not on Tick.",
-            "Set Relevant runs before CheckAOI, so the write does not wait for the player. That would break the rule that the server decides Relevant on a timer, not on Tick.",
-            "Set Relevant sits on Tick while CheckAOI is idle. That would break the rule that the server decides Relevant on a timer, not on Tick.",
-            "Set Relevant sits in OnRep and applies the change a second time. That would break the rule that the server decides Relevant on a timer, not on Tick."
+            "The fog Visible flag",
+            "The stick axis",
+            "How many rounds the reload wants",
+            "The walk literal 200"
           ],
           "answer": 0,
-          "why": "CheckAOI is the start."
+          "why": "Fog and relevance answer different questions."
         },
         {
-          "id": "fps-intermediate-aoi-s3",
-          "kind": "tf",
-          "prompt": "True or false: The server decides Relevant on a timer, not on Tick.",
+          "id": "fpsi-aoi-3",
+          "kind": "mc",
+          "prompt": "Begin Play in the AOI graph arms a timer. What runs when that timer fires?",
           "choices": [
-            "True",
-            "False"
+            "CheckAOI, which traces and may set Relevant",
+            "The reload key",
+            "The radial menu",
+            "Putting rounds into the mag"
           ],
           "answer": 0,
-          "why": "The server decides Relevant on a timer, not on Tick."
+          "why": "The timer is the schedule. CheckAOI is the pass."
         },
         {
-          "id": "fps-intermediate-aoi-s4",
-          "kind": "tf",
-          "prompt": "True or false: The server decides Relevant on a timer, not on Tick. You keep that promise by forcing Relevant true from Tick, or copying the fog Visible bit.",
+          "id": "fpsi-aoi-4",
+          "kind": "mc",
+          "prompt": "Tick sets Relevant true for every rifle. What does the listen server keep paying for?",
           "choices": [
-            "True",
-            "False"
+            "Replication of pawns that failed the interest test",
+            "An extra reload clamp",
+            "A second motion-matching database",
+            "The aim-hold input layer"
           ],
+          "answer": 0,
+          "why": "True means keep replicating."
+        },
+        {
+          "id": "fpsi-aoi-5",
+          "kind": "mc",
+          "prompt": "A client marks itself relevant so it cannot be culled. Where is that refused?",
+          "choices": [
+            "On the server, because HasAuthority wraps the write",
+            "On the widget",
+            "Inside motion matching",
+            "By the use trace"
+          ],
+          "answer": 0,
+          "why": "Relevance is a server decision."
+        },
+        {
+          "id": "fpsi-aoi-6",
+          "kind": "mc",
+          "prompt": "A teammate is in fog but standing next to you. Which bit can still be true?",
+          "choices": [
+            "Relevant, even though Visible is false",
+            "Neither flag can be set if they are secretly one bool",
+            "Visible only, because fog implies distance",
+            "Standing close should warm the barrel instead"
+          ],
+          "answer": 0,
+          "why": "You can be near and unseen."
+        },
+        {
+          "id": "fpsi-aoi-7",
+          "kind": "tf",
+          "prompt": "True or false: CheckAOI should run from a timer rather than from Tick.",
+          "choices": ["True", "False"],
+          "answer": 0,
+          "why": "Half a second is the lesson's clock."
+        },
+        {
+          "id": "fpsi-aoi-8",
+          "kind": "tf",
+          "prompt": "True or false: Visible and Relevant are two names for one replicated bool.",
+          "choices": ["True", "False"],
           "answer": 1,
-          "why": "the server timer is the real writer."
+          "why": "Sight and network interest differ."
         },
         {
-          "id": "fps-intermediate-aoi-s5",
+          "id": "fpsi-aoi-9",
           "kind": "mc",
-          "prompt": "The server decides Relevant on a timer, not on Tick. Who may commit the change?",
+          "prompt": "The interest trace misses. What should Relevant become?",
           "choices": [
-            "the server timer. That keeps the rule that the server decides Relevant on a timer, not on Tick.",
-            "Every client writes it so the result feels instant. That would break the rule that the server decides Relevant on a timer, not on Tick.",
-            "The widget writes it because that is what the player is looking at. That would break the rule that the server decides Relevant on a timer, not on Tick.",
-            "The constructor writes it once, and CheckAOI never fires. That would break the rule that the server decides Relevant on a timer, not on Tick."
+            "False, matching the miss",
+            "Forcing everyone to stay replicated so models never vanish",
+            "The current Speed",
+            "Whichever gun is currently equipped"
           ],
           "answer": 0,
-          "why": "the server timer"
+          "why": "The line stores the hit result, not a constant true."
         },
         {
-          "id": "fps-intermediate-aoi-s6",
-          "kind": "mc",
-          "prompt": "The server decides Relevant on a timer, not on Tick. What has to be true before Set Relevant writes?",
-          "choices": [
-            "the interest trace returns. That keeps the rule that the server decides Relevant on a timer, not on Tick.",
-            "CheckAOI has not fired and the graph is only hoping. That would break the rule that the server decides Relevant on a timer, not on Tick.",
-            "Tick has run one frame even though nothing changed. That would break the rule that the server decides Relevant on a timer, not on Tick.",
-            "fog of war has already performed this write. That would break the rule that the server decides Relevant on a timer, not on Tick."
-          ],
-          "answer": 0,
-          "why": "the interest trace returns"
-        },
-        {
-          "id": "fps-intermediate-aoi-s7",
+          "id": "fpsi-aoi-10",
           "kind": "tf",
-          "prompt": "True or false: The server decides Relevant on a timer, not on Tick. CheckAOI is the start, and the timer is the pin that continues into the write.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "CheckAOI through the timer."
-        },
-        {
-          "id": "fps-intermediate-aoi-s8",
-          "kind": "mc",
-          "prompt": "The server decides Relevant on a timer, not on Tick. Delete CheckAOI and leave the rest of the FPS — Intermediate compiled. What does the player lose?",
-          "choices": [
-            "Area of interest never starts, because nothing else fires the timer. That keeps the rule that the server decides Relevant on a timer, not on Tick.",
-            "Nothing visible, because Tick still does the work. That would break the rule that the server decides Relevant on a timer, not on Tick.",
-            "fog of war quietly takes over the job. That would break the rule that the server decides Relevant on a timer, not on Tick.",
-            "The next travel's constructor writes it. That would break the rule that the server decides Relevant on a timer, not on Tick."
-          ],
-          "answer": 0,
-          "why": "CheckAOI is the only start."
-        },
-        {
-          "id": "fps-intermediate-aoi-s9",
-          "kind": "mc",
-          "prompt": "The server decides Relevant on a timer, not on Tick. Which broken schedule is the one to refuse?",
-          "choices": [
-            "forcing Relevant true from Tick, or copying the fog Visible bit. That keeps the rule that the server decides Relevant on a timer, not on Tick.",
-            "Leaving the real work on CheckAOI. That would break the rule that the server decides Relevant on a timer, not on Tick.",
-            "Waiting until the interest trace returns before the write. That would break the rule that the server decides Relevant on a timer, not on Tick.",
-            "Keeping the server timer as the only writer. That would break the rule that the server decides Relevant on a timer, not on Tick."
-          ],
-          "answer": 0,
-          "why": "forcing Relevant true from Tick, or copying the fog Visible bit"
-        },
-        {
-          "id": "fps-intermediate-aoi-s10",
-          "kind": "mc",
-          "prompt": "The server decides Relevant on a timer, not on Tick. fog of war wants to live in this same function. What stays separate?",
-          "choices": [
-            "fog of war keeps its own event. This function only handles Relevant set from a trace on a 0.5 second timer. That keeps the rule that the server decides Relevant on a timer, not on Tick.",
-            "fog of war is inlined so one Tick serves both jobs. That would break the rule that the server decides Relevant on a timer, not on Tick.",
-            "fog of war writes the value from the client. That would break the rule that the server decides Relevant on a timer, not on Tick.",
-            "fog of war runs inside OnRep after this write. That would break the rule that the server decides Relevant on a timer, not on Tick."
-          ],
-          "answer": 0,
-          "why": "One event, one job."
-        },
-        {
-          "id": "fps-intermediate-aoi-s11",
-          "kind": "mc",
-          "prompt": "The server decides Relevant on a timer, not on Tick. A teammate also applies the write from OnRep, so the game need not wait for the server timer. What goes wrong?",
-          "choices": [
-            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that the server decides Relevant on a timer, not on Tick.",
-            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that the server decides Relevant on a timer, not on Tick.",
-            "The widget stops drawing until Tick resumes. That would break the rule that the server decides Relevant on a timer, not on Tick.",
-            "CheckAOI stops firing. That would break the rule that the server decides Relevant on a timer, not on Tick."
-          ],
-          "answer": 0,
-          "why": "OnRep shows the result."
-        },
-        {
-          "id": "fps-intermediate-aoi-s12",
-          "kind": "mc",
-          "prompt": "The server decides Relevant on a timer, not on Tick. Which gate sits immediately in front of the write?",
-          "choices": [
-            "the interest trace returns, reached from CheckAOI via the timer. That keeps the rule that the server decides Relevant on a timer, not on Tick.",
-            "A Tick frame, even when CheckAOI is idle. That would break the rule that the server decides Relevant on a timer, not on Tick.",
-            "A cast to every Blueprint that might show up. That would break the rule that the server decides Relevant on a timer, not on Tick.",
-            "A save reload, which would replay the change at the wrong moment. That would break the rule that the server decides Relevant on a timer, not on Tick."
-          ],
-          "answer": 0,
-          "why": "the interest trace returns is the gate."
+          "prompt": "True or false: a client may set Relevant so their kill still replicates.",
+          "choices": ["True", "False"],
+          "answer": 1,
+          "why": "The server decides who still matters."
         }
       ]
     },
     "ballistics": {
-      "plainEnglish": "In plain English: A shot traces once and adds heat. Wear is state on the weapon. What the function actually does is one trace per shot, then Heat increased by 0.05 on a hit. the fire action is who is allowed to do it.",
-      "whyGame": "In a real match, adding heat from Tick while the player is only aiming looks almost right and then costs a query, a desync, or a double write. the aim camera stays on its own event so this lesson does not swallow it.",
+      "plainEnglish": "One press of fire traces once. A hit adds a small step of heat. Aiming, by itself, does not warm the barrel, and wear can read that heat later.",
+      "whyGame": "Adding 0.05 heat from Tick while the player merely aims cooks the gun in a standoff. Tracing again from the anim blueprint rediscovers a target the fire event already named.",
       "expansions": [
-        {
-          "title": "Ballistics, wear, and heat listener",
-          "detail": "A follow-on in FPS — Intermediate should bind to IA_Fire after the shot trace hits. It should not poll ballistics, wear, and heat."
-        },
-        {
-          "title": "Ballistics, wear, and heat data",
-          "detail": "Numbers a designer tunes for ballistics, wear, and heat belong on a data row. one trace per shot, then Heat increased by 0.05 on a hit can read that row without a new function."
-        },
-        {
-          "title": "Ballistics, wear, and heat neighbor",
-          "detail": "the aim camera must not be implemented inside Set Heat. A shot traces once and adds heat. Wear is state on the weapon."
-        }
+        { "title": "Wear", "detail": "Wear can accumulate from Heat on the same hit. It should not have its own Tick." },
+        { "title": "Spread", "detail": "Spread can read Heat to widen the next trace. The trace still starts at IA_Fire." },
+        { "title": "Cooling", "detail": "Cooling is a timer after the last shot, not a per-frame subtract while aiming." }
       ],
       "quiz": [
         {
-          "id": "fps-intermediate-ballistics-s1",
+          "id": "fpsi-ball-1",
           "kind": "mc",
-          "prompt": "A shot traces once and adds heat. Wear is state on the weapon. When `Heat = (Heat + 0.05f); // node:tpl_ballistics_set` runs, what does the player get?",
+          "prompt": "A shot traces once and then may heat the barrel. Which action starts that trace?",
           "choices": [
-            "one trace per shot, then Heat increased by 0.05 on a hit. That keeps the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "The line adding heat from Tick while the player is only aiming. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "The constructor writes the result before a pawn exists. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "the aim camera overwrites the value on every client. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon."
+            "IA_Fire",
+            "Holding the aim button",
+            "The L2 radial",
+            "The twice-a-second interest pass"
           ],
           "answer": 0,
-          "why": "one trace per shot, then Heat increased by 0.05 on a hit"
+          "why": "Aiming is not firing."
         },
         {
-          "id": "fps-intermediate-ballistics-s2",
+          "id": "fpsi-ball-2",
           "kind": "mc",
-          "prompt": "A shot traces once and adds heat. Wear is state on the weapon. Where does Set Heat sit relative to IA_Fire?",
+          "prompt": "Heat = Heat + 0.05f runs on a hit. What does the player feel if it also runs while they only aim?",
           "choices": [
-            "Set Heat runs after the shot trace hits. IA_Fire reaches that gate through Triggered. That keeps the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "Set Heat runs before IA_Fire, so the write does not wait for the player. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "Set Heat sits on Tick while IA_Fire is idle. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "Set Heat sits in OnRep and applies the change a second time. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon."
+            "The barrel climbs during a standoff with no shot",
+            "A fair heat model",
+            "Relevant dropping",
+            "The gait snapping to 200"
           ],
           "answer": 0,
-          "why": "IA_Fire is the start."
+          "why": "Heat belongs to the shot."
         },
         {
-          "id": "fps-intermediate-ballistics-s3",
-          "kind": "tf",
-          "prompt": "True or false: A shot traces once and adds heat. Wear is state on the weapon.",
+          "id": "fpsi-ball-3",
+          "kind": "mc",
+          "prompt": "The trace hits. Which node gates the heat write?",
           "choices": [
-            "True",
-            "False"
+            "Branch on the hit bool, before Set Heat",
+            "Branch on Selected",
+            "The reload clamp",
+            "Packing a save snapshot"
           ],
           "answer": 0,
-          "why": "A shot traces once and adds heat. Wear is state on the weapon."
+          "why": "A miss does not warm the barrel in this excerpt."
         },
         {
-          "id": "fps-intermediate-ballistics-s4",
-          "kind": "tf",
-          "prompt": "True or false: A shot traces once and adds heat. Wear is state on the weapon. You keep that promise by adding heat from Tick while the player is only aiming.",
+          "id": "fpsi-ball-4",
+          "kind": "mc",
+          "prompt": "The animation blueprint traces again to decide recoil. What does it rediscover?",
           "choices": [
-            "True",
-            "False"
+            "A target the fire event already had",
+            "A cheaper answer than the fire trace",
+            "The interest bit",
+            "The save struct"
           ],
+          "answer": 0,
+          "why": "One trace per shot is the budget."
+        },
+        {
+          "id": "fpsi-ball-5",
+          "kind": "mc",
+          "prompt": "Wear is state on the weapon. What should it read instead of ticking?",
+          "choices": [
+            "Heat, after shots that hit",
+            "The gait number",
+            "The L2 layer",
+            "The fog sight bit"
+          ],
+          "answer": 0,
+          "why": "Wear follows heat. It does not poll."
+        },
+        {
+          "id": "fpsi-ball-6",
+          "kind": "mc",
+          "prompt": "A miss is fired. Does this excerpt add 0.05 heat?",
+          "choices": [
+            "No. The branch skips Set Heat",
+            "Every trigger press should warm the barrel even on a miss",
+            "Only on the client",
+            "Only if Relevant is false"
+          ],
+          "answer": 0,
+          "why": "The true pin is the hit."
+        },
+        {
+          "id": "fpsi-ball-7",
+          "kind": "tf",
+          "prompt": "True or false: IA_Fire is the start of the ballistics trace.",
+          "choices": ["True", "False"],
+          "answer": 0,
+          "why": "The function is the fire action."
+        },
+        {
+          "id": "fpsi-ball-8",
+          "kind": "tf",
+          "prompt": "True or false: aiming alone should add the same 0.05 heat as a hit.",
+          "choices": ["True", "False"],
           "answer": 1,
-          "why": "the fire action is the real writer."
+          "why": "Aim is a different action."
         },
         {
-          "id": "fps-intermediate-ballistics-s5",
+          "id": "fpsi-ball-9",
           "kind": "mc",
-          "prompt": "A shot traces once and adds heat. Wear is state on the weapon. Who may commit the change?",
+          "prompt": "Cooling the barrel by subtracting heat every frame fights which later design?",
           "choices": [
-            "the fire action. That keeps the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "Every client writes it so the result feels instant. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "The widget writes it because that is what the player is looking at. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "The constructor writes it once, and IA_Fire never fires. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon."
+            "A timer that starts after the last shot",
+            "The equip id",
+            "The use interface",
+            "The walk literal"
           ],
           "answer": 0,
-          "why": "the fire action"
+          "why": "Cooling is a clock, not a frame tax."
         },
         {
-          "id": "fps-intermediate-ballistics-s6",
-          "kind": "mc",
-          "prompt": "A shot traces once and adds heat. Wear is state on the weapon. What has to be true before Set Heat writes?",
-          "choices": [
-            "the shot trace hits. That keeps the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "IA_Fire has not fired and the graph is only hoping. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "Tick has run one frame even though nothing changed. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "the aim camera has already performed this write. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon."
-          ],
-          "answer": 0,
-          "why": "the shot trace hits"
-        },
-        {
-          "id": "fps-intermediate-ballistics-s7",
+          "id": "fpsi-ball-10",
           "kind": "tf",
-          "prompt": "True or false: A shot traces once and adds heat. Wear is state on the weapon. IA_Fire is the start, and Triggered is the pin that continues into the write.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "IA_Fire through Triggered."
-        },
-        {
-          "id": "fps-intermediate-ballistics-s8",
-          "kind": "mc",
-          "prompt": "A shot traces once and adds heat. Wear is state on the weapon. Delete IA_Fire and leave the rest of the FPS — Intermediate compiled. What does the player lose?",
-          "choices": [
-            "Ballistics, wear, and heat never starts, because nothing else fires Triggered. That keeps the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "Nothing visible, because Tick still does the work. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "the aim camera quietly takes over the job. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "The next travel's constructor writes it. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon."
-          ],
-          "answer": 0,
-          "why": "IA_Fire is the only start."
-        },
-        {
-          "id": "fps-intermediate-ballistics-s9",
-          "kind": "mc",
-          "prompt": "A shot traces once and adds heat. Wear is state on the weapon. Which broken schedule is the one to refuse?",
-          "choices": [
-            "adding heat from Tick while the player is only aiming. That keeps the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "Leaving the real work on IA_Fire. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "Waiting until the shot trace hits before the write. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "Keeping the fire action as the only writer. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon."
-          ],
-          "answer": 0,
-          "why": "adding heat from Tick while the player is only aiming"
-        },
-        {
-          "id": "fps-intermediate-ballistics-s10",
-          "kind": "mc",
-          "prompt": "A shot traces once and adds heat. Wear is state on the weapon. the aim camera wants to live in this same function. What stays separate?",
-          "choices": [
-            "the aim camera keeps its own event. This function only handles one trace per shot, then Heat increased by 0.05 on a hit. That keeps the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "the aim camera is inlined so one Tick serves both jobs. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "the aim camera writes the value from the client. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "the aim camera runs inside OnRep after this write. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon."
-          ],
-          "answer": 0,
-          "why": "One event, one job."
-        },
-        {
-          "id": "fps-intermediate-ballistics-s11",
-          "kind": "mc",
-          "prompt": "A shot traces once and adds heat. Wear is state on the weapon. A teammate also applies the write from OnRep, so the game need not wait for the fire action. What goes wrong?",
-          "choices": [
-            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "The widget stops drawing until Tick resumes. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "IA_Fire stops firing. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon."
-          ],
-          "answer": 0,
-          "why": "OnRep shows the result."
-        },
-        {
-          "id": "fps-intermediate-ballistics-s12",
-          "kind": "mc",
-          "prompt": "A shot traces once and adds heat. Wear is state on the weapon. Which gate sits immediately in front of the write?",
-          "choices": [
-            "the shot trace hits, reached from IA_Fire via Triggered. That keeps the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "A Tick frame, even when IA_Fire is idle. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "A cast to every Blueprint that might show up. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon.",
-            "A save reload, which would replay the change at the wrong moment. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon."
-          ],
-          "answer": 0,
-          "why": "the shot trace hits is the gate."
+          "prompt": "True or false: Graph_IA_Fire should run from Tick so heat stays smooth.",
+          "choices": ["True", "False"],
+          "answer": 1,
+          "why": "Fire is a press."
         }
       ]
     },
     "limbs": {
-      "plainEnglish": "In plain English: The server writes the float. A limb does not fall below 10% from a normal hit. What the function actually does is Health written only on the authority, then OnRep plays the local reaction. the authority, inside HasAuthority is who is allowed to do it.",
-      "whyGame": "In a real match, letting every client subtract Health, or subtracting again inside OnRep looks almost right and then costs a query, a desync, or a double write. the local hit reaction stays on its own event so this lesson does not swallow it.",
+      "plainEnglish": "A normal hit may hurt a limb, but the authority will not take that limb below ten percent of its max. The server writes the float. OnRep plays the limp and does not subtract again.",
+      "whyGame": "Without the floor, one unlucky hit deletes the limb and the death state never matches the design. A client that writes the limb desyncs the limp from the server.",
       "expansions": [
-        {
-          "title": "Limb medical and the 10% clamp listener",
-          "detail": "A follow-on in FPS — Intermediate should bind to Any Damage after a real damage event has arrived. It should not poll limb medical and the 10% clamp."
-        },
-        {
-          "title": "Limb medical and the 10% clamp data",
-          "detail": "Numbers a designer tunes for limb medical and the 10% clamp belong on a data row. Health written only on the authority, then OnRep plays the local reaction can read that row without a new function."
-        },
-        {
-          "title": "Limb medical and the 10% clamp neighbor",
-          "detail": "the local hit reaction must not be implemented inside Has Authority. The server writes the float. A limb does not fall below 10% from a normal hit."
-        }
+        { "title": "Bleed", "detail": "Bleed can be a timer after the limb is wounded. It still starts from the authority's number." },
+        { "title": "Splint", "detail": "A splint item can raise the limb through the same authority write, not through the widget." },
+        { "title": "Downed arm", "detail": "Below the floor you need a special hit, not a second Tick." }
       ],
       "quiz": [
         {
-          "id": "fps-intermediate-limbs-s1",
+          "id": "fpsi-limb-1",
           "kind": "mc",
-          "prompt": "The server writes the float. A limb does not fall below 10% from a normal hit. When `if (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_replicated-health_auth` runs, what does the player get?",
+          "prompt": "A normal hit must not drop a limb below ten percent. Who enforces that floor?",
           "choices": [
-            "Health written only on the authority, then OnRep plays the local reaction. That keeps the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "The line letting every client subtract Health, or subtracting again inside OnRep. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "The constructor writes the result before a pawn exists. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "the local hit reaction overwrites the value on every client. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit."
+            "The authority, when it writes the limb float",
+            "Each client, inside OnRep",
+            "The anim blueprint",
+            "The radial menu"
           ],
           "answer": 0,
-          "why": "Health written only on the authority, then OnRep plays the local reaction"
+          "why": "The server owns the float and the clamp."
         },
         {
-          "id": "fps-intermediate-limbs-s2",
+          "id": "fpsi-limb-2",
           "kind": "mc",
-          "prompt": "The server writes the float. A limb does not fall below 10% from a normal hit. Where does Has Authority sit relative to Any Damage?",
+          "prompt": "Health = 90 is the sample write after a hit that would have gone lower. What is that line protecting?",
           "choices": [
-            "Has Authority runs after a real damage event has arrived. Any Damage reaches that gate through the damage event. That keeps the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "Has Authority runs before Any Damage, so the write does not wait for the player. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "Has Authority sits on Tick while Any Damage is idle. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "Has Authority sits in OnRep and applies the change a second time. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit."
+            "The ten-percent floor on a limb whose max is 100",
+            "Sprint speed",
+            "Heat's 0.05 step",
+            "The L2 layer"
           ],
           "answer": 0,
-          "why": "Any Damage is the start."
+          "why": "90 is the floor in the sample, not a random heal."
         },
         {
-          "id": "fps-intermediate-limbs-s3",
-          "kind": "tf",
-          "prompt": "True or false: The server writes the float. A limb does not fall below 10% from a normal hit.",
+          "id": "fpsi-limb-3",
+          "kind": "mc",
+          "prompt": "OnRep plays the limp. What must it refuse to do with the limb float?",
           "choices": [
-            "True",
-            "False"
+            "Subtract the hit again",
+            "Read the value",
+            "Trigger a limp montage",
+            "Leave the number unchanged"
           ],
           "answer": 0,
-          "why": "The server writes the float. A limb does not fall below 10% from a normal hit."
+          "why": "The authority already applied the floor."
         },
         {
-          "id": "fps-intermediate-limbs-s4",
-          "kind": "tf",
-          "prompt": "True or false: The server writes the float. A limb does not fall below 10% from a normal hit. You keep that promise by letting every client subtract Health, or subtracting again inside OnRep.",
+          "id": "fpsi-limb-4",
+          "kind": "mc",
+          "prompt": "Tick writes the limb from 100 straight toward zero. What design dies?",
           "choices": [
-            "True",
-            "False"
+            "The rule that a normal hit cannot erase the limb",
+            "Motion matching",
+            "The mapping context",
+            "Whether the pawn still replicates"
           ],
+          "answer": 0,
+          "why": "Tick ignores the floor and the damage event."
+        },
+        {
+          "id": "fpsi-limb-5",
+          "kind": "mc",
+          "prompt": "A special execution is allowed to pass the floor. Where is that exception decided?",
+          "choices": [
+            "On the authority, in the damage path, not on the proxy",
+            "In the limp montage",
+            "In the client's prediction",
+            "By the fog bit"
+          ],
+          "answer": 0,
+          "why": "Exceptions are still server rules."
+        },
+        {
+          "id": "fpsi-limb-6",
+          "kind": "mc",
+          "prompt": "The HUD shows a limb at 10 while the server has 40. What likely wrote the widget's number?",
+          "choices": [
+            "The client, instead of waiting for replication",
+            "The interest pass writing into the limb bar",
+            "IA_Fire's heat line",
+            "The radial menu"
+          ],
+          "answer": 0,
+          "why": "The bar must read the replicated float."
+        },
+        {
+          "id": "fpsi-limb-7",
+          "kind": "tf",
+          "prompt": "True or false: a normal limb hit is floored by the authority, not by OnRep.",
+          "choices": ["True", "False"],
+          "answer": 0,
+          "why": "OnRep plays the result."
+        },
+        {
+          "id": "fpsi-limb-8",
+          "kind": "tf",
+          "prompt": "True or false: OnRep should clamp the limb again in case the server forgot.",
+          "choices": ["True", "False"],
           "answer": 1,
-          "why": "the authority, inside HasAuthority is the real writer."
+          "why": "A second clamp hides a server bug and can still double-apply."
         },
         {
-          "id": "fps-intermediate-limbs-s5",
+          "id": "fpsi-limb-9",
           "kind": "mc",
-          "prompt": "The server writes the float. A limb does not fall below 10% from a normal hit. Who may commit the change?",
+          "prompt": "Bleed damage over time is added. What schedule matches this lesson?",
           "choices": [
-            "the authority, inside HasAuthority. That keeps the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "Every client writes it so the result feels instant. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "The widget writes it because that is what the player is looking at. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "The constructor writes it once, and Any Damage never fires. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit."
+            "A timer the authority starts after the wound",
+            "Tick on every machine",
+            "The aim layer",
+            "Motion matching's pose clock"
           ],
           "answer": 0,
-          "why": "the authority, inside HasAuthority"
+          "why": "Another clock, still not a frame, still the server."
         },
         {
-          "id": "fps-intermediate-limbs-s6",
-          "kind": "mc",
-          "prompt": "The server writes the float. A limb does not fall below 10% from a normal hit. What has to be true before Has Authority writes?",
-          "choices": [
-            "a real damage event has arrived. That keeps the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "Any Damage has not fired and the graph is only hoping. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "Tick has run one frame even though nothing changed. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "the local hit reaction has already performed this write. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit."
-          ],
-          "answer": 0,
-          "why": "a real damage event has arrived"
-        },
-        {
-          "id": "fps-intermediate-limbs-s7",
+          "id": "fpsi-limb-10",
           "kind": "tf",
-          "prompt": "True or false: The server writes the float. A limb does not fall below 10% from a normal hit. Any Damage is the start, and the damage event is the pin that continues into the write.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "Any Damage through the damage event."
-        },
-        {
-          "id": "fps-intermediate-limbs-s8",
-          "kind": "mc",
-          "prompt": "The server writes the float. A limb does not fall below 10% from a normal hit. Delete Any Damage and leave the rest of the FPS — Intermediate compiled. What does the player lose?",
-          "choices": [
-            "Limb medical and the 10% clamp never starts, because nothing else fires the damage event. That keeps the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "Nothing visible, because Tick still does the work. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "the local hit reaction quietly takes over the job. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "The next travel's constructor writes it. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit."
-          ],
-          "answer": 0,
-          "why": "Any Damage is the only start."
-        },
-        {
-          "id": "fps-intermediate-limbs-s9",
-          "kind": "mc",
-          "prompt": "The server writes the float. A limb does not fall below 10% from a normal hit. Which broken schedule is the one to refuse?",
-          "choices": [
-            "letting every client subtract Health, or subtracting again inside OnRep. That keeps the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "Leaving the real work on Any Damage. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "Waiting until a real damage event has arrived before the write. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "Keeping the authority, inside HasAuthority as the only writer. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit."
-          ],
-          "answer": 0,
-          "why": "letting every client subtract Health, or subtracting again inside OnRep"
-        },
-        {
-          "id": "fps-intermediate-limbs-s10",
-          "kind": "mc",
-          "prompt": "The server writes the float. A limb does not fall below 10% from a normal hit. the local hit reaction wants to live in this same function. What stays separate?",
-          "choices": [
-            "the local hit reaction keeps its own event. This function only handles Health written only on the authority, then OnRep plays the local reaction. That keeps the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "the local hit reaction is inlined so one Tick serves both jobs. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "the local hit reaction writes the value from the client. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "the local hit reaction runs inside OnRep after this write. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit."
-          ],
-          "answer": 0,
-          "why": "One event, one job."
-        },
-        {
-          "id": "fps-intermediate-limbs-s11",
-          "kind": "mc",
-          "prompt": "The server writes the float. A limb does not fall below 10% from a normal hit. A teammate also applies the write from OnRep, so the game need not wait for the authority, inside HasAuthority. What goes wrong?",
-          "choices": [
-            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "The widget stops drawing until Tick resumes. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "Any Damage stops firing. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit."
-          ],
-          "answer": 0,
-          "why": "OnRep shows the result."
-        },
-        {
-          "id": "fps-intermediate-limbs-s12",
-          "kind": "mc",
-          "prompt": "The server writes the float. A limb does not fall below 10% from a normal hit. Which gate sits immediately in front of the write?",
-          "choices": [
-            "a real damage event has arrived, reached from Any Damage via the damage event. That keeps the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "A Tick frame, even when Any Damage is idle. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "A cast to every Blueprint that might show up. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit.",
-            "A save reload, which would replay the change at the wrong moment. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit."
-          ],
-          "answer": 0,
-          "why": "a real damage event has arrived is the gate."
+          "prompt": "True or false: proxies may lower a limb so the limp starts before the server replies.",
+          "choices": ["True", "False"],
+          "answer": 1,
+          "why": "They can play a guess only if they do not own the float."
         }
       ]
     },
     "inventory": {
-      "plainEnglish": "In plain English: Overlap asks the interface. The slot owns the count. What the function actually does is AddToSlot through the interface when StackCount is positive, then the count is cleared. the overlap, not the interact trace is who is allowed to do it.",
-      "whyGame": "In a real match, incrementing the stack from the use trace, which would count a look as a pickup looks almost right and then costs a query, a desync, or a double write. the use trace stays on its own event so this lesson does not swallow it.",
+      "plainEnglish": "Overlap asks AddToSlot through the interface. The slot owns the count. A use trace that also increments the stack will fill the bag by looking.",
+      "whyGame": "Intermediate kits add more item types. If each type gets its own overlap function that also knows about magazines and limbs, every new item edits three systems.",
       "expansions": [
-        {
-          "title": "Inventory slots listener",
-          "detail": "A follow-on in FPS — Intermediate should bind to Begin Overlap after StackCount is greater than zero. It should not poll inventory slots."
-        },
-        {
-          "title": "Inventory slots data",
-          "detail": "Numbers a designer tunes for inventory slots belong on a data row. AddToSlot through the interface when StackCount is positive, then the count is cleared can read that row without a new function."
-        },
-        {
-          "title": "Inventory slots neighbor",
-          "detail": "the use trace must not be implemented inside Begin Overlap. Overlap asks the interface. The slot owns the count."
-        }
+        { "title": "Armor plate", "detail": "A plate can be another slot id. Overlap still only asks." },
+        { "title": "Drop", "detail": "Drop decrements the slot on the authority and spawns a pickup. It is not a trace." },
+        { "title": "Stack cap", "detail": "The cap can live on the item row. The overlap does not hard-code it." }
       ],
       "quiz": [
         {
-          "id": "fps-intermediate-inventory-s1",
+          "id": "fpsi-inv-1",
           "kind": "mc",
-          "prompt": "Overlap asks the interface. The slot owns the count. When `void UKitComponent::Graph_OnComponentBeginOverlap_tpl_inventoryslot_overlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor)` runs, what does the player get?",
+          "prompt": "Overlap asks the interface and the slot owns the count. Which function is the ask?",
           "choices": [
-            "AddToSlot through the interface when StackCount is positive, then the count is cleared. That keeps the rule that overlap asks the interface. The slot owns the count.",
-            "The line incrementing the stack from the use trace, which would count a look as a pickup. That would break the rule that overlap asks the interface. The slot owns the count.",
-            "The constructor writes the result before a pawn exists. That would break the rule that overlap asks the interface. The slot owns the count.",
-            "the use trace overwrites the value on every client. That would break the rule that overlap asks the interface. The slot owns the count."
+            "AddToSlot, via ProcessEvent on the overlapping actor",
+            "The fire button's trace",
+            "The interest timer",
+            "Adding barrel heat"
           ],
           "answer": 0,
-          "why": "AddToSlot through the interface when StackCount is positive, then the count is cleared"
+          "why": "The interface keeps item types out of the overlap."
         },
         {
-          "id": "fps-intermediate-inventory-s2",
+          "id": "fpsi-inv-2",
           "kind": "mc",
-          "prompt": "Overlap asks the interface. The slot owns the count. Where does Begin Overlap sit relative to Begin Overlap?",
+          "prompt": "StackCount is cleared after a successful add. What bug appears if the clear happens first?",
           "choices": [
-            "Begin Overlap runs after StackCount is greater than zero. Begin Overlap reaches that gate through the overlap exec. That keeps the rule that overlap asks the interface. The slot owns the count.",
-            "Begin Overlap runs before Begin Overlap, so the write does not wait for the player. That would break the rule that overlap asks the interface. The slot owns the count.",
-            "Begin Overlap sits on Tick while Begin Overlap is idle. That would break the rule that overlap asks the interface. The slot owns the count.",
-            "Begin Overlap sits in OnRep and applies the change a second time. That would break the rule that overlap asks the interface. The slot owns the count."
+            "A refused add still destroys the offered stack",
+            "The magazine overfills",
+            "Heat jumps by 0.05",
+            "Relevant sticks true"
           ],
           "answer": 0,
-          "why": "Begin Overlap is the start."
+          "why": "Clear only after the slot accepts."
         },
         {
-          "id": "fps-intermediate-inventory-s3",
-          "kind": "tf",
-          "prompt": "True or false: Overlap asks the interface. The slot owns the count.",
+          "id": "fpsi-inv-3",
+          "kind": "mc",
+          "prompt": "The branch in front of AddToSlot checks StackCount > 0. What walks in with zero?",
           "choices": [
-            "True",
-            "False"
+            "An empty overlap that must not invent an item",
+            "A legal medkit",
+            "A full reload",
+            "A limb at ten percent"
           ],
           "answer": 0,
-          "why": "Overlap asks the interface. The slot owns the count."
+          "why": "Zero means nothing to give."
         },
         {
-          "id": "fps-intermediate-inventory-s4",
-          "kind": "tf",
-          "prompt": "True or false: Overlap asks the interface. The slot owns the count. You keep that promise by incrementing the stack from the use trace, which would count a look as a pickup.",
+          "id": "fpsi-inv-4",
+          "kind": "mc",
+          "prompt": "The use trace adds one to the stack when it hits a crate. What did the player not have to do?",
           "choices": [
-            "True",
-            "False"
+            "Walk into the crate",
+            "Press the use key",
+            "Look at the crate",
+            "Have a crosshair"
           ],
+          "answer": 0,
+          "why": "Looking is not picking up."
+        },
+        {
+          "id": "fpsi-inv-5",
+          "kind": "mc",
+          "prompt": "Plates, keys, and ammo all want this pattern. What stays out of the overlap function?",
+          "choices": [
+            "The per-item rules, which live behind AddToSlot",
+            "The overlap event itself",
+            "The positive-count branch",
+            "The actor that entered"
+          ],
+          "answer": 0,
+          "why": "The ask is generic. The slot is specific."
+        },
+        {
+          "id": "fpsi-inv-6",
+          "kind": "mc",
+          "prompt": "A full slot refuses a plate. The pickup then destroys itself. What was lost?",
+          "choices": [
+            "The plate, because a refusal is not a transfer",
+            "A refusal still counts as a successful move",
+            "Only heat",
+            "The L2 layer"
+          ],
+          "answer": 0,
+          "why": "Destroy only after success."
+        },
+        {
+          "id": "fpsi-inv-7",
+          "kind": "tf",
+          "prompt": "True or false: the inventory overlap should call AddToSlot rather than edit the count inline.",
+          "choices": ["True", "False"],
+          "answer": 0,
+          "why": "The slot owns the number."
+        },
+        {
+          "id": "fpsi-inv-8",
+          "kind": "tf",
+          "prompt": "True or false: a use-trace hit is a successful pickup in this lesson.",
+          "choices": ["True", "False"],
           "answer": 1,
-          "why": "the overlap, not the interact trace is the real writer."
+          "why": "Use is Interact. Pickup is overlap."
         },
         {
-          "id": "fps-intermediate-inventory-s5",
+          "id": "fpsi-inv-9",
           "kind": "mc",
-          "prompt": "Overlap asks the interface. The slot owns the count. Who may commit the change?",
+          "prompt": "Dropping a plate should spawn a pickup and decrement the slot. Who writes the decrement?",
           "choices": [
-            "the overlap, not the interact trace. That keeps the rule that overlap asks the interface. The slot owns the count.",
-            "Every client writes it so the result feels instant. That would break the rule that overlap asks the interface. The slot owns the count.",
-            "The widget writes it because that is what the player is looking at. That would break the rule that overlap asks the interface. The slot owns the count.",
-            "The constructor writes it once, and Begin Overlap never fires. That would break the rule that overlap asks the interface. The slot owns the count."
+            "The slot, on the authority",
+            "The new pickup actor",
+            "The client's widget",
+            "Motion matching"
           ],
           "answer": 0,
-          "why": "the overlap, not the interact trace"
+          "why": "The slot still owns the count."
         },
         {
-          "id": "fps-intermediate-inventory-s6",
-          "kind": "mc",
-          "prompt": "Overlap asks the interface. The slot owns the count. What has to be true before Begin Overlap writes?",
-          "choices": [
-            "StackCount is greater than zero. That keeps the rule that overlap asks the interface. The slot owns the count.",
-            "Begin Overlap has not fired and the graph is only hoping. That would break the rule that overlap asks the interface. The slot owns the count.",
-            "Tick has run one frame even though nothing changed. That would break the rule that overlap asks the interface. The slot owns the count.",
-            "the use trace has already performed this write. That would break the rule that overlap asks the interface. The slot owns the count."
-          ],
-          "answer": 0,
-          "why": "StackCount is greater than zero"
-        },
-        {
-          "id": "fps-intermediate-inventory-s7",
+          "id": "fpsi-inv-10",
           "kind": "tf",
-          "prompt": "True or false: Overlap asks the interface. The slot owns the count. Begin Overlap is the start, and the overlap exec is the pin that continues into the write.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "Begin Overlap through the overlap exec."
-        },
-        {
-          "id": "fps-intermediate-inventory-s8",
-          "kind": "mc",
-          "prompt": "Overlap asks the interface. The slot owns the count. Delete Begin Overlap and leave the rest of the FPS — Intermediate compiled. What does the player lose?",
-          "choices": [
-            "Inventory slots never starts, because nothing else fires the overlap exec. That keeps the rule that overlap asks the interface. The slot owns the count.",
-            "Nothing visible, because Tick still does the work. That would break the rule that overlap asks the interface. The slot owns the count.",
-            "the use trace quietly takes over the job. That would break the rule that overlap asks the interface. The slot owns the count.",
-            "The next travel's constructor writes it. That would break the rule that overlap asks the interface. The slot owns the count."
-          ],
-          "answer": 0,
-          "why": "Begin Overlap is the only start."
-        },
-        {
-          "id": "fps-intermediate-inventory-s9",
-          "kind": "mc",
-          "prompt": "Overlap asks the interface. The slot owns the count. Which broken schedule is the one to refuse?",
-          "choices": [
-            "incrementing the stack from the use trace, which would count a look as a pickup. That keeps the rule that overlap asks the interface. The slot owns the count.",
-            "Leaving the real work on Begin Overlap. That would break the rule that overlap asks the interface. The slot owns the count.",
-            "Waiting until StackCount is greater than zero before the write. That would break the rule that overlap asks the interface. The slot owns the count.",
-            "Keeping the overlap, not the interact trace as the only writer. That would break the rule that overlap asks the interface. The slot owns the count."
-          ],
-          "answer": 0,
-          "why": "incrementing the stack from the use trace, which would count a look as a pickup"
-        },
-        {
-          "id": "fps-intermediate-inventory-s10",
-          "kind": "mc",
-          "prompt": "Overlap asks the interface. The slot owns the count. the use trace wants to live in this same function. What stays separate?",
-          "choices": [
-            "the use trace keeps its own event. This function only handles AddToSlot through the interface when StackCount is positive, then the count is cleared. That keeps the rule that overlap asks the interface. The slot owns the count.",
-            "the use trace is inlined so one Tick serves both jobs. That would break the rule that overlap asks the interface. The slot owns the count.",
-            "the use trace writes the value from the client. That would break the rule that overlap asks the interface. The slot owns the count.",
-            "the use trace runs inside OnRep after this write. That would break the rule that overlap asks the interface. The slot owns the count."
-          ],
-          "answer": 0,
-          "why": "One event, one job."
-        },
-        {
-          "id": "fps-intermediate-inventory-s11",
-          "kind": "mc",
-          "prompt": "Overlap asks the interface. The slot owns the count. A teammate also applies the write from OnRep, so the game need not wait for the overlap, not the interact trace. What goes wrong?",
-          "choices": [
-            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that overlap asks the interface. The slot owns the count.",
-            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that overlap asks the interface. The slot owns the count.",
-            "The widget stops drawing until Tick resumes. That would break the rule that overlap asks the interface. The slot owns the count.",
-            "Begin Overlap stops firing. That would break the rule that overlap asks the interface. The slot owns the count."
-          ],
-          "answer": 0,
-          "why": "OnRep shows the result."
-        },
-        {
-          "id": "fps-intermediate-inventory-s12",
-          "kind": "mc",
-          "prompt": "Overlap asks the interface. The slot owns the count. Which gate sits immediately in front of the write?",
-          "choices": [
-            "StackCount is greater than zero, reached from Begin Overlap via the overlap exec. That keeps the rule that overlap asks the interface. The slot owns the count.",
-            "A Tick frame, even when Begin Overlap is idle. That would break the rule that overlap asks the interface. The slot owns the count.",
-            "A cast to every Blueprint that might show up. That would break the rule that overlap asks the interface. The slot owns the count.",
-            "A save reload, which would replay the change at the wrong moment. That would break the rule that overlap asks the interface. The slot owns the count."
-          ],
-          "answer": 0,
-          "why": "StackCount is greater than zero is the gate."
+          "prompt": "True or false: each item type needs its own overlap graph.",
+          "choices": ["True", "False"],
+          "answer": 1,
+          "why": "One ask, many slot ids."
         }
       ]
     },
     "gunsmith": {
-      "plainEnglish": "In plain English: Ten slots stay in the data asset. EquippedId is what replicates. What the function actually does is EquippedId stored on the authority so other machines build the same weapon from that id. the authority, from the equip action is who is allowed to do it.",
-      "whyGame": "In a real match, replicating every mesh, or writing EquippedId on the client outside HasAuthority looks almost right and then costs a query, a desync, or a double write. the mesh assets stays on its own event so this lesson does not swallow it.",
+      "plainEnglish": "Ten weapon definitions live in data. Equipping writes EquippedId on the authority. Everyone else builds the third-person mesh from that id.",
+      "whyGame": "A client that sets EquippedId directly pops weapons the server never granted. Replicating ten meshes every equip wastes bandwidth the id would have saved.",
       "expansions": [
-        {
-          "title": "Ten-slot gunsmith listener",
-          "detail": "A follow-on in FPS — Intermediate should bind to IA_Equip after the player picked a slot. It should not poll ten-slot gunsmith."
-        },
-        {
-          "title": "Ten-slot gunsmith data",
-          "detail": "Numbers a designer tunes for ten-slot gunsmith belong on a data row. EquippedId stored on the authority so other machines build the same weapon from that id can read that row without a new function."
-        },
-        {
-          "title": "Ten-slot gunsmith neighbor",
-          "detail": "the mesh assets must not be implemented inside Set EquippedId. Ten slots stay in the data asset. EquippedId is what replicates."
-        }
+        { "title": "Locked slot", "detail": "The authority rejects an id the inventory does not contain." },
+        { "title": "Charm", "detail": "A charm can be another id on the same row, still not a replicated mesh." },
+        { "title": "Inspect", "detail": "Inspect is a montage local to the owner. It does not change EquippedId." }
       ],
       "quiz": [
         {
-          "id": "fps-intermediate-gunsmith-s1",
+          "id": "fpsi-gsm-1",
           "kind": "mc",
-          "prompt": "Ten slots stay in the data asset. EquippedId is what replicates. When `void UKitComponent::Graph_IA_Equip_tpl_gunsmith_input() // node:tpl_gunsmith_input` runs, what does the player get?",
+          "prompt": "Ten slots stay in the data asset. What replicates when you equip one?",
           "choices": [
-            "EquippedId stored on the authority so other machines build the same weapon from that id. That keeps the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "The line replicating every mesh, or writing EquippedId on the client outside HasAuthority. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "The constructor writes the result before a pawn exists. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "the mesh assets overwrites the value on every client. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates."
+            "EquippedId",
+            "All ten skeletal meshes",
+            "The heat float only",
+            "The L2 mapping context"
           ],
           "answer": 0,
-          "why": "EquippedId stored on the authority so other machines build the same weapon from that id"
+          "why": "The id selects a local asset."
         },
         {
-          "id": "fps-intermediate-gunsmith-s2",
+          "id": "fpsi-gsm-2",
           "kind": "mc",
-          "prompt": "Ten slots stay in the data asset. EquippedId is what replicates. Where does Set EquippedId sit relative to IA_Equip?",
+          "prompt": "EquippedId = IA_Equip is outside HasAuthority in a broken sample. What do proxies show?",
           "choices": [
-            "Set EquippedId runs after the player picked a slot. IA_Equip reaches that gate through Triggered. That keeps the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "Set EquippedId runs before IA_Equip, so the write does not wait for the player. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "Set EquippedId sits on Tick while IA_Equip is idle. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "Set EquippedId sits in OnRep and applies the change a second time. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates."
+            "A weapon the server did not agree to",
+            "The correct server weapon, because clients are ignored",
+            "No pawn at all",
+            "A limb at ten percent"
           ],
           "answer": 0,
-          "why": "IA_Equip is the start."
+          "why": "The write skipped the gate."
         },
         {
-          "id": "fps-intermediate-gunsmith-s3",
-          "kind": "tf",
-          "prompt": "True or false: Ten slots stay in the data asset. EquippedId is what replicates.",
+          "id": "fpsi-gsm-3",
+          "kind": "mc",
+          "prompt": "Before the id changes, which check has to pass?",
           "choices": [
-            "True",
-            "False"
+            "HasAuthority on the owning actor",
+            "The heat branch",
+            "StackCount greater than zero",
+            "The stick greater than zero"
           ],
           "answer": 0,
-          "why": "Ten slots stay in the data asset. EquippedId is what replicates."
+          "why": "Shared id, authority write."
         },
         {
-          "id": "fps-intermediate-gunsmith-s4",
-          "kind": "tf",
-          "prompt": "True or false: Ten slots stay in the data asset. EquippedId is what replicates. You keep that promise by replicating every mesh, or writing EquippedId on the client outside HasAuthority.",
+          "id": "fpsi-gsm-4",
+          "kind": "mc",
+          "prompt": "A data row holds mesh, mag size, and damage for slot 4. A remote player receives id 4. What do they load locally?",
           "choices": [
-            "True",
-            "False"
+            "That row's meshes and numbers",
+            "A replicated copy of the designer's unsaved file",
+            "The shooter's HUD",
+            "The interest trace result"
           ],
+          "answer": 0,
+          "why": "The row is content. The id is the reference."
+        },
+        {
+          "id": "fpsi-gsm-5",
+          "kind": "mc",
+          "prompt": "Inspect plays a montage. Should it write EquippedId?",
+          "choices": [
+            "No. Inspect does not change which weapon is equipped",
+            "The inspect montage should change which gun is equipped",
+            "Inspect should clear the equipped id",
+            "Only on proxies"
+          ],
+          "answer": 0,
+          "why": "Inspect is cosmetic on the current id."
+        },
+        {
+          "id": "fpsi-gsm-6",
+          "kind": "mc",
+          "prompt": "The server rejects an id the bag does not contain. Where does that rejection live?",
+          "choices": [
+            "In the authority path, before the assignment",
+            "In the widget paint",
+            "In motion matching",
+            "In the fog timer"
+          ],
+          "answer": 0,
+          "why": "The server owns the grant."
+        },
+        {
+          "id": "fpsi-gsm-7",
+          "kind": "tf",
+          "prompt": "True or false: EquippedId is the replicated fact for a ten-slot gunsmith.",
+          "choices": ["True", "False"],
+          "answer": 0,
+          "why": "The slots stay in data."
+        },
+        {
+          "id": "fpsi-gsm-8",
+          "kind": "tf",
+          "prompt": "True or false: each of the ten meshes should replicate on every equip.",
+          "choices": ["True", "False"],
           "answer": 1,
-          "why": "the authority, from the equip action is the real writer."
+          "why": "That is the cost the id avoids."
         },
         {
-          "id": "fps-intermediate-gunsmith-s5",
+          "id": "fpsi-gsm-9",
           "kind": "mc",
-          "prompt": "Ten slots stay in the data asset. EquippedId is what replicates. Who may commit the change?",
+          "prompt": "OnRep of the id swaps the mesh. Writing a different id there would do what?",
           "choices": [
-            "the authority, from the equip action. That keeps the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "Every client writes it so the result feels instant. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "The widget writes it because that is what the player is looking at. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "The constructor writes it once, and IA_Equip never fires. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates."
+            "Fight the server's choice on the next replication",
+            "Finish the swap correctly",
+            "Move rounds from reserve into the gun",
+            "An inspect should start an interest trace"
           ],
           "answer": 0,
-          "why": "the authority, from the equip action"
+          "why": "OnRep shows the id. It does not pick a new one."
         },
         {
-          "id": "fps-intermediate-gunsmith-s6",
-          "kind": "mc",
-          "prompt": "Ten slots stay in the data asset. EquippedId is what replicates. What has to be true before Set EquippedId writes?",
-          "choices": [
-            "the player picked a slot. That keeps the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "IA_Equip has not fired and the graph is only hoping. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "Tick has run one frame even though nothing changed. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "the mesh assets has already performed this write. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates."
-          ],
-          "answer": 0,
-          "why": "the player picked a slot"
-        },
-        {
-          "id": "fps-intermediate-gunsmith-s7",
+          "id": "fpsi-gsm-10",
           "kind": "tf",
-          "prompt": "True or false: Ten slots stay in the data asset. EquippedId is what replicates. IA_Equip is the start, and Triggered is the pin that continues into the write.",
-          "choices": [
-            "True",
-            "False"
-          ],
+          "prompt": "True or false: Graph_IA_Equip is the equip request in this lesson.",
+          "choices": ["True", "False"],
           "answer": 0,
-          "why": "IA_Equip through Triggered."
-        },
-        {
-          "id": "fps-intermediate-gunsmith-s8",
-          "kind": "mc",
-          "prompt": "Ten slots stay in the data asset. EquippedId is what replicates. Delete IA_Equip and leave the rest of the FPS — Intermediate compiled. What does the player lose?",
-          "choices": [
-            "Ten-slot gunsmith never starts, because nothing else fires Triggered. That keeps the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "Nothing visible, because Tick still does the work. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "the mesh assets quietly takes over the job. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "The next travel's constructor writes it. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates."
-          ],
-          "answer": 0,
-          "why": "IA_Equip is the only start."
-        },
-        {
-          "id": "fps-intermediate-gunsmith-s9",
-          "kind": "mc",
-          "prompt": "Ten slots stay in the data asset. EquippedId is what replicates. Which broken schedule is the one to refuse?",
-          "choices": [
-            "replicating every mesh, or writing EquippedId on the client outside HasAuthority. That keeps the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "Leaving the real work on IA_Equip. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "Waiting until the player picked a slot before the write. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "Keeping the authority, from the equip action as the only writer. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates."
-          ],
-          "answer": 0,
-          "why": "replicating every mesh, or writing EquippedId on the client outside HasAuthority"
-        },
-        {
-          "id": "fps-intermediate-gunsmith-s10",
-          "kind": "mc",
-          "prompt": "Ten slots stay in the data asset. EquippedId is what replicates. the mesh assets wants to live in this same function. What stays separate?",
-          "choices": [
-            "the mesh assets keeps its own event. This function only handles EquippedId stored on the authority so other machines build the same weapon from that id. That keeps the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "the mesh assets is inlined so one Tick serves both jobs. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "the mesh assets writes the value from the client. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "the mesh assets runs inside OnRep after this write. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates."
-          ],
-          "answer": 0,
-          "why": "One event, one job."
-        },
-        {
-          "id": "fps-intermediate-gunsmith-s11",
-          "kind": "mc",
-          "prompt": "Ten slots stay in the data asset. EquippedId is what replicates. A teammate also applies the write from OnRep, so the game need not wait for the authority, from the equip action. What goes wrong?",
-          "choices": [
-            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "The widget stops drawing until Tick resumes. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "IA_Equip stops firing. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates."
-          ],
-          "answer": 0,
-          "why": "OnRep shows the result."
-        },
-        {
-          "id": "fps-intermediate-gunsmith-s12",
-          "kind": "mc",
-          "prompt": "Ten slots stay in the data asset. EquippedId is what replicates. Which gate sits immediately in front of the write?",
-          "choices": [
-            "the player picked a slot, reached from IA_Equip via Triggered. That keeps the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "A Tick frame, even when IA_Equip is idle. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "A cast to every Blueprint that might show up. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates.",
-            "A save reload, which would replay the change at the wrong moment. That would break the rule that ten slots stay in the data asset. EquippedId is what replicates."
-          ],
-          "answer": 0,
-          "why": "the player picked a slot is the gate."
+          "why": "The function is the action."
         }
       ]
     },
     "save": {
-      "plainEnglish": "In plain English: Begin Play loads one struct. Tick does not write it. What the function actually does is one struct loaded at Begin Play, written earlier by an event rather than by Tick. Begin Play for the load, and a finished event for the save is who is allowed to do it.",
-      "whyGame": "In a real match, assigning SlotValue from Tick every frame, including while a value is still changing looks almost right and then costs a query, a desync, or a double write. Tick stays on its own event so this lesson does not swallow it.",
+      "plainEnglish": "Begin Play loads one struct: the kit you actually saved. Tick does not write that struct, and loading does not replay every shot that produced the numbers.",
+      "whyGame": "A Tick save catches heat mid-climb and a limb mid-bleed. A constructor load runs before the component can apply EquippedId, Health, and ammo.",
       "expansions": [
-        {
-          "title": "Save the kit listener",
-          "detail": "A follow-on in FPS — Intermediate should bind to Begin Play after the slot struct already exists. It should not poll save the kit."
-        },
-        {
-          "title": "Save the kit data",
-          "detail": "Numbers a designer tunes for save the kit belong on a data row. one struct loaded at Begin Play, written earlier by an event rather than by Tick can read that row without a new function."
-        },
-        {
-          "title": "Save the kit neighbor",
-          "detail": "Tick must not be implemented inside Begin Play. Begin Play loads one struct. Tick does not write it."
-        }
+        { "title": "Checkpoint", "detail": "The volume calls the same struct write as the menu." },
+        { "title": "Continue", "detail": "Continue is that Begin Play load." },
+        { "title": "Wipe", "detail": "Wipe deletes the slot object. It does not Tick the fields to zero." }
       ],
       "quiz": [
         {
-          "id": "fps-intermediate-save-s1",
+          "id": "fpsi-save-1",
           "kind": "mc",
-          "prompt": "Begin Play loads one struct. Tick does not write it. When `void UKitComponent::Graph_BeginPlay_tpl_saveload_begin() // node:tpl_save-load_begin` runs, what does the player get?",
+          "prompt": "Begin Play loads one struct. Which fields belong in it for this kit?",
           "choices": [
-            "one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that begin Play loads one struct. Tick does not write it.",
-            "The line assigning SlotValue from Tick every frame, including while a value is still changing. That would break the rule that begin Play loads one struct. Tick does not write it.",
-            "The constructor writes the result before a pawn exists. That would break the rule that begin Play loads one struct. Tick does not write it.",
-            "Tick overwrites the value on every client. That would break the rule that begin Play loads one struct. Tick does not write it."
+            "Health or limbs, heat, ammo, and the equipped id",
+            "The current bone poses",
+            "The L2 button hardware id",
+            "Whether Tick ran last frame"
           ],
           "answer": 0,
-          "why": "one struct loaded at Begin Play, written earlier by an event rather than by Tick"
+          "why": "Save the facts the other lessons own. Not the pose."
         },
         {
-          "id": "fps-intermediate-save-s2",
+          "id": "fpsi-save-2",
           "kind": "mc",
-          "prompt": "Begin Play loads one struct. Tick does not write it. Where does Begin Play sit relative to Begin Play?",
+          "prompt": "Graph_BeginPlay_tpl_saveload_begin applies the slot. What should it not resimulate?",
           "choices": [
-            "Begin Play runs after the slot struct already exists. Begin Play reaches that gate through Begin Play. That keeps the rule that begin Play loads one struct. Tick does not write it.",
-            "Begin Play runs before Begin Play, so the write does not wait for the player. That would break the rule that begin Play loads one struct. Tick does not write it.",
-            "Begin Play sits on Tick while Begin Play is idle. That would break the rule that begin Play loads one struct. Tick does not write it.",
-            "Begin Play sits in OnRep and applies the change a second time. That would break the rule that begin Play loads one struct. Tick does not write it."
+            "Every shot that produced the saved heat",
+            "The equipped id",
+            "The magazine count",
+            "The limb float"
           ],
           "answer": 0,
-          "why": "Begin Play is the start."
+          "why": "Load applies results."
         },
         {
-          "id": "fps-intermediate-save-s3",
-          "kind": "tf",
-          "prompt": "True or false: Begin Play loads one struct. Tick does not write it.",
+          "id": "fpsi-save-3",
+          "kind": "mc",
+          "prompt": "Make Struct then Set SlotValue. What is the Set doing?",
           "choices": [
-            "True",
-            "False"
+            "Storing the packed snapshot on the slot",
+            "Tracing for relevance",
+            "Adding 0.05 heat",
+            "Pushing an input layer"
           ],
           "answer": 0,
-          "why": "Begin Play loads one struct. Tick does not write it."
+          "why": "The struct is the snapshot. Set keeps it."
         },
         {
-          "id": "fps-intermediate-save-s4",
-          "kind": "tf",
-          "prompt": "True or false: Begin Play loads one struct. Tick does not write it. You keep that promise by assigning SlotValue from Tick every frame, including while a value is still changing.",
+          "id": "fpsi-save-4",
+          "kind": "mc",
+          "prompt": "Tick writes the slot from the live limb. Why is that a bad checkpoint?",
           "choices": [
-            "True",
-            "False"
+            "The limb may still be bleeding, so the snapshot is unfinished",
+            "Tick cannot write floats",
+            "Begin Play will ignore structs",
+            "Heat cannot be saved any other way"
           ],
+          "answer": 0,
+          "why": "Save a finished event."
+        },
+        {
+          "id": "fpsi-save-5",
+          "kind": "mc",
+          "prompt": "Loading during the constructor misses EquippedId. Why?",
+          "choices": [
+            "The component that applies the id is not ready yet",
+            "Constructors are server-only and saves are client-only",
+            "Ids cannot be stored in structs",
+            "Motion matching clears ids"
+          ],
+          "answer": 0,
+          "why": "Begin Play is late enough."
+        },
+        {
+          "id": "fpsi-save-6",
+          "kind": "mc",
+          "prompt": "The pause menu and a checkpoint both save. How do they avoid two shapes?",
+          "choices": [
+            "They call one writer",
+            "They each Tick a private float",
+            "They replicate their widgets",
+            "They store the anim pose"
+          ],
+          "answer": 0,
+          "why": "One struct."
+        },
+        {
+          "id": "fpsi-save-7",
+          "kind": "tf",
+          "prompt": "True or false: this lesson's load runs from Begin Play, not from Tick.",
+          "choices": ["True", "False"],
+          "answer": 0,
+          "why": "Begin Play applies the slot."
+        },
+        {
+          "id": "fpsi-save-8",
+          "kind": "tf",
+          "prompt": "True or false: the saved pose of the motion-matching graph belongs in the same struct as the equipped id.",
+          "choices": ["True", "False"],
           "answer": 1,
-          "why": "Begin Play for the load, and a finished event for the save is the real writer."
+          "why": "The pose is derived. The id is a fact."
         },
         {
-          "id": "fps-intermediate-save-s5",
+          "id": "fpsi-save-9",
           "kind": "mc",
-          "prompt": "Begin Play loads one struct. Tick does not write it. Who may commit the change?",
+          "prompt": "Continue should restore a limb at 40, not replay the hit that made it 40. Which path is that?",
           "choices": [
-            "Begin Play for the load, and a finished event for the save. That keeps the rule that begin Play loads one struct. Tick does not write it.",
-            "Every client writes it so the result feels instant. That would break the rule that begin Play loads one struct. Tick does not write it.",
-            "The widget writes it because that is what the player is looking at. That would break the rule that begin Play loads one struct. Tick does not write it.",
-            "The constructor writes it once, and Begin Play never fires. That would break the rule that begin Play loads one struct. Tick does not write it."
+            "Apply the float from the struct",
+            "Fire Any Damage with the original amount",
+            "Run OnRep as if it were the authority",
+            "Add 0.05 heat until the numbers match"
           ],
           "answer": 0,
-          "why": "Begin Play for the load, and a finished event for the save"
+          "why": "The result is the save."
         },
         {
-          "id": "fps-intermediate-save-s6",
-          "kind": "mc",
-          "prompt": "Begin Play loads one struct. Tick does not write it. What has to be true before Begin Play writes?",
-          "choices": [
-            "the slot struct already exists. That keeps the rule that begin Play loads one struct. Tick does not write it.",
-            "Begin Play has not fired and the graph is only hoping. That would break the rule that begin Play loads one struct. Tick does not write it.",
-            "Tick has run one frame even though nothing changed. That would break the rule that begin Play loads one struct. Tick does not write it.",
-            "Tick has already performed this write. That would break the rule that begin Play loads one struct. Tick does not write it."
-          ],
-          "answer": 0,
-          "why": "the slot struct already exists"
-        },
-        {
-          "id": "fps-intermediate-save-s7",
+          "id": "fpsi-save-10",
           "kind": "tf",
-          "prompt": "True or false: Begin Play loads one struct. Tick does not write it. Begin Play is the start, and Begin Play is the pin that continues into the write.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "Begin Play through Begin Play."
-        },
-        {
-          "id": "fps-intermediate-save-s8",
-          "kind": "mc",
-          "prompt": "Begin Play loads one struct. Tick does not write it. Delete Begin Play and leave the rest of the FPS — Intermediate compiled. What does the player lose?",
-          "choices": [
-            "Save the kit never starts, because nothing else fires Begin Play. That keeps the rule that begin Play loads one struct. Tick does not write it.",
-            "Nothing visible, because Tick still does the work. That would break the rule that begin Play loads one struct. Tick does not write it.",
-            "Tick quietly takes over the job. That would break the rule that begin Play loads one struct. Tick does not write it.",
-            "The next travel's constructor writes it. That would break the rule that begin Play loads one struct. Tick does not write it."
-          ],
-          "answer": 0,
-          "why": "Begin Play is the only start."
-        },
-        {
-          "id": "fps-intermediate-save-s9",
-          "kind": "mc",
-          "prompt": "Begin Play loads one struct. Tick does not write it. Which broken schedule is the one to refuse?",
-          "choices": [
-            "assigning SlotValue from Tick every frame, including while a value is still changing. That keeps the rule that begin Play loads one struct. Tick does not write it.",
-            "Leaving the real work on Begin Play. That would break the rule that begin Play loads one struct. Tick does not write it.",
-            "Waiting until the slot struct already exists before the write. That would break the rule that begin Play loads one struct. Tick does not write it.",
-            "Keeping Begin Play for the load, and a finished event for the save as the only writer. That would break the rule that begin Play loads one struct. Tick does not write it."
-          ],
-          "answer": 0,
-          "why": "assigning SlotValue from Tick every frame, including while a value is still changing"
-        },
-        {
-          "id": "fps-intermediate-save-s10",
-          "kind": "mc",
-          "prompt": "Begin Play loads one struct. Tick does not write it. Tick wants to live in this same function. What stays separate?",
-          "choices": [
-            "Tick keeps its own event. This function only handles one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that begin Play loads one struct. Tick does not write it.",
-            "Tick is inlined so one Tick serves both jobs. That would break the rule that begin Play loads one struct. Tick does not write it.",
-            "Tick writes the value from the client. That would break the rule that begin Play loads one struct. Tick does not write it.",
-            "Tick runs inside OnRep after this write. That would break the rule that begin Play loads one struct. Tick does not write it."
-          ],
-          "answer": 0,
-          "why": "One event, one job."
-        },
-        {
-          "id": "fps-intermediate-save-s11",
-          "kind": "mc",
-          "prompt": "Begin Play loads one struct. Tick does not write it. A teammate also applies the write from OnRep, so the game need not wait for Begin Play for the load, and a finished event for the save. What goes wrong?",
-          "choices": [
-            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that begin Play loads one struct. Tick does not write it.",
-            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that begin Play loads one struct. Tick does not write it.",
-            "The widget stops drawing until Tick resumes. That would break the rule that begin Play loads one struct. Tick does not write it.",
-            "Begin Play stops firing. That would break the rule that begin Play loads one struct. Tick does not write it."
-          ],
-          "answer": 0,
-          "why": "OnRep shows the result."
-        },
-        {
-          "id": "fps-intermediate-save-s12",
-          "kind": "mc",
-          "prompt": "Begin Play loads one struct. Tick does not write it. Which gate sits immediately in front of the write?",
-          "choices": [
-            "the slot struct already exists, reached from Begin Play via Begin Play. That keeps the rule that begin Play loads one struct. Tick does not write it.",
-            "A Tick frame, even when Begin Play is idle. That would break the rule that begin Play loads one struct. Tick does not write it.",
-            "A cast to every Blueprint that might show up. That would break the rule that begin Play loads one struct. Tick does not write it.",
-            "A save reload, which would replay the change at the wrong moment. That would break the rule that begin Play loads one struct. Tick does not write it."
-          ],
-          "answer": 0,
-          "why": "the slot struct already exists is the gate."
+          "prompt": "True or false: SlotValue written from Tick is a finished checkpoint.",
+          "choices": ["True", "False"],
+          "answer": 1,
+          "why": "Tick does not know that an event finished."
         }
       ]
     }
   },
-  "exam": [
-    {
-      "id": "study-fps-intermediate-exam-0",
-      "kind": "tf",
-      "prompt": "True or false: The L2 layer remaps the button. The graph still starts at the action. Motion matching reads the gait. The graph only writes Speed. That pair of rules also means gasp movement may writing Speed from Tick so the gait updates even in a menu.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 1,
-      "why": "L2 input and radial menus does not give GASP movement permission to writing Speed from Tick so the gait updates even in a menu."
-    },
-    {
-      "id": "study-fps-intermediate-exam-1",
-      "kind": "tf",
-      "prompt": "True or false: The L2 layer remaps the button. The graph still starts at the action. The server decides Relevant on a timer, not on Tick. L2 input and radial menus still starts at IA_Interact after the player has learned area of interest.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 0,
-      "why": "IA_Interact remains the start of L2 input and radial menus."
-    },
-    {
-      "id": "study-fps-intermediate-exam-2",
-      "kind": "mc",
-      "prompt": "The L2 layer remaps the button. The graph still starts at the action. A shot traces once and adds heat. Wear is state on the weapon. A prototype runs both jobs from IA_Fire. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "L2 input and radial menus keeps IA_Interact so it can a line trace from the aim, then Interact on the actor that was hit. Ballistics, wear, and heat keeps IA_Fire so it can one trace per shot, then Heat increased by 0.05 on a hit. That keeps the rule that the L2 layer remaps the button. The graph still starts at the action. A shot traces once and adds heat. Wear is state on the weapon.",
-        "Fold the first job into IA_Fire so the exam build has one event. That would break the rule that the L2 layer remaps the button. The graph still starts at the action. A shot traces once and adds heat. Wear is state on the weapon.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that the L2 layer remaps the button. The graph still starts at the action. A shot traces once and adds heat. Wear is state on the weapon.",
-        "Let each client apply both writes before the authority answers. That would break the rule that the L2 layer remaps the button. The graph still starts at the action. A shot traces once and adds heat. Wear is state on the weapon."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-3",
-      "kind": "mc",
-      "prompt": "The L2 layer remaps the button. The graph still starts at the action. The server writes the float. A limb does not fall below 10% from a normal hit. A prototype runs both jobs from Any Damage. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "L2 input and radial menus keeps IA_Interact so it can a line trace from the aim, then Interact on the actor that was hit. Limb medical and the 10% clamp keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. That keeps the rule that the L2 layer remaps the button. The graph still starts at the action. The server writes the float. A limb does not fall below 10% from a normal hit.",
-        "Fold the first job into Any Damage so the exam build has one event. That would break the rule that the L2 layer remaps the button. The graph still starts at the action. The server writes the float. A limb does not fall below 10% from a normal hit.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that the L2 layer remaps the button. The graph still starts at the action. The server writes the float. A limb does not fall below 10% from a normal hit.",
-        "Let each client apply both writes before the authority answers. That would break the rule that the L2 layer remaps the button. The graph still starts at the action. The server writes the float. A limb does not fall below 10% from a normal hit."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-4",
-      "kind": "mc",
-      "prompt": "The L2 layer remaps the button. The graph still starts at the action. Overlap asks the interface. The slot owns the count. A prototype runs both jobs from Begin Overlap. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "L2 input and radial menus keeps IA_Interact so it can a line trace from the aim, then Interact on the actor that was hit. Inventory slots keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. That keeps the rule that the L2 layer remaps the button. The graph still starts at the action. Overlap asks the interface. The slot owns the count.",
-        "Fold the first job into Begin Overlap so the exam build has one event. That would break the rule that the L2 layer remaps the button. The graph still starts at the action. Overlap asks the interface. The slot owns the count.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that the L2 layer remaps the button. The graph still starts at the action. Overlap asks the interface. The slot owns the count.",
-        "Let each client apply both writes before the authority answers. That would break the rule that the L2 layer remaps the button. The graph still starts at the action. Overlap asks the interface. The slot owns the count."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-5",
-      "kind": "mc",
-      "prompt": "The L2 layer remaps the button. The graph still starts at the action. Ten slots stay in the data asset. EquippedId is what replicates. A prototype runs both jobs from IA_Equip. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "L2 input and radial menus keeps IA_Interact so it can a line trace from the aim, then Interact on the actor that was hit. Ten-slot gunsmith keeps IA_Equip so it can EquippedId stored on the authority so other machines build the same weapon from that id. That keeps the rule that the L2 layer remaps the button. The graph still starts at the action. Ten slots stay in the data asset. EquippedId is what replicates.",
-        "Fold the first job into IA_Equip so the exam build has one event. That would break the rule that the L2 layer remaps the button. The graph still starts at the action. Ten slots stay in the data asset. EquippedId is what replicates.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that the L2 layer remaps the button. The graph still starts at the action. Ten slots stay in the data asset. EquippedId is what replicates.",
-        "Let each client apply both writes before the authority answers. That would break the rule that the L2 layer remaps the button. The graph still starts at the action. Ten slots stay in the data asset. EquippedId is what replicates."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-6",
-      "kind": "mc",
-      "prompt": "The L2 layer remaps the button. The graph still starts at the action. Begin Play loads one struct. Tick does not write it. A prototype runs both jobs from Begin Play. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "L2 input and radial menus keeps IA_Interact so it can a line trace from the aim, then Interact on the actor that was hit. Save the kit keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that the L2 layer remaps the button. The graph still starts at the action. Begin Play loads one struct. Tick does not write it.",
-        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that the L2 layer remaps the button. The graph still starts at the action. Begin Play loads one struct. Tick does not write it.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that the L2 layer remaps the button. The graph still starts at the action. Begin Play loads one struct. Tick does not write it.",
-        "Let each client apply both writes before the authority answers. That would break the rule that the L2 layer remaps the button. The graph still starts at the action. Begin Play loads one struct. Tick does not write it."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-7",
-      "kind": "tf",
-      "prompt": "True or false: Motion matching reads the gait. The graph only writes Speed. The L2 layer remaps the button. The graph still starts at the action. That pair of rules also means l2 input and radial menus may tracing on Tick so a prompt stays fresh while the player stands still.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 1,
-      "why": "GASP movement does not give L2 input and radial menus permission to tracing on Tick so a prompt stays fresh while the player stands still."
-    },
-    {
-      "id": "study-fps-intermediate-exam-8",
-      "kind": "tf",
-      "prompt": "True or false: Motion matching reads the gait. The graph only writes Speed. The server decides Relevant on a timer, not on Tick. GASP movement still starts at IA_Move after the player has learned area of interest.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 0,
-      "why": "IA_Move remains the start of GASP movement."
-    },
-    {
-      "id": "study-fps-intermediate-exam-9",
-      "kind": "mc",
-      "prompt": "Motion matching reads the gait. The graph only writes Speed. A shot traces once and adds heat. Wear is state on the weapon. A prototype runs both jobs from IA_Fire. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "GASP movement keeps IA_Move so it can Speed set to 600 while the axis is pushed, or 200 when it is released. Ballistics, wear, and heat keeps IA_Fire so it can one trace per shot, then Heat increased by 0.05 on a hit. That keeps the rule that motion matching reads the gait. The graph only writes Speed. A shot traces once and adds heat. Wear is state on the weapon.",
-        "Fold the first job into IA_Fire so the exam build has one event. That would break the rule that motion matching reads the gait. The graph only writes Speed. A shot traces once and adds heat. Wear is state on the weapon.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that motion matching reads the gait. The graph only writes Speed. A shot traces once and adds heat. Wear is state on the weapon.",
-        "Let each client apply both writes before the authority answers. That would break the rule that motion matching reads the gait. The graph only writes Speed. A shot traces once and adds heat. Wear is state on the weapon."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-10",
-      "kind": "mc",
-      "prompt": "Motion matching reads the gait. The graph only writes Speed. The server writes the float. A limb does not fall below 10% from a normal hit. A prototype runs both jobs from Any Damage. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "GASP movement keeps IA_Move so it can Speed set to 600 while the axis is pushed, or 200 when it is released. Limb medical and the 10% clamp keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. That keeps the rule that motion matching reads the gait. The graph only writes Speed. The server writes the float. A limb does not fall below 10% from a normal hit.",
-        "Fold the first job into Any Damage so the exam build has one event. That would break the rule that motion matching reads the gait. The graph only writes Speed. The server writes the float. A limb does not fall below 10% from a normal hit.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that motion matching reads the gait. The graph only writes Speed. The server writes the float. A limb does not fall below 10% from a normal hit.",
-        "Let each client apply both writes before the authority answers. That would break the rule that motion matching reads the gait. The graph only writes Speed. The server writes the float. A limb does not fall below 10% from a normal hit."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-11",
-      "kind": "mc",
-      "prompt": "Motion matching reads the gait. The graph only writes Speed. Overlap asks the interface. The slot owns the count. A prototype runs both jobs from Begin Overlap. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "GASP movement keeps IA_Move so it can Speed set to 600 while the axis is pushed, or 200 when it is released. Inventory slots keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. That keeps the rule that motion matching reads the gait. The graph only writes Speed. Overlap asks the interface. The slot owns the count.",
-        "Fold the first job into Begin Overlap so the exam build has one event. That would break the rule that motion matching reads the gait. The graph only writes Speed. Overlap asks the interface. The slot owns the count.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that motion matching reads the gait. The graph only writes Speed. Overlap asks the interface. The slot owns the count.",
-        "Let each client apply both writes before the authority answers. That would break the rule that motion matching reads the gait. The graph only writes Speed. Overlap asks the interface. The slot owns the count."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-12",
-      "kind": "mc",
-      "prompt": "Motion matching reads the gait. The graph only writes Speed. Ten slots stay in the data asset. EquippedId is what replicates. A prototype runs both jobs from IA_Equip. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "GASP movement keeps IA_Move so it can Speed set to 600 while the axis is pushed, or 200 when it is released. Ten-slot gunsmith keeps IA_Equip so it can EquippedId stored on the authority so other machines build the same weapon from that id. That keeps the rule that motion matching reads the gait. The graph only writes Speed. Ten slots stay in the data asset. EquippedId is what replicates.",
-        "Fold the first job into IA_Equip so the exam build has one event. That would break the rule that motion matching reads the gait. The graph only writes Speed. Ten slots stay in the data asset. EquippedId is what replicates.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that motion matching reads the gait. The graph only writes Speed. Ten slots stay in the data asset. EquippedId is what replicates.",
-        "Let each client apply both writes before the authority answers. That would break the rule that motion matching reads the gait. The graph only writes Speed. Ten slots stay in the data asset. EquippedId is what replicates."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-13",
-      "kind": "mc",
-      "prompt": "Motion matching reads the gait. The graph only writes Speed. Begin Play loads one struct. Tick does not write it. A prototype runs both jobs from Begin Play. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "GASP movement keeps IA_Move so it can Speed set to 600 while the axis is pushed, or 200 when it is released. Save the kit keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that motion matching reads the gait. The graph only writes Speed. Begin Play loads one struct. Tick does not write it.",
-        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that motion matching reads the gait. The graph only writes Speed. Begin Play loads one struct. Tick does not write it.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that motion matching reads the gait. The graph only writes Speed. Begin Play loads one struct. Tick does not write it.",
-        "Let each client apply both writes before the authority answers. That would break the rule that motion matching reads the gait. The graph only writes Speed. Begin Play loads one struct. Tick does not write it."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-14",
-      "kind": "tf",
-      "prompt": "True or false: The server decides Relevant on a timer, not on Tick. The L2 layer remaps the button. The graph still starts at the action. That pair of rules also means l2 input and radial menus may tracing on Tick so a prompt stays fresh while the player stands still.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 1,
-      "why": "Area of interest does not give L2 input and radial menus permission to tracing on Tick so a prompt stays fresh while the player stands still."
-    },
-    {
-      "id": "study-fps-intermediate-exam-15",
-      "kind": "tf",
-      "prompt": "True or false: The server decides Relevant on a timer, not on Tick. Motion matching reads the gait. The graph only writes Speed. Area of interest still starts at CheckAOI after the player has learned gasp movement.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 0,
-      "why": "CheckAOI remains the start of Area of interest."
-    },
-    {
-      "id": "study-fps-intermediate-exam-16",
-      "kind": "mc",
-      "prompt": "The server decides Relevant on a timer, not on Tick. A shot traces once and adds heat. Wear is state on the weapon. A prototype runs both jobs from IA_Fire. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "Area of interest keeps CheckAOI so it can Relevant set from a trace on a 0.5 second timer. Ballistics, wear, and heat keeps IA_Fire so it can one trace per shot, then Heat increased by 0.05 on a hit. That keeps the rule that the server decides Relevant on a timer, not on Tick. A shot traces once and adds heat. Wear is state on the weapon.",
-        "Fold the first job into IA_Fire so the exam build has one event. That would break the rule that the server decides Relevant on a timer, not on Tick. A shot traces once and adds heat. Wear is state on the weapon.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that the server decides Relevant on a timer, not on Tick. A shot traces once and adds heat. Wear is state on the weapon.",
-        "Let each client apply both writes before the authority answers. That would break the rule that the server decides Relevant on a timer, not on Tick. A shot traces once and adds heat. Wear is state on the weapon."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-17",
-      "kind": "mc",
-      "prompt": "The server decides Relevant on a timer, not on Tick. The server writes the float. A limb does not fall below 10% from a normal hit. A prototype runs both jobs from Any Damage. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "Area of interest keeps CheckAOI so it can Relevant set from a trace on a 0.5 second timer. Limb medical and the 10% clamp keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. That keeps the rule that the server decides Relevant on a timer, not on Tick. The server writes the float. A limb does not fall below 10% from a normal hit.",
-        "Fold the first job into Any Damage so the exam build has one event. That would break the rule that the server decides Relevant on a timer, not on Tick. The server writes the float. A limb does not fall below 10% from a normal hit.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that the server decides Relevant on a timer, not on Tick. The server writes the float. A limb does not fall below 10% from a normal hit.",
-        "Let each client apply both writes before the authority answers. That would break the rule that the server decides Relevant on a timer, not on Tick. The server writes the float. A limb does not fall below 10% from a normal hit."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-18",
-      "kind": "mc",
-      "prompt": "The server decides Relevant on a timer, not on Tick. Overlap asks the interface. The slot owns the count. A prototype runs both jobs from Begin Overlap. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "Area of interest keeps CheckAOI so it can Relevant set from a trace on a 0.5 second timer. Inventory slots keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. That keeps the rule that the server decides Relevant on a timer, not on Tick. Overlap asks the interface. The slot owns the count.",
-        "Fold the first job into Begin Overlap so the exam build has one event. That would break the rule that the server decides Relevant on a timer, not on Tick. Overlap asks the interface. The slot owns the count.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that the server decides Relevant on a timer, not on Tick. Overlap asks the interface. The slot owns the count.",
-        "Let each client apply both writes before the authority answers. That would break the rule that the server decides Relevant on a timer, not on Tick. Overlap asks the interface. The slot owns the count."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-19",
-      "kind": "mc",
-      "prompt": "The server decides Relevant on a timer, not on Tick. Ten slots stay in the data asset. EquippedId is what replicates. A prototype runs both jobs from IA_Equip. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "Area of interest keeps CheckAOI so it can Relevant set from a trace on a 0.5 second timer. Ten-slot gunsmith keeps IA_Equip so it can EquippedId stored on the authority so other machines build the same weapon from that id. That keeps the rule that the server decides Relevant on a timer, not on Tick. Ten slots stay in the data asset. EquippedId is what replicates.",
-        "Fold the first job into IA_Equip so the exam build has one event. That would break the rule that the server decides Relevant on a timer, not on Tick. Ten slots stay in the data asset. EquippedId is what replicates.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that the server decides Relevant on a timer, not on Tick. Ten slots stay in the data asset. EquippedId is what replicates.",
-        "Let each client apply both writes before the authority answers. That would break the rule that the server decides Relevant on a timer, not on Tick. Ten slots stay in the data asset. EquippedId is what replicates."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-20",
-      "kind": "mc",
-      "prompt": "The server decides Relevant on a timer, not on Tick. Begin Play loads one struct. Tick does not write it. A prototype runs both jobs from Begin Play. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "Area of interest keeps CheckAOI so it can Relevant set from a trace on a 0.5 second timer. Save the kit keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that the server decides Relevant on a timer, not on Tick. Begin Play loads one struct. Tick does not write it.",
-        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that the server decides Relevant on a timer, not on Tick. Begin Play loads one struct. Tick does not write it.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that the server decides Relevant on a timer, not on Tick. Begin Play loads one struct. Tick does not write it.",
-        "Let each client apply both writes before the authority answers. That would break the rule that the server decides Relevant on a timer, not on Tick. Begin Play loads one struct. Tick does not write it."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-21",
-      "kind": "tf",
-      "prompt": "True or false: A shot traces once and adds heat. Wear is state on the weapon. The L2 layer remaps the button. The graph still starts at the action. That pair of rules also means l2 input and radial menus may tracing on Tick so a prompt stays fresh while the player stands still.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 1,
-      "why": "Ballistics, wear, and heat does not give L2 input and radial menus permission to tracing on Tick so a prompt stays fresh while the player stands still."
-    },
-    {
-      "id": "study-fps-intermediate-exam-22",
-      "kind": "tf",
-      "prompt": "True or false: A shot traces once and adds heat. Wear is state on the weapon. Motion matching reads the gait. The graph only writes Speed. Ballistics, wear, and heat still starts at IA_Fire after the player has learned gasp movement.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 0,
-      "why": "IA_Fire remains the start of Ballistics, wear, and heat."
-    },
-    {
-      "id": "study-fps-intermediate-exam-23",
-      "kind": "mc",
-      "prompt": "A shot traces once and adds heat. Wear is state on the weapon. The server decides Relevant on a timer, not on Tick. A prototype runs both jobs from CheckAOI. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "Ballistics, wear, and heat keeps IA_Fire so it can one trace per shot, then Heat increased by 0.05 on a hit. Area of interest keeps CheckAOI so it can Relevant set from a trace on a 0.5 second timer. That keeps the rule that a shot traces once and adds heat. Wear is state on the weapon. The server decides Relevant on a timer, not on Tick.",
-        "Fold the first job into CheckAOI so the exam build has one event. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon. The server decides Relevant on a timer, not on Tick.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon. The server decides Relevant on a timer, not on Tick.",
-        "Let each client apply both writes before the authority answers. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon. The server decides Relevant on a timer, not on Tick."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-24",
-      "kind": "mc",
-      "prompt": "A shot traces once and adds heat. Wear is state on the weapon. The server writes the float. A limb does not fall below 10% from a normal hit. A prototype runs both jobs from Any Damage. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "Ballistics, wear, and heat keeps IA_Fire so it can one trace per shot, then Heat increased by 0.05 on a hit. Limb medical and the 10% clamp keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. That keeps the rule that a shot traces once and adds heat. Wear is state on the weapon. The server writes the float. A limb does not fall below 10% from a normal hit.",
-        "Fold the first job into Any Damage so the exam build has one event. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon. The server writes the float. A limb does not fall below 10% from a normal hit.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon. The server writes the float. A limb does not fall below 10% from a normal hit.",
-        "Let each client apply both writes before the authority answers. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon. The server writes the float. A limb does not fall below 10% from a normal hit."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-25",
-      "kind": "mc",
-      "prompt": "A shot traces once and adds heat. Wear is state on the weapon. Overlap asks the interface. The slot owns the count. A prototype runs both jobs from Begin Overlap. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "Ballistics, wear, and heat keeps IA_Fire so it can one trace per shot, then Heat increased by 0.05 on a hit. Inventory slots keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. That keeps the rule that a shot traces once and adds heat. Wear is state on the weapon. Overlap asks the interface. The slot owns the count.",
-        "Fold the first job into Begin Overlap so the exam build has one event. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon. Overlap asks the interface. The slot owns the count.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon. Overlap asks the interface. The slot owns the count.",
-        "Let each client apply both writes before the authority answers. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon. Overlap asks the interface. The slot owns the count."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-26",
-      "kind": "mc",
-      "prompt": "A shot traces once and adds heat. Wear is state on the weapon. Ten slots stay in the data asset. EquippedId is what replicates. A prototype runs both jobs from IA_Equip. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "Ballistics, wear, and heat keeps IA_Fire so it can one trace per shot, then Heat increased by 0.05 on a hit. Ten-slot gunsmith keeps IA_Equip so it can EquippedId stored on the authority so other machines build the same weapon from that id. That keeps the rule that a shot traces once and adds heat. Wear is state on the weapon. Ten slots stay in the data asset. EquippedId is what replicates.",
-        "Fold the first job into IA_Equip so the exam build has one event. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon. Ten slots stay in the data asset. EquippedId is what replicates.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon. Ten slots stay in the data asset. EquippedId is what replicates.",
-        "Let each client apply both writes before the authority answers. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon. Ten slots stay in the data asset. EquippedId is what replicates."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-27",
-      "kind": "mc",
-      "prompt": "A shot traces once and adds heat. Wear is state on the weapon. Begin Play loads one struct. Tick does not write it. A prototype runs both jobs from Begin Play. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "Ballistics, wear, and heat keeps IA_Fire so it can one trace per shot, then Heat increased by 0.05 on a hit. Save the kit keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that a shot traces once and adds heat. Wear is state on the weapon. Begin Play loads one struct. Tick does not write it.",
-        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon. Begin Play loads one struct. Tick does not write it.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon. Begin Play loads one struct. Tick does not write it.",
-        "Let each client apply both writes before the authority answers. That would break the rule that a shot traces once and adds heat. Wear is state on the weapon. Begin Play loads one struct. Tick does not write it."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-28",
-      "kind": "tf",
-      "prompt": "True or false: The server writes the float. A limb does not fall below 10% from a normal hit. The L2 layer remaps the button. The graph still starts at the action. That pair of rules also means l2 input and radial menus may tracing on Tick so a prompt stays fresh while the player stands still.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 1,
-      "why": "Limb medical and the 10% clamp does not give L2 input and radial menus permission to tracing on Tick so a prompt stays fresh while the player stands still."
-    },
-    {
-      "id": "study-fps-intermediate-exam-29",
-      "kind": "tf",
-      "prompt": "True or false: The server writes the float. A limb does not fall below 10% from a normal hit. Motion matching reads the gait. The graph only writes Speed. Limb medical and the 10% clamp still starts at Any Damage after the player has learned gasp movement.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 0,
-      "why": "Any Damage remains the start of Limb medical and the 10% clamp."
-    },
-    {
-      "id": "study-fps-intermediate-exam-30",
-      "kind": "mc",
-      "prompt": "The server writes the float. A limb does not fall below 10% from a normal hit. The server decides Relevant on a timer, not on Tick. A prototype runs both jobs from CheckAOI. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "Limb medical and the 10% clamp keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. Area of interest keeps CheckAOI so it can Relevant set from a trace on a 0.5 second timer. That keeps the rule that the server writes the float. A limb does not fall below 10% from a normal hit. The server decides Relevant on a timer, not on Tick.",
-        "Fold the first job into CheckAOI so the exam build has one event. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit. The server decides Relevant on a timer, not on Tick.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit. The server decides Relevant on a timer, not on Tick.",
-        "Let each client apply both writes before the authority answers. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit. The server decides Relevant on a timer, not on Tick."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-31",
-      "kind": "mc",
-      "prompt": "The server writes the float. A limb does not fall below 10% from a normal hit. A shot traces once and adds heat. Wear is state on the weapon. A prototype runs both jobs from IA_Fire. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "Limb medical and the 10% clamp keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. Ballistics, wear, and heat keeps IA_Fire so it can one trace per shot, then Heat increased by 0.05 on a hit. That keeps the rule that the server writes the float. A limb does not fall below 10% from a normal hit. A shot traces once and adds heat. Wear is state on the weapon.",
-        "Fold the first job into IA_Fire so the exam build has one event. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit. A shot traces once and adds heat. Wear is state on the weapon.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit. A shot traces once and adds heat. Wear is state on the weapon.",
-        "Let each client apply both writes before the authority answers. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit. A shot traces once and adds heat. Wear is state on the weapon."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-32",
-      "kind": "mc",
-      "prompt": "The server writes the float. A limb does not fall below 10% from a normal hit. Overlap asks the interface. The slot owns the count. A prototype runs both jobs from Begin Overlap. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "Limb medical and the 10% clamp keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. Inventory slots keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. That keeps the rule that the server writes the float. A limb does not fall below 10% from a normal hit. Overlap asks the interface. The slot owns the count.",
-        "Fold the first job into Begin Overlap so the exam build has one event. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit. Overlap asks the interface. The slot owns the count.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit. Overlap asks the interface. The slot owns the count.",
-        "Let each client apply both writes before the authority answers. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit. Overlap asks the interface. The slot owns the count."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-33",
-      "kind": "mc",
-      "prompt": "The server writes the float. A limb does not fall below 10% from a normal hit. Ten slots stay in the data asset. EquippedId is what replicates. A prototype runs both jobs from IA_Equip. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "Limb medical and the 10% clamp keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. Ten-slot gunsmith keeps IA_Equip so it can EquippedId stored on the authority so other machines build the same weapon from that id. That keeps the rule that the server writes the float. A limb does not fall below 10% from a normal hit. Ten slots stay in the data asset. EquippedId is what replicates.",
-        "Fold the first job into IA_Equip so the exam build has one event. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit. Ten slots stay in the data asset. EquippedId is what replicates.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit. Ten slots stay in the data asset. EquippedId is what replicates.",
-        "Let each client apply both writes before the authority answers. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit. Ten slots stay in the data asset. EquippedId is what replicates."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-34",
-      "kind": "mc",
-      "prompt": "The server writes the float. A limb does not fall below 10% from a normal hit. Begin Play loads one struct. Tick does not write it. A prototype runs both jobs from Begin Play. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "Limb medical and the 10% clamp keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. Save the kit keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that the server writes the float. A limb does not fall below 10% from a normal hit. Begin Play loads one struct. Tick does not write it.",
-        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit. Begin Play loads one struct. Tick does not write it.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit. Begin Play loads one struct. Tick does not write it.",
-        "Let each client apply both writes before the authority answers. That would break the rule that the server writes the float. A limb does not fall below 10% from a normal hit. Begin Play loads one struct. Tick does not write it."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-35",
-      "kind": "tf",
-      "prompt": "True or false: Overlap asks the interface. The slot owns the count. The L2 layer remaps the button. The graph still starts at the action. That pair of rules also means l2 input and radial menus may tracing on Tick so a prompt stays fresh while the player stands still.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 1,
-      "why": "Inventory slots does not give L2 input and radial menus permission to tracing on Tick so a prompt stays fresh while the player stands still."
-    },
-    {
-      "id": "study-fps-intermediate-exam-36",
-      "kind": "tf",
-      "prompt": "True or false: Overlap asks the interface. The slot owns the count. Motion matching reads the gait. The graph only writes Speed. Inventory slots still starts at Begin Overlap after the player has learned gasp movement.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 0,
-      "why": "Begin Overlap remains the start of Inventory slots."
-    },
-    {
-      "id": "study-fps-intermediate-exam-37",
-      "kind": "mc",
-      "prompt": "Overlap asks the interface. The slot owns the count. The server decides Relevant on a timer, not on Tick. A prototype runs both jobs from CheckAOI. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "Inventory slots keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. Area of interest keeps CheckAOI so it can Relevant set from a trace on a 0.5 second timer. That keeps the rule that overlap asks the interface. The slot owns the count. The server decides Relevant on a timer, not on Tick.",
-        "Fold the first job into CheckAOI so the exam build has one event. That would break the rule that overlap asks the interface. The slot owns the count. The server decides Relevant on a timer, not on Tick.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that overlap asks the interface. The slot owns the count. The server decides Relevant on a timer, not on Tick.",
-        "Let each client apply both writes before the authority answers. That would break the rule that overlap asks the interface. The slot owns the count. The server decides Relevant on a timer, not on Tick."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-38",
-      "kind": "mc",
-      "prompt": "Overlap asks the interface. The slot owns the count. A shot traces once and adds heat. Wear is state on the weapon. A prototype runs both jobs from IA_Fire. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "Inventory slots keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. Ballistics, wear, and heat keeps IA_Fire so it can one trace per shot, then Heat increased by 0.05 on a hit. That keeps the rule that overlap asks the interface. The slot owns the count. A shot traces once and adds heat. Wear is state on the weapon.",
-        "Fold the first job into IA_Fire so the exam build has one event. That would break the rule that overlap asks the interface. The slot owns the count. A shot traces once and adds heat. Wear is state on the weapon.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that overlap asks the interface. The slot owns the count. A shot traces once and adds heat. Wear is state on the weapon.",
-        "Let each client apply both writes before the authority answers. That would break the rule that overlap asks the interface. The slot owns the count. A shot traces once and adds heat. Wear is state on the weapon."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-39",
-      "kind": "mc",
-      "prompt": "Overlap asks the interface. The slot owns the count. The server writes the float. A limb does not fall below 10% from a normal hit. A prototype runs both jobs from Any Damage. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "Inventory slots keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. Limb medical and the 10% clamp keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. That keeps the rule that overlap asks the interface. The slot owns the count. The server writes the float. A limb does not fall below 10% from a normal hit.",
-        "Fold the first job into Any Damage so the exam build has one event. That would break the rule that overlap asks the interface. The slot owns the count. The server writes the float. A limb does not fall below 10% from a normal hit.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that overlap asks the interface. The slot owns the count. The server writes the float. A limb does not fall below 10% from a normal hit.",
-        "Let each client apply both writes before the authority answers. That would break the rule that overlap asks the interface. The slot owns the count. The server writes the float. A limb does not fall below 10% from a normal hit."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-40",
-      "kind": "mc",
-      "prompt": "Overlap asks the interface. The slot owns the count. Ten slots stay in the data asset. EquippedId is what replicates. A prototype runs both jobs from IA_Equip. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "Inventory slots keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. Ten-slot gunsmith keeps IA_Equip so it can EquippedId stored on the authority so other machines build the same weapon from that id. That keeps the rule that overlap asks the interface. The slot owns the count. Ten slots stay in the data asset. EquippedId is what replicates.",
-        "Fold the first job into IA_Equip so the exam build has one event. That would break the rule that overlap asks the interface. The slot owns the count. Ten slots stay in the data asset. EquippedId is what replicates.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that overlap asks the interface. The slot owns the count. Ten slots stay in the data asset. EquippedId is what replicates.",
-        "Let each client apply both writes before the authority answers. That would break the rule that overlap asks the interface. The slot owns the count. Ten slots stay in the data asset. EquippedId is what replicates."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-fps-intermediate-exam-41",
-      "kind": "mc",
-      "prompt": "Overlap asks the interface. The slot owns the count. Begin Play loads one struct. Tick does not write it. A prototype runs both jobs from Begin Play. What do you put back in FPS — Intermediate?",
-      "choices": [
-        "Inventory slots keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. Save the kit keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that overlap asks the interface. The slot owns the count. Begin Play loads one struct. Tick does not write it.",
-        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that overlap asks the interface. The slot owns the count. Begin Play loads one struct. Tick does not write it.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that overlap asks the interface. The slot owns the count. Begin Play loads one struct. Tick does not write it.",
-        "Let each client apply both writes before the authority answers. That would break the rule that overlap asks the interface. The slot owns the count. Begin Play loads one struct. Tick does not write it."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    }
-  ],
   "repairWrongs": {
     "fps-intermediate-e5": [
-      "Ship the broken sample as written (Tick assigns Speed = 600.f) and treat the red node as close enough.",
-      "Use IA_Move > 0.f, but also leave the broken sample running so both paths write.",
-      "Drop IA_Move > 0.f and replay the broken sample from OnRep: Tick assigns Speed = 600.f"
+      "The pose database should choose 600",
+      "The aim hold should write the sprint literal",
+      "A limb floor of ten percent should pick the gait"
     ],
     "fps-intermediate-e7": [
-      "Ship the broken sample as written (void Tick() { Relevant = true; }) and treat the red node as close enough.",
-      "Use SetTimer calls CheckAOI at 0.5f and assigns Relevant = bHit, but also leave the broken sample running so both paths write.",
-      "Drop SetTimer calls CheckAOI at 0.5f and assigns Relevant = bHit and replay the broken sample from OnRep: void Tick() { Relevant = true; }"
+      "Leaving every rifle relevant is cheaper than a timer",
+      "Fog's visible flag should be copied into relevance",
+      "The radial menu should decide who replicates"
     ],
     "fps-intermediate-e11": [
-      "Ship the broken sample as written (Tick assigns Health = 90.f) and treat the red node as close enough.",
-      "Use Any Damage, inside HasAuthority, but also leave the broken sample running so both paths write.",
-      "Drop Any Damage, inside HasAuthority and replay the broken sample from OnRep: Tick assigns Health = 90.f"
+      "The stick axis should start the limb write",
+      "Spawn should be the only time a limb changes",
+      "Heat rising should lower the limb"
     ],
     "fps-intermediate-e12": [
-      "Ship the broken sample as written (void OnRep_Health() { Health = Health - Amount; }) and treat the red node as close enough.",
-      "Use Play the limp and leave the float alone, but also leave the broken sample running so both paths write.",
-      "Drop Play the limp and leave the float alone and replay the broken sample from OnRep: void OnRep_Health() { Health = Health - Amount; }"
+      "Playing the limp requires subtracting again",
+      "The notify should refill the magazine",
+      "The notify should set the equipped id"
     ],
     "fps-intermediate-e15": [
-      "Ship the broken sample as written (EquippedId = IA_Equip; // outside HasAuthority) and treat the red node as close enough.",
-      "Use Nest EquippedId = IA_Equip inside the authority check, but also leave the broken sample running so both paths write.",
-      "Drop Nest EquippedId = IA_Equip inside the authority check and replay the broken sample from OnRep: EquippedId = IA_Equip; // outside HasAuthority"
+      "Clients equip faster if they write the id first",
+      "The widget is the right place to store the id",
+      "Motion matching should pick the equipped weapon"
     ],
     "fps-intermediate-e17": [
-      "Ship the broken sample as written (Tick assigns SlotValue) and treat the red node as close enough.",
-      "Use Make, then SlotValue = 1.f, but also leave the broken sample running so both paths write.",
-      "Drop Make, then SlotValue = 1.f and replay the broken sample from OnRep: Tick assigns SlotValue"
+      "A frame is a safe moment to snapshot heat",
+      "The constructor is early enough to apply the id",
+      "Relevance should be stored in the save slot"
     ],
     "fps-intermediate-e24": [
-      "Ship the broken sample as written (Tick adds 0.05 heat) and treat the red node as close enough.",
-      "Use IA_Fire, but also leave the broken sample running so both paths write.",
-      "Drop IA_Fire and replay the broken sample from OnRep: Tick adds 0.05 heat"
+      "Aiming should be what starts the shot trace",
+      "The interest timer should add heat",
+      "The reload key should trace the shot"
     ],
     "fps-intermediate-e26": [
-      "Ship the broken sample as written (Heat = (Heat + 0.05f); // inside Tick) and treat the red node as close enough.",
-      "Use Inside Graph_IA_Fire, on the hit branch, but also leave the broken sample running so both paths write.",
-      "Drop Inside Graph_IA_Fire, on the hit branch and replay the broken sample from OnRep: Heat = (Heat + 0.05f); // inside Tick"
+      "Smoothing heat across frames is more important than tying it to a hit",
+      "The walk speed function should add heat",
+      "OnRep of health should add the 0.05"
     ]
-  }
+  },
+  "exam": [
+    {
+      "id": "fpsi-exam-1",
+      "kind": "mc",
+      "prompt": "Aim is held, so the L2 layer is up, and the player taps fire. Which event adds heat?",
+      "choices": [
+        "IA_Fire, and only if the shot hits",
+        "The aim hold itself",
+        "The layer's mapping asset",
+        "The interest timer that culls distant rifles"
+      ],
+      "answer": 0,
+      "why": "The layer does not fire."
+    },
+    {
+      "id": "fpsi-exam-2",
+      "kind": "mc",
+      "prompt": "Motion matching plays a sprint in the buy menu. Which write is lying?",
+      "choices": [
+        "Speed forced to 600 from Tick",
+        "EquippedId on the authority",
+        "A clamped Needed",
+        "Relevant from a miss"
+      ],
+      "answer": 0,
+      "why": "The matcher trusted Speed."
+    },
+    {
+      "id": "fpsi-exam-3",
+      "kind": "tf",
+      "prompt": "True or false: Visible can stand in for Relevant when culling rifles.",
+      "choices": ["True", "False"],
+      "answer": 1,
+      "why": "A nearby unseen player still matters."
+    },
+    {
+      "id": "fpsi-exam-4",
+      "kind": "mc",
+      "prompt": "A limb shows 0 on a proxy and 90 on the server after one normal hit. What did the proxy do?",
+      "choices": [
+        "It wrote the limb instead of waiting for the floored value",
+        "It played a limp montage",
+        "It read EquippedId",
+        "It popped the L2 layer"
+      ],
+      "answer": 0,
+      "why": "The floor is the server's."
+    },
+    {
+      "id": "fpsi-exam-5",
+      "kind": "mc",
+      "prompt": "Looking at an ammo crate increases the stack. Which wire is extra?",
+      "choices": [
+        "The use trace calling the stack increment",
+        "Overlap calling AddToSlot",
+        "The branch on a positive count",
+        "HasAuthority around EquippedId"
+      ],
+      "answer": 0,
+      "why": "Use is not the pickup."
+    },
+    {
+      "id": "fpsi-exam-6",
+      "kind": "tf",
+      "prompt": "True or false: ten gunsmith meshes should replicate instead of EquippedId.",
+      "choices": ["True", "False"],
+      "answer": 1,
+      "why": "The id is the replicated fact."
+    },
+    {
+      "id": "fpsi-exam-7",
+      "kind": "mc",
+      "prompt": "Continue restores heat at 0.4 without replaying the shots. Which function applies that?",
+      "choices": [
+        "The Begin Play load of the slot",
+        "Graph_IA_Fire run four times",
+        "Tick until heat matches",
+        "OnRep subtracting until it matches"
+      ],
+      "answer": 0,
+      "why": "Load applies the number."
+    },
+    {
+      "id": "fpsi-exam-8",
+      "kind": "mc",
+      "prompt": "A back paddle is bound to the aim hold. What asset changed?",
+      "choices": [
+        "The mapping context",
+        "The function that traces a shot",
+        "The limb floor",
+        "The interest radius"
+      ],
+      "answer": 0,
+      "why": "Bindings are data."
+    },
+    {
+      "id": "fpsi-exam-9",
+      "kind": "tf",
+      "prompt": "True or false: the pose graph may write Speed if the stick also writes it.",
+      "choices": ["True", "False"],
+      "answer": 1,
+      "why": "Two writers fight."
+    },
+    {
+      "id": "fpsi-exam-10",
+      "kind": "mc",
+      "prompt": "Relevant is false and Visible is true. Can that pair be honest?",
+      "choices": [
+        "Yes. You can be seen by the rules of fog and still be out of network range",
+        "No. They are one bit",
+        "Only if heat is zero",
+        "Only during a reload"
+      ],
+      "answer": 0,
+      "why": "Different questions."
+    },
+    {
+      "id": "fpsi-exam-11",
+      "kind": "mc",
+      "prompt": "Which function is the interest pass?",
+      "choices": [
+        "Graph_CheckAOI_tpl_aoi_check",
+        "The move function",
+        "The reload function",
+        "The effect apply function"
+      ],
+      "answer": 0,
+      "why": "CheckAOI is the pass."
+    },
+    {
+      "id": "fpsi-exam-12",
+      "kind": "tf",
+      "prompt": "True or false: a hit from IA_Fire may add 0.05 heat.",
+      "choices": ["True", "False"],
+      "answer": 0,
+      "why": "That is the heat step."
+    },
+    {
+      "id": "fpsi-exam-13",
+      "kind": "mc",
+      "prompt": "The authority floors a limb at 90 on a max of 100. A proxy OnRep subtracts the raw damage. What does the next replicate do?",
+      "choices": [
+        "Correct the proxy back toward 90",
+        "Adopt the proxy's lower number",
+        "Holstering the weapon",
+        "Push the L2 layer"
+      ],
+      "answer": 0,
+      "why": "The server value wins. The extra subtract was local."
+    },
+    {
+      "id": "fpsi-exam-14",
+      "kind": "mc",
+      "prompt": "AddToSlot is refused. The pickup is destroyed anyway. What should have happened?",
+      "choices": [
+        "The pickup stays, because the slot did not take the stack",
+        "The stack is deleted on purpose",
+        "Heat increases",
+        "Speed becomes 600"
+      ],
+      "answer": 0,
+      "why": "Refusal is not a transfer."
+    },
+    {
+      "id": "fpsi-exam-15",
+      "kind": "tf",
+      "prompt": "True or false: a client may equip any id and the server should copy it.",
+      "choices": ["True", "False"],
+      "answer": 1,
+      "why": "The authority checks ownership."
+    },
+    {
+      "id": "fpsi-exam-16",
+      "kind": "mc",
+      "prompt": "Which of these belongs in the save struct?",
+      "choices": [
+        "The equipped id",
+        "The current motion-matching pose",
+        "The raw gamepad button index",
+        "This frame's Tick delta"
+      ],
+      "answer": 0,
+      "why": "Save facts, not derived poses or hardware."
+    },
+    {
+      "id": "fpsi-exam-17",
+      "kind": "mc",
+      "prompt": "Releasing the aim hold should pop which input object?",
+      "choices": [
+        "The L2 mapping context",
+        "The fire trace",
+        "The limb floor",
+        "The save struct"
+      ],
+      "answer": 0,
+      "why": "The hold pushed that layer."
+    },
+    {
+      "id": "fpsi-exam-18",
+      "kind": "tf",
+      "prompt": "True or false: CheckAOI's timer is about half a second.",
+      "choices": ["True", "False"],
+      "answer": 0,
+      "why": "0.5 seconds is the lesson clock."
+    },
+    {
+      "id": "fpsi-exam-19",
+      "kind": "mc",
+      "prompt": "Wear accumulates. What should it follow?",
+      "choices": [
+        "Heat from shots that hit",
+        "Tick while aiming",
+        "The walk literal",
+        "Whether the team can see you"
+      ],
+      "answer": 0,
+      "why": "Wear is a reader of heat."
+    },
+    {
+      "id": "fpsi-exam-20",
+      "kind": "mc",
+      "prompt": "A normal hit would compute 40 on a limb whose floor is 90. What is stored?",
+      "choices": [
+        "90",
+        "The raw damage total",
+        "A deleted limb",
+        "An untouched limb"
+      ],
+      "answer": 0,
+      "why": "The floor wins for a normal hit."
+    },
+    {
+      "id": "fpsi-exam-21",
+      "kind": "tf",
+      "prompt": "True or false: the overlap graph should inline every item's rules.",
+      "choices": ["True", "False"],
+      "answer": 1,
+      "why": "AddToSlot keeps the rules with the slot."
+    },
+    {
+      "id": "fpsi-exam-22",
+      "kind": "mc",
+      "prompt": "Remote players build your gun from data. What did they receive?",
+      "choices": [
+        "The equipped weapon id",
+        "The skeletal mesh",
+        "Your pose database",
+        "The buttons you bound on the pad"
+      ],
+      "answer": 0,
+      "why": "The id is enough."
+    },
+    {
+      "id": "fpsi-exam-23",
+      "kind": "mc",
+      "prompt": "Graph_IA_Move writes 200. What is the stick doing?",
+      "choices": [
+        "Resting at or below zero",
+        "Pushed past zero",
+        "An idle stick crashes the move function",
+        "Bound to reload"
+      ],
+      "answer": 0,
+      "why": "The false path is the walk literal."
+    },
+    {
+      "id": "fpsi-exam-24",
+      "kind": "tf",
+      "prompt": "True or false: loading the kit in the constructor is early enough for EquippedId.",
+      "choices": ["True", "False"],
+      "answer": 1,
+      "why": "Begin Play is the load."
+    },
+    {
+      "id": "fpsi-exam-25",
+      "kind": "mc",
+      "prompt": "A standoff never fires, but heat climbs. Which line is running too often?",
+      "choices": [
+        "Heat = Heat + 0.05 while merely aiming",
+        "The authority floor on a limb",
+        "The inventory ask",
+        "The layer pop on aim release"
+      ],
+      "answer": 0,
+      "why": "Heat is for hits."
+    },
+    {
+      "id": "fpsi-exam-26",
+      "kind": "mc",
+      "prompt": "Who may set Relevant?",
+      "choices": [
+        "The server, inside the interest pass",
+        "Any client who wants to stay replicated",
+        "The health widget",
+        "Motion matching"
+      ],
+      "answer": 0,
+      "why": "Interest is a server write."
+    },
+    {
+      "id": "fpsi-exam-27",
+      "kind": "tf",
+      "prompt": "True or false: a miss still adds heat in the ballistics excerpt.",
+      "choices": ["True", "False"],
+      "answer": 1,
+      "why": "The branch requires a hit."
+    },
+    {
+      "id": "fpsi-exam-28",
+      "kind": "mc",
+      "prompt": "The bag lacks slot 9, but a client asks to equip it. What stores EquippedId?",
+      "choices": [
+        "Nothing. The authority refuses before the assignment",
+        "The forbidden slot number because the client requested it",
+        "Zero written by the weapon icon",
+        "The limb floor"
+      ],
+      "answer": 0,
+      "why": "The server checks the grant."
+    },
+    {
+      "id": "fpsi-exam-29",
+      "kind": "mc",
+      "prompt": "Why keep limbs, heat, ammo, and the equipped id in one struct?",
+      "choices": [
+        "So continue cannot mix a new gun with an old magazine",
+        "Because structs hold only one field",
+        "Because Tick requires a struct",
+        "Because interfaces return structs"
+      ],
+      "answer": 0,
+      "why": "One snapshot."
+    },
+    {
+      "id": "fpsi-exam-30",
+      "kind": "tf",
+      "prompt": "True or false: the radial menu belongs on the use trace's true pin.",
+      "choices": ["True", "False"],
+      "answer": 1,
+      "why": "The true pin calls Interact."
+    },
+    {
+      "id": "fpsi-exam-31",
+      "kind": "mc",
+      "prompt": "StackCount is 0 on overlap. AddToSlot should do what?",
+      "choices": [
+        "Stay uncalled",
+        "Add a default item",
+        "Set heat to 0.05",
+        "Floor a limb"
+      ],
+      "answer": 0,
+      "why": "Nothing is offered."
+    },
+    {
+      "id": "fpsi-exam-32",
+      "kind": "mc",
+      "prompt": "Which schedule matches Sense's idea if you were borrowing it for cooling the barrel?",
+      "choices": [
+        "A timer after the last shot, not a frame loop",
+        "Tick while the aim layer is held",
+        "OnRep of EquippedId",
+        "The constructor"
+      ],
+      "answer": 0,
+      "why": "Clocks, not frames."
+    }
+  ]
 }
