@@ -56,9 +56,21 @@
     },
     {
       "id": "refinements-119",
-      "title": "Final major refinements (Johno's feedback pending)",
+      "title": "Final Version 1 refinements",
+      "status": "shipped",
+      "detail": "Shipped in 1.19.0. Shuffled quizzes with true/false mixed in, clickable C++ lines with built-in notes, a shared glossary popover, program and course lessons on one engine, self-scored blanks, a welcome tour, a bug-report link, and a release check."
+    },
+    {
+      "id": "graded-assignments",
+      "title": "Editable graded C++ and node graph assignments",
       "status": "planned",
-      "detail": "1.19.0. The last planned pass of refinements once Johno's feedback is in."
+      "detail": "Version 2. Assignments you edit in the C++ and event graph, scored by the app. 1.19.0 assignments are self-scored with a reveal toggle."
+    },
+    {
+      "id": "system-programs",
+      "title": "System-specific Programs",
+      "status": "planned",
+      "detail": "Version 2. Saved lesson packs return here as programs tied to a system. The 1.19.0 Programs page hides that list and keeps the saved data."
     }
   ]
 }
