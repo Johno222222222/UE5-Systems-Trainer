@@ -174,7 +174,7 @@ Two slot indexes, autosave and manual, share the struct. They do not share a Tic
     ["Which save is broken?", "Which version writes the slot every frame?", "The right-hand version is Tick.", "right", ["Event", "void BeginPlay() { Load(Slot); }"], ["Tick", "void Tick() { SlotValue = Magazine; }"]]),
 ]);
 
-const tpsIntermediate = course("tps-intermediate", "TPS, intermediate", "A short third-person course for the Project JOHNO rules: a second mapping context, a limb floor, interest versus the camera, and a throttle that is not a sprint.", "intermediate", "tps", [
+const tpsIntermediate = course("tps-intermediate", "TPS, intermediate", "A short third-person course for the project rules: a second mapping context, a limb floor, interest versus the camera, and a throttle that is not a sprint.", "intermediate", "tps", [
   mod("layer", "The modifier layer",
     `Enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis.
 

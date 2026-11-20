@@ -6,16 +6,16 @@
       "whyGame": "Do not trust the client's number.",
       "expansions": [
         {
-          "title": "Authority as a door",
-          "detail": "If authority is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "One writer",
+          "detail": "The authority writes the shared number. A client asks. It does not write the number itself."
         },
         {
-          "title": "Authority as data",
-          "detail": "Designer numbers for authority live on a row. Health clamped between zero and MaxHealth, then a branch that logs death at zero reads the row instead of a literal."
+          "title": "The clamp is the rule",
+          "detail": "Health is clamped between zero and max on the authority. That floor is the rule, not a number the client invents."
         },
         {
-          "title": "Authority as a listener",
-          "detail": "Later systems listen for Any Damage. They do not subtracting with no clamp so health goes negative and the death branch never sees zero."
+          "title": "Do not skip the floor",
+          "detail": "A damage listener subtracts inside the authority check and clamps. It does not subtract with no clamp, or health goes negative and the death branch never sees zero."
         }
       ],
       "quiz": [
@@ -189,16 +189,16 @@
       "whyGame": "Replicate the number that selects the reaction.",
       "expansions": [
         {
-          "title": "Replicated properties as a door",
-          "detail": "If replicated properties is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "Replicate the number",
+          "detail": "Replicate the number that selects the reaction. Do not replicate the mesh or the widget to carry that fact."
         },
         {
-          "title": "Replicated properties as data",
-          "detail": "Designer numbers for replicated properties live on a row. Health clamped between zero and MaxHealth, then a branch that logs death at zero reads the row instead of a literal."
+          "title": "The row names the amount",
+          "detail": "How much one hit removes can live on a row. The replicated property is still the result, clamped between zero and max."
         },
         {
-          "title": "Replicated properties as a listener",
-          "detail": "Later systems listen for Any Damage. They do not subtracting with no clamp so health goes negative and the death branch never sees zero."
+          "title": "Listeners do not rewrite it",
+          "detail": "Other machines play the reaction when the property arrives. They do not subtract again, or the death branch on the client never matches the server."
         }
       ],
       "quiz": [
@@ -372,16 +372,16 @@
       "whyGame": "Play the hit. Do not decide the rule there.",
       "expansions": [
         {
-          "title": "OnRep as a door",
-          "detail": "If onrep is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "OnRep is the arrival",
+          "detail": "OnRep runs when the replicated number arrives. It plays the limp or the hit flash."
         },
         {
-          "title": "OnRep as data",
-          "detail": "Designer numbers for onrep live on a row. Health clamped between zero and MaxHealth, then a branch that logs death at zero reads the row instead of a literal."
+          "title": "The rule already ran",
+          "detail": "The authority already clamped health. OnRep does not decide the rule again."
         },
         {
-          "title": "OnRep as a listener",
-          "detail": "Later systems listen for Any Damage. They do not subtracting with no clamp so health goes negative and the death branch never sees zero."
+          "title": "No second subtract",
+          "detail": "A listener does not subtract in the notify. A second subtract bites twice, and a death check for exactly zero can miss."
         }
       ],
       "quiz": [
@@ -555,16 +555,16 @@
       "whyGame": "Do not trust the client's number.",
       "expansions": [
         {
-          "title": "RPCs as a door",
-          "detail": "If rpcs is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The RPC asks",
+          "detail": "A server RPC asks the server to decide. The client does not apply the result itself."
         },
         {
-          "title": "RPCs as data",
-          "detail": "Designer numbers for rpcs live on a row. Health clamped between zero and MaxHealth, then a branch that logs death at zero reads the row instead of a literal."
+          "title": "Do not trust the payload",
+          "detail": "The number inside the client's RPC is a request. The authority writes the real health, clamped between zero and max."
         },
         {
-          "title": "RPCs as a listener",
-          "detail": "Later systems listen for Any Damage. They do not subtracting with no clamp so health goes negative and the death branch never sees zero."
+          "title": "Damage still clamps",
+          "detail": "Damage still subtracts on the authority, with a clamp. The RPC does not skip the clamp, or health goes negative and the death branch never sees zero."
         }
       ],
       "quiz": [

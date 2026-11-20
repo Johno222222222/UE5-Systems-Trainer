@@ -252,11 +252,19 @@ function catalogFromLabel(label) {
 function composeUnknown(node) {
   const label = tidy(node?.label) || tidy(node?.data?.function) || tidy(node?.data?.action) || "This node";
   const kind = String(node?.kind || node?.node_type || "step");
-  const fn = node?.data?.function || node?.data?.action || node?.data?.name || "";
+  const fn = String(node?.data?.function || node?.data?.action || node?.data?.name || "").trim();
   const pins = (node?.pins || []).map((pin) => pin.name).filter((name) => name && !/^exec$/i.test(name));
-  const pinText = pins.length ? `, with ${pins.join(" and ")}` : "";
-  const callText = fn ? `, and it calls ${fn}` : "";
-  return `${label} is the ${kind} step on this generated graph${pinText}${callText}. For example, ${label} runs when the previous step finishes rather than on Tick.`;
+  const pinBit = pins.length ? ` The other pins carry ${pins.join(" and ")}.` : "";
+  if (kind === "event" || /^event\b/i.test(label)) {
+    return `${label} is an event on this actor. It fires when that event happens, and the nodes after it wait for it. For example, ${label} is the start of this chain rather than a check on every frame.`;
+  }
+  if (fn) {
+    return `${label} calls ${fn} when its exec input fires.${pinBit} For example, ${fn} runs once for this call instead of on Tick.`;
+  }
+  if (pins.length) {
+    return `${label} is a ${kind} node that uses ${pins.join(" and ")} when it runs. For example, ${label} reads ${pins[0]} for this system and does not poll it.`;
+  }
+  return `${label} is a ${kind} node in this system's graph. It runs when the exec wire into ${label} fires. For example, deleting ${label} stops only the work that node was doing.`;
 }
 
 function explainNode(node) {

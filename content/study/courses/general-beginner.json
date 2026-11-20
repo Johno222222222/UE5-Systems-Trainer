@@ -239,7 +239,7 @@
         {
           "id": "genb-interface-6",
           "kind": "tf",
-          "prompt": "A key and a fuel can can enter inventory through the same slot call.",
+          "prompt": "A key and a fuel can both enter inventory through the same slot call.",
           "choices": [
             "True",
             "False"

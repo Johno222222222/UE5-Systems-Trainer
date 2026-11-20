@@ -12,11 +12,11 @@
     "kind": "event",
     "name": "Effect",
     "nodes": [
-      {"key": "begin", "catalog": "begin-play", "x": 40, "y": 80, "note": "Begin Play binds the dispatcher and starts the timer once."},
-      {"key": "bind", "catalog": "dispatcher-bind", "x": 320, "y": 40, "data": {"name": "OnEffect", "event": "OnEffect"}, "note": "Bind Event Dispatcher so the UI can listen."},
-      {"key": "timer", "catalog": "set-timer-event", "x": 320, "y": 180, "data": {"seconds": 1, "event": "ApplyEffect"}, "note": "Set Timer by Event calls Apply Effect."},
-      {"key": "apply", "catalog": "custom-event", "x": 40, "y": 360, "data": {"name": "ApplyEffect"}, "note": "The ability system would apply the effect here."},
-      {"key": "call", "catalog": "dispatcher-call", "x": 340, "y": 360, "data": {"name": "OnEffect"}, "note": "Call Event Dispatcher when the effect lands."}
+      {"key": "begin", "catalog": "begin-play", "x": 40, "y": 120, "note": "Begin Play binds the dispatcher and starts the timer once."},
+      {"key": "bind", "catalog": "dispatcher-bind", "x": 280, "y": 120, "data": {"name": "OnEffect", "event": "OnEffect"}, "note": "Bind Event Dispatcher so the UI can listen."},
+      {"key": "timer", "catalog": "set-timer-event", "x": 520, "y": 120, "data": {"seconds": 1, "event": "ApplyEffect"}, "note": "Set Timer by Event calls Apply Effect."},
+      {"key": "apply", "catalog": "custom-event", "x": 760, "y": 120, "data": {"name": "ApplyEffect"}, "note": "The ability system would apply the effect here."},
+      {"key": "call", "catalog": "dispatcher-call", "x": 1000, "y": 120, "data": {"name": "OnEffect"}, "note": "Call Event Dispatcher when the effect lands."}
     ],
     "wires": [
       {"from": "begin", "fromPin": "Exec", "to": "bind", "toPin": "Exec"},

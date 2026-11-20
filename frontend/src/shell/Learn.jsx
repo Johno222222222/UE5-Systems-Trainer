@@ -8,21 +8,45 @@ import ChoiceButton from "../components/ChoiceButton";
 import GlossaryText from "../components/GlossaryText";
 import { useShell } from "./ShellContext";
 
+function wrapLabel(label) {
+  const words = String(label || "Node").split(/\s+/).filter(Boolean);
+  const lines = [];
+  let line = "";
+  for (const word of words) {
+    const next = line ? `${line} ${word}` : word;
+    if (next.length > 18 && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = next;
+    }
+  }
+  if (line) lines.push(line);
+  return lines.length ? lines : ["Node"];
+}
+
 function GraphThumb({ nodes, wires, testId }) {
   const list = Array.isArray(nodes) ? nodes : [];
   if (!list.length) {
     return <p className="text-[13px] text-[var(--text-secondary)]" data-testid={testId || undefined}>This system has no event graph yet.</p>;
   }
-  const placed = list.map((node, index) => ({
-    id: node.id || `n${index}`,
-    label: String(node.label || "Node"),
-    x: node.x || 24 + (index % 4) * 180,
-    y: node.y || 24 + Math.floor(index / 4) * 96,
-  }));
+  const placed = list.map((node, index) => {
+    const lines = wrapLabel(node.label);
+    const widest = Math.max(...lines.map((item) => item.length));
+    return {
+      id: node.id || `n${index}`,
+      label: String(node.label || "Node"),
+      lines,
+      w: Math.max(150, 28 + widest * 7.2),
+      h: 28 + lines.length * 16,
+      x: node.x || 24 + (index % 4) * 220,
+      y: node.y || 24 + Math.floor(index / 4) * 110,
+    };
+  });
   const minX = Math.min(...placed.map((node) => node.x));
   const minY = Math.min(...placed.map((node) => node.y));
-  const maxX = Math.max(...placed.map((node) => node.x + 160));
-  const maxY = Math.max(...placed.map((node) => node.y + 56));
+  const maxX = Math.max(...placed.map((node) => node.x + node.w));
+  const maxY = Math.max(...placed.map((node) => node.y + node.h));
   const width = Math.max(640, maxX - minX + 48);
   const height = Math.max(160, maxY - minY + 48);
   const at = (node) => ({ x: node.x - minX + 24, y: node.y - minY + 24 });
@@ -36,14 +60,19 @@ function GraphThumb({ nodes, wires, testId }) {
         if (!from || !to) return null;
         const a = at(from);
         const b = at(to);
-        return <path key={`w${index}`} d={`M ${a.x + 150} ${a.y + 28} C ${a.x + 190} ${a.y + 28}, ${b.x - 30} ${b.y + 28}, ${b.x} ${b.y + 28}`} fill="none" stroke="#ff7a1a" strokeWidth="2" />;
+        return <path key={`w${index}`} d={`M ${a.x + from.w} ${a.y + from.h / 2} C ${a.x + from.w + 40} ${a.y + from.h / 2}, ${b.x - 40} ${b.y + to.h / 2}, ${b.x} ${b.y + to.h / 2}`} fill="none" stroke="#ff7a1a" strokeWidth="2" />;
       })}
       {placed.map((node) => {
         const p = at(node);
         return (
           <g key={node.id}>
-            <rect x={p.x} y={p.y} width="150" height="52" rx="6" fill="#121826" stroke="#0099ff" />
-            <text x={p.x + 75} y={p.y + 30} fill="#e8eef8" fontSize="11" textAnchor="middle">{node.label.slice(0, 22)}</text>
+            <title>{node.label}</title>
+            <rect x={p.x} y={p.y} width={node.w} height={node.h} rx="6" fill="#121826" stroke="#0099ff" />
+            <text x={p.x + node.w / 2} y={p.y + 20} fill="#e8eef8" fontSize="11" textAnchor="middle">
+              {node.lines.map((line, index) => (
+                <tspan key={line} x={p.x + node.w / 2} dy={index === 0 ? 0 : 14}>{line}</tspan>
+              ))}
+            </text>
           </g>
         );
       })}
