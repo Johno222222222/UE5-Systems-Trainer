@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.19.1
+
+- Course expansion notes are rewritten where a template left a broken sentence.
+- The GAS effect graph wires run left to right.
+- Learn node labels wrap instead of cutting off. Older saved graphs no longer get the generic function-step sentence.
+- The stack map sits to the right of My Blueprint and can collapse.
+- Community text matches the public packs repo. Programs lists every track until you filter.
+
 ## 1.19.0
 
 - Version is 1.19.0. The last Version 1 stage before public launch.

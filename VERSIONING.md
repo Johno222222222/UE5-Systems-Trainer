@@ -12,7 +12,7 @@ UE5 Systems Training Tool/Generator uses `MAJOR.MINOR.PATCH` in the root `packag
 ## Releasing
 
 1. Merge the stage (or the fix) to `main`.
-2. Check `package.json` `"version"` is the number you want to ship. This branch sets it to `1.19.0`.
+2. Check `package.json` `"version"` is the number you want to ship. The 1.19.1 patch sets it to `1.19.1`.
 3. Tag that commit and push the tag. Do not tag from an unmerged branch.
 
 ```powershell
