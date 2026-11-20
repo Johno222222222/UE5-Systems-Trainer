@@ -254,7 +254,9 @@ test("every generated line type has its own layman note", () => {
   }
   const authored = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "content", "study", "nodes.json"), "utf8"));
   for (const catalog of Object.keys(CATALOG_EXPLAIN)) {
-    assert.match(authored[catalog], /For example/, catalog);
+    assert.ok(authored[catalog] && authored[catalog].length > 40, catalog);
+    assert.doesNotMatch(authored[catalog], /wires out of it wait/, catalog);
+    assert.doesNotMatch(authored[catalog], /when a pawn needs that step/, catalog);
   }
   assert.equal(explainLine("hold_time = 0.f;"), "start the hold timer at zero");
   const lines = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "content", "study", "lines.json"), "utf8"));

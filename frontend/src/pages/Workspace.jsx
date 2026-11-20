@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import {
   Cpu, Code2, Layers, FlaskConical, ClipboardCopy, Sliders, Sparkles, Save, Download, Copy,
@@ -182,6 +183,7 @@ export default function Workspace() {
   const [result, setResult] = useState(() => readDraft("result", null));
   const [loading, setLoading] = useState(false);
   const [synthesizeNote, setSynthesizeNote] = useState(false);
+  const [synthesizeAnchor, setSynthesizeAnchor] = useState(null);
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState(0);
   const [tab, setTab] = useState(() => readDraft("tab", "graph"));
@@ -1578,16 +1580,31 @@ export default function Workspace() {
                 className="glossary-term text-[12px]"
                 data-testid="synthesize-more"
                 aria-expanded={synthesizeNote}
-                onClick={() => setSynthesizeNote((open) => !open)}
+                onClick={(event) => {
+                  const rect = event.currentTarget.getBoundingClientRect();
+                  setSynthesizeAnchor({ left: rect.left, top: rect.bottom + 6 });
+                  setSynthesizeNote((open) => !open);
+                }}
               >
                 More about this
               </button>
-              {synthesizeNote && (
-                <span className="glossary-pop text-left" style={{ zIndex: 80, left: 0, right: 0, width: "auto" }} data-testid="synthesize-more-pop">
+              {synthesizeNote && createPortal(
+                <span
+                  className="glossary-pop top-pop text-left"
+                  style={{
+                    position: "fixed",
+                    left: Math.max(8, Math.min(synthesizeAnchor?.left || 16, window.innerWidth - 320)),
+                    top: synthesizeAnchor?.top || 80,
+                    width: 300,
+                    zIndex: 4200,
+                  }}
+                  data-testid="synthesize-more-pop"
+                >
                   <span className="glossary-pop-term">Synthesize System</span>
                   <span className="glossary-pop-summary">This is an evolving experimental feature and may not always produce usable, clean code. It's meant to supplement the learning mechanics of customizing systems and getting used to them. Use auto-checks to troubleshoot before relying on anything.</span>
                   <button type="button" className="glossary-see-link mt-2" data-testid="synthesize-more-close" onClick={() => setSynthesizeNote(false)}>Close</button>
-                </span>
+                </span>,
+                document.body,
               )}
             </div>
           </fieldset>
@@ -1720,8 +1737,9 @@ export default function Workspace() {
               </div>
             )}
 
-            {error && !loading && (
-              <div className="absolute left-5 right-5 top-5 z-20 panel p-4 border-[var(--accent-red)] bg-[rgba(239,68,68,0.08)]" data-testid="generation-error">
+            {error && !loading && createPortal(
+              <div className="top-layer" role="presentation">
+              <div className="top-layer-card panel p-4 border-[var(--accent-red)] bg-[rgba(239,68,68,0.08)]" data-testid="generation-error" role="alertdialog" aria-label="Synthesis Failed">
                 <div className="flex items-start gap-3">
                   <div className="h-7 w-7 shrink-0 rounded-md border border-[var(--accent-red)] bg-[rgba(239,68,68,0.15)] flex items-center justify-center">
                     <Terminal size={14} className="text-[var(--accent-red)]" />
@@ -1744,6 +1762,8 @@ export default function Workspace() {
                   <button onClick={() => setError(null)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm" data-testid="dismiss-error">×</button>
                 </div>
               </div>
+              </div>,
+              document.body,
             )}
             {tab === "graph" && (
               <div className="flex flex-col h-full min-h-0">

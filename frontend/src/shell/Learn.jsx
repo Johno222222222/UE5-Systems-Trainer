@@ -216,9 +216,9 @@ export default function Learn() {
                       </pre>
                     )}
                     {id !== "graph" && id !== "cpp" && (
-                      <div className="p-1 text-[9px] leading-tight text-[var(--text-secondary)]">
+                      <div className="p-1 text-[9px] leading-tight text-[var(--text-secondary)] whitespace-normal break-words">
                         {(id === "dependencies" ? picture.dependencies : id === "expansions" ? picture.expansions : (picture.properties.length ? picture.properties : ["No UPROPERTY yet."])).slice(0, 3).map((item) => (
-                          <div key={item}>{item}</div>
+                          <div key={item} title={item} className="whitespace-normal break-words">{item}</div>
                         ))}
                       </div>
                     )}

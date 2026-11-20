@@ -91,6 +91,8 @@ export default function Programs() {
     catch { return []; }
   });
   const [lastTrackId, setLastTrackId] = useState("");
+  const [resume, setResume] = useState(null);
+  const [saveNote, setSaveNote] = useState("");
 
   const refreshCards = () => api.get("/study").then((r) => {
     setCards(r.data?.programs || []);
@@ -105,13 +107,16 @@ export default function Programs() {
 
   const openTrack = (id) => {
     api.get(`/tracks/${id}`).then((response) => {
+      const checkpoint = response.data.state?.checkpoint || null;
       setTrack(response.data.track);
       setLastTrackId(id);
-      setSectionIndex(0);
-      setTrackAnswers({});
+      setSectionIndex(checkpoint?.sectionIndex || 0);
+      setTrackAnswers(checkpoint?.answers || {});
       setAssignmentText("");
-      setTrackResult(null);
-      setExamMode(false);
+      setTrackResult(checkpoint?.scores || null);
+      setExamMode(!!checkpoint?.examMode);
+      setResume(checkpoint ? { ...checkpoint, token: Date.now() } : null);
+      setSaveNote("");
     }).catch((err) => toast.error(errorText(err)));
   };
 
@@ -138,6 +143,21 @@ export default function Programs() {
       setTrackResult(data);
     } catch (err) {
       toast.error(errorText(err));
+    }
+  };
+
+  const saveLesson = async (snapshot) => {
+    if (!track) return;
+    try {
+      await api.post(`/tracks/${track.id}/checkpoint`, {
+        ...snapshot,
+        sectionIndex,
+        examMode,
+      });
+      setSaveNote("Saved on this computer.");
+      saveProgramPick();
+    } catch (err) {
+      setSaveNote(errorText(err));
     }
   };
 
@@ -242,6 +262,9 @@ export default function Programs() {
           }
           setTrackResult(null);
         }}
+        resume={resume}
+        onSave={saveLesson}
+        saveNote={saveNote}
         onScore={(answers) => {
           setTrackAnswers(answers);
           if (examMode) submitExam(answers);

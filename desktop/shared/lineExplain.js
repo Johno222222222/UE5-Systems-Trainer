@@ -3,8 +3,15 @@
 // Offline, deterministic notes for generated C++ lines and the nodes that emit them.
 // No model call. The same line always gets the same sentence.
 
+let authoredNodes = {};
+try {
+  authoredNodes = require("../../content/study/nodes.json");
+} catch (err) {
+  authoredNodes = {};
+}
+
 const CATALOG_EXPLAIN = {
-  "begin-play": "Begin Play runs once when the actor enters the world. This is the setup step, not a loop.",
+  "begin-play": "Begin Play fires once when this actor is spawned or placed and the play session starts for it. It does not start servers or the match.",
   "end-play": "End Play runs when the actor is leaving. Use it to stop timers and drop what this actor owned.",
   tick: "Tick runs every frame. Anything on this line repeats for as long as the actor is alive.",
   "enhanced-input": "This is the key or button press. The rest of the function runs only when that action fires.",
@@ -197,10 +204,11 @@ function headerNote(header) {
 }
 
 function nodeWhy(catalog, label) {
+  if (authoredNodes[catalog]) return authoredNodes[catalog];
   const name = tidy(label) || "This node";
   const base = explainCatalog(catalog);
   if (base) return `${name}: ${base}`;
-  return `${name} is one step in the chain. The pins on its right run only after this step finishes.`;
+  return `${name} fires when its incoming exec runs, then does the job printed on the node.`;
 }
 
 const EXPANSION_SETS = {

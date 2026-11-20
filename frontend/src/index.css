@@ -573,6 +573,19 @@ html, body, #root {
   display: flex;
   flex-direction: column;
 }
+.shell-body > [data-testid="course-screen"] {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.shell-body > [data-testid="course-screen"] > .home-screen {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
+  overflow: auto;
+}
 .shell-pane { min-height: 0; min-width: 0; }
 .shell-pane:not([hidden]) { flex: 1; display: flex; flex-direction: column; }
 .shell-pane > .App { flex: 1; height: auto; min-height: 0; }
@@ -890,6 +903,72 @@ html, body, #root {
   color: var(--text-primary);
   text-decoration-color: var(--unreal-orange);
   outline: none;
+}
+.top-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 4000;
+  isolation: isolate;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 72px 20px 20px;
+  background: rgba(5, 7, 12, 0.62);
+}
+.top-layer-card {
+  position: relative;
+  z-index: 1;
+  width: min(560px, 100%);
+}
+.top-pop {
+  position: fixed;
+  z-index: 4200;
+  isolation: isolate;
+}
+.lesson-hub {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.lesson-hub-card {
+  flex: 1 1 220px;
+  max-width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.lesson-hub-label, .lesson-hub-full {
+  display: block;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: normal;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.lesson-hub-full { margin-top: 6px; color: var(--text-secondary); }
+.lesson-blank-graph {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.lesson-blank-node {
+  min-width: 120px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #0099ff;
+  background: #121826;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+.lesson-blank-node.is-blank {
+  border-style: dashed;
+  color: var(--text-muted);
 }
 .glossary-pop {
   position: absolute;

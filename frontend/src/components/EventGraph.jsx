@@ -828,8 +828,8 @@ export default function EventGraph({
             )}
           </div>
         )}
-        {explainOpen && (
-          <div className="graph-explain panel p-3" data-testid="graph-explain-text" data-graph-chrome onPointerDown={(event) => event.stopPropagation()}>
+        {explainOpen && createPortal(
+          <div className="graph-explain panel p-3 top-pop" style={{ position: "fixed", left: 16, right: 16, bottom: 16, zIndex: 4200 }} data-testid="graph-explain-text" data-graph-chrome onPointerDown={(event) => event.stopPropagation()}>
             <div className="flex items-center justify-between gap-2 mb-1">
               <div className="eyebrow">What fires</div>
               <button type="button" className="ue-btn !py-0.5 !px-1.5 !text-[10px]" data-testid="graph-explain-close" onClick={() => setExplainOpen(false)}>Close</button>
@@ -837,25 +837,28 @@ export default function EventGraph({
             {explainState === "loading" && <p className="text-[12px] text-[var(--text-muted)]" data-testid="graph-explain-loading">Asking for a walkthrough…</p>}
             {explainError && <p className="text-[12px] text-[var(--accent-red)] mb-1" data-testid="graph-explain-error">{explainError}</p>}
             <p className="text-[12.5px] text-[var(--text-secondary)]"><GlossaryText text={summary} /></p>
-          </div>
+          </div>,
+          document.body,
         )}
-        {varMenu?.id && (
-          <div className="graph-menu panel" style={{ left: varMenu.x, top: varMenu.y }} data-testid="variable-drop-menu" data-graph-chrome>
+        {varMenu?.id && createPortal(
+          <div className="graph-menu panel top-pop" style={{ left: varMenu.x, top: varMenu.y, position: "fixed", zIndex: 4200 }} data-testid="variable-drop-menu" data-graph-chrome>
             <button type="button" className="graph-menu-item" onClick={() => { const variable = doc.variables.find((item) => item.id === varMenu.id); if (variable) commit(addNode(graph, variableNode(variable, "get", varMenu.gx, varMenu.gy))); setVarMenu(null); }}>Get</button>
             <button type="button" className="graph-menu-item" onClick={() => { const variable = doc.variables.find((item) => item.id === varMenu.id); if (variable) commit(addNode(graph, variableNode(variable, "set", varMenu.gx, varMenu.gy))); setVarMenu(null); }}>Set</button>
-          </div>
+          </div>,
+          document.body,
         )}
         {children}
       </div>
-      {menu && (
-        <div className="graph-menu panel" style={{ left: menu.x, top: menu.y }} data-testid="graph-menu" onPointerDown={(event) => event.stopPropagation()}>
+      {menu && createPortal(
+        <div className="graph-menu panel top-pop" style={{ left: menu.x, top: menu.y, position: "fixed", zIndex: 4200 }} data-testid="graph-menu" onPointerDown={(event) => event.stopPropagation()}>
           {menu.wireId && <button type="button" className="graph-menu-item" onClick={() => { commit(removeParts(graph, { wires: [menu.wireId] })); setMenu(null); }}>Remove wire</button>}
           {menu.nodeId && <button type="button" className="graph-menu-item" onClick={() => { onShowCpp?.(menu.nodeId); setMenu(null); }}>Show in C++</button>}
           {(menu.nodeId || menu.wireId) && <button type="button" className="graph-menu-item" onClick={() => { commit(removeParts(graph, { nodes: menu.nodeId ? [menu.nodeId] : [], wires: menu.wireId ? [menu.wireId] : [] })); setMenu(null); }}>Delete</button>}
-        </div>
+        </div>,
+        document.body,
       )}
       {hint && createPortal(
-        <div className="graph-hint" style={{ left: hint.x, top: hint.y, zIndex: 80 }} data-testid="graph-wire-hint">{hint.text}</div>,
+        <div className="graph-hint top-pop" style={{ left: hint.x, top: hint.y, zIndex: 4200 }} data-testid="graph-wire-hint">{hint.text}</div>,
         document.body,
       )}
     </div>

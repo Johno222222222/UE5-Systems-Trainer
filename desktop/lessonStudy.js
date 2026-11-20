@@ -6,7 +6,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const { loadGraph, nodeLabel, cppExcerpt, renderGraph, hubSvg } = require("./lessonRender");
+const { loadGraph, nodeLabel, cppExcerpt, renderGraph, hubSvg, shortSpoke } = require("./lessonRender");
 const { explainLine, nodeWhy, headerNote } = require("./shared/lineExplain");
 
 const STUDY = path.join(__dirname, "..", "content", "study");
@@ -72,27 +72,46 @@ function blanksFor(section) {
   };
 }
 
+function fitPrompt(prompt, fallback, model) {
+  const text = String(prompt || "").replace(/\s+/g, " ").trim();
+  const leaked = /^In your own words:/.test(text)
+    || /^Name one thing that would go wrong in a match if this lesson were ignored\./.test(text);
+  if (text && text.length <= 200 && !leaked) return { prompt: text, model };
+  const first = text.split(/(?<=[.!?])\s/)[0];
+  if (first && first.length <= 200 && first.length >= 12 && !/^In your own words:/.test(first)) {
+    const rest = text.slice(first.length).trim();
+    return { prompt: first, model: [model, rest].filter(Boolean).join(" ") };
+  }
+  return { prompt: fallback, model: [model, text].filter(Boolean).join(" ") };
+}
+
 function tasksFor(section, authored) {
   const base = section.assignment || {};
+  const title = String(section.title || "this step").replace(/\.$/, "");
+  const repair = fitPrompt(
+    base.prompt,
+    `What should change in ${title} so the graph matches this lesson?`,
+    base.model || "",
+  );
   return [
     {
       id: `${section.id}-repair`,
       kind: "text",
-      prompt: base.prompt,
+      prompt: repair.prompt,
       accept: base.accept || [],
-      model: base.model || "",
+      model: repair.model,
     },
     {
       id: `${section.id}-plain`,
       kind: "text",
-      prompt: `In your own words: ${authored.plainEnglish}`,
+      prompt: `In your own words, explain why ${title} should be built the way this lesson shows.`,
       accept: [],
       model: authored.plainEnglish,
     },
     {
       id: `${section.id}-why-game`,
       kind: "text",
-      prompt: `Name one thing that would go wrong in a match if this lesson were ignored. ${authored.whyGame}`,
+      prompt: `Name one thing that would go wrong in a match if ${title} were ignored.`,
       accept: [],
       model: authored.whyGame,
     },
@@ -122,6 +141,14 @@ function annotateSection(section, authored, bank, nodes) {
   }));
   section.blanks = blanksFor(section);
   section.tasks = tasksFor(section, authored);
+  const spokeSource = (section.depends && section.depends.length)
+    ? section.depends
+    : (section.reading || []).map((block) => (typeof block === "string" ? block : block.body)).filter(Boolean).slice(0, 4);
+  section.hubNotes = spokeSource.slice(0, 6).map((text, index) => ({
+    id: `${section.id}-hub-${index}`,
+    label: shortSpoke(text),
+    full: String(text).replace(/\s+/g, " ").trim(),
+  }));
   section.nodeNotes = graphNodes(section.graph).map((node) => ({
     key: node.key,
     label: node.label,
@@ -196,7 +223,7 @@ function enrichCourse(course) {
     };
     const doc = loadGraph(graph);
     section.image = doc ? renderGraph(doc, { why: section.why }) : "";
-    section.flow = hubSvg(section.title, reading.slice(0, 4).map((paragraph) => paragraph.slice(0, 42)));
+    section.flow = hubSvg(section.title, reading.slice(0, 4));
     annotateSection(section, authored, notes, readJson("nodes.json"));
     mod.quiz = section.quiz.map((question) => ({ ...question, review_prompt: question.review_prompt || question.prompt }));
     mod.graph = graph;

@@ -3,6 +3,9 @@ import GlossaryText from "../components/GlossaryText";
 import ChoiceButton from "../components/ChoiceButton";
 import { presentQuiz } from "../lib/quizShuffle.js";
 import { api, errorText } from "../lib/api";
+import assignmentView from "../../../desktop/shared/assignmentView.js";
+
+const { visibleCppLines, visibleGraphNodes } = assignmentView;
 
 function Figure({ svg, testId }) {
   if (!svg) return null;
@@ -82,36 +85,56 @@ function CppLines({ notes, blanks, revealed }) {
   );
 }
 
-function TaskList({ tasks, blanks }) {
+function TaskList({ tasks, blanks, notes, nodes, checked, onChecked }) {
   const [revealed, setRevealed] = useState({});
-  const [checked, setChecked] = useState({});
   return (
     <div className="mt-4" data-testid="lesson-tasks">
-      {(tasks || []).map((task) => (
-        <div key={task.id} className="mt-3 panel p-3" data-testid={`lesson-task-${task.kind}`}>
-          <div className="text-[13px]"><GlossaryText text={task.prompt} /></div>
-          {task.kind === "cpp-blank" && (
-            <pre className="mt-2 text-[12px] font-mono overflow-auto" data-testid="cpp-blanks">
-              {(blanks?.cpp || []).map((row) => `${row.line}: ${revealed[task.id] ? row.text : "________"}`).join("\n")}
-            </pre>
-          )}
-          {task.kind === "graph-blank" && (
-            <ul className="mt-2 text-[13px]" data-testid="graph-blanks">
-              {(blanks?.nodes || []).map((node) => (
-                <li key={node.key || node.label}>{revealed[task.id] ? node.label : "Blank node"}</li>
-              ))}
-            </ul>
-          )}
-          <label className="mt-2 flex items-center gap-2 text-[12px]">
-            <input type="checkbox" checked={!!checked[task.id]} onChange={(event) => setChecked((current) => ({ ...current, [task.id]: event.target.checked }))} />
-            I checked this myself
-          </label>
-          <button type="button" className="ue-btn mt-2" data-testid={`reveal-${task.kind}`} onClick={() => setRevealed((current) => ({ ...current, [task.id]: !current[task.id] }))}>
-            {revealed[task.id] ? "Hide answers" : "Reveal answers"}
-          </button>
-          {revealed[task.id] && task.model && <p className="mt-2 text-[13px] text-[var(--text-secondary)]" data-testid={`model-${task.kind}`}>{task.model}</p>}
-        </div>
-      ))}
+      {(tasks || []).map((task) => {
+        const open = !!revealed[task.id];
+        const lines = visibleCppLines(notes, blanks, open);
+        const graph = visibleGraphNodes(nodes, blanks, open);
+        return (
+          <div key={task.id} className="mt-3 panel p-3" data-testid={`lesson-task-${task.kind}`}>
+            <div className="text-[13px]"><GlossaryText text={task.prompt} /></div>
+            {task.kind === "cpp-blank" && (
+              <pre className="mt-2 text-[12px] font-mono overflow-auto whitespace-pre-wrap" data-testid="cpp-blanks">
+                {lines.map((row) => `${row.line}: ${row.text}`).join("\n")}
+              </pre>
+            )}
+            {task.kind === "graph-blank" && (
+              <div className="lesson-blank-graph" data-testid="graph-blanks">
+                {graph.map((node) => (
+                  <div key={node.key || node.label} className={`lesson-blank-node${node.label === "Blank node" ? " is-blank" : ""}`} data-testid={`graph-node-${node.key || node.label}`}>
+                    {node.label}
+                  </div>
+                ))}
+              </div>
+            )}
+            <label className="mt-2 flex items-center gap-2 text-[12px]">
+              <input
+                type="checkbox"
+                data-testid={`check-${task.kind}`}
+                checked={!!checked[task.id]}
+                onChange={(event) => onChecked((current) => ({ ...current, [task.id]: event.target.checked }))}
+              />
+              I checked this myself
+            </label>
+            <button type="button" className="ue-btn mt-2" data-testid={`reveal-${task.kind}`} onClick={() => setRevealed((current) => ({ ...current, [task.id]: !current[task.id] }))}>
+              {open ? "Hide answers" : "Reveal answers"}
+            </button>
+            {open && task.model && <p className="mt-2 text-[13px] text-[var(--text-secondary)]" data-testid={`model-${task.kind}`}>{task.model}</p>}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function SaveBar({ onSave, note }) {
+  return (
+    <div className="mt-4 flex items-center gap-3">
+      <button type="button" className="ue-btn ue-btn-primary" data-testid="lesson-save" onClick={onSave}>Save</button>
+      {note && <span className="text-[12px] text-[var(--text-muted)]" data-testid="lesson-save-note">{note}</span>}
     </div>
   );
 }
@@ -132,19 +155,40 @@ export default function LessonStudio({
   result,
   nextLabel,
   onNext,
+  resume,
+  onSave,
+  saveNote,
 }) {
   const section = sections[sectionIndex];
-  const [phase, setPhase] = useState("lesson");
-  const [seed, setSeed] = useState(1);
-  const [picked, setPicked] = useState({});
+  const [phase, setPhase] = useState(resume?.phase || "lesson");
+  const [seed, setSeed] = useState(resume?.seed || 1);
+  const [picked, setPicked] = useState(resume?.answers || {});
+  const [checked, setChecked] = useState(resume?.checked || {});
   const [headerOpen, setHeaderOpen] = useState("");
+  const [hubOpen, setHubOpen] = useState("");
   const source = examMode ? (examQuestions || []) : (section?.quiz || []);
   const shown = presentQuiz(source, seed);
 
   useEffect(() => {
+    if (resume && resume.sectionIndex === sectionIndex && !!resume.examMode === !!examMode) {
+      setPhase(resume.phase === "quiz" || resume.examMode ? "quiz" : "lesson");
+      setPicked(resume.answers || {});
+      setChecked(resume.checked || {});
+      if (resume.seed) setSeed(resume.seed);
+      return;
+    }
     setPhase("lesson");
     setPicked({});
-  }, [sectionIndex, examMode]);
+    setChecked({});
+  }, [sectionIndex, examMode, resume]);
+
+  const saveHere = () => onSave?.({
+    phase: examMode || phase === "quiz" ? "quiz" : "lesson",
+    answers: picked,
+    checked,
+    seed,
+    scores: result || null,
+  });
 
   const openQuiz = () => {
     setSeed(Date.now());
@@ -174,7 +218,22 @@ export default function LessonStudio({
         {!examMode && phase === "lesson" && section && (
           <div className="panel p-4 mt-4" data-testid="track-lesson">
             <Figure svg={section.image} testId="track-lesson-image" />
-            <Figure svg={section.flow} testId="track-lesson-flow" />
+            {(section.hubNotes || []).length > 0 && (
+              <div className="lesson-hub" data-testid="lesson-hub">
+                {section.hubNotes.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className="lesson-hub-card"
+                    data-testid={`hub-${item.id}`}
+                    onClick={() => setHubOpen(hubOpen === item.id ? "" : item.id)}
+                  >
+                    <span className="lesson-hub-label">{item.label}</span>
+                    {hubOpen === item.id && <span className="lesson-hub-full" data-testid={`hub-full-${item.id}`}>{item.full}</span>}
+                  </button>
+                ))}
+              </div>
+            )}
             {section.whyLayman && <p className="mt-3 text-[13px]" data-testid="track-why-layman"><GlossaryText text={section.whyLayman} /></p>}
             {(section.nodeNotes || []).length > 0 && (
               <div className="mt-3" data-testid="track-node-notes">
@@ -212,8 +271,10 @@ export default function LessonStudio({
               </div>
             )}
             <CppLines notes={notes} blanks={[]} revealed />
-            <TaskList tasks={section.tasks} blanks={section.blanks} />
+            <h2 className="mt-4 font-display uppercase tracking-wider text-[18px]" data-testid="practice-assignments">PRACTICE ASSIGNMENTS</h2>
+            <TaskList tasks={section.tasks} blanks={section.blanks} notes={notes} nodes={section.nodeNotes} checked={checked} onChecked={setChecked} />
             <button type="button" className="ue-btn ue-btn-primary mt-4" data-testid="next-quiz" onClick={openQuiz}>NEXT: QUIZ</button>
+            <SaveBar onSave={saveHere} note={saveNote} />
           </div>
         )}
 
@@ -253,6 +314,7 @@ export default function LessonStudio({
             {!examMode && nextLabel && (
               <button type="button" className="ue-btn mt-3" data-testid="next-lesson" onClick={onNext}>NEXT: {nextLabel}</button>
             )}
+            <SaveBar onSave={saveHere} note={saveNote} />
           </div>
         )}
       </div>

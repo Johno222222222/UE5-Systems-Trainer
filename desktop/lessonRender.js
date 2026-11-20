@@ -75,6 +75,33 @@ function nodeLabel(node) {
   return LABELS[node.catalog] || node.key || node.catalog;
 }
 
+function wrapWords(text, maxChars) {
+  const words = String(text || "").replace(/\s+/g, " ").trim().split(" ").filter(Boolean);
+  const lines = [];
+  let line = "";
+  for (const word of words) {
+    const next = line ? `${line} ${word}` : word;
+    if (next.length > maxChars && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = next;
+    }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+function fitLines(text, maxChars, maxLines) {
+  const lines = wrapWords(text, maxChars);
+  if (lines.length <= maxLines) return lines;
+  const kept = lines.slice(0, maxLines);
+  const last = kept[maxLines - 1];
+  const room = Math.max(8, maxChars - 1);
+  kept[maxLines - 1] = `${last.length > room ? last.slice(0, last.lastIndexOf(" ") > 8 ? last.lastIndexOf(" ") : room) : last}…`;
+  return kept;
+}
+
 function renderGraph(doc, { broken = false, why = "" } = {}) {
   const graph = doc?.graph || doc;
   const nodes = graph?.nodes || [];
@@ -85,7 +112,8 @@ function renderGraph(doc, { broken = false, why = "" } = {}) {
   const maxX = Math.max(...nodes.map((node) => (node.x || 0) + 168));
   const maxY = Math.max(...nodes.map((node) => (node.y || 0) + 72));
   const width = Math.max(640, maxX - minX + pad * 2);
-  const height = Math.max(220, maxY - minY + pad * 2 + (why || broken ? 56 : 16));
+  const whyLinesForHeight = why ? fitLines(String(why).replace(/\s+/g, " ").trim(), 78, 3) : [];
+  const height = Math.max(220, maxY - minY + pad * 2 + (whyLinesForHeight.length ? 28 + whyLinesForHeight.length * 16 : 16) + (broken ? 56 : 0));
   const at = (node) => ({ x: (node.x || 0) - minX + pad, y: (node.y || 0) - minY + pad });
   const byKey = new Map(nodes.map((node) => [node.key, node]));
   const wires = (graph.wires || []).map((wire) => {
@@ -98,8 +126,10 @@ function renderGraph(doc, { broken = false, why = "" } = {}) {
   }).join("");
   const boxes = nodes.map((node) => {
     const p = at(node);
-    const label = nodeLabel(node).slice(0, 22);
+    const full = nodeLabel(node);
+    const label = full.length <= 22 ? full : shortSpoke(full).replace(/…$/, "").slice(0, 22).replace(/\s+\S*$/, "") || full.slice(0, 22);
     return `<rect x="${p.x}" y="${p.y}" width="150" height="52" rx="6" fill="#121826" stroke="#0099ff"/>
+      <title>${esc(full)}</title>
       <text x="${p.x + 75}" y="${p.y + 30}" fill="#e8eef8" font-size="11" text-anchor="middle" font-family="sans-serif">${esc(label)}</text>`;
   }).join("");
   const scenario = String(why || "").replace(/\s+/g, " ").trim();
@@ -114,9 +144,12 @@ function renderGraph(doc, { broken = false, why = "" } = {}) {
       <path d="M ${p.x + 84} ${Math.max(8, p.y - 70) + 52} V ${p.y}" stroke="#e02424" stroke-width="3" stroke-dasharray="6 4"/>`;
   }
   const note = scenario || "";
-  const foot = note
-    ? `<rect x="16" y="${height - 48}" width="${width - 32}" height="34" rx="6" fill="#1a1208" stroke="#ff7a1a"/>
-       <text x="28" y="${height - 27}" fill="#ffb06a" font-size="12" font-family="sans-serif">WHY ${esc(note).slice(0, 140)}</text>`
+  const whyLines = note ? fitLines(note, 78, 3) : [];
+  const footH = whyLines.length ? 20 + whyLines.length * 16 : 0;
+  const foot = whyLines.length
+    ? `<rect x="16" y="${height - footH - 10}" width="${width - 32}" height="${footH}" rx="6" fill="#1a1208" stroke="#ff7a1a"/>
+       <title>${esc(note)}</title>
+       <text x="28" y="${height - footH + 8}" fill="#ffb06a" font-size="12" font-family="sans-serif">${whyLines.map((line, index) => `<tspan x="28" dy="${index === 0 ? 0 : 16}">${index === 0 ? "WHY " : ""}${esc(line)}</tspan>`).join("")}</text>`
     : "";
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">
@@ -125,21 +158,35 @@ function renderGraph(doc, { broken = false, why = "" } = {}) {
 </svg>`;
 }
 
+function shortSpoke(text) {
+  const clean = String(text || "").replace(/\s+/g, " ").trim();
+  const sentence = clean.split(/(?<=[.!?])\s/)[0] || clean;
+  if (sentence.length <= 72) return sentence;
+  const cut = sentence.slice(0, 72);
+  const space = cut.lastIndexOf(" ");
+  return `${(space > 24 ? cut.slice(0, space) : cut).trim()}…`;
+}
+
 function hubSvg(title, spokes) {
-  const items = (spokes || []).slice(0, 6);
+  const items = (spokes || []).slice(0, 6).map((item) => String(item || ""));
   const left = items.filter((_, index) => index % 2 === 0);
   const right = items.filter((_, index) => index % 2 === 1);
-  const box = (label, x, y) => `<rect x="${x}" y="${y}" width="280" height="48" rx="8" fill="#121826" stroke="#3d4d66"/>
-    <text x="${x + 14}" y="${y + 29}" fill="#9ecbff" font-size="13" font-family="sans-serif">${esc(label).slice(0, 36)}</text>`;
-  const col = (list, x) => list.map((label, index) => box(label, x, 24 + index * 62)).join("");
-  const height = Math.max(220, 24 + Math.max(left.length, right.length) * 62 + 24);
+  const boxH = 72;
+  const box = (label, x, y) => {
+    const lines = fitLines(label, 32, 3);
+    return `<g><title>${esc(label)}</title><rect x="${x}" y="${y}" width="280" height="${boxH}" rx="8" fill="#121826" stroke="#3d4d66"/>
+    <text x="${x + 14}" y="${y + 22}" fill="#9ecbff" font-size="13" font-family="sans-serif">${lines.map((line, index) => `<tspan x="${x + 14}" dy="${index === 0 ? 0 : 16}">${esc(line)}</tspan>`).join("")}</text></g>`;
+  };
+  const col = (list, x) => list.map((label, index) => box(label, x, 24 + index * (boxH + 12))).join("");
+  const height = Math.max(220, 24 + Math.max(left.length, right.length) * (boxH + 12) + 24);
+  const titleLines = fitLines(title, 24, 2);
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 ${height}">
   <rect width="920" height="${height}" fill="#0c1018"/>
   ${col(left, 16)}${col(right, 624)}
   <rect x="320" y="${Math.max(40, height / 2 - 48)}" width="280" height="88" rx="10" fill="#101828" stroke="#0099ff"/>
-  <text x="460" y="${Math.max(40, height / 2 - 48) + 38}" fill="#e8eef8" font-size="15" text-anchor="middle" font-family="sans-serif">${esc(title).slice(0, 28)}</text>
-  <text x="460" y="${Math.max(40, height / 2 - 48) + 60}" fill="#ff7a1a" font-size="12" text-anchor="middle" font-family="sans-serif">depends on</text>
+  <text x="460" y="${Math.max(40, height / 2 - 48) + 36}" fill="#e8eef8" font-size="15" text-anchor="middle" font-family="sans-serif">${titleLines.map((line, index) => `<tspan x="460" dy="${index === 0 ? 0 : 16}">${esc(line)}</tspan>`).join("")}</text>
+  <text x="460" y="${Math.max(40, height / 2 - 48) + 70}" fill="#ff7a1a" font-size="12" text-anchor="middle" font-family="sans-serif">depends on</text>
 </svg>`;
 }
 
@@ -155,4 +202,4 @@ function cppExcerpt(id) {
   return entry.lines;
 }
 
-module.exports = { loadGraph, renderGraph, hubSvg, cppExcerpt, nodeLabel };
+module.exports = { loadGraph, renderGraph, hubSvg, cppExcerpt, nodeLabel, shortSpoke, fitLines };

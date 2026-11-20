@@ -19,6 +19,8 @@ export default function Courses() {
   const [packProblems, setPackProblems] = useState([]);
   const [genre, setGenre] = useState("all");
   const [level, setLevel] = useState("all");
+  const [resume, setResume] = useState(null);
+  const [saveNote, setSaveNote] = useState("");
 
   const loadList = () => api.get("/study").then((r) => {
     setCards(r.data?.courses || []);
@@ -32,17 +34,34 @@ export default function Courses() {
   const openCourse = (id) => {
     api.get(`/courses/${id}`)
       .then((r) => {
+        const checkpoint = r.data.state?.checkpoint || null;
         setCourse(r.data.course);
-        setModuleIndex(0);
-        setAnswers({});
+        setModuleIndex(checkpoint?.sectionIndex || 0);
+        setAnswers(checkpoint?.answers || {});
         setDiff("");
         setAssignment("");
-        setResult(null);
+        setResult(checkpoint?.scores || null);
+        setResume(checkpoint ? { ...checkpoint, token: Date.now() } : null);
+        setSaveNote("");
       })
       .catch((err) => toast.error(errorText(err)));
   };
 
   const mod = course?.modules?.[moduleIndex];
+
+  const saveLesson = async (snapshot) => {
+    if (!course) return;
+    try {
+      await api.post(`/courses/${course.id}/checkpoint`, {
+        ...snapshot,
+        sectionIndex: moduleIndex,
+        examMode: false,
+      });
+      setSaveNote("Saved on this computer.");
+    } catch (err) {
+      setSaveNote(errorText(err));
+    }
+  };
 
   const submit = async (given) => {
     if (!course || !mod) return;
@@ -165,6 +184,9 @@ export default function Courses() {
           result={result}
           nextLabel={next ? next.title : ""}
           onClose={() => { setCourse(null); setResult(null); loadList(); }}
+          resume={resume}
+          onSave={saveLesson}
+          saveNote={saveNote}
           onSection={(index) => { setModuleIndex(index); setAnswers({}); setResult(null); }}
           onNext={() => { if (next) { setModuleIndex(moduleIndex + 1); setResult(null); } }}
           onScore={(given) => submit(given)}

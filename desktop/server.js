@@ -1756,6 +1756,46 @@ async function startServer(options = {}) {
     return { track, state: trackState(liveStudy())[track.id] || { sections: {}, exam: null } };
   });
 
+  function checkpointFrom(body) {
+    const source = body || {};
+    return {
+      sectionIndex: Number(source.sectionIndex) || 0,
+      examMode: !!source.examMode,
+      phase: source.phase === "quiz" ? "quiz" : "lesson",
+      answers: source.answers && typeof source.answers === "object" ? source.answers : {},
+      checked: source.checked && typeof source.checked === "object" ? source.checked : {},
+      seed: Number(source.seed) || 1,
+      scores: source.scores && typeof source.scores === "object" ? source.scores : null,
+      at: nowIso(),
+    };
+  }
+
+  route("POST", "/api/tracks/:id/checkpoint", async (req, params) => {
+    const track = trackById(params.id);
+    if (!track) throw new HttpError(404, "That track isn't in the programs.");
+    const body = await readJson(req);
+    return store.update((data) => {
+      data.progress = ensureStudy(data.progress);
+      const saved = trackState(data.progress.study);
+      if (!saved[track.id]) saved[track.id] = { sections: {}, exam: null };
+      saved[track.id].checkpoint = checkpointFrom(body);
+      return { checkpoint: saved[track.id].checkpoint };
+    });
+  });
+
+  route("POST", "/api/courses/:id/checkpoint", async (req, params) => {
+    const found = courseById(lessonPacks, params.id);
+    if (!found) throw new HttpError(404, "That course isn't in the packs.");
+    const body = await readJson(req);
+    return store.update((data) => {
+      data.progress = ensureStudy(data.progress);
+      const study = data.progress.study;
+      if (!study.courses[found.id]) study.courses[found.id] = { modules: {} };
+      study.courses[found.id].checkpoint = checkpointFrom(body);
+      return { checkpoint: study.courses[found.id].checkpoint };
+    });
+  });
+
   route("POST", "/api/tracks/:id/sections/:section_id/attempt", async (req, params) => {
     const track = trackById(params.id);
     if (!track) throw new HttpError(404, "That track isn't in the programs.");
