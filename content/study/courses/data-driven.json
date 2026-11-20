@@ -93,7 +93,7 @@
             "The rule: clamp Needed to the empty space and to the reserve. The numbers come from the row.",
             "A copy of the function per row.",
             "The mesh, compiled into the function.",
-            "Tick, which picks a row every frame by scanning the table."
+            "A frame loop that scans the table for a row."
           ],
           "answer": 0,
           "why": "One function, many rows.",
@@ -145,7 +145,7 @@
             "The data table. Not a scatter of literals across components.",
             "The character Tick.",
             "The player controller input graph.",
-            "OnRep_Health."
+            "The health-change notify."
           ],
           "answer": 0,
           "why": "One list.",
@@ -169,7 +169,7 @@
           "prompt": "What does the player notice if two weapons share a row by mistake?",
           "choices": [
             "They share magazine size, damage, or whatever else that row held, even though the meshes differ.",
-            "Nothing. Rows are comments.",
+            "No row, if rows were only comments.",
             "The game will not cook.",
             "Input unbinds the fire button."
           ],
@@ -204,8 +204,8 @@
           "prompt": "What does a data table row inherit?",
           "choices": [
             "FTableRowBase. That is the shape of one row.",
-            "AActor, so the row can tick.",
-            "UUserWidget, so the row can draw itself.",
+            "An actor base, so the row could tick.",
+            "A widget base, so the row could draw itself.",
             "The character class, so each row is a pawn."
           ],
           "answer": 0,
@@ -219,7 +219,7 @@
           "choices": [
             "On the row struct.",
             "As three unrelated globals.",
-            "On the widget, in a private text block.",
+            "Inside a private text block on the bar.",
             "As arguments on the server RPC the client fills in."
           ],
           "answer": 0,
@@ -270,7 +270,7 @@
           "prompt": "A field is added to the struct and not filled on old rows. What is the risk?",
           "choices": [
             "Old weapons load a default for that field and behave as if the designer chose it.",
-            "Nothing. New fields delete the row.",
+            "No new field, if adding one deleted the row.",
             "The table stops replicating.",
             "Tick fills the field from the player's framerate."
           ],
@@ -297,8 +297,8 @@
           "choices": [
             "No one. It is not an actor.",
             "The table, once per frame, so rows stay fresh.",
-            "The client, so prediction can simulate the row.",
-            "OnRep, which ticks the struct when it replicates."
+            "The predicting machine, so it can simulate the row.",
+            "The replication callback, which would tick the struct when it arrives."
           ],
           "answer": 0,
           "why": "Rows do not tick.",
@@ -319,7 +319,7 @@
         {
           "id": "data-row-10",
           "kind": "mc",
-          "prompt": "Two tables need the same shape. What do they share?",
+          "prompt": "Two tables need the same shape. Which type do both rows use?",
           "choices": [
             "The row struct. Each table has its own rows.",
             "One row, and the tables are views of that single struct instance.",
@@ -348,7 +348,7 @@
           "prompt": "What does a designer break by renaming a field without updating the code that reads it?",
           "choices": [
             "The lookup still returns a row, and the code reads a field that is no longer the magazine.",
-            "Nothing. Field names are comments.",
+            "No names, if field names were comments.",
             "The input action rebinds.",
             "Authority flips to the client."
           ],
@@ -398,7 +398,7 @@
           "choices": [
             "One data asset. They do not each embed a copy of the rules.",
             "Ten copies of the rule code.",
-            "The HUD, which stores the medkit.",
+            "The heads-up display, which would store the medkit.",
             "Each other, in a circle of actor references."
           ],
           "answer": 0,
@@ -475,9 +475,9 @@
           "prompt": "Someone subclasses the pickup per item instead of pointing at assets. What grows?",
           "choices": [
             "The class list, one Blueprint per item, with the rules copied.",
-            "Nothing. Subclasses are how data assets are stored.",
+            "No asset, if subclasses were the storage.",
             "The row struct, which must inherit AActor.",
-            "Tick, which is required for assets."
+            "A frame loop, if assets required one."
           ],
           "answer": 0,
           "why": "Assets avoid the class explosion.",
@@ -562,9 +562,9 @@
           "prompt": "Who should read the weapon row?",
           "choices": [
             "The weapon component. The widget does not decide magazine size.",
-            "The widget, which is closer to the player's eyes.",
+            "The bar, because it is closer to the player's eyes.",
             "The anim blueprint, which traces to discover the mag size.",
-            "The client, inside a server RPC argument."
+            "The caller, stuffed into a server request argument."
           ],
           "answer": 0,
           "why": "The component reads. The widget draws.",
@@ -578,7 +578,7 @@
             "The HUD, if it kept its own number instead of reading the component that read the row.",
             "The row, because UI is the source of truth.",
             "The input action.",
-            "OnRep, which should have copied the HUD into the row."
+            "The notify, which would copy the bar into the row."
           ],
           "answer": 0,
           "why": "The component that read the row owns the number.",
@@ -654,9 +654,9 @@
           "prompt": "Who runs the clamp?",
           "choices": [
             "The component, with the numbers it read. Not the widget, and not the data asset's imaginary Tick.",
-            "The widget, inside its paint.",
+            "The bar, inside its paint.",
             "The row struct, which is an actor.",
-            "The client, before the server has the row."
+            "The local machine, before the server has the row."
           ],
           "answer": 0,
           "why": "The component owns the rule.",

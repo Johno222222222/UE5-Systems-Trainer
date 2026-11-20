@@ -25,9 +25,9 @@
           "prompt": "Who writes replicated health?",
           "choices": [
             "The machine with authority. A client can ask, and must not apply the number itself.",
-            "Every client, so the hit marker appears before the server is bothered.",
-            "The widget, by editing the text of the health bar.",
-            "OnRep, which subtracts again when the value arrives."
+            "Each machine, so the hit marker appears before the server is asked.",
+            "The bar text, edited in place.",
+            "The notify, which would subtract again when the value arrives."
           ],
           "answer": 0,
           "why": "Authority writes. Clients ask.",
@@ -298,7 +298,7 @@
             "The equipped id. Each client looks up the meshes from that id.",
             "Every mesh on the gun, every attachment, and the material instances.",
             "The gunsmith data asset pointer only, with no id.",
-            "Nothing. Weapons are not visible to other players."
+            "No id, if other players could not see weapons."
           ],
           "answer": 0,
           "why": "Replicate the id, not the meshes.",
@@ -348,7 +348,7 @@
           "prompt": "What breaks if the widget is the replicated object and the health float is not?",
           "choices": [
             "Clients share a UI object they cannot sensibly share, and they still do not know the health.",
-            "Nothing. Widgets replicate more cheaply than floats.",
+            "No float, if bars replicated more cheaply than numbers.",
             "Movement stops.",
             "Input tags all activate."
           ],
@@ -383,7 +383,7 @@
           "prompt": "When does OnRep run?",
           "choices": [
             "When the replicated value arrives on a machine that did not write it.",
-            "Every Tick, so the reaction cannot miss a frame.",
+            "On each frame, so the reaction cannot miss one.",
             "In the constructor, before the value exists.",
             "When the player presses any input."
           ],
@@ -435,7 +435,7 @@
           "prompt": "A limp starts in OnRep when a limb value changes. Where was the limp amount decided?",
           "choices": [
             "On the authority, before the value replicated.",
-            "Inside OnRep, which is the first time anyone does the math.",
+            "In the notify, if that were the first time anyone did the math.",
             "In the animation blueprint, which writes the replicated float.",
             "On the client that shot, which replicated its own result."
           ],
@@ -450,7 +450,7 @@
           "choices": [
             "20 on that client, 10 on the authority.",
             "10 everywhere, because OnRep additions are ignored.",
-            "0, because double writes cancel.",
+            "Zero, if the two writes cancelled.",
             "The widget's font size."
           ],
           "answer": 0,
@@ -475,7 +475,7 @@
           "prompt": "The server is the machine that wrote health. Does its OnRep need to subtract?",
           "choices": [
             "No. The server already wrote the value. OnRep is for the others, and it still must not subtract.",
-            "Yes. Otherwise the server's health is only half applied.",
+            "A second subtract, or the server number would be only half applied.",
             "Only if Tick did not run that frame.",
             "Only for the host's HUD font."
           ],
@@ -501,7 +501,7 @@
           "prompt": "A door's IsOpen replicates. OnRep plays the swing. What must it not do?",
           "choices": [
             "Toggle IsOpen again, which would fight the replicated value.",
-            "Read IsOpen.",
+            "Reading whether the door is open.",
             "Play a sound.",
             "Ignore the value and do nothing, which is also wrong if a swing was required, but the bug to avoid is writing."
           ],
@@ -528,7 +528,7 @@
           "choices": [
             "A correction. The bar jumps because the local subtract and the server value disagreed.",
             "A perfectly smooth death.",
-            "Nothing. Subtracts in OnRep are discarded.",
+            "No second subtract, if notify math were discarded.",
             "The server adopts the remote subtract."
           ],
           "answer": 0,
@@ -564,7 +564,7 @@
             "A server RPC. The server function decides the number.",
             "A client RPC from the victim to itself.",
             "A multicast that tells every machine to subtract whatever the shooter sent.",
-            "No RPC. The client writes health directly."
+            "No request, with health written directly on the machine that was hit."
           ],
           "answer": 0,
           "why": "Server RPC asks. The server decides.",
@@ -576,7 +576,7 @@
           "prompt": "The client sends Damage = 99999 in the server RPC. What should the server function do?",
           "choices": [
             "Ignore that number and compute the damage itself.",
-            "Apply 99999, because the RPC is a trusted message.",
+            "The sent amount, if a remote call were a trusted message.",
             "Average 99999 with the victim's health.",
             "Forward 99999 to every client in a multicast and let them apply it."
           ],
@@ -616,7 +616,7 @@
             "The flash. The damage still waits for the server.",
             "The health subtract, because the flash proves the hit.",
             "The victim's position, which the shooter may set.",
-            "The score, which the shooter may add."
+            "The points total, which the shooter might add."
           ],
           "answer": 0,
           "why": "Cosmetics can predict. Rules cannot.",
@@ -655,8 +655,8 @@
           "choices": [
             "On the authority, after it checks the mag and the reserve.",
             "On the client, inside the RPC call site, before the server runs.",
-            "In OnRep, which fills the mag when it notices a button press.",
-            "In the widget, which edits the ammo text."
+            "In the notify, which would fill the magazine when it saw a press.",
+            "In the ammo text, edited locally."
           ],
           "answer": 0,
           "why": "The server reloads. The client asked.",
@@ -680,7 +680,7 @@
           "prompt": "A cheat sets the RPC argument for the equipped item id. What stops a client from equipping a weapon they do not own?",
           "choices": [
             "The server checks the request against the real inventory before it writes EquippedId.",
-            "Nothing. EquippedId is whatever the client says.",
+            "No check, if the equipped slot were whatever the sender claimed.",
             "The widget refuses to draw locked guns, which is the only check.",
             "OnRep reverts the mesh but leaves the id."
           ],

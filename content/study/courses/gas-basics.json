@@ -27,7 +27,7 @@
             "The ability system component on the character.",
             "The character class, in its Tick.",
             "The widget that draws the stamina bar.",
-            "Every client, as soon as the button is pressed."
+            "Whoever pressed the button, before the ability system is asked."
           ],
           "answer": 0,
           "why": "The component owns activate, cost, and cooldown.",
@@ -39,7 +39,7 @@
           "prompt": "A designer puts the cooldown test on the character Tick so it never misses a frame. What breaks?",
           "choices": [
             "The character is doing the ability system's job, and the check runs while no ability was asked for.",
-            "Nothing. Tick is the only place a cooldown can live.",
+            "No separate clock, if a cooldown could only live on the frame loop.",
             "The ability system refuses to start if Tick is also checking.",
             "OnRep of health starts the ability instead."
           ],
@@ -143,7 +143,7 @@
           "prompt": "Where does a new ability get told it may start?",
           "choices": [
             "The ability system, after cost and tags pass.",
-            "Begin Play, once, for every ability the character might ever have.",
+            "Once at startup, for every ability the character might ever have.",
             "The overlap of a nearby pickup.",
             "OnRep of an unrelated health float."
           ],
@@ -170,7 +170,7 @@
           "choices": [
             "The authority's ability system. The client's guess is not the commit.",
             "The client alone, because prediction already played the animation.",
-            "The widget, on the next paint.",
+            "The health bar, on its next paint.",
             "No one. Costs are cosmetic."
           ],
           "answer": 0,
@@ -205,7 +205,7 @@
           "choices": [
             "On an attribute set the ability system can change.",
             "In a second float on the character, next to the attribute.",
-            "On the widget, as the only copy.",
+            "Only inside the health bar's text.",
             "In the mesh component, replicated as a transform."
           ],
           "answer": 0,
@@ -219,7 +219,7 @@
           "choices": [
             "The old value. The two numbers have diverged.",
             "The attribute, because Unreal copies it across automatically.",
-            "Zero, because a second float disables health.",
+            "A literal zero, if a second float were illegal.",
             "The mesh bounds, because health is a transform."
           ],
           "answer": 0,
@@ -270,7 +270,7 @@
           "prompt": "Who is allowed to be the source of truth for that attribute in a multiplayer game?",
           "choices": [
             "The authority's ability system. Clients receive the result.",
-            "Every client, so the hit feels instant and the server catches up later by guessing.",
+            "Each machine, so the hit feels instant and the server guesses later.",
             "The UI on the owning client only.",
             "The projectile, which stores health for the victim."
           ],
@@ -296,9 +296,9 @@
           "prompt": "A save writes the raw character float and ignores the attribute. What loads?",
           "choices": [
             "A health the ability system is no longer using.",
-            "Both, because they are the same memory.",
+            "Both copies, if they were the same memory.",
             "The mesh, because attributes serialize as transforms.",
-            "Nothing. Attributes cannot be saved at all."
+            "No attribute, if attributes could not be saved at all."
           ],
           "answer": 0,
           "why": "Save the attribute value, not a shadow float.",
@@ -348,7 +348,7 @@
           "prompt": "What does the player notice when only the attribute changes and the HUD still reads the old float?",
           "choices": [
             "The bar lies. The character can be dead while the bar looks full, or the reverse.",
-            "Nothing. The bar always reads the attribute by magic.",
+            "No binding, if the bar read the attribute by magic.",
             "The ability system shuts down.",
             "Input stops."
           ],
@@ -384,7 +384,7 @@
           "choices": [
             "By gameplay tag, so a new ability does not need a new cast.",
             "By casting to each ability Blueprint from the character.",
-            "By Tick, which tries every ability every frame.",
+            "By trying every ability on each frame.",
             "By OnRep of health, which is assumed to mean 'pressed the button'."
           ],
           "answer": 0,
@@ -397,7 +397,7 @@
           "prompt": "A new dash ability is added. What code change does a tag activation avoid?",
           "choices": [
             "A new cast, or a new branch, inside the character.",
-            "None. You still add a cast for every ability, and the tag is only a comment.",
+            "No lookup, if you still cast to every ability class.",
             "A new Tick function per ability.",
             "A new replicated mesh for the dash."
           ],
@@ -437,7 +437,7 @@
             "Activate by the reload tag. The ability system finds the granted ability.",
             "A cast to the reload Blueprint, written into the input function.",
             "Set Magazine directly, skipping the ability so cost cannot block it.",
-            "OnRep_Health, because reload is a replication event."
+            "The health notify, if reload were a replication event."
           ],
           "answer": 0,
           "why": "Input asks. The system activates.",
@@ -449,9 +449,9 @@
           "prompt": "A stun tag is on. What can block the reload ability without a special case in the character?",
           "choices": [
             "The ability system, because the tag activation can fail its tag check.",
-            "Nothing. Tag activation cannot fail.",
-            "The widget, by refusing to draw the button.",
-            "Tick, by deleting the ability each frame."
+            "No failure, if a tag could not fail to activate.",
+            "The button art, by refusing to draw.",
+            "Deleting the ability on each frame."
           ],
           "answer": 0,
           "why": "Tags are how the system says no.",
@@ -475,7 +475,7 @@
           "prompt": "Someone activates by class with a hard cast 'so it is explicit'. What grows when the tenth ability arrives?",
           "choices": [
             "The cast list, and every character that copied it.",
-            "Nothing. Casts are free and do not name a class.",
+            "No cost, if a cast named no class.",
             "The attribute set, which must add a float per cast.",
             "The fog system, which traces for each cast."
           ],
@@ -563,8 +563,8 @@
           "choices": [
             "A gameplay effect. Do not also subtract the cost by hand.",
             "The character Tick, subtracting a float and setting a timer of its own.",
-            "The widget, when it finishes the fade.",
-            "OnRep, which both plays the flash and spends the cost again."
+            "The fade, when the bar finishes animating.",
+            "The notify, which would play the flash and spend the cost again."
           ],
           "answer": 0,
           "why": "The effect is the cost and the cooldown.",
@@ -629,7 +629,7 @@
           "choices": [
             "The ability system, when the effect expires or is removed.",
             "The animator, by stopping the montage.",
-            "The client, by writing the attribute back to full.",
+            "The owning machine, by writing the attribute back to full.",
             "The overlap of the floor."
           ],
           "answer": 0,
