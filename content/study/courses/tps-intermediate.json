@@ -2,672 +2,596 @@
   "id": "tps-intermediate",
   "modules": {
     "layer": {
-      "plainEnglish": "In plain English, The modifier layer means: Enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis.",
-      "whyGame": "In a real game, getting the modifier layer wrong shows up as setting Aiming from Tick, or firing the weapon from the camera graph. the aim action is the repair, and the generated line `Aiming = true; // node:tpl_camera_set` is that repair in C++.",
+      "plainEnglish": "The device becomes an action before the graph runs. The base context holds move, look, aim, and interact. Holding the left trigger pushes a second context, so a face button that reloads can instead open a radial slot.",
+      "whyGame": "Leaving both contexts pushed makes one press reload and equip at once, and reading the key code breaks a rebind.",
       "expansions": [
         {
-          "title": "The modifier layer as a door",
-          "detail": "If the modifier layer is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "Base",
+          "detail": "Reload lives on the base layer."
         },
         {
-          "title": "The modifier layer as data",
-          "detail": "Designer numbers for the modifier layer live on a row. Aiming set true when the aim trace from the camera hits reads the row instead of a literal."
+          "title": "Modifier",
+          "detail": "The radial lives on the layer that exists only while the trigger is held."
         },
         {
-          "title": "The modifier layer as a listener",
-          "detail": "Later systems listen for IA_Aim. They do not setting Aiming from Tick, or firing the weapon from the camera graph."
+          "title": "Equip",
+          "detail": "The menu sends the equip action with a slot id."
         }
       ],
       "quiz": [
         {
-          "id": "tps-intermediate-layer-c1",
+          "id": "tpci-layer-1",
           "kind": "mc",
-          "prompt": "Enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed. What should own that decision in The modifier layer?",
+          "prompt": "The left trigger is held and the face button that usually reloads is pressed. What runs?",
           "choices": [
-            "the aim action. That keeps the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed.",
-            "The widget that draws the modifier layer owns it. That would break the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed.",
-            "Every client owns it, before IA_Aim is replicated. That would break the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed."
+            "The radial slot on the modifier layer",
+            "A magazine transfer from the base layer",
+            "Both a transfer and a slot change",
+            "A raw key comparison inside the reload graph"
           ],
           "answer": 0,
-          "why": "Enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed."
+          "why": "The trigger pushes the second context."
         },
         {
-          "id": "tps-intermediate-layer-c2",
+          "id": "tpci-layer-2",
           "kind": "mc",
-          "prompt": "Enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed. The course graph contains `Aiming = true; // node:tpl_camera_set`. What is that line doing in gameplay terms?",
+          "prompt": "The modifier context is not pushed. What does that face button start?",
           "choices": [
-            "Aiming set true when the aim trace from the camera hits. That keeps the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed.",
-            "setting Aiming from Tick, or firing the weapon from the camera graph. That would break the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed."
+            "Reload",
+            "A radial slot",
+            "The vehicle's forward input",
+            "A limb write"
           ],
           "answer": 0,
-          "why": "Aiming set true when the aim trace from the camera hits"
+          "why": "The base layer owns reload."
         },
         {
-          "id": "tps-intermediate-layer-c3",
+          "id": "tpci-layer-3",
           "kind": "mc",
-          "prompt": "Enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed. Where should Set Aiming sit?",
+          "prompt": "The radial menu has a slot. Which action should it send?",
           "choices": [
-            "After the camera trace hits, started by IA_Aim through Triggered. That keeps the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed.",
-            "It runs before IA_Aim, so the player is not required. That would break the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed.",
-            "It sits on Tick beside IA_Aim. That would break the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed."
+            "Equip, carrying that slot id",
+            "A magazine transfer, since a face button was used",
+            "An immediate burst from the new gun",
+            "The shoulder-button aim"
           ],
           "answer": 0,
-          "why": "the camera trace hits is the gate."
+          "why": "The menu selects."
         },
         {
-          "id": "tps-intermediate-layer-c4",
+          "id": "tpci-layer-4",
+          "kind": "mc",
+          "prompt": "The trigger is released and the modifier context stays pushed. What can one press still do?",
+          "choices": [
+            "Reload and open a slot together",
+            "Only the magazine transfer",
+            "Only look",
+            "Only write health"
+          ],
+          "answer": 0,
+          "why": "Pop the layer when the trigger comes up."
+        },
+        {
+          "id": "tpci-layer-5",
+          "kind": "mc",
+          "prompt": "A player rebinds the face button from a key to a pad. What stays the same?",
+          "choices": [
+            "The action the graph receives",
+            "A key-code compare inside the graph",
+            "Which limb the button damages",
+            "The interest timer interval"
+          ],
+          "answer": 0,
+          "why": "The context resolves the device."
+        },
+        {
+          "id": "tpci-layer-6",
           "kind": "tf",
-          "prompt": "True or false: Enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "tps-intermediate-layer-c5",
-          "kind": "tf",
-          "prompt": "True or false: Enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed. You keep that promise by setting Aiming from Tick, or firing the weapon from the camera graph.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "setting Aiming from Tick, or firing the weapon from the camera graph is the broken schedule."
-        },
-        {
-          "id": "tps-intermediate-layer-c6",
-          "kind": "mc",
-          "prompt": "Enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed. Which mistake breaks it?",
-          "choices": [
-            "setting Aiming from Tick, or firing the weapon from the camera graph. That keeps the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed.",
-            "Leaving the real work on IA_Aim. That would break the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed.",
-            "Waiting until the camera trace hits. That would break the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed.",
-            "Keeping the aim action as the only writer. That would break the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed."
-          ],
-          "answer": 0,
-          "why": "setting Aiming from Tick, or firing the weapon from the camera graph"
-        },
-        {
-          "id": "tps-intermediate-layer-c7",
-          "kind": "tf",
-          "prompt": "True or false: Enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed. IA_Aim through Triggered remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the aim action"
-        },
-        {
-          "id": "tps-intermediate-layer-c8",
-          "kind": "mc",
-          "prompt": "Enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while IA_Aim stayed one call. That keeps the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed.",
-            "A data row must be recompiled for this section. That would break the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed.",
-            "Set Aiming only works for one class, so the cast is the stable choice. That would break the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "tps-intermediate-layer-c9",
-          "kind": "mc",
-          "prompt": "Enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed. What does the player lose if IA_Aim is removed?",
-          "choices": [
-            "The modifier layer never starts, because Triggered was the only way in. That keeps the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed.",
-            "Nothing, because Tick still does the job. That would break the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed.",
-            "The constructor replaces IA_Aim on the next map. That would break the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed."
-          ],
-          "answer": 0,
-          "why": "IA_Aim is the start."
-        },
-        {
-          "id": "tps-intermediate-layer-c10",
-          "kind": "tf",
-          "prompt": "True or false: Enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed. OnRep should perform the write again so the section does not wait for the aim action.",
+          "prompt": "The reload graph should read the face-button's key code.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "The action arrives already resolved."
         },
         {
-          "id": "tps-intermediate-layer-c11",
+          "id": "tpci-layer-7",
           "kind": "mc",
-          "prompt": "Enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed. Which gate sits immediately in front of the write?",
+          "prompt": "Which actions belong on the base context?",
           "choices": [
-            "the camera trace hits. That keeps the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed.",
-            "A Tick frame, whether or not IA_Aim fired. That would break the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed.",
-            "A client prediction that skips the aim action. That would break the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed.",
-            "A cast to every actor this course might spawn. That would break the rule that enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed."
+            "Move, look, aim, and interact",
+            "Only radial slots",
+            "Only wheel transforms",
+            "Only save fields"
           ],
           "answer": 0,
-          "why": "the camera trace hits"
+          "why": "Everyday play is the base layer."
         },
         {
-          "id": "tps-intermediate-layer-c11b",
-          "kind": "tf",
-          "prompt": "True or false: Enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis. The layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer. Possession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "tpci-layer-8",
+          "kind": "mc",
+          "prompt": "When is a pressed device turned into an action?",
           "choices": [
-            "True",
-            "False"
+            "Before the graph runs",
+            "Inside the graph, from a key code",
+            "Inside a replication callback",
+            "While a save writes"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "The graph sees the action."
+        },
+        {
+          "id": "tpci-layer-9",
+          "kind": "mc",
+          "prompt": "You put the radial binding on the base layer next to reload. What is lost?",
+          "choices": [
+            "A second meaning that appears only while the trigger is held",
+            "The authority gate on equip",
+            "The look from the camera",
+            "Ten percent of a limb's max"
+          ],
+          "answer": 0,
+          "why": "The second meaning needs the second context."
+        },
+        {
+          "id": "tpci-layer-10",
+          "kind": "mc",
+          "prompt": "Which step is the modifier layer, not the base reload?",
+          "choices": [
+            "Pushing the extra context while the left trigger is held",
+            "Reload firing from the base context",
+            "A limb clamped on the server",
+            "Throttle read by the car"
+          ],
+          "answer": 0,
+          "why": "The push is the layer."
         }
-      ],
-      "graph": "camera"
+      ]
     },
     "limb": {
-      "plainEnglish": "In plain English, The ten percent floor means: A limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result.",
-      "whyGame": "In a real game, getting the ten percent floor wrong shows up as copying Speed into Throttle, which would make a sprint pedal the truck. the authority, from the throttle action is the repair, and the generated line `Throttle = IA_Throttle; // node:tpl_vehicle-drive_set` is that repair in C++.",
+      "plainEnglish": "A limb is a replicated float with a floor. Damage starts the write, the authority gates it, and a normal hit cannot drop the limb below ten percent of its max. A limb that maxes at 80 floors at 8. The notify plays the limp and does not subtract again.",
+      "whyGame": "A client subtract snaps when the server number arrives, and a second subtract in the notify bites twice.",
       "expansions": [
         {
-          "title": "The ten percent floor as a door",
-          "detail": "If the ten percent floor is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The floor",
+          "detail": "Ten percent of 80 is 8. Zero is a down, not a bruise."
         },
         {
-          "title": "The ten percent floor as data",
-          "detail": "Designer numbers for the ten percent floor live on a row. Throttle set from the vehicle axis on the authority, separate from on-foot Speed reads the row instead of a literal."
+          "title": "The sample",
+          "detail": "The literal 90 stands in for the clamped result."
         },
         {
-          "title": "The ten percent floor as a listener",
-          "detail": "Later systems listen for IA_Throttle. They do not copying Speed into Throttle, which would make a sprint pedal the truck."
+          "title": "The limp",
+          "detail": "OnRep plays it. The number is already final."
         }
       ],
       "quiz": [
         {
-          "id": "tps-intermediate-limb-c1",
+          "id": "tpci-limb-1",
           "kind": "mc",
-          "prompt": "A limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays. What should own that decision in The ten percent floor?",
+          "prompt": "Which event starts a third-person limb write?",
           "choices": [
-            "the authority, from the throttle action. That keeps the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays.",
-            "The widget that draws the ten percent floor owns it. That would break the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays.",
-            "Every client owns it, before IA_Throttle is replicated. That would break the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays."
+            "Any Damage, on the authority",
+            "A drain on every frame",
+            "The aim button",
+            "The weapon wheel"
           ],
           "answer": 0,
-          "why": "A limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays."
+          "why": "Damage is the hit."
         },
         {
-          "id": "tps-intermediate-limb-c2",
+          "id": "tpci-limb-2",
           "kind": "mc",
-          "prompt": "A limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays. The course graph contains `Throttle = IA_Throttle; // node:tpl_vehicle-drive_set`. What is that line doing in gameplay terms?",
+          "prompt": "The excerpt assigns 90 inside the authority check. What should replace 90?",
           "choices": [
-            "Throttle set from the vehicle axis on the authority, separate from on-foot Speed. That keeps the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays.",
-            "copying Speed into Throttle, which would make a sprint pedal the truck. That would break the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays."
+            "The clamped result",
+            "A constant every bruise must use",
+            "How hot the barrel is",
+            "The vehicle's forward input"
           ],
           "answer": 0,
-          "why": "Throttle set from the vehicle axis on the authority, separate from on-foot Speed"
+          "why": "90 is a stand-in."
         },
         {
-          "id": "tps-intermediate-limb-c3",
+          "id": "tpci-limb-3",
           "kind": "mc",
-          "prompt": "A limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays. Where should Set Throttle sit?",
+          "prompt": "A bruise would take a limb of max 80 below 8. Where does it land?",
           "choices": [
-            "After HasAuthority passes, started by IA_Throttle through the axis. That keeps the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays.",
-            "It runs before IA_Throttle, so the player is not required. That would break the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays.",
-            "It sits on Tick beside IA_Throttle. That would break the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays."
+            "At 8",
+            "At zero",
+            "Back at eighty, if proxies rejected bruises",
+            "Wherever the client predicted"
           ],
           "answer": 0,
-          "why": "HasAuthority passes is the gate."
+          "why": "Ten percent is the floor."
         },
         {
-          "id": "tps-intermediate-limb-c4",
+          "id": "tpci-limb-4",
+          "kind": "mc",
+          "prompt": "The limp notify also subtracts. What does one attack become?",
+          "choices": [
+            "Two bites",
+            "One bite and a limp",
+            "A camera pull-in",
+            "An equip change"
+          ],
+          "answer": 0,
+          "why": "The server already wrote the number."
+        },
+        {
+          "id": "tpci-limb-5",
+          "kind": "mc",
+          "prompt": "A client applies the bruise before the server answers. What jumps back?",
+          "choices": [
+            "The limp, back to the server number",
+            "The radial layer",
+            "The interest timer",
+            "The wheel simulation"
+          ],
+          "answer": 0,
+          "why": "The early number was not authority."
+        },
+        {
+          "id": "tpci-limb-6",
           "kind": "tf",
-          "prompt": "True or false: A limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "tps-intermediate-limb-c5",
-          "kind": "tf",
-          "prompt": "True or false: A limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays. You keep that promise by copying Speed into Throttle, which would make a sprint pedal the truck.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "copying Speed into Throttle, which would make a sprint pedal the truck is the broken schedule."
-        },
-        {
-          "id": "tps-intermediate-limb-c6",
-          "kind": "mc",
-          "prompt": "A limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays. Which mistake breaks it?",
-          "choices": [
-            "copying Speed into Throttle, which would make a sprint pedal the truck. That keeps the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays.",
-            "Leaving the real work on IA_Throttle. That would break the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays.",
-            "Waiting until HasAuthority passes. That would break the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays.",
-            "Keeping the authority, from the throttle action as the only writer. That would break the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays."
-          ],
-          "answer": 0,
-          "why": "copying Speed into Throttle, which would make a sprint pedal the truck"
-        },
-        {
-          "id": "tps-intermediate-limb-c7",
-          "kind": "tf",
-          "prompt": "True or false: A limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays. IA_Throttle through the axis remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the authority, from the throttle action"
-        },
-        {
-          "id": "tps-intermediate-limb-c8",
-          "kind": "mc",
-          "prompt": "A limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while IA_Throttle stayed one call. That keeps the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays.",
-            "A data row must be recompiled for this section. That would break the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays.",
-            "Set Throttle only works for one class, so the cast is the stable choice. That would break the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "tps-intermediate-limb-c9",
-          "kind": "mc",
-          "prompt": "A limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays. What does the player lose if IA_Throttle is removed?",
-          "choices": [
-            "The ten percent floor never starts, because the axis was the only way in. That keeps the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays.",
-            "Nothing, because Tick still does the job. That would break the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays.",
-            "The constructor replaces IA_Throttle on the next map. That would break the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays."
-          ],
-          "answer": 0,
-          "why": "IA_Throttle is the start."
-        },
-        {
-          "id": "tps-intermediate-limb-c10",
-          "kind": "tf",
-          "prompt": "True or false: A limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays. OnRep should perform the write again so the section does not wait for the authority, from the throttle action.",
+          "prompt": "A bruise may drop a limb of max 80 to zero.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "The floor is 8."
         },
         {
-          "id": "tps-intermediate-limb-c11",
+          "id": "tpci-limb-7",
           "kind": "mc",
-          "prompt": "A limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays. Which gate sits immediately in front of the write?",
+          "prompt": "Why does this limb have to be one replicated number?",
           "choices": [
-            "HasAuthority passes. That keeps the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays.",
-            "A Tick frame, whether or not IA_Throttle fired. That would break the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays.",
-            "A client prediction that skips the authority, from the throttle action. That would break the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays.",
-            "A cast to every actor this course might spawn. That would break the rule that a limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays."
+            "Other players can see the limp",
+            "The boom requires a float",
+            "Heat is stored in the same float",
+            "Cars read limbs as throttle"
           ],
           "answer": 0,
-          "why": "HasAuthority passes"
+          "why": "The body is on their screen."
         },
         {
-          "id": "tps-intermediate-limb-c11b",
-          "kind": "tf",
-          "prompt": "True or false: A limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result. OnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number. The aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "tpci-limb-8",
+          "kind": "mc",
+          "prompt": "Which line is the limb write, not the limp?",
           "choices": [
-            "True",
-            "False"
+            "The clamped assignment inside the authority check",
+            "The notify that plays the stumble",
+            "A radial slot change",
+            "A local barrel flash"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "Authority owns the number."
+        },
+        {
+          "id": "tpci-limb-9",
+          "kind": "mc",
+          "prompt": "Tick writes the limb while the player is only running. What falls with no attack?",
+          "choices": [
+            "The limb",
+            "The camera boom",
+            "The slot wheel",
+            "The car fuel"
+          ],
+          "answer": 0,
+          "why": "Damage is the event, not the frame."
+        },
+        {
+          "id": "tpci-limb-10",
+          "kind": "mc",
+          "prompt": "A hit crosses zero on purpose. What state is that, distinct from a bruise?",
+          "choices": [
+            "Downed",
+            "A legal bruise at ten percent",
+            "A magazine transfer",
+            "A shift in the car"
+          ],
+          "answer": 0,
+          "why": "The floor holds a bruise. Zero is down."
         }
-      ],
-      "graph": "vehicle-drive"
+      ]
     },
     "interest": {
-      "plainEnglish": "In plain English, The camera is not interest means: Relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local.",
-      "whyGame": "In a real game, getting the camera is not interest wrong shows up as writing Visible from Tick, or letting a client mark itself seen. the server timer is the repair, and the generated line `Visible = true; // node:tpl_fog_set` is that repair in C++.",
+      "plainEnglish": "Relevant answers whether a client receives the actor. The authority traces twice a second and sets that bool. A third-person camera can stay local even when the pawn is relevant. Visible, on a strategy map, is a different question.",
+      "whyGame": "A client that sets Relevant pulls pawns the server hid, and treating the camera as interest replicates a local boom.",
       "expansions": [
         {
-          "title": "The camera is not interest as a door",
-          "detail": "If the camera is not interest is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The timer",
+          "detail": "CheckAOI runs every 0.5 seconds inside the authority check."
         },
         {
-          "title": "The camera is not interest as data",
-          "detail": "Designer numbers for the camera is not interest live on a row. Visible set from a trace on a 0.25 second timer reads the row instead of a literal."
+          "title": "The camera",
+          "detail": "The shoulder camera is local. It is not the relevance bit."
         },
         {
-          "title": "The camera is not interest as a listener",
-          "detail": "Later systems listen for Reveal. They do not writing Visible from Tick, or letting a client mark itself seen."
+          "title": "Vision",
+          "detail": "Visible is what a team may see. It does not cull the host's simulation."
         }
       ],
       "quiz": [
         {
-          "id": "tps-intermediate-interest-c1",
+          "id": "tpci-interest-1",
           "kind": "mc",
-          "prompt": "Relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer. What should own that decision in The camera is not interest?",
+          "prompt": "What does Relevant mean for a third-person pawn?",
           "choices": [
-            "the server timer. That keeps the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer.",
-            "The widget that draws the camera is not interest owns it. That would break the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer.",
-            "Every client owns it, before Reveal is replicated. That would break the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer."
+            "This machine should receive the actor",
+            "The shoulder camera is pulled in",
+            "The team can see the cell",
+            "The limb is below its floor"
           ],
           "answer": 0,
-          "why": "Relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer."
+          "why": "Interest is delivery, not the camera."
         },
         {
-          "id": "tps-intermediate-interest-c2",
+          "id": "tpci-interest-2",
           "kind": "mc",
-          "prompt": "Relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer. The course graph contains `Visible = true; // node:tpl_fog_set`. What is that line doing in gameplay terms?",
+          "prompt": "CheckAOI assigns Relevant from a trace. What wraps that line?",
           "choices": [
-            "Visible set from a trace on a 0.25 second timer. That keeps the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer.",
-            "writing Visible from Tick, or letting a client mark itself seen. That would break the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer."
+            "A half-second loop on the authority",
+            "Once on each drawn frame",
+            "The button that pulls the camera in",
+            "The weapon wheel"
           ],
           "answer": 0,
-          "why": "Visible set from a trace on a 0.25 second timer"
+          "why": "Twice a second, gated."
         },
         {
-          "id": "tps-intermediate-interest-c3",
+          "id": "tpci-interest-3",
           "kind": "mc",
-          "prompt": "Relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer. Where should Set Visible sit?",
+          "prompt": "The pawn is relevant and the shoulder camera stays on the owning machine. What was correctly left local?",
           "choices": [
-            "After the reveal trace hits, started by Reveal through the timer. That keeps the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer.",
-            "It runs before Reveal, so the player is not required. That would break the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer.",
-            "It sits on Tick beside Reveal. That would break the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer."
+            "The camera",
+            "The limb float",
+            "Which weapon slot is selected",
+            "Whether the client receives the pawn"
           ],
           "answer": 0,
-          "why": "the reveal trace hits is the gate."
+          "why": "The boom is not interest."
         },
         {
-          "id": "tps-intermediate-interest-c4",
+          "id": "tpci-interest-4",
+          "kind": "mc",
+          "prompt": "A client sets Relevant so its animation stays smooth. Who is forced to receive actors the server hid?",
+          "choices": [
+            "Whoever trusts that client write",
+            "No other machine, if a client write could not replicate",
+            "Only the car",
+            "Only the radial menu"
+          ],
+          "answer": 0,
+          "why": "The authority traces."
+        },
+        {
+          "id": "tpci-interest-5",
+          "kind": "mc",
+          "prompt": "You use Visible as Relevant on a strategy map. What gets deleted from a spotter's future?",
+          "choices": [
+            "An actor the host still had to simulate",
+            "Only a local camera",
+            "Only a limb floor",
+            "Only a face-button binding"
+          ],
+          "answer": 0,
+          "why": "Culling is not vision."
+        },
+        {
+          "id": "tpci-interest-6",
           "kind": "tf",
-          "prompt": "True or false: Relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "tps-intermediate-interest-c5",
-          "kind": "tf",
-          "prompt": "True or false: Relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer. You keep that promise by writing Visible from Tick, or letting a client mark itself seen.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "writing Visible from Tick, or letting a client mark itself seen is the broken schedule."
-        },
-        {
-          "id": "tps-intermediate-interest-c6",
-          "kind": "mc",
-          "prompt": "Relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer. Which mistake breaks it?",
-          "choices": [
-            "writing Visible from Tick, or letting a client mark itself seen. That keeps the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer.",
-            "Leaving the real work on Reveal. That would break the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer.",
-            "Waiting until the reveal trace hits. That would break the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer.",
-            "Keeping the server timer as the only writer. That would break the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer."
-          ],
-          "answer": 0,
-          "why": "writing Visible from Tick, or letting a client mark itself seen"
-        },
-        {
-          "id": "tps-intermediate-interest-c7",
-          "kind": "tf",
-          "prompt": "True or false: Relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer. Reveal through the timer remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the server timer"
-        },
-        {
-          "id": "tps-intermediate-interest-c8",
-          "kind": "mc",
-          "prompt": "Relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while Reveal stayed one call. That keeps the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer.",
-            "A data row must be recompiled for this section. That would break the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer.",
-            "Set Visible only works for one class, so the cast is the stable choice. That would break the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "tps-intermediate-interest-c9",
-          "kind": "mc",
-          "prompt": "Relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer. What does the player lose if Reveal is removed?",
-          "choices": [
-            "The camera is not interest never starts, because the timer was the only way in. That keeps the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer.",
-            "Nothing, because Tick still does the job. That would break the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer.",
-            "The constructor replaces Reveal on the next map. That would break the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer."
-          ],
-          "answer": 0,
-          "why": "Reveal is the start."
-        },
-        {
-          "id": "tps-intermediate-interest-c10",
-          "kind": "tf",
-          "prompt": "True or false: Relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer. OnRep should perform the write again so the section does not wait for the server timer.",
+          "prompt": "The shoulder camera should be replicated as the interest bit.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "The camera is local."
         },
         {
-          "id": "tps-intermediate-interest-c11",
+          "id": "tpci-interest-7",
           "kind": "mc",
-          "prompt": "Relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer. Which gate sits immediately in front of the write?",
+          "prompt": "The trace misses. What should the next assignment do?",
           "choices": [
-            "the reveal trace hits. That keeps the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer.",
-            "A Tick frame, whether or not Reveal fired. That would break the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer.",
-            "A client prediction that skips the server timer. That would break the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer.",
-            "A cast to every actor this course might spawn. That would break the rule that relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer."
+            "Clear relevance",
+            "Leave the old true bit forever",
+            "Pull the camera in",
+            "Floor a limb"
           ],
           "answer": 0,
-          "why": "the reveal trace hits"
+          "why": "The bool tracks the hit, including a miss."
         },
         {
-          "id": "tps-intermediate-interest-c11b",
-          "kind": "tf",
-          "prompt": "True or false: Relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local. A client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn. Neither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "tpci-interest-8",
+          "kind": "mc",
+          "prompt": "Why is a third-person pawn stricter about this than a tiny pickup?",
           "choices": [
-            "True",
-            "False"
+            "The mesh is large and the animation is busy",
+            "Pickups have no transforms",
+            "Cameras cannot be local",
+            "Limbs require every client to simulate every pawn"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "The animation is the cost."
+        },
+        {
+          "id": "tpci-interest-9",
+          "kind": "mc",
+          "prompt": "You save Relevant so a distant pawn stays culled. What is stale after you walk up to it?",
+          "choices": [
+            "The saved bit, which still says the pawn is gone",
+            "The bruise minimum",
+            "The radial binding",
+            "The local boom length"
+          ],
+          "answer": 0,
+          "why": "Run the timer again."
+        },
+        {
+          "id": "tpci-interest-10",
+          "kind": "mc",
+          "prompt": "Which line is interest, not the camera?",
+          "choices": [
+            "Relevant assigned from the half-second trace",
+            "Aiming set by the shoulder button",
+            "The boom easing in",
+            "A flash that stays on the firing machine"
+          ],
+          "answer": 0,
+          "why": "CheckAOI owns delivery."
         }
-      ],
-      "graph": "fog"
+      ]
     },
     "throttle": {
-      "plainEnglish": "In plain English, A car is not a sprint means: IA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle.",
-      "whyGame": "In a real game, getting a car is not a sprint wrong shows up as every client subtracting 25, or paying for a shell out of the same float. the authority, inside the Spend event is the repair, and the generated line `Supplies = (Supplies - 25.f); // node:tpl_economy_set` is that repair in C++.",
+      "plainEnglish": "A car is a different component. Its axis is throttle, written on the authority. Copying the on-foot sprint of 600 launches the car at a person's pace number. The shoulder camera turns off in the seat. It does not keep aiming, and it does not write throttle.",
+      "whyGame": "Wheels are a simulation. Replicating each wheel transform streams bones the client can rebuild from throttle and fuel.",
       "expansions": [
         {
-          "title": "A car is not a sprint as a door",
-          "detail": "If a car is not a sprint is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The axis",
+          "detail": "IA_Throttle is not IA_Move."
         },
         {
-          "title": "A car is not a sprint as data",
-          "detail": "Designer numbers for a car is not a sprint live on a row. Supplies reduced by the data cost, and only on the authority reads the row instead of a literal."
+          "title": "The seat",
+          "detail": "Disable the shoulder camera. Do not feed aim into the seat."
         },
         {
-          "title": "A car is not a sprint as a listener",
-          "detail": "Later systems listen for Spend. They do not every client subtracting 25, or paying for a shell out of the same float."
+          "title": "Wheels",
+          "detail": "Replicate fuel and the order, not every wheel bone."
         }
       ],
       "quiz": [
         {
-          "id": "tps-intermediate-throttle-c1",
+          "id": "tpci-throttle-1",
           "kind": "mc",
-          "prompt": "IA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms. What should own that decision in A car is not a sprint?",
+          "prompt": "What should the vehicle graph assign?",
           "choices": [
-            "the authority, inside the Spend event. That keeps the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms.",
-            "The widget that draws a car is not a sprint owns it. That would break the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms.",
-            "Every client owns it, before Spend is replicated. That would break the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms."
+            "Throttle from its own axis, on the authority",
+            "The on-foot sprint of 600",
+            "The aiming bool",
+            "The lowest a bruise may go"
           ],
           "answer": 0,
-          "why": "IA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms."
+          "why": "The car reads its own action."
         },
         {
-          "id": "tps-intermediate-throttle-c2",
+          "id": "tpci-throttle-2",
           "kind": "mc",
-          "prompt": "IA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms. The course graph contains `Supplies = (Supplies - 25.f); // node:tpl_economy_set`. What is that line doing in gameplay terms?",
+          "prompt": "Throttle = IA_Throttle runs inside the authority check. What is being copied?",
           "choices": [
-            "Supplies reduced by the data cost, and only on the authority. That keeps the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms.",
-            "every client subtracting 25, or paying for a shell out of the same float. That would break the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms."
+            "The vehicle axis",
+            "The pawn's sprint speed",
+            "The equipped slot",
+            "The interest bit"
           ],
           "answer": 0,
-          "why": "Supplies reduced by the data cost, and only on the authority"
+          "why": "The axis is the input."
         },
         {
-          "id": "tps-intermediate-throttle-c3",
+          "id": "tpci-throttle-3",
           "kind": "mc",
-          "prompt": "IA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms. Where should Set Supplies sit?",
+          "prompt": "The on-foot speed is copied into throttle. What does the car do?",
           "choices": [
-            "After HasAuthority passes, started by Spend through the spend event. That keeps the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms.",
-            "It runs before Spend, so the player is not required. That would break the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms.",
-            "It sits on Tick beside Spend. That would break the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms."
+            "It launches at a sprint number it was never tuned for",
+            "It creeps at a tuned idle",
+            "It aims down the sights",
+            "It floors a limb"
           ],
           "answer": 0,
-          "why": "HasAuthority passes is the gate."
+          "why": "600 is not a throttle."
         },
         {
-          "id": "tps-intermediate-throttle-c4",
+          "id": "tpci-throttle-4",
+          "kind": "mc",
+          "prompt": "The player sits in the car and the shoulder camera keeps tracing. What is still running that should have stopped?",
+          "choices": [
+            "Aim, fed into the seat",
+            "Only the throttle axis",
+            "Only fuel consumption",
+            "Only the wheel rebuild"
+          ],
+          "answer": 0,
+          "why": "Disable the camera while seated."
+        },
+        {
+          "id": "tpci-throttle-5",
+          "kind": "mc",
+          "prompt": "The camera graph writes throttle while the player is seated. What did the boom steal?",
+          "choices": [
+            "The car's axis",
+            "How low a normal hit may go",
+            "The radial binding",
+            "The interest timer"
+          ],
+          "answer": 0,
+          "why": "The camera does not drive."
+        },
+        {
+          "id": "tpci-throttle-6",
           "kind": "tf",
-          "prompt": "True or false: IA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "tps-intermediate-throttle-c5",
-          "kind": "tf",
-          "prompt": "True or false: IA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms. You keep that promise by every client subtracting 25, or paying for a shell out of the same float.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "every client subtracting 25, or paying for a shell out of the same float is the broken schedule."
-        },
-        {
-          "id": "tps-intermediate-throttle-c6",
-          "kind": "mc",
-          "prompt": "IA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms. Which mistake breaks it?",
-          "choices": [
-            "every client subtracting 25, or paying for a shell out of the same float. That keeps the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms.",
-            "Leaving the real work on Spend. That would break the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms.",
-            "Waiting until HasAuthority passes. That would break the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms.",
-            "Keeping the authority, inside the Spend event as the only writer. That would break the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms."
-          ],
-          "answer": 0,
-          "why": "every client subtracting 25, or paying for a shell out of the same float"
-        },
-        {
-          "id": "tps-intermediate-throttle-c7",
-          "kind": "tf",
-          "prompt": "True or false: IA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms. Spend through the spend event remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the authority, inside the Spend event"
-        },
-        {
-          "id": "tps-intermediate-throttle-c8",
-          "kind": "mc",
-          "prompt": "IA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while Spend stayed one call. That keeps the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms.",
-            "A data row must be recompiled for this section. That would break the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms.",
-            "Set Supplies only works for one class, so the cast is the stable choice. That would break the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "tps-intermediate-throttle-c9",
-          "kind": "mc",
-          "prompt": "IA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms. What does the player lose if Spend is removed?",
-          "choices": [
-            "A car is not a sprint never starts, because the spend event was the only way in. That keeps the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms.",
-            "Nothing, because Tick still does the job. That would break the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms.",
-            "The constructor replaces Spend on the next map. That would break the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms."
-          ],
-          "answer": 0,
-          "why": "Spend is the start."
-        },
-        {
-          "id": "tps-intermediate-throttle-c10",
-          "kind": "tf",
-          "prompt": "True or false: IA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms. OnRep should perform the write again so the section does not wait for the authority, inside the Spend event.",
+          "prompt": "The chaos vehicle should read the on-foot speed of 600.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "It reads throttle."
         },
         {
-          "id": "tps-intermediate-throttle-c11",
+          "id": "tpci-throttle-7",
           "kind": "mc",
-          "prompt": "IA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms. Which gate sits immediately in front of the write?",
+          "prompt": "Wheels are a simulation. What should replicate instead of each wheel bone?",
           "choices": [
-            "HasAuthority passes. That keeps the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms.",
-            "A Tick frame, whether or not Spend fired. That would break the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms.",
-            "A client prediction that skips the authority, inside the Spend event. That would break the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms.",
-            "A cast to every actor this course might spawn. That would break the rule that iA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms."
+            "Fuel, or the stock the design named, and the order id",
+            "Every wheel transform",
+            "The shoulder camera",
+            "The limb notify"
           ],
           "answer": 0,
-          "why": "HasAuthority passes"
+          "why": "The client rebuilds the wheels."
         },
         {
-          "id": "tps-intermediate-throttle-c11b",
-          "kind": "tf",
-          "prompt": "True or false: IA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle. Wheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock. Has Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "tpci-throttle-8",
+          "kind": "mc",
+          "prompt": "Driving drains the team's supply stock and the design never said the convoy spends that money. What was coupled?",
           "choices": [
-            "True",
-            "False"
+            "Fuel and the team's build money",
+            "Aim and reload",
+            "Interest and the camera",
+            "A bruise and a down"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "Fuel can be its own number."
+        },
+        {
+          "id": "tpci-throttle-9",
+          "kind": "mc",
+          "prompt": "A client writes throttle so the car feels local. What corrects itself?",
+          "choices": [
+            "The axis, when the authority value arrives",
+            "The ten weapon slots",
+            "Ten percent of max",
+            "The radial layer"
+          ],
+          "answer": 0,
+          "why": "The write sits in the authority check."
+        },
+        {
+          "id": "tpci-throttle-10",
+          "kind": "mc",
+          "prompt": "Which line is the car, not the sprint?",
+          "choices": [
+            "Throttle assigned from its axis",
+            "Speed assigned 600 from the stick",
+            "Aiming set by the shoulder button",
+            "A limb clamped at ten percent"
+          ],
+          "answer": 0,
+          "why": "The axis is not the gait."
         }
-      ],
-      "graph": "economy"
+      ]
     }
   }
 }
