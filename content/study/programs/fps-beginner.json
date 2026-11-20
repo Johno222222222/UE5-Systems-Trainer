@@ -547,7 +547,7 @@
           "choices": [
             "Play the local hit feedback and leave the float alone",
             "Subtract Amount again so the proxy matches the hit",
-            "Fill the magazine",
+            "Top up ammo from the health notify",
             "Start the interact trace"
           ],
           "answer": 0,
@@ -1152,7 +1152,7 @@
       "choices": [
         "Jump, because the local subtract and the server value disagreed",
         "Stay smooth, because double subtracts are ignored",
-        "Fill the magazine",
+        "Quietly load rounds into the gun",
         "Holster the weapon"
       ],
       "answer": 0,
@@ -1357,7 +1357,7 @@
         "The same struct write",
         "Two different Tick functions",
         "The notify that plays the hit flash",
-        "The use key"
+        "Pressing the interact control"
       ],
       "answer": 0,
       "why": "One shape, two callers."

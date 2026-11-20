@@ -1141,7 +1141,7 @@
       "choices": [
         "The mapping context",
         "The function that traces a shot",
-        "The limb floor",
+        "The ten-percent limb rule",
         "The interest radius"
       ],
       "answer": 0,
