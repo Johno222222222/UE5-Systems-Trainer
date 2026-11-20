@@ -42,6 +42,11 @@ export function ShellProvider({ children }) {
     catch { setHelpLevelState(value); }
   };
   const [appInfo, setAppInfo] = useState({ version: APP_VERSION, update: null });
+  const [glossaryQuery, setGlossaryQuery] = useState("");
+  const [welcomeOpen, setWelcomeOpen] = useState(() => {
+    try { return window.localStorage.getItem("ue5_section_tour_seen") !== "1"; }
+    catch { return false; }
+  });
   const commandRef = useRef(null);
   const sectionRef = useRef(section);
   sectionRef.current = section;
@@ -96,6 +101,16 @@ export function ShellProvider({ children }) {
     }
     setSection(id);
   }, [session]);
+
+  useEffect(() => {
+    const onTerm = (event) => {
+      const term = event.detail?.term || "";
+      setGlossaryQuery(term);
+      go("glossary");
+    };
+    window.addEventListener("open-glossary-term", onTerm);
+    return () => window.removeEventListener("open-glossary-term", onTerm);
+  }, [go]);
 
   const issue = useCallback((cmd) => {
     commandRef.current = { ...cmd, nonce: `${Date.now()}-${Math.random()}` };
@@ -172,7 +187,16 @@ export function ShellProvider({ children }) {
     setReferencesView,
     openConcept,
     openExample,
-  }), [session, section, memory, toolsOpen, homeFocus, stackTick, appInfo, chip, commandNonce, go, issue, takeCommand, sendToSection, draftTick, helpLevel, reveal, learnIndex, conceptId, exampleId, exampleTick, referencesView, openConcept, openExample]);
+    glossaryQuery,
+    clearGlossaryQuery: () => setGlossaryQuery(""),
+    welcomeOpen,
+    openWelcome: () => setWelcomeOpen(true),
+    dismissWelcome: () => {
+      try { window.localStorage.setItem("ue5_section_tour_seen", "1"); }
+      catch { /* still close it */ }
+      setWelcomeOpen(false);
+    },
+  }), [session, section, memory, toolsOpen, homeFocus, stackTick, appInfo, chip, commandNonce, go, issue, takeCommand, sendToSection, draftTick, helpLevel, reveal, learnIndex, conceptId, exampleId, exampleTick, referencesView, openConcept, openExample, glossaryQuery, welcomeOpen]);
 
   return <ShellContext.Provider value={value}>{children}</ShellContext.Provider>;
 }

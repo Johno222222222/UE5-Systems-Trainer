@@ -5,6 +5,7 @@
 const fs = require("fs");
 const path = require("path");
 const { loadGraph, renderGraph, hubSvg, cppExcerpt } = require("./lessonRender");
+const { enrichTracks } = require("./lessonStudy");
 
 const GENRES = ["fps", "tps", "horror", "strategy"];
 const LEVELS = ["beginner", "intermediate"];
@@ -46,7 +47,7 @@ function attach(track) {
 }
 
 function buildTracks() {
-  return readDir(path.join(ROOT, "programs")).map(attach);
+  return enrichTracks(readDir(path.join(ROOT, "programs")).map(attach));
 }
 
 function buildCourses() {
@@ -57,12 +58,19 @@ function trackById(id) {
   return buildTracks().find((track) => track.id === id) || buildCourses().find((track) => track.id === id) || null;
 }
 
+function answerMatches(question, given) {
+  const choices = question?.choices || [];
+  const correctText = choices[Number(question?.answer)];
+  if (typeof given === "string" && choices.includes(given)) return given === correctText;
+  return Number(given) === Number(question?.answer);
+}
+
 function scoreQuestions(questions, answers) {
   const list = Array.isArray(questions) ? questions : [];
   const given = answers && typeof answers === "object" ? answers : {};
   let correct = 0;
   for (const question of list) {
-    if (Number(given[question.id]) === question.answer) correct += 1;
+    if (answerMatches(question, given[question.id])) correct += 1;
   }
   const total = list.length;
   const percent = total ? Math.round((correct / total) * 100) : 0;
@@ -138,6 +146,7 @@ module.exports = {
   buildCourses,
   trackById,
   scoreQuestions,
+  answerMatches,
   problemsForTracks,
   wordsOf,
 };

@@ -57,6 +57,7 @@ const { knownLocks, checkConstraints } = require("./constraints");
 const { repairCommonCpp } = require("./repair");
 const { stackMap, composeStack } = require("./stackMap");
 const { buildTracks, trackById, scoreQuestions, problemsForTracks } = require("./tracks");
+const { enrichCourse } = require("./lessonStudy");
 const { DISPLAY_NAME } = require("./displayName");
 const { detectEngine, compilePlugin } = require("./engine");
 const { moduleName, writePlugin, copyTree, enablePlugin } = require("./pluginFiles");
@@ -1172,6 +1173,31 @@ async function startServer(options = {}) {
     return { ok: true, message: `Key works with ${llm.model}.` };
   });
 
+  route("POST", "/api/explain-line", async (req) => {
+    const body = await readJson(req);
+    const line = String(body.line || "").trim().slice(0, 500);
+    const note = String(body.note || "").trim().slice(0, 500);
+    if (!line) throw new HttpError(400, "Pick a line to explain.");
+    let llm;
+    try {
+      llm = resolveLlm(req.headers, secrets);
+    } catch (exc) {
+      throw new HttpError(exc.statusCode || 400, "Add an API key in Settings to explain more. The built-in note still stands.");
+    }
+    await store.update((data) => { recordUsage(data, llm.key, llm.provider, llm.model, "explain", clock); });
+    const raw = await complete({
+      provider: llm.provider,
+      model: llm.model,
+      apiKey: llm.key,
+      system: "You explain one Unreal Engine C++ line to a beginner. Two or three plain sentences. No markdown.",
+      user: `Line:\n${line}\n\nBuilt-in note:\n${note || "(none)"}`,
+      maxTokens: 180,
+      timeoutMs: 30000,
+      fetchImpl,
+    });
+    return { text: String(raw?.text || "").trim().slice(0, 800) };
+  });
+
   async function assembleLearning(job, llm, system, unrealVersion) {
     let raw = "";
     let user = learningUserText(system, unrealVersion);
@@ -1762,15 +1788,17 @@ async function startServer(options = {}) {
   });
 
   route("GET", "/api/courses/:id", async (_req, params) => {
-    const course = courseById(lessonPacks, params.id);
-    if (!course) throw new HttpError(404, "That course isn't in the packs.");
+    const found = courseById(lessonPacks, params.id);
+    if (!found) throw new HttpError(404, "That course isn't in the packs.");
+    const course = enrichCourse(found);
     const study = liveStudy();
     return { course, state: study.courses[course.id] || { modules: {} } };
   });
 
   route("POST", "/api/courses/:id/modules/:module_id/attempt", async (req, params) => {
-    const course = courseById(lessonPacks, params.id);
-    if (!course) throw new HttpError(404, "That course isn't in the packs.");
+    const found = courseById(lessonPacks, params.id);
+    if (!found) throw new HttpError(404, "That course isn't in the packs.");
+    const course = enrichCourse(found);
     const mod = (course.modules || []).find((item) => item.id === params.module_id);
     if (!mod) throw new HttpError(404, "That module isn't in the course.");
     const body = await readJson(req);

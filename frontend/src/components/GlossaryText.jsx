@@ -67,7 +67,7 @@ function wordFromEvent(event) {
   return text.slice(start, end);
 }
 
-function Popup({ term, summary, detail, see, terms, onClose, pending }) {
+function Popup({ term, termId, summary, detail, see, terms, onClose, pending }) {
   const ref = useRef(null);
   const [more, setMore] = useState(false);
   const [focus, setFocus] = useState(null);
@@ -99,6 +99,19 @@ function Popup({ term, summary, detail, see, terms, onClose, pending }) {
           <span className="glossary-pop-kicker">In UE5 this means</span>
           {shown.detail}
         </span>
+      )}
+      {!pending && (
+        <button
+          type="button"
+          className="glossary-more"
+          data-testid="glossary-see-more"
+          onClick={() => {
+            window.dispatchEvent(new CustomEvent("open-glossary-term", { detail: { id: termId || "", term: shown.term } }));
+            onClose();
+          }}
+        >
+          See more
+        </button>
       )}
       {!pending && !!related.length && (
         <span className="glossary-see">
@@ -151,6 +164,7 @@ export default function GlossaryText({ text, className }) {
             {open && (
               <Popup
                 term={part.term}
+                termId={part.id}
                 summary={part.summary || part.definition}
                 detail={part.detail}
                 see={part.see}

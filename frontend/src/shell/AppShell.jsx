@@ -11,6 +11,7 @@ import Programs from "./Programs";
 import Courses from "./Courses";
 import Community from "./Community";
 import Glossary from "./Glossary";
+import Welcome from "./Welcome";
 
 export default function AppShell() {
   const shell = useShell();
@@ -35,6 +36,7 @@ export default function AppShell() {
   return (
     <div className="shell" data-testid="app-shell">
       <SectionBar />
+      <Welcome />
       <div className="shell-body">
         {screen === "home" && <Home />}
         {/* Tools stays mounted so the workspace state is the app session,

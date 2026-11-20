@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { api } from "../lib/api";
 import { filterGlossary, GLOSSARY_REQUESTS_KEY, uniqueTerms } from "../lib/glossary.mjs";
+import { useShell } from "./ShellContext";
 
 function readRequests() {
   try { return JSON.parse(localStorage.getItem(GLOSSARY_REQUESTS_KEY) || "[]"); }
@@ -8,11 +9,19 @@ function readRequests() {
 }
 
 export default function Glossary() {
+  const shell = useShell();
   const [terms, setTerms] = useState([]);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(shell.glossaryQuery || "");
   const [tag, setTag] = useState("");
   const [requests, setRequests] = useState(readRequests);
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (shell.glossaryQuery) {
+      setQuery(shell.glossaryQuery);
+      shell.clearGlossaryQuery();
+    }
+  }, [shell.glossaryQuery, shell]);
 
   useEffect(() => {
     api.get("/glossary").then((response) => setTerms(response.data?.terms || [])).catch(() => setTerms([]));
