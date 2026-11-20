@@ -6,16 +6,16 @@
       "whyGame": "Designers edit rows.",
       "expansions": [
         {
-          "title": "Data tables as a door",
-          "detail": "If data tables is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "Designers edit the row",
+          "detail": "A designer changes a cell without a code change. The component reads the new number the next time it uses that row."
         },
         {
-          "title": "Data tables as data",
-          "detail": "Designer numbers for data tables live on a row. AddToSlot through the interface when StackCount is positive, then the count is cleared reads the row instead of a literal."
+          "title": "The table is not the trace",
+          "detail": "The table does not look at the world. A use or an overlap still starts the action. The row only supplies the number."
         },
         {
-          "title": "Data tables as a listener",
-          "detail": "Later systems listen for Begin Overlap. They do not incrementing the stack from the use trace, which would count a look as a pickup."
+          "title": "A look is not a pickup",
+          "detail": "A listener can refresh when the row is applied. It does not increment a stack from the use trace, which would count a look as a pickup."
         }
       ],
       "quiz": [
@@ -189,16 +189,16 @@
       "whyGame": "One struct, one row.",
       "expansions": [
         {
-          "title": "Row struct as a door",
-          "detail": "If row struct is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The struct is the shape",
+          "detail": "The row struct is the shape of one table row. Every column a designer edits is a field on that struct."
         },
         {
-          "title": "Row struct as data",
-          "detail": "Designer numbers for row struct live on a row. AddToSlot through the interface when StackCount is positive, then the count is cleared reads the row instead of a literal."
+          "title": "Do not share the wrong shape",
+          "detail": "Two tables that do not share a shape should not share a struct. A cost row and a stack row are different fields."
         },
         {
-          "title": "Row struct as a listener",
-          "detail": "Later systems listen for Begin Overlap. They do not incrementing the stack from the use trace, which would count a look as a pickup."
+          "title": "One field at a time",
+          "detail": "The component reads one field, such as cost or max stack. The widget draws the value it was given. It does not increment the stack from the use trace."
         }
       ],
       "quiz": [
@@ -372,16 +372,16 @@
       "whyGame": "The actor points at the asset.",
       "expansions": [
         {
-          "title": "Data assets as a door",
-          "detail": "If data assets is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "One asset, one item",
+          "detail": "One data asset describes one item. The actor points at that asset instead of hardcoding the item."
         },
         {
-          "title": "Data assets as data",
-          "detail": "Designer numbers for data assets live on a row. Ammo increased by one, then the pickup actor destroys itself reads the row instead of a literal."
+          "title": "Max stack lives on the asset",
+          "detail": "The overlap asks the component, and the component reads max stack from the asset. The count is not a literal on the node."
         },
         {
-          "title": "Data assets as a listener",
-          "detail": "Later systems listen for Begin Overlap. They do not adding ammo from Tick, or leaving the pickup in the world after the count changes."
+          "title": "Pickup is not Tick",
+          "detail": "Picking up the item adds once, from the overlap. It does not add ammo from Tick, and it does not leave the pickup in the world after the count changes."
         }
       ],
       "quiz": [
@@ -555,16 +555,16 @@
       "whyGame": "The component that read the row owns the number.",
       "expansions": [
         {
-          "title": "Who reads the row as a door",
-          "detail": "If who reads the row is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The component owns the number",
+          "detail": "The component reads the row and owns the number. The widget only draws what it was given."
         },
         {
-          "title": "Who reads the row as data",
-          "detail": "Designer numbers for who reads the row live on a row. Needed clamped between zero and the empty space in the magazine, then added to Magazine and taken from Reserve reads the row instead of a literal."
+          "title": "The widget does not read the table",
+          "detail": "If the widget reads the table itself, it can drift from the number the component stored."
         },
         {
-          "title": "Who reads the row as a listener",
-          "detail": "Later systems listen for IA_Reload. They do not adding Needed inside Tick, or reloading when the mag is already full."
+          "title": "Reload reads the cap",
+          "detail": "A reload reads magazine size from the row. It does not add Needed from Tick, and it does not reload a magazine that is already full."
         }
       ],
       "quiz": [

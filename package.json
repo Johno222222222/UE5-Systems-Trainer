@@ -1,7 +1,7 @@
 {
   "name": "ue5-system-architect",
   "productName": "UE5 Systems Training Tool Generator",
-  "version": "1.19.0",
+  "version": "1.19.1",
   "description": "A local desktop app for designing Unreal Engine 5 gameplay systems.",
   "main": "desktop/main.js",
   "private": true,

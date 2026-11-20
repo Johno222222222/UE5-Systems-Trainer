@@ -189,7 +189,11 @@ export default function Community() {
 
         <div className="panel p-4 mt-6" data-testid="community-submit">
           <div className="eyebrow mb-2">How to submit a pack</div>
-          <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed">{info?.how_to_submit || "A pack is one .bbpack file. Add it with a pull request once a public repo exists."}</p>
+          <p className="text-[13px] text-[var(--text-secondary)] leading-relaxed" data-testid="community-how">
+            {enabled
+              ? (info?.how_to_submit || "A pack is one .bbpack file. Offer it with a pull request on the public packs repo.")
+              : "Download from the public pack repo is off. You can still import a .bbpack from this computer. Offer a pack with a pull request once a repo is set."}
+          </p>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 {
-  "how_to_submit": "A pack is one .bbpack file: a zip of manifest.json and content.json, or the same JSON saved with a .bbpack name. Include a name, an author, a version, and content. Do not put executables in the zip. To offer a pack, open a pull request that adds the file and a row in index.json (id, title, author, summary, file). The Community download stays off until a public repo is chosen. Anyone can still import the file from disk.",
+  "how_to_submit": "A pack is one .bbpack file: a zip of manifest.json and content.json, or the same JSON saved with a .bbpack name. Include a name, an author, a version, and content. Do not put executables in the zip. To offer a pack, open a pull request that adds the file and a row in index.json (id, title, author, summary, file). The public pack list is Johno222222222/ue5-systems-training-tool-packs. Anyone can still import a file from disk.",
   "packs": [
     {
       "id": "sample-notes",

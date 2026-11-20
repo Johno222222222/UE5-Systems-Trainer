@@ -6,16 +6,16 @@
       "whyGame": "Cost and cooldown stay on the ability system.",
       "expansions": [
         {
-          "title": "The ability system as a door",
-          "detail": "If the ability system is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "Cost stays on the component",
+          "detail": "Cost and cooldown stay on the ability system component. The character does not check them from Tick."
         },
         {
-          "title": "The ability system as data",
-          "detail": "Designer numbers for the ability system live on a row. a one second timer that broadcasts OnEffect, which is the fear or cost reaction reads the row instead of a literal."
+          "title": "A row, not a typed cost",
+          "detail": "A designer sets the cost and the cooldown on a row. The component reads that row instead of a number typed on the node."
         },
         {
-          "title": "The ability system as a listener",
-          "detail": "Later systems listen for ApplyEffect. They do not broadcasting OnEffect from Tick, or also subtracting the cost by hand."
+          "title": "Listeners do not rebroadcast",
+          "detail": "Later systems listen for ApplyEffect. They do not broadcast OnEffect from Tick, and they do not subtract the cost by hand."
         }
       ],
       "quiz": [
@@ -189,16 +189,16 @@
       "whyGame": "Do not keep a second health float.",
       "expansions": [
         {
-          "title": "Attributes as a door",
-          "detail": "If attributes is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "One number on the set",
+          "detail": "Health is one number on the attribute set. A second float beside it will disagree with the set."
         },
         {
-          "title": "Attributes as data",
-          "detail": "Designer numbers for attributes live on a row. a one second timer that broadcasts OnEffect, which is the fear or cost reaction reads the row instead of a literal."
+          "title": "Max and regen on a row",
+          "detail": "The max and the regen amount live on a row the attribute set reads. They are not literals on the effect node."
         },
         {
-          "title": "Attributes as a listener",
-          "detail": "Later systems listen for ApplyEffect. They do not broadcasting OnEffect from Tick, or also subtracting the cost by hand."
+          "title": "Regen is not Tick",
+          "detail": "Regen is a timer or an effect. It does not subtract inside Tick, and it does not broadcast OnEffect every frame."
         }
       ],
       "quiz": [
@@ -372,16 +372,16 @@
       "whyGame": "The tag is the handle. The system finds the ability.",
       "expansions": [
         {
-          "title": "Activate by tag as a door",
-          "detail": "If activate by tag is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The tag finds the ability",
+          "detail": "The call names a gameplay tag. The ability system finds the ability. The graph does not name the class."
         },
         {
-          "title": "Activate by tag as data",
-          "detail": "Designer numbers for activate by tag live on a row. a one second timer that broadcasts OnEffect, which is the fear or cost reaction reads the row instead of a literal."
+          "title": "The tag can live on a row",
+          "detail": "Which tag starts which ability can live on a row, so a new ability does not need a new node."
         },
         {
-          "title": "Activate by tag as a listener",
-          "detail": "Later systems listen for ApplyEffect. They do not broadcasting OnEffect from Tick, or also subtracting the cost by hand."
+          "title": "Activate does not broadcast the effect",
+          "detail": "The activate call does not also broadcast OnEffect. The effect does that when it is applied, not from Tick."
         }
       ],
       "quiz": [
@@ -555,16 +555,16 @@
       "whyGame": "One cost, in the effect.",
       "expansions": [
         {
-          "title": "Effects as a door",
-          "detail": "If effects is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The effect pays once",
+          "detail": "The effect pays the cost and starts the cooldown. The ability does not subtract a second time."
         },
         {
-          "title": "Effects as data",
-          "detail": "Designer numbers for effects live on a row. a one second timer that broadcasts OnEffect, which is the fear or cost reaction reads the row instead of a literal."
+          "title": "Cost and cooldown on the row",
+          "detail": "The cost amount and the cooldown length live on the effect's row. The fear or cost reaction reads that row instead of a literal."
         },
         {
-          "title": "Effects as a listener",
-          "detail": "Later systems listen for ApplyEffect. They do not broadcasting OnEffect from Tick, or also subtracting the cost by hand."
+          "title": "ApplyEffect is not a frame loop",
+          "detail": "ApplyEffect runs when the timer or the ability says so. It does not broadcast OnEffect from Tick."
         }
       ],
       "quiz": [
