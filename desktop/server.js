@@ -443,7 +443,7 @@ async function startServer(options = {}) {
       const tail = raw.slice(-2500);
       prompt = mode === "append"
         ? `The previous JSON reply was cut off at the output limit. Continue EXACTLY from the last character of the tail. Do not repeat the tail. Do not add commentary or code fences.\n\nTAIL:\n${tail}`
-        : `The JSON below was cut off inside the C++ or is missing a section. Reply with ONE complete compact JSON object for the same system. Write full cpp_header and cpp_source, plus blueprint_pseudocode, setup_guide, and node_graph_nodes. Do not stop mid-function.\n\nINCOMPLETE:\n${raw.slice(0, 12000)}`;
+        : `The JSON below was cut off inside the C++ or is missing a section. Reply with ONE complete JSON object for the same system. Write full cpp_header and cpp_source, plus blueprint_pseudocode, setup_guide, and node_graph_nodes. Do not stop mid-function.\n\nINCOMPLETE:\n${raw.slice(0, 12000)}`;
     }
     return { raw, truncated, accepted: false };
   }

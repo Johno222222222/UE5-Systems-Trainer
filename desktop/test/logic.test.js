@@ -23,7 +23,7 @@ const {
   LEGACY_UNREAL_VERSION,
 } = require("../logic");
 const { createSecrets } = require("../secrets");
-const { requestFor, complete, PROMPT_CACHE_KEY } = require("../llm");
+const { requestFor } = require("../llm");
 
 test("extractJson strips fences and surrounding prose", () => {
   const raw = "Sure!\n```json\n{\"system_name\":\"Health\"}\n```\n";
@@ -96,28 +96,7 @@ test("buildUserText includes context, changes, and reference names", () => {
   assert.equal(text.includes("Target Unreal version:"), false);
   assert.match(text, /"system_name":"Health"/);
   assert.equal(text.includes('\n "system_name"'), false);
-});
-
-test("the system prompt keeps the compile contract without a second version", () => {
-  const text = promptsFor("5.7").system;
-  for (const phrase of [
-    "UE 5.7",
-    "50 to 120",
-    "BlueprintNativeEvent",
-    "Engine/World.h",
-    ".generated.h",
-    "GetLifetimeReplicatedProps",
-    "SetIsReplicatedByDefault",
-    "Conflict resolved:",
-    "bCanEverTick",
-    "HasAuthority",
-    "WHY:",
-    "compact",
-  ]) {
-    assert.ok(text.includes(phrase), phrase);
-  }
-  assert.equal(text.includes("5.4"), false);
-  assert.equal(text.split("UE 5.7").length - 1, 1);
+  assert.match(text, /Respond with raw JSON only/);
 });
 
 test("usage day is a Pacific calendar date", () => {
@@ -153,67 +132,11 @@ test("provider requests keep the key out of the URL", () => {
   assert.equal(gpt5.body.max_completion_tokens, 50);
   assert.equal(gpt5.body.temperature, undefined);
   assert.equal(gpt5.body.stream, true);
-  assert.equal(mini.body.prompt_cache_key, PROMPT_CACHE_KEY);
-  assert.equal(gpt5.body.prompt_cache_key, PROMPT_CACHE_KEY);
-});
-
-test("anthropic caches the system text and leaves the user message uncached", () => {
-  const anthropic = requestFor({
-    provider: "anthropic",
-    model: "claude-sonnet-4-5",
-    apiKey: "unit-test-key",
-    system: "SYSTEM",
-    user: "USER",
-    maxTokens: 20,
-  });
-  assert.deepEqual(anthropic.body.system, [{
-    type: "text",
-    text: "SYSTEM",
-    cache_control: { type: "ephemeral" },
-  }]);
-  assert.equal(anthropic.body.messages[0].content, "USER");
-  assert.equal(JSON.stringify(anthropic.body.messages).includes("cache_control"), false);
-  const plain = requestFor({
-    provider: "anthropic",
-    model: "claude-sonnet-4-5",
-    apiKey: "unit-test-key",
-    system: "SYSTEM",
-    user: "USER",
-    maxTokens: 20,
-    cacheSystem: false,
-  });
-  assert.equal(plain.body.system, "SYSTEM");
-});
-
-test("a provider that rejects the cache field is retried once without it", async () => {
-  let calls = 0;
-  const fetchImpl = async (_url, opts) => {
-    calls += 1;
-    const body = JSON.parse(opts.body);
-    if (calls === 1) {
-      assert.equal(body.prompt_cache_key, PROMPT_CACHE_KEY);
-      return new Response(JSON.stringify({ error: { message: "unknown field prompt_cache_key" } }), {
-        status: 400,
-        headers: { "content-type": "application/json" },
-      });
-    }
-    assert.equal(body.prompt_cache_key, undefined);
-    return new Response(JSON.stringify({
-      choices: [{ message: { content: "OK" }, finish_reason: "stop" }],
-    }), { status: 200, headers: { "content-type": "application/json" } });
-  };
-  const reply = await complete({
-    provider: "openai",
-    model: "gpt-4.1-mini",
-    apiKey: "sk-test",
-    system: "s",
-    user: "u",
-    maxTokens: 8,
-    fetchImpl,
-    timeoutMs: 5000,
-  });
-  assert.equal(calls, 2);
-  assert.equal(reply.text, "OK");
+  assert.equal(mini.body.prompt_cache_key, undefined);
+  assert.equal(gpt5.body.prompt_cache_key, undefined);
+  assert.equal(typeof requestFor({
+    provider: "anthropic", model: "claude-sonnet-4-5", apiKey: "k", system: "SYSTEM", user: "USER", maxTokens: 20,
+  }).body.system, "string");
 });
 
 test("secrets round-trip with the file cipher and a fake OS cipher", () => {

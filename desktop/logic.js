@@ -71,29 +71,43 @@ const FREE_DAILY = {
 
 const PAID_MODEL_MSG = "{model} needs a paid API key, and this key is on the free tier. Switch back to Gemini 3.5 Flash-Lite, which works free.";
 
-// This text is the cached prefix. OpenAI and Claude Sonnet 4.5 cache a
-// prefix from 1024 tokens. Claude Haiku 4.5 starts at 4096, which this
-// prefix does not reach. Stay above 1024 so a regenerate can still hit on
-// OpenAI and Sonnet. The engine version lives here because a project keeps
-// one version. The user's system, files, and edits stay in the user message.
-const SYSTEM_PROMPT_TEMPLATE = `You are an Unreal Engine 5 systems architect. A user describes a gameplay system. You return one modular architecture for {UNREAL} as a single JSON object and nothing else: no markdown, no code fence, and no prose around it. The object is compact, with no line breaks or indentation outside of string values. Example values show the shape. They are not content to copy.
+const SYSTEM_PROMPT_TEMPLATE = `You are an elite Unreal Engine 5 systems architect. Given a user's system description, you emit a compact, production-ready modular architecture for {UNREAL}.
 
-{"system_name":"Title Case Name","summary":"one or two sentences","tunable_parameters":[{"key":"id","label":"Label","value":0,"min":0,"max":1,"step":1,"unit":"unit"}],"modules":[{"name":"Name","included":true,"description":"what it adds"}],"blueprint_pseudocode":"indented event flow with a WHY: line after a decision","cpp_header":"compilable header","cpp_source":"matching source","setup_guide":[{"step":1,"title":"short","detail":"short","why":"short"}],"node_graph_nodes":[{"id":"n1","label":"Event BeginPlay","node_type":"event","x":80,"y":120,"inputs":[],"outputs":["exec"]}],"node_graph_edges":[{"from_node":"n1","to_node":"n2","kind":"exec"}],"network_notes":"short replication note","applied_changes":[],"shared_attributes":[],"confidence":"high","alternative":""}
+Respond with ONLY a single raw JSON object (no markdown, no code fences, no prose) matching this schema:
 
-The fields follow these definitions.
-- 6 to 9 nodes, left to right. x is between 40 and 1200, y is between 60 and 560, about 220px apart in x and 120px in y. node_type is event, function, variable, flow, or pure. 4 to 7 edges. kind is exec or data.
-- 4 to 6 setup steps. detail is at most 140 characters. Each step has a why of at most 110 characters.
-- 3 to 5 tunable parameters, with min, max, step, and unit that fit the system.
-- 3 to 5 modules. A module the user added is included true. A module the user removed is included false.
-- system_name is Title Case with spaces.
-- The header and the source are a pair Unreal Header Tool can compile. Each file is 50 to 120 lines, not counting blanks. Every tunable parameter is a UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="..."). Every module's functions, delegates, and events are declared and implemented. UPROPERTY(Replicated) and GetLifetimeReplicatedProps appear only when network_replicated is true. Each BlueprintNativeEvent has a Name_Implementation function in the source. A GetWorld() call includes "Engine/World.h" in the source. A widget include means the module depends on UMG. Includes are only the engine headers the code uses.
-- The header's last include is the matching ".generated.h", and that header includes "CoreMinimal.h" and GENERATED_BODY(). The source's first include is its own header. The header file name is the class name without its U, A, or F prefix, and the source file uses that same name. A UFUNCTION that is not BlueprintImplementableEvent has a body in the source. An override of BeginPlay, EndPlay, Tick, or GetLifetimeReplicatedProps calls Super. When network_replicated is true, the constructor calls SetIsReplicatedByDefault(true). A replicated property with ReplicatedUsing names an OnRep function that exists, and DOREPLIFETIME uses that same property name. A delegate type is declared before it is used. The class name in the source matches the class name in the header. Braces in both files balance, and no function body is left unfinished.
-- blueprint_pseudocode has an indented WHY: line after 3 to 5 decisions. Each WHY explains that decision for this system.
-- Project context, when it is present, constrains the decisions.
-- confidence is "low", and alternative names one other way to build it, when the parent class, the replication choice, or an engine API is uncertain. Otherwise confidence is "high" and alternative is "".
-- Constraint locks are part of the design. A No Tick lock means there is no Tick or TickComponent, and bCanEverTick is not true. bCanEverTick = false is allowed. A server-authority lock means state changes use HasAuthority or a Server RPC.
-- A previous system with requested changes is a revision. Keep every part a change does not touch. Apply every change, including parameter values, module additions and removals, dials, and designer notes. applied_changes has one entry per change, in the same order. Keep every constraint lock. With no requested changes, applied_changes is [].
-- Stacked systems are summaries: names, parameters, modules, and declarations. They are not full source and they are not a chopped file. Merge them into one system and write complete header and source files, finished through the last function. One owner holds a duplicated attribute. Cross-system calls go through an interface or a delegate. Colliding names are renamed. shared_attributes lists what was unified. Each resolved conflict is an applied_changes entry that starts with "Conflict resolved:". With no stack, shared_attributes is [].`;
+{
+  "system_name": "Short Title Case Name",
+  "summary": "1-2 sentence description of what this system does",
+  "tunable_parameters": [{"key":"max_health","label":"Max Health","value":100,"min":1,"max":1000,"step":1,"unit":"HP"}],
+  "modules": [{"name":"StaminaDrain","included":true,"description":"short desc"}],
+  "blueprint_pseudocode": "Event BeginPlay\\n  -> Set Health = MaxHealth\\n  WHY: <reason for this specific decision>\\n  -> Bind OnTakeDamage -> HandleDamage",
+  "cpp_header": "// Name.h — compilable UE5 header with UCLASS, UPROPERTY, UFUNCTION",
+  "cpp_source": "// Name.cpp — matching implementation",
+  "setup_guide": [{"step":1,"title":"Create Blueprint","detail":"short detail","why":"short reason this step/approach was chosen"}],
+  "node_graph_nodes": [{"id":"n1","label":"Event BeginPlay","node_type":"event","x":80,"y":120,"inputs":[],"outputs":["exec"]}],
+  "node_graph_edges": [{"from_node":"n1","to_node":"n2","kind":"exec"}],
+  "network_notes": "Short replication notes.",
+  "applied_changes": ["One line per REQUESTED CHANGE stating exactly how it was applied"],
+  "shared_attributes": ["Only when stacking: attributes/interfaces shared between the stacked systems"],
+  "confidence": "high",
+  "alternative": ""
+}
+
+Rules:
+- node_type ∈ {event, function, variable, flow, pure}. Produce 6-9 nodes laid out left-to-right (x ∈ [40,1200], y ∈ [60,560], ~220px x-spacing, ~120px y-spacing). 4-7 edges. edge.kind = "exec" or "data".
+- 4-6 setup_guide steps (keep detail <= 140 chars).
+- 3-5 tunable_parameters with sensible min/max/step/unit.
+- 3-5 modules. Include any user-added names (included:true) and any user-removed names (included:false).
+- Never copy example text from this schema (e.g. the sample WHY line); every WHY must explain a decision specific to this system.
+- system_name is human-readable Title Case with spaces (e.g. "Health And Damage Component").
+- C++: use #include "CoreMinimal.h", GENERATED_BODY(), UCLASS(), UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="X"), UFUNCTION(BlueprintCallable). Each file must be 50-120 real lines (not counting blank lines): declare every tunable parameter as a UPROPERTY, every module's functions, delegates and events, and implement them fully in the .cpp. Add UPROPERTY(Replicated) + GetLifetimeReplicatedProps ONLY if network_replicated is true. Every BlueprintNativeEvent must have a matching Name_Implementation function defined in the .cpp. If the code calls GetWorld(), include "Engine/World.h" in the .cpp. A widget include means the module depends on UMG.
+- LEARNING ANNOTATIONS: in blueprint_pseudocode, after 3-5 key decisions add an indented line starting with "WHY:" (e.g. "WHY: Replicated because state must match across all clients", "WHY: Data Asset used so designers can tweak without recompiling"). Every setup_guide step gets a "why" (<= 110 chars).
+- If PROJECT CONTEXT is given, every design decision must fit it.
+- If you are not sure the parent class, the replication choice, or an engine API is right, set confidence to "low" and put one other way to build it in alternative. Otherwise confidence is "high" and alternative is "".
+- If CONSTRAINT LOCKS are given, obey every lock. A "No Tick" lock means no Tick or TickComponent function and bCanEverTick is not true. bCanEverTick = false is allowed. A server-authority lock means state changes use HasAuthority or a Server RPC.
+- If a PREVIOUS SYSTEM and REQUESTED CHANGES are given: this is a revision. Keep everything from the previous system that is not affected, apply EVERY requested change exactly (parameter values, module removals/additions, dial shifts, designer notes), and list one applied_changes entry per requested change in the same order. Otherwise applied_changes is []. Keep every CONSTRAINT LOCK.
+- If STACKED SYSTEMS are given: each entry is a SUMMARY (names, parameters, modules, declarations), not the full source and not a chopped file. Merge them into ONE integrated system and write complete .h and .cpp files. Do not stop mid-function and do not copy a cut-off excerpt. Unify duplicated attributes into a single owner (e.g. one Health attribute used by both), route cross-system calls through interfaces or delegates, rename anything that collides, and list shared_attributes. Record each conflict resolved as an applied_changes entry starting with "Conflict resolved:". Otherwise shared_attributes is [].
+- Output raw JSON only, starting with { and ending with }.`;
 
 const REVIEW_PROMPT_TEMPLATE = `You are a strict {ENGINE} C++ compile reviewer. Find problems in the given .h/.cpp pair that would make it fail to compile, fail Unreal Header Tool, or fail to link: missing #includes, names that don't match between files, wrong or missing signatures, functions declared but not defined, UCLASS/UPROPERTY/UFUNCTION macro mistakes, wrong Super:: calls, replication mistakes, wrong engine API usage.
 Only report real problems, never style. Do not repeat issues already listed under KNOWN ISSUES.
@@ -403,7 +417,7 @@ User-added modules to INCLUDE: ${req.extra_modules?.length ? JSON.stringify(req.
 User-removed modules to mark excluded: ${req.removed_modules?.length ? JSON.stringify(req.removed_modules) : "(none)"}
 User-tuned parameter values (keep these keys and use these exact values in code defaults): ${req.parameter_overrides && Object.keys(req.parameter_overrides).length ? JSON.stringify(req.parameter_overrides) : "(none)"}
 
-Reply with the compact JSON object.`;
+Generate the full modular UE5 system now. Respond with raw JSON only.`;
 }
 
 function classifyError(exc, model = "") {
