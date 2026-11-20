@@ -15,12 +15,13 @@ function note(id, anchor, one, trade, mistake, concept, title) {
   };
 }
 
-function chain(labels) {
+function chain(labels, notes = []) {
   const types = ["event", "function", "function", "function"];
   const nodes = labels.map((label, i) => ({
     id: `n${i + 1}`,
     label,
     node_type: types[i] || "function",
+    note: notes[i] || "",
     x: 80 + i * 240,
     y: 140,
     inputs: i === 0 ? [] : ["exec"],
@@ -35,7 +36,7 @@ function chain(labels) {
 }
 
 function build(def) {
-  const graph = chain(def.labels);
+  const graph = chain(def.labels, def.nodeNotes || []);
   const params = def.params.map((p) => ({
     key: p[0], label: p[1], value: p[2], min: 0, max: 100, step: 1, unit: p[3] || "",
   }));
@@ -93,6 +94,12 @@ const PACKS = [
     name: "Advanced Combat System",
     summary: "Combo chains, directional attacks, and hitstop on an ActorComponent.",
     labels: ["Event Attack", "Advance Combo", "Apply Hitstop", "Resolve Damage"],
+    nodeNotes: [
+      "The attack starts from a notify, not from Tick. For example, the montage hits the notify and the combo advances once.",
+      "The combo index lives on the component so two attacks share one counter. For example, the second swing reads the same index the first swing stored.",
+      "Hitstop pauses both sides so the impact reads. For example, the sword and the target freeze together for a few frames.",
+      "Resolve Damage applies the hit after hitstop, on the authority, not on Tick. For example, the sword subtracts health once the freeze ends.",
+    ],
     params: [
       ["combo_window", "Combo Window", 35, "ms", "Widens the time the next hit still counts as the same combo."],
       ["hitstop_frames", "Hitstop", 4, "frames", "Holds both characters so the hit reads. Too many frames and the game feels frozen."],
@@ -130,6 +137,12 @@ const PACKS = [
     name: "Grid Inventory",
     summary: "A slot grid with stacking and a DataAsset for item definitions.",
     labels: ["Open Inventory", "Find Slot", "Stack Or Place", "Refresh Widget"],
+    nodeNotes: [
+      "Open Inventory starts from the inventory key, not from Tick. For example, pressing the bag button opens the grid once.",
+      "Find Slot looks for a free cell or a stack of the same item. For example, a second medkit lands on the first medkit's cell.",
+      "Stack Or Place writes the count on the slot. The widget does not own the number. For example, a full stack refuses the extra round.",
+      "Refresh Widget redraws the grid after the slot changes. For example, the bag updates when a medkit stacks, and it does not scan the world.",
+    ],
     params: [
       ["slot_count", "Slot Count", 20, "slots", "Sets how many cells the grid builds. More cells cost more widget work."],
     ],
@@ -168,6 +181,12 @@ const PACKS = [
     name: "Branching Dialogue",
     summary: "Speaker lines, player choices, and quest flags from a DataTable.",
     labels: ["Start Conversation", "Read Row", "Offer Choices", "Set Quest Flag"],
+    nodeNotes: [
+      "Start Conversation begins when the player talks to the NPC, not on Tick. For example, the use key on a merchant opens the first line.",
+      "Read Row pulls the next line from the data table. The text is not hardcoded on the node. For example, the escort offer comes from a row the writer can edit.",
+      "Offer Choices shows the replies on that row. Picking one is the next step. For example, Yes and Not now are two pins from the same line.",
+      "Set Quest Flag writes the result of the chosen line. It does not replay the conversation. For example, agreeing to the escort sets the flag the quest reads later.",
+    ],
     params: [
       ["text_speed", "Text Speed", 40, "cps", "How fast the line reveals. It does not change which row plays."],
     ],
@@ -208,6 +227,12 @@ const PACKS = [
     name: "Behavior Tree AI Guard",
     summary: "Patrol, sight, chase, and return on a pawn with a blackboard.",
     labels: ["Perceive Target", "Set Blackboard", "Chase Or Search", "Return To Post"],
+    nodeNotes: [
+      "Perceive Target reports a sighting or a noise on the perception timer. It does not run every frame. For example, the guard notices the player stepping into the light.",
+      "Set Blackboard writes the target the behavior tree can read. For example, the chase reads the player location stored here.",
+      "Chase Or Search leaves the post when the blackboard has a target, and searches when it does not. For example, losing sight starts the search instead of a Tick wander.",
+      "Return To Post walks the guard home when the search ends. For example, after the player hides, the guard goes back to the door.",
+    ],
     params: [
       ["sight_radius", "Sight Radius", 80, "m", "How far the pawn notices a target. Larger radii cost more perception checks."],
     ],
@@ -248,6 +273,12 @@ const PACKS = [
     name: "Save Load Game State",
     summary: "Slots, an autosave timer, and an async save of a versioned USaveGame.",
     labels: ["Request Save", "Fill SaveGame", "Write Slot Async", "Broadcast Done"],
+    nodeNotes: [
+      "Request Save starts from the menu or a checkpoint, not from Tick. For example, the pause menu asks for one save.",
+      "Fill SaveGame copies the numbers that already finished, such as health and the quest flag. For example, it stores the kit, not a mid-swing pose.",
+      "Write Slot Async writes that struct to the slot and returns later. The game does not freeze on the write. For example, the disk finishes while the menu stays up.",
+      "Broadcast Done tells the menu the slot finished writing. It does not save again. For example, the Saving spinner hides when this fires.",
+    ],
     params: [
       ["autosave_seconds", "Autosave", 60, "s", "How often a quiet save runs. Zero turns autosave off."],
     ],
@@ -286,6 +317,12 @@ const PACKS = [
     name: "Vehicle Physics Controller",
     summary: "Throttle, brake, drift, and gears on a Chaos wheeled pawn.",
     labels: ["Read Input", "Apply Throttle", "Update Gear", "Drift Brake"],
+    nodeNotes: [
+      "Read Input takes the vehicle axis from the mapping context. It is not the on-foot sprint. For example, the trigger is throttle for the car.",
+      "Apply Throttle writes that axis on the authority for the chaos vehicle to read. For example, the host sets the speed the wheels follow.",
+      "Update Gear shifts from the speed, not from Tick guessing. For example, the car changes gear as the throttle holds.",
+      "Drift Brake cuts the throttle and yaws the car for a handbrake turn. For example, the handbrake slides the car without writing walk speed.",
+    ],
     params: [
       ["steer_speed", "Steer Speed", 50, "deg/s", "How fast the wheels turn toward the input. Higher feels twitchy."],
     ],
@@ -324,6 +361,12 @@ const PACKS = [
     name: "Gameplay Ability System",
     summary: "An attribute set and three abilities granted through the ability system.",
     labels: ["Grant Abilities", "Check Cost", "Activate Ability", "Apply Effect"],
+    nodeNotes: [
+      "Grant Abilities gives this actor the abilities it may use. It runs at start, not every frame. For example, the pawn receives the dash ability when it spawns.",
+      "Check Cost asks whether the attribute can pay before the ability starts. For example, a dash refuses when stamina is already empty.",
+      "Activate Ability starts the ability by its tag. The graph does not name the class at the call. For example, the dash tag finds the dash ability.",
+      "Apply Effect pays the cost and starts the cooldown on this actor. The ability does not also subtract. For example, a dash spends stamina from the effect, then waits.",
+    ],
     params: [
       ["mana_cost", "Mana Cost", 20, "mp", "The cost effect of the fireball. Higher cost means fewer casts per pool."],
     ],
@@ -362,6 +405,12 @@ const PACKS = [
     name: "Interaction System",
     summary: "A camera line trace, a prompt, and an interface on the focused actor.",
     labels: ["Trace From Camera", "Focus Actor", "Show Prompt", "Call Interact"],
+    nodeNotes: [
+      "Trace From Camera fires a short line trace from the camera when the player asks, not on Tick. For example, the use key looks at the door in front of the crosshair.",
+      "Focus Actor stores the hit actor on this component. The character class does not own that pointer. For example, the door stays focused until the next look misses.",
+      "Show Prompt updates the widget from the focus change. The widget does not poll. For example, Use appears when a crate is focused and hides when it is not.",
+      "Call Interact runs the interface on the focused actor. A cast list is not required. For example, the same node opens a door and picks up a rifle.",
+    ],
     params: [
       ["trace_distance", "Trace Distance", 30, "m", "How far the look trace reaches. Longer traces hit more of the world."],
     ],

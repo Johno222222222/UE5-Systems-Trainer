@@ -1,0 +1,613 @@
+{
+  "id": "tps-intermediate",
+  "modules": {
+    "layer": {
+      "plainEnglish": "The device becomes an action before the graph runs. The base context holds move, look, aim, and interact. Holding the left trigger pushes a second context, so a face button that reloads can instead open a radial slot.",
+      "whyGame": "Leaving both contexts pushed makes one press reload and equip at once, and reading the key code breaks a rebind.",
+      "expansions": [
+        {
+          "title": "Base",
+          "detail": "Reload lives on the base layer."
+        },
+        {
+          "title": "Modifier",
+          "detail": "The radial lives on the layer that exists only while the trigger is held."
+        },
+        {
+          "title": "Equip",
+          "detail": "The menu sends the equip action with a slot id."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tpci-layer-1",
+          "kind": "mc",
+          "prompt": "The left trigger is held and the face button that usually reloads is pressed. What runs?",
+          "choices": [
+            "The radial slot on the modifier layer",
+            "A magazine transfer from the base layer",
+            "Both a transfer and a slot change",
+            "A raw key comparison inside the reload graph"
+          ],
+          "answer": 0,
+          "why": "The trigger pushes the second context."
+        },
+        {
+          "id": "tpci-layer-2",
+          "kind": "mc",
+          "prompt": "The modifier context is not pushed. What does that face button start?",
+          "choices": [
+            "Reload",
+            "A radial slot",
+            "The vehicle's forward input",
+            "A limb write"
+          ],
+          "answer": 0,
+          "why": "The base layer owns reload."
+        },
+        {
+          "id": "tpci-layer-3",
+          "kind": "mc",
+          "prompt": "The radial menu has a slot. Which action should it send?",
+          "choices": [
+            "Equip, carrying that slot id",
+            "A magazine transfer, since a face button was used",
+            "An immediate burst from the new gun",
+            "The shoulder-button aim"
+          ],
+          "answer": 0,
+          "why": "The menu selects."
+        },
+        {
+          "id": "tpci-layer-4",
+          "kind": "mc",
+          "prompt": "The trigger is released and the modifier context stays pushed. What can one press still do?",
+          "choices": [
+            "Reload and open a slot together",
+            "Only the magazine transfer",
+            "Only look",
+            "Only write health"
+          ],
+          "answer": 0,
+          "why": "Pop the layer when the trigger comes up."
+        },
+        {
+          "id": "tpci-layer-5",
+          "kind": "mc",
+          "prompt": "A player rebinds the face button from a key to a pad. What stays the same?",
+          "choices": [
+            "The action the graph receives",
+            "A key-code compare inside the graph",
+            "Which limb the button damages",
+            "The interest timer interval"
+          ],
+          "answer": 0,
+          "why": "The context resolves the device."
+        },
+        {
+          "id": "tpci-layer-6",
+          "kind": "tf",
+          "prompt": "The reload graph receives the resolved action and does not compare a face-button key code.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The action arrives already resolved."
+        },
+        {
+          "id": "tpci-layer-7",
+          "kind": "mc",
+          "prompt": "Which actions belong on the base context?",
+          "choices": [
+            "Move, look, aim, and interact",
+            "Only radial slots",
+            "Only wheel transforms",
+            "Only save fields"
+          ],
+          "answer": 0,
+          "why": "Everyday play is the base layer."
+        },
+        {
+          "id": "tpci-layer-8",
+          "kind": "mc",
+          "prompt": "When is a pressed device turned into an action?",
+          "choices": [
+            "Before the graph runs",
+            "Inside the graph, from a key code",
+            "Inside a replication callback",
+            "While a save writes"
+          ],
+          "answer": 0,
+          "why": "The graph sees the action."
+        },
+        {
+          "id": "tpci-layer-9",
+          "kind": "mc",
+          "prompt": "You put the radial binding on the base layer next to reload. What is lost?",
+          "choices": [
+            "A second meaning that appears only while the trigger is held",
+            "The authority gate on equip",
+            "The look from the camera",
+            "Ten percent of a limb's max"
+          ],
+          "answer": 0,
+          "why": "The second meaning needs the second context."
+        },
+        {
+          "id": "tpci-layer-10",
+          "kind": "mc",
+          "prompt": "Which step is the modifier layer, not the base reload?",
+          "choices": [
+            "Pushing the extra context while the left trigger is held",
+            "Reload firing from the base context",
+            "A limb clamped on the server",
+            "Throttle read by the car"
+          ],
+          "answer": 0,
+          "why": "The push is the layer."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the base context hold move, look, aim, and interact, while the left trigger pushes a modifier layer?",
+        "whyGamePrompt": "What fires on one press if both contexts stay pushed, and what rebind breaks if the graph reads the key code?"
+      }
+    },
+    "limb": {
+      "plainEnglish": "A limb is a replicated float with a floor. Damage starts the write, the authority gates it, and a normal hit cannot drop the limb below ten percent of its max. A limb that maxes at 80 floors at 8. The notify plays the limp and does not subtract again.",
+      "whyGame": "A client subtract snaps when the server number arrives, and a second subtract in the notify bites twice.",
+      "expansions": [
+        {
+          "title": "The floor",
+          "detail": "Ten percent of 80 is 8. Zero is a down, not a bruise."
+        },
+        {
+          "title": "The sample",
+          "detail": "The literal 90 stands in for the clamped result."
+        },
+        {
+          "title": "The limp",
+          "detail": "OnRep plays it. The number is already final."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tpci-limb-1",
+          "kind": "mc",
+          "prompt": "Which event starts a third-person limb write?",
+          "choices": [
+            "Any Damage, on the authority",
+            "A drain on every frame",
+            "The aim button",
+            "The weapon wheel"
+          ],
+          "answer": 0,
+          "why": "Damage is the hit."
+        },
+        {
+          "id": "tpci-limb-2",
+          "kind": "mc",
+          "prompt": "The excerpt assigns 90 inside the authority check. What should replace 90?",
+          "choices": [
+            "The clamped result",
+            "A constant every bruise must use",
+            "How hot the barrel is",
+            "The vehicle's forward input"
+          ],
+          "answer": 0,
+          "why": "90 is a stand-in."
+        },
+        {
+          "id": "tpci-limb-3",
+          "kind": "mc",
+          "prompt": "A bruise would take a limb of max 80 below 8. Where does it land?",
+          "choices": [
+            "At 8",
+            "At zero",
+            "Back at eighty, if proxies rejected bruises",
+            "Wherever the client predicted"
+          ],
+          "answer": 0,
+          "why": "Ten percent is the floor."
+        },
+        {
+          "id": "tpci-limb-4",
+          "kind": "mc",
+          "prompt": "The limp notify also subtracts. What does one attack become?",
+          "choices": [
+            "Two bites",
+            "One bite and a limp",
+            "A camera pull-in",
+            "An equip change"
+          ],
+          "answer": 0,
+          "why": "The server already wrote the number."
+        },
+        {
+          "id": "tpci-limb-5",
+          "kind": "mc",
+          "prompt": "A client applies the bruise before the server answers. What jumps back?",
+          "choices": [
+            "The limp, back to the server number",
+            "The radial layer",
+            "The interest timer",
+            "The wheel simulation"
+          ],
+          "answer": 0,
+          "why": "The early number was not authority."
+        },
+        {
+          "id": "tpci-limb-6",
+          "kind": "tf",
+          "prompt": "A bruise on a limb whose max is 80 stops at 8 rather than emptying it.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The floor is 8."
+        },
+        {
+          "id": "tpci-limb-7",
+          "kind": "mc",
+          "prompt": "Why does this limb have to be one replicated number?",
+          "choices": [
+            "Other players can see the limp",
+            "The boom requires a float",
+            "Heat is stored in the same float",
+            "Cars read limbs as throttle"
+          ],
+          "answer": 0,
+          "why": "The body is on their screen."
+        },
+        {
+          "id": "tpci-limb-8",
+          "kind": "mc",
+          "prompt": "Which line is the limb write, not the limp?",
+          "choices": [
+            "The clamped assignment inside the authority check",
+            "The notify that plays the stumble",
+            "A radial slot change",
+            "A local barrel flash"
+          ],
+          "answer": 0,
+          "why": "Authority owns the number."
+        },
+        {
+          "id": "tpci-limb-9",
+          "kind": "mc",
+          "prompt": "Tick writes the limb while the player is only running. What falls with no attack?",
+          "choices": [
+            "The limb",
+            "The camera boom",
+            "The slot wheel",
+            "The car fuel"
+          ],
+          "answer": 0,
+          "why": "Damage is the event, not the frame."
+        },
+        {
+          "id": "tpci-limb-10",
+          "kind": "mc",
+          "prompt": "A hit crosses zero on purpose. What state is that, distinct from a bruise?",
+          "choices": [
+            "Downed",
+            "A legal bruise at ten percent",
+            "A magazine transfer",
+            "A shift in the car"
+          ],
+          "answer": 0,
+          "why": "The floor holds a bruise. Zero is down."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why can a normal hit not drop a replicated limb below ten percent, and only when the authority writes it?",
+        "whyGamePrompt": "What snaps when the server number arrives, and what injures the pawn twice, if the client subtracts early and the notify subtracts again?"
+      }
+    },
+    "interest": {
+      "plainEnglish": "Relevant answers whether a client receives the actor. The authority traces twice a second and sets that bool. A third-person camera can stay local even when the pawn is relevant. Visible, on a strategy map, is a different question.",
+      "whyGame": "A client that sets Relevant pulls pawns the server hid, and treating the camera as interest replicates a local boom.",
+      "expansions": [
+        {
+          "title": "The timer",
+          "detail": "CheckAOI runs every 0.5 seconds inside the authority check."
+        },
+        {
+          "title": "The camera",
+          "detail": "The shoulder camera is local. It is not the relevance bit."
+        },
+        {
+          "title": "Vision",
+          "detail": "Visible is what a team may see. It does not cull the host's simulation."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tpci-interest-1",
+          "kind": "mc",
+          "prompt": "What does Relevant mean for a third-person pawn?",
+          "choices": [
+            "This machine should receive the actor",
+            "The shoulder camera is pulled in",
+            "The team can see the cell",
+            "The limb is below its floor"
+          ],
+          "answer": 0,
+          "why": "Interest is delivery, not the camera."
+        },
+        {
+          "id": "tpci-interest-2",
+          "kind": "mc",
+          "prompt": "CheckAOI assigns Relevant from a trace. What wraps that line?",
+          "choices": [
+            "A half-second loop on the authority",
+            "Once on each drawn frame",
+            "The button that pulls the camera in",
+            "The weapon wheel"
+          ],
+          "answer": 0,
+          "why": "Twice a second, gated."
+        },
+        {
+          "id": "tpci-interest-3",
+          "kind": "mc",
+          "prompt": "The pawn is relevant and the shoulder camera stays on the owning machine. What was correctly left local?",
+          "choices": [
+            "The camera",
+            "The limb float",
+            "Which weapon slot is selected",
+            "Whether the client receives the pawn"
+          ],
+          "answer": 0,
+          "why": "The boom is not interest."
+        },
+        {
+          "id": "tpci-interest-4",
+          "kind": "mc",
+          "prompt": "A client sets Relevant so its animation stays smooth. Who is forced to receive actors the server hid?",
+          "choices": [
+            "Whoever trusts that client write",
+            "No other machine, if a client write could not replicate",
+            "Only the car",
+            "Only the radial menu"
+          ],
+          "answer": 0,
+          "why": "The authority traces."
+        },
+        {
+          "id": "tpci-interest-5",
+          "kind": "mc",
+          "prompt": "You use Visible as Relevant on a strategy map. What gets deleted from a spotter's future?",
+          "choices": [
+            "An actor the host still had to simulate",
+            "Only a local camera",
+            "Only a limb floor",
+            "Only a face-button binding"
+          ],
+          "answer": 0,
+          "why": "Culling is not vision."
+        },
+        {
+          "id": "tpci-interest-6",
+          "kind": "tf",
+          "prompt": "The shoulder camera should be replicated as the interest bit.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The camera is local."
+        },
+        {
+          "id": "tpci-interest-7",
+          "kind": "mc",
+          "prompt": "The trace misses. What should the next assignment do?",
+          "choices": [
+            "Clear relevance",
+            "Leave the old true bit forever",
+            "Pull the camera in",
+            "Floor a limb"
+          ],
+          "answer": 0,
+          "why": "The bool tracks the hit, including a miss."
+        },
+        {
+          "id": "tpci-interest-8",
+          "kind": "mc",
+          "prompt": "Why is a third-person pawn stricter about this than a tiny pickup?",
+          "choices": [
+            "The mesh is large and the animation is busy",
+            "Pickups have no transforms",
+            "Cameras cannot be local",
+            "Limbs require every client to simulate every pawn"
+          ],
+          "answer": 0,
+          "why": "The animation is the cost."
+        },
+        {
+          "id": "tpci-interest-9",
+          "kind": "mc",
+          "prompt": "You save Relevant so a distant pawn stays culled. What is stale after you walk up to it?",
+          "choices": [
+            "The saved bit, which still says the pawn is gone",
+            "The bruise minimum",
+            "The radial binding",
+            "The local boom length"
+          ],
+          "answer": 0,
+          "why": "Run the timer again."
+        },
+        {
+          "id": "tpci-interest-10",
+          "kind": "mc",
+          "prompt": "Which line is interest, not the camera?",
+          "choices": [
+            "Relevant assigned from the half-second trace",
+            "Aiming set by the shoulder button",
+            "The boom easing in",
+            "A flash that stays on the firing machine"
+          ],
+          "answer": 0,
+          "why": "CheckAOI owns delivery."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the authority set Relevant twice a second, while a third-person camera is not interest?",
+        "whyGamePrompt": "What pawns get pulled back, and what local boom gets replicated, if a client sets Relevant from the camera?"
+      }
+    },
+    "throttle": {
+      "plainEnglish": "A car is a different component. Its axis is throttle, written on the authority. Copying the on-foot sprint of 600 launches the car at a person's pace number. The shoulder camera turns off in the seat. It does not keep aiming, and it does not write throttle.",
+      "whyGame": "Wheels are a simulation. Replicating each wheel transform streams bones the client can rebuild from throttle and fuel.",
+      "expansions": [
+        {
+          "title": "The axis",
+          "detail": "IA_Throttle is not IA_Move."
+        },
+        {
+          "title": "The seat",
+          "detail": "Disable the shoulder camera. Do not feed aim into the seat."
+        },
+        {
+          "title": "Wheels",
+          "detail": "Replicate fuel and the order, not every wheel bone."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tpci-throttle-1",
+          "kind": "mc",
+          "prompt": "What should the vehicle graph assign?",
+          "choices": [
+            "Throttle from its own axis, on the authority",
+            "The on-foot sprint of 600",
+            "The aiming bool",
+            "The lowest a bruise may go"
+          ],
+          "answer": 0,
+          "why": "The car reads its own action."
+        },
+        {
+          "id": "tpci-throttle-2",
+          "kind": "mc",
+          "prompt": "Throttle = IA_Throttle runs inside the authority check. What is being copied?",
+          "choices": [
+            "The vehicle axis",
+            "The pawn's sprint speed",
+            "The equipped slot",
+            "The interest bit"
+          ],
+          "answer": 0,
+          "why": "The axis is the input."
+        },
+        {
+          "id": "tpci-throttle-3",
+          "kind": "mc",
+          "prompt": "The on-foot speed is copied into throttle. What does the car do?",
+          "choices": [
+            "It launches at a sprint number it was never tuned for",
+            "It creeps at a tuned idle",
+            "It aims down the sights",
+            "It floors a limb"
+          ],
+          "answer": 0,
+          "why": "600 is not a throttle."
+        },
+        {
+          "id": "tpci-throttle-4",
+          "kind": "mc",
+          "prompt": "The player sits in the car and the shoulder camera keeps tracing. What is still running that should have stopped?",
+          "choices": [
+            "Aim, fed into the seat",
+            "Only the throttle axis",
+            "Only fuel consumption",
+            "Only the wheel rebuild"
+          ],
+          "answer": 0,
+          "why": "Disable the camera while seated."
+        },
+        {
+          "id": "tpci-throttle-5",
+          "kind": "mc",
+          "prompt": "The camera graph writes throttle while the player is seated. What did the boom steal?",
+          "choices": [
+            "The car's axis",
+            "How low a normal hit may go",
+            "The radial binding",
+            "The interest timer"
+          ],
+          "answer": 0,
+          "why": "The camera does not drive."
+        },
+        {
+          "id": "tpci-throttle-6",
+          "kind": "tf",
+          "prompt": "The chaos vehicle should read the on-foot speed of 600.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "It reads throttle."
+        },
+        {
+          "id": "tpci-throttle-7",
+          "kind": "mc",
+          "prompt": "Wheels are a simulation. What should replicate instead of each wheel bone?",
+          "choices": [
+            "Fuel, or the stock the design named, and the order id",
+            "Every wheel transform",
+            "The shoulder camera",
+            "The limb notify"
+          ],
+          "answer": 0,
+          "why": "The client rebuilds the wheels."
+        },
+        {
+          "id": "tpci-throttle-8",
+          "kind": "mc",
+          "prompt": "Driving drains the team's supply stock and the design never said the convoy spends that money. What was coupled?",
+          "choices": [
+            "Fuel and the team's build money",
+            "Aim and reload",
+            "Interest and the camera",
+            "A bruise and a down"
+          ],
+          "answer": 0,
+          "why": "Fuel can be its own number."
+        },
+        {
+          "id": "tpci-throttle-9",
+          "kind": "mc",
+          "prompt": "A client writes throttle so the car feels local. What corrects itself?",
+          "choices": [
+            "The axis, when the authority value arrives",
+            "The ten weapon slots",
+            "Ten percent of max",
+            "The radial layer"
+          ],
+          "answer": 0,
+          "why": "The write sits in the authority check."
+        },
+        {
+          "id": "tpci-throttle-10",
+          "kind": "mc",
+          "prompt": "Which line is the car, not the sprint?",
+          "choices": [
+            "Throttle assigned from its axis",
+            "Speed assigned 600 from the stick",
+            "Aiming set by the shoulder button",
+            "A limb clamped at ten percent"
+          ],
+          "answer": 0,
+          "why": "The axis is not the gait."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why is a car's throttle its own authority axis instead of the on-foot sprint of 600?",
+        "whyGamePrompt": "What bone stream wastes the match if each wheel transform is replicated instead of rebuilt from throttle and fuel?"
+      }
+    }
+  }
+}

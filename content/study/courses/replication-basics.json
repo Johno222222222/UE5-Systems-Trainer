@@ -1,0 +1,737 @@
+{
+  "id": "replication-basics",
+  "modules": {
+    "authority": {
+      "plainEnglish": "Authority writes. Clients ask.",
+      "whyGame": "Do not trust the client's number.",
+      "expansions": [
+        {
+          "title": "Authority as a door",
+          "detail": "If authority is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+        },
+        {
+          "title": "Authority as data",
+          "detail": "Designer numbers for authority live on a row. Health clamped between zero and MaxHealth, then a branch that logs death at zero reads the row instead of a literal."
+        },
+        {
+          "title": "Authority as a listener",
+          "detail": "Later systems listen for Any Damage. They do not subtracting with no clamp so health goes negative and the death branch never sees zero."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "rep-auth-1",
+          "kind": "mc",
+          "prompt": "Who writes replicated health?",
+          "choices": [
+            "The machine with authority. A client can ask",
+            "Each machine, so the hit marker appears before the server is asked.",
+            "The bar text, edited in place.",
+            "The notify, which would subtract again when the value arrives."
+          ],
+          "answer": 0,
+          "why": "Authority writes. Clients ask.",
+          "review_prompt": "Who writes replicated health?"
+        },
+        {
+          "id": "rep-auth-2",
+          "kind": "mc",
+          "prompt": "A client subtracts health locally and also sends the new value to the server. What can the server do?",
+          "choices": [
+            "Reject it. The server decides the damage. The client's number is a request at most.",
+            "Accept it, because the client saw the hit first. Seeing a hit is not the same as owning the health value.",
+            "Average it with the other clients' guesses.",
+            "Ignore combat until the next map load."
+          ],
+          "answer": 0,
+          "why": "Do not trust the client's number.",
+          "review_prompt": "A client subtracts health locally and also sends the new value to the server. What can the server do?"
+        },
+        {
+          "id": "rep-auth-3",
+          "kind": "tf",
+          "prompt": "True or false: The machine with authority writes shared gameplay state. A client can ask.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "That is the lesson.",
+          "review_prompt": "True or false: The machine with authority writes shared gameplay state. A client can ask."
+        },
+        {
+          "id": "rep-auth-4",
+          "kind": "tf",
+          "prompt": "Replicated health is written by the authority, and a client prediction does not become the official value.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The server does not adopt the client's write.",
+          "review_prompt": "True or false: A client may write replicated health so the shooter sees the result a frame sooner, and the server will adopt that write."
+        },
+        {
+          "id": "rep-auth-5",
+          "kind": "mc",
+          "prompt": "Where does the damage calculation belong?",
+          "choices": [
+            "On the authority, inside the damage path that owns health.",
+            "On each client, inside Tick, using that client's clock.",
+            "In the HUD paint function.",
+            "In the projectile's cosmetic trail."
+          ],
+          "answer": 0,
+          "why": "The owner of the variable does the math.",
+          "review_prompt": "Where does the damage calculation belong?"
+        },
+        {
+          "id": "rep-auth-6",
+          "kind": "mc",
+          "prompt": "Two players shoot the same target in one frame. Who produces the one health value everyone else will see?",
+          "choices": [
+            "The authority, applying both hits in its order.",
+            "Whichever client has the lower ping.",
+            "Both clients, and replication unions the two floats.",
+            "The target's OnRep, which picks the prettier number."
+          ],
+          "answer": 0,
+          "why": "One writer.",
+          "review_prompt": "Two players shoot the same target in one frame. Who produces the one health value everyone else will see?"
+        },
+        {
+          "id": "rep-auth-7",
+          "kind": "tf",
+          "prompt": "True or false: A server RPC is a way for the client to ask. The function that runs on the server is what decides.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Ask, then decide.",
+          "review_prompt": "True or false: A server RPC is a way for the client to ask. The function that runs on the server is what decides."
+        },
+        {
+          "id": "rep-auth-8",
+          "kind": "mc",
+          "prompt": "Health is correct on the server and wrong on a proxy. What did the proxy likely do?",
+          "choices": [
+            "It applied damage locally instead of waiting for the replicated value.",
+            "It rendered too many polygons.",
+            "It used the wrong input action for movement.",
+            "It forgot to cast to the door Blueprint."
+          ],
+          "answer": 0,
+          "why": "Proxies display. They do not decide.",
+          "review_prompt": "Health is correct on the server and wrong on a proxy. What did the proxy likely do?"
+        },
+        {
+          "id": "rep-auth-9",
+          "kind": "tf",
+          "prompt": "True or false: Making the variable replicated is enough. Any machine may still be the one that assigns it.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Replication copies the authority's value. It does not elect a writer.",
+          "review_prompt": "True or false: Making the variable replicated is enough. Any machine may still be the one that assigns it."
+        },
+        {
+          "id": "rep-auth-10",
+          "kind": "mc",
+          "prompt": "A listen-server host is also a player. Whose health write still counts?",
+          "choices": [
+            "The authority write, including when the host is the player who got hit.",
+            "The remote client's write, because the host is 'just another player'.",
+            "The UI on the host, which is closer to the screen.",
+            "No write. Listen servers skip replication."
+          ],
+          "answer": 0,
+          "why": "The host's authority is still the authority.",
+          "review_prompt": "A listen-server host is also a player. Whose health write still counts?"
+        },
+        {
+          "id": "rep-auth-11",
+          "kind": "tf",
+          "prompt": "True or false: Playing the hit flash on the client requires the client to also subtract health, or the flash has no number to show.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The flash reads the replicated number.",
+          "review_prompt": "True or false: Playing the hit flash on the client requires the client to also subtract health, or the flash has no number to show."
+        },
+        {
+          "id": "rep-auth-12",
+          "kind": "mc",
+          "prompt": "What does the player on a remote machine see if the client subtracted and the server did not?",
+          "choices": [
+            "A health bar that snaps back when the real value arrives, or a kill the server never agreed to.",
+            "A smoother game, with no later correction.",
+            "The server crashes, because clients are not allowed to send packets.",
+            "Fog of war clears."
+          ],
+          "answer": 0,
+          "why": "Prediction without authority pops.",
+          "review_prompt": "What does the player on a remote machine see if the client subtracted and the server did not?"
+        }
+      ],
+      "graph": "health",
+      "assignment": {
+        "plainPrompt": "Why does the authority write shared numbers while clients only ask?",
+        "whyGamePrompt": "What match result are you trusting if the client's number is accepted as the real one?"
+      }
+    },
+    "property": {
+      "plainEnglish": "Replicate the number.",
+      "whyGame": "Replicate the number that selects the reaction.",
+      "expansions": [
+        {
+          "title": "Replicated properties as a door",
+          "detail": "If replicated properties is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+        },
+        {
+          "title": "Replicated properties as data",
+          "detail": "Designer numbers for replicated properties live on a row. Health clamped between zero and MaxHealth, then a branch that logs death at zero reads the row instead of a literal."
+        },
+        {
+          "title": "Replicated properties as a listener",
+          "detail": "Later systems listen for Any Damage. They do not subtracting with no clamp so health goes negative and the death branch never sees zero."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "rep-prop-1",
+          "kind": "mc",
+          "prompt": "What should replicate for a health bar?",
+          "choices": [
+            "The health property. Not the mesh",
+            "The skeletal mesh, so every bone pose is the health.",
+            "The widget object itself.",
+            "The player's mouse position."
+          ],
+          "answer": 0,
+          "why": "Replicate the number.",
+          "review_prompt": "What should replicate for a health bar?"
+        },
+        {
+          "id": "rep-prop-2",
+          "kind": "mc",
+          "prompt": "A designer replicates the actor's mesh pointer so other machines build the wounded model. What is expensive and unnecessary?",
+          "choices": [
+            "Sending the mesh when a single float would tell the other machines which pose to play.",
+            "Sending the float, which is larger than a mesh.",
+            "Not replicating anything, because meshes update themselves.",
+            "Replicating the player name."
+          ],
+          "answer": 0,
+          "why": "Replicate the number that selects the reaction.",
+          "review_prompt": "A designer replicates the actor's mesh pointer so other machines build the wounded model. What is expensive and unnecessary?"
+        },
+        {
+          "id": "rep-prop-3",
+          "kind": "tf",
+          "prompt": "True or false: Replicate the number. Do not replicate the mesh or the widget.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "That is the lesson.",
+          "review_prompt": "True or false: Replicate the number. Do not replicate the mesh or the widget."
+        },
+        {
+          "id": "rep-prop-4",
+          "kind": "tf",
+          "prompt": "True or false: Widgets should be replicated so every client shares one UMG object.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Widgets are local.",
+          "review_prompt": "True or false: Widgets should be replicated so every client shares one UMG object."
+        },
+        {
+          "id": "rep-prop-5",
+          "kind": "mc",
+          "prompt": "Ammo in a magazine should replicate as what?",
+          "choices": [
+            "The integer count. Each client builds the HUD from that count.",
+            "The bullet mesh instances, one replicated actor per round.",
+            "The reload montage asset pointer.",
+            "The input action object."
+          ],
+          "answer": 0,
+          "why": "The count is the property.",
+          "review_prompt": "Ammo in a magazine should replicate as what?"
+        },
+        {
+          "id": "rep-prop-6",
+          "kind": "mc",
+          "prompt": "Who creates the health bar widget?",
+          "choices": [
+            "Each client, locally, when it needs to draw. The widget reads the replicated health.",
+            "The server, which replicates the widget pointer to everyone.",
+            "The projectile that dealt the damage.",
+            "Begin Play on the server only, with clients left blank."
+          ],
+          "answer": 0,
+          "why": "UI is local.",
+          "review_prompt": "Who creates the health bar widget?"
+        },
+        {
+          "id": "rep-prop-7",
+          "kind": "tf",
+          "prompt": "True or false: A replicated float is enough for every client to play its own hit reaction in OnRep.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The number arrives. The reaction is local.",
+          "review_prompt": "True or false: A replicated float is enough for every client to play its own hit reaction in OnRep."
+        },
+        {
+          "id": "rep-prop-8",
+          "kind": "mc",
+          "prompt": "Equipped weapon visuals differ per id. What replicates?",
+          "choices": [
+            "The equipped id. Each client looks up the meshes from that id.",
+            "Every mesh on the gun, every attachment, and the material instances.",
+            "The gunsmith data asset pointer only, with no id.",
+            "No id, if other players could not see weapons."
+          ],
+          "answer": 0,
+          "why": "Replicate the id, not the meshes.",
+          "review_prompt": "Equipped weapon visuals differ per id. What replicates?"
+        },
+        {
+          "id": "rep-prop-9",
+          "kind": "tf",
+          "prompt": "True or false: Replicating the mesh is safer because a float might compress.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The float is the cheap, sufficient fact.",
+          "review_prompt": "True or false: Replicating the mesh is safer because a float might compress."
+        },
+        {
+          "id": "rep-prop-10",
+          "kind": "mc",
+          "prompt": "A scoreboard needs the score. What is the replicated property?",
+          "choices": [
+            "The score number. The board widget is created locally and reads it.",
+            "The scoreboard widget class, spawned on the server and replicated.",
+            "The medal montage.",
+            "The mouse cursor."
+          ],
+          "answer": 0,
+          "why": "The number travels. The board does not.",
+          "review_prompt": "A scoreboard needs the score. What is the replicated property?"
+        },
+        {
+          "id": "rep-prop-11",
+          "kind": "tf",
+          "prompt": "True or false: If the mesh is not replicated, other players cannot see the character at all.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The pawn can still replicate movement. The mesh is the local asset.",
+          "review_prompt": "True or false: If the mesh is not replicated, other players cannot see the character at all."
+        },
+        {
+          "id": "rep-prop-12",
+          "kind": "mc",
+          "prompt": "What breaks if the widget is the replicated object and the health float is not?",
+          "choices": [
+            "Clients share a UI object they cannot sensibly share",
+            "No float, if bars replicated more cheaply than numbers.",
+            "Movement stops.",
+            "Input tags all activate."
+          ],
+          "answer": 0,
+          "why": "Replicate the fact the UI displays.",
+          "review_prompt": "What breaks if the widget is the replicated object and the health float is not?"
+        }
+      ],
+      "graph": "health",
+      "assignment": {
+        "plainPrompt": "Why do you replicate the number that selects the reaction, rather than the reaction itself?",
+        "whyGamePrompt": "What fails to play on the other machines if only a local effect is replicated?"
+      }
+    },
+    "onrep": {
+      "plainEnglish": "OnRep is the arrival.",
+      "whyGame": "Play the hit. Do not decide the rule there.",
+      "expansions": [
+        {
+          "title": "OnRep as a door",
+          "detail": "If onrep is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+        },
+        {
+          "title": "OnRep as data",
+          "detail": "Designer numbers for onrep live on a row. Health clamped between zero and MaxHealth, then a branch that logs death at zero reads the row instead of a literal."
+        },
+        {
+          "title": "OnRep as a listener",
+          "detail": "Later systems listen for Any Damage. They do not subtracting with no clamp so health goes negative and the death branch never sees zero."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "rep-onrep-1",
+          "kind": "mc",
+          "prompt": "When does OnRep run?",
+          "choices": [
+            "When the replicated value arrives on a machine that did not write it.",
+            "On each frame, so the reaction cannot miss one.",
+            "In the constructor, before the value exists.",
+            "When the player presses any input."
+          ],
+          "answer": 0,
+          "why": "OnRep is the arrival.",
+          "review_prompt": "When does OnRep run?"
+        },
+        {
+          "id": "rep-onrep-2",
+          "kind": "mc",
+          "prompt": "Health just replicated down. What should OnRep_Health do?",
+          "choices": [
+            "Play the hit reaction and leave the float alone.",
+            "Subtract the damage again, so the proxy 'agrees' with the hit.",
+            "Write a new health and send it back to the server.",
+            "Open the inventory."
+          ],
+          "answer": 0,
+          "why": "Play the hit. Do not decide the rule there.",
+          "review_prompt": "Health just replicated down. What should OnRep_Health do?"
+        },
+        {
+          "id": "rep-onrep-3",
+          "kind": "tf",
+          "prompt": "True or false: OnRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "That is the lesson.",
+          "review_prompt": "True or false: OnRep is where other machines hear the new value. Play the hit there, do not decide the rule there."
+        },
+        {
+          "id": "rep-onrep-4",
+          "kind": "tf",
+          "prompt": "True or false: OnRep is a second chance to apply the gameplay rule, in case the authority was wrong.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "OnRep is not a second authority.",
+          "review_prompt": "True or false: OnRep is a second chance to apply the gameplay rule, in case the authority was wrong."
+        },
+        {
+          "id": "rep-onrep-5",
+          "kind": "mc",
+          "prompt": "A limp starts in OnRep when a limb value changes. Where was the limp amount decided?",
+          "choices": [
+            "On the authority, before the value replicated.",
+            "In the notify, if that were the first time anyone did the math.",
+            "In the animation blueprint, which writes the replicated float.",
+            "On the client that shot, which replicated its own result."
+          ],
+          "answer": 0,
+          "why": "The authority decides. OnRep performs.",
+          "review_prompt": "A limp starts in OnRep when a limb value changes. Where was the limp amount decided?"
+        },
+        {
+          "id": "rep-onrep-6",
+          "kind": "mc",
+          "prompt": "OnRep adds 10 to score because the board 'should tick up'. The authority already added 10. What is the score?",
+          "choices": [
+            "20 on that client, 10 on the authority.",
+            "10 everywhere, because OnRep additions are ignored.",
+            "Zero, if the two writes cancelled.",
+            "The widget's font size."
+          ],
+          "answer": 0,
+          "why": "Do not apply the rule twice.",
+          "review_prompt": "OnRep adds 10 to score because the board 'should tick up'. The authority already added 10. What is the score?"
+        },
+        {
+          "id": "rep-onrep-7",
+          "kind": "tf",
+          "prompt": "True or false: A cosmetic flash, a sound, or a limp belongs in OnRep. The subtract does not.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Show the change. Do not make it.",
+          "review_prompt": "True or false: A cosmetic flash, a sound, or a limp belongs in OnRep. The subtract does not."
+        },
+        {
+          "id": "rep-onrep-8",
+          "kind": "mc",
+          "prompt": "The server is the machine that wrote health. Does its OnRep need to subtract?",
+          "choices": [
+            "No. The server already wrote the value. OnRep is for the others",
+            "A second subtract, or the server number would be only half applied.",
+            "Only if Tick did not run that frame.",
+            "Only for the host's HUD font."
+          ],
+          "answer": 0,
+          "why": "The writer does not reapply.",
+          "review_prompt": "The server is the machine that wrote health. Does its OnRep need to subtract?"
+        },
+        {
+          "id": "rep-onrep-9",
+          "kind": "tf",
+          "prompt": "True or false: OnRep runs before the property has changed, so you must assign the property inside it.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "OnRep runs because the property changed.",
+          "review_prompt": "True or false: OnRep runs before the property has changed, so you must assign the property inside it."
+        },
+        {
+          "id": "rep-onrep-10",
+          "kind": "mc",
+          "prompt": "A door's IsOpen replicates. OnRep plays the swing. What must it not do?",
+          "choices": [
+            "Toggle IsOpen again, which would fight the replicated value.",
+            "Reading whether the door is open.",
+            "Play a sound.",
+            "Ignore the value and do nothing, which is also wrong if a swing was required, but the bug to avoid is writing."
+          ],
+          "answer": 0,
+          "why": "Read and perform. Do not write.",
+          "review_prompt": "A door's IsOpen replicates. OnRep plays the swing. What must it not do?"
+        },
+        {
+          "id": "rep-onrep-11",
+          "kind": "tf",
+          "prompt": "True or false: Skipping OnRep and polling the replicated value from Tick is the same, just more reliable.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Tick polls. OnRep is the edge.",
+          "review_prompt": "True or false: Skipping OnRep and polling the replicated value from Tick is the same, just more reliable."
+        },
+        {
+          "id": "rep-onrep-12",
+          "kind": "mc",
+          "prompt": "What does a remote player see if OnRep subtracts and the next replication arrives?",
+          "choices": [
+            "A correction. The bar jumps because the local subtract and the server value disagreed.",
+            "A perfectly smooth death.",
+            "No second subtract, if notify math were discarded. The notify is exactly where a second subtract would double the hit.",
+            "The server adopts the remote subtract."
+          ],
+          "answer": 0,
+          "why": "Corrections are the symptom.",
+          "review_prompt": "What does a remote player see if OnRep subtracts and the next replication arrives?"
+        }
+      ],
+      "graph": "health",
+      "assignment": {
+        "plainPrompt": "Why is OnRep the moment the number arrives, and not the place that decides the rule?",
+        "whyGamePrompt": "What plays an extra time if OnRep subtracts health again instead of only playing the hit?"
+      }
+    },
+    "rpc": {
+      "plainEnglish": "Server RPC asks. The server decides.",
+      "whyGame": "Do not trust the client's number.",
+      "expansions": [
+        {
+          "title": "RPCs as a door",
+          "detail": "If rpcs is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+        },
+        {
+          "title": "RPCs as data",
+          "detail": "Designer numbers for rpcs live on a row. Health clamped between zero and MaxHealth, then a branch that logs death at zero reads the row instead of a literal."
+        },
+        {
+          "title": "RPCs as a listener",
+          "detail": "Later systems listen for Any Damage. They do not subtracting with no clamp so health goes negative and the death branch never sees zero."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "rep-rpc-1",
+          "kind": "mc",
+          "prompt": "Which RPC should a client use to ask for damage?",
+          "choices": [
+            "A server RPC. The server function decides the number.",
+            "A client RPC from the victim to itself.",
+            "A multicast that tells every machine to subtract whatever the shooter sent.",
+            "No request, with health written directly on the machine that was hit."
+          ],
+          "answer": 0,
+          "why": "Server RPC asks. The server decides.",
+          "review_prompt": "Which RPC should a client use to ask for damage?"
+        },
+        {
+          "id": "rep-rpc-2",
+          "kind": "mc",
+          "prompt": "The client sends Damage = 99999 in the server RPC. What should the server function do?",
+          "choices": [
+            "Ignore that number and compute the damage itself.",
+            "The sent amount, if a remote call were a trusted message.",
+            "Average 99999 with the victim's health.",
+            "Forward 99999 to every client in a multicast and let them apply it."
+          ],
+          "answer": 0,
+          "why": "Do not trust the client's number.",
+          "review_prompt": "The client sends Damage = 99999 in the server RPC. What should the server function do?"
+        },
+        {
+          "id": "rep-rpc-3",
+          "kind": "tf",
+          "prompt": "True or false: A server RPC asks. The server function decides. Do not trust the client's number.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "That is the lesson.",
+          "review_prompt": "True or false: A server RPC asks. The server function decides. Do not trust the client's number."
+        },
+        {
+          "id": "rep-rpc-4",
+          "kind": "tf",
+          "prompt": "True or false: A multicast is the right way to apply damage, because then every machine runs the same subtract.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "A multicast would let the client's math run everywhere.",
+          "review_prompt": "True or false: A multicast is the right way to apply damage, because then every machine runs the same subtract."
+        },
+        {
+          "id": "rep-rpc-5",
+          "kind": "mc",
+          "prompt": "The owning client wants a muzzle flash now, and the server will confirm the shot later. What can be local?",
+          "choices": [
+            "The flash. The damage still waits for the server.",
+            "The health subtract, because the flash proves the hit.",
+            "The victim's position, which the shooter may set.",
+            "The points total, which the shooter might add."
+          ],
+          "answer": 0,
+          "why": "Cosmetics can predict. Rules cannot.",
+          "review_prompt": "The owning client wants a muzzle flash now, and the server will confirm the shot later. What can be local?"
+        },
+        {
+          "id": "rep-rpc-6",
+          "kind": "mc",
+          "prompt": "A client RPC is used to tell the shooter to play a hit confirm. Who runs that function?",
+          "choices": [
+            "That one client. Not the server's rules",
+            "The server, despite the name.",
+            "Every machine, because RPC means replicated.",
+            "The projectile actor on the server only."
+          ],
+          "answer": 0,
+          "why": "Client RPC is one machine's cosmetic.",
+          "review_prompt": "A client RPC is used to tell the shooter to play a hit confirm. Who runs that function?"
+        },
+        {
+          "id": "rep-rpc-7",
+          "kind": "tf",
+          "prompt": "True or false: Validation of a server RPC belongs in the server function, not in a comment on the client.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The server is the only place the check is real.",
+          "review_prompt": "True or false: Validation of a server RPC belongs in the server function, not in a comment on the client."
+        },
+        {
+          "id": "rep-rpc-8",
+          "kind": "mc",
+          "prompt": "Reload is requested from a client. Where does the magazine actually change?",
+          "choices": [
+            "On the authority, after it checks the mag and the reserve.",
+            "On the client, inside the RPC call site, before the server runs.",
+            "In the notify, which would fill the magazine when it saw a press.",
+            "In the ammo text, edited locally."
+          ],
+          "answer": 0,
+          "why": "The server reloads. The client asked.",
+          "review_prompt": "Reload is requested from a client. Where does the magazine actually change?"
+        },
+        {
+          "id": "rep-rpc-9",
+          "kind": "tf",
+          "prompt": "True or false: If the server RPC is reliable, the client's damage argument becomes trustworthy.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Reliable means it arrives. It does not mean the argument is honest.",
+          "review_prompt": "True or false: If the server RPC is reliable, the client's damage argument becomes trustworthy."
+        },
+        {
+          "id": "rep-rpc-10",
+          "kind": "mc",
+          "prompt": "A cheat sets the RPC argument for the equipped item id. What stops a client from equipping a weapon they do not own?",
+          "choices": [
+            "The server checks the request against the real inventory before it writes EquippedId.",
+            "No check, if the equipped slot were whatever the sender claimed.",
+            "The widget refuses to draw locked guns, which is the only check.",
+            "OnRep reverts the mesh but leaves the id."
+          ],
+          "answer": 0,
+          "why": "The server owns the id.",
+          "review_prompt": "A cheat sets the RPC argument for the equipped item id. What stops a client from equipping a weapon they do not own?"
+        },
+        {
+          "id": "rep-rpc-11",
+          "kind": "tf",
+          "prompt": "True or false: Calling the server function directly on a client, without an RPC, runs it with authority.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "A direct call on the client is still the client.",
+          "review_prompt": "True or false: Calling the server function directly on a client, without an RPC, runs it with authority."
+        },
+        {
+          "id": "rep-rpc-12",
+          "kind": "mc",
+          "prompt": "What does the victim see if every client applied the shooter's RPC argument instead of the server's result?",
+          "choices": [
+            "Different health on different machines",
+            "One shared health, because clients average their RPCs.",
+            "No shots, because multicast blocks weapons.",
+            "The server pauses."
+          ],
+          "answer": 0,
+          "why": "One decision, made on the server.",
+          "review_prompt": "What does the victim see if every client applied the shooter's RPC argument instead of the server's result?"
+        }
+      ],
+      "graph": "health",
+      "assignment": {
+        "plainPrompt": "Why does a server RPC ask the server to decide, instead of the client applying the result?",
+        "whyGamePrompt": "What cheat lands if the server trusts the number packed inside the client's RPC?"
+      }
+    }
+  }
+}

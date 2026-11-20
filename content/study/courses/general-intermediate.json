@@ -1,0 +1,765 @@
+{
+  "id": "general-intermediate",
+  "modules": {
+    "onrep": {
+      "plainEnglish": "The server writes the number. OnRep is how the other machines react. A limp, a hit flash, and a scoreboard refresh belong there. A second subtract does not.",
+      "whyGame": "Subtracting again in the notify bites twice, and a medal board that adds again grants points the host never gave.",
+      "expansions": [
+        {
+          "title": "A limb",
+          "detail": "The server clamps the bruise. OnRep plays the limp."
+        },
+        {
+          "title": "A medal",
+          "detail": "OnRep refreshes the board from Score. It does not add 10."
+        },
+        {
+          "title": "A bar",
+          "detail": "The widget reads the float. It is not the replicated object."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "geni-onrep-1",
+          "kind": "mc",
+          "prompt": "The server has clamped a limb. What should OnRep do on the other machines?",
+          "choices": [
+            "Play the limp from the number that arrived",
+            "Subtract the bruise a second time",
+            "Write the limb back to the server",
+            "Start a new damage event"
+          ],
+          "answer": 0,
+          "why": "The notify presents the result."
+        },
+        {
+          "id": "geni-onrep-2",
+          "kind": "mc",
+          "prompt": "The limb excerpt assigns the clamped result inside HasAuthority. Which machine runs that line?",
+          "choices": [
+            "The authority, from Any Damage",
+            "Every proxy, inside the notify",
+            "The widget, while it paints",
+            "The animation graph, every pose"
+          ],
+          "answer": 0,
+          "why": "The check wraps the write."
+        },
+        {
+          "id": "geni-onrep-3",
+          "kind": "mc",
+          "prompt": "A normal hit must not pass the bruise floor. For a limb whose max is 80, where does a bruise stop?",
+          "choices": [
+            "At 8, which is ten percent of 80",
+            "At zero for every hit",
+            "Back at eighty, if proxies rejected damage",
+            "Wherever the predicting machine guessed"
+          ],
+          "answer": 0,
+          "why": "Ten percent is the floor. Zero is a down."
+        },
+        {
+          "id": "geni-onrep-4",
+          "kind": "mc",
+          "prompt": "The limp notify also subtracts. What does the bitten player take?",
+          "choices": [
+            "Two bites for one attack",
+            "The limp with the server number intact",
+            "A refilled magazine",
+            "A tighter camera"
+          ],
+          "answer": 0,
+          "why": "The subtract already happened."
+        },
+        {
+          "id": "geni-onrep-5",
+          "kind": "mc",
+          "prompt": "A medal's notify adds 10 after the server already added the row. What does the board show?",
+          "choices": [
+            "Double the award",
+            "The host's granted total",
+            "How much the team can spend",
+            "The door's open pose"
+          ],
+          "answer": 0,
+          "why": "Refresh the widget. Do not award again."
+        },
+        {
+          "id": "geni-onrep-6",
+          "kind": "tf",
+          "prompt": "OnRep of a limb should play the limp and leave the number alone.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The server already wrote it."
+        },
+        {
+          "id": "geni-onrep-7",
+          "kind": "mc",
+          "prompt": "You replicate the health widget so the bar matches. What travels that should have stayed local?",
+          "choices": [
+            "Fonts and layout, instead of one float",
+            "Only the clamped number",
+            "The damage event name",
+            "The server-only gate"
+          ],
+          "answer": 0,
+          "why": "The bar reads the float."
+        },
+        {
+          "id": "geni-onrep-8",
+          "kind": "mc",
+          "prompt": "Which line is the limb write, not the limp?",
+          "choices": [
+            "The clamped assignment inside HasAuthority",
+            "The notify that plays the stumble",
+            "The bar binding",
+            "The panic dispatcher"
+          ],
+          "answer": 0,
+          "why": "Authority owns the number."
+        },
+        {
+          "id": "geni-onrep-9",
+          "kind": "mc",
+          "prompt": "Two proxies show different bodies after one bite. What ran twice?",
+          "choices": [
+            "The subtract, once on the server and again in the notify",
+            "The camera boom",
+            "Which keys are bound",
+            "Restoring a finished slot"
+          ],
+          "answer": 0,
+          "why": "One write, many presentations."
+        },
+        {
+          "id": "geni-onrep-10",
+          "kind": "mc",
+          "prompt": "A client applies the bruise before the server answers. What snaps when the notify arrives?",
+          "choices": [
+            "The limb, back to the server number",
+            "The timeline curve",
+            "The input binding",
+            "The squad route"
+          ],
+          "answer": 0,
+          "why": "The early number was never authority."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the server write the number, while OnRep only plays the limp, the flash, or the board refresh?",
+        "whyGamePrompt": "What points does the host never give if the medal board adds again inside the notify?"
+      }
+    },
+    "interest": {
+      "plainEnglish": "Relevant means a machine receives the actor. Visible means a team may see the cell. One is a half-second trace on the authority. The other is a quarter-second vision pass. Collapsing them hides units the host still has to simulate.",
+      "whyGame": "Skipping an order because the enemy cannot see the unit freezes it in the last remembered cell, then teleports it when a spotter arrives.",
+      "expansions": [
+        {
+          "title": "The host",
+          "detail": "A unit can be relevant to the host and invisible to the enemy."
+        },
+        {
+          "title": "The spotter",
+          "detail": "Reveal paints cells. It does not decide who simulates the actor."
+        },
+        {
+          "title": "A client cheat",
+          "detail": "Forcing Relevant pulls actors the server had culled."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "geni-interest-1",
+          "kind": "mc",
+          "prompt": "A strategy unit is invisible to the enemy and still taking orders on the host. Which two answers are both true?",
+          "choices": [
+            "The host finds it relevant",
+            "Both bools are false, so the order is skipped",
+            "Both bools are true, so the enemy sees the order",
+            "Visible is true and Relevant is false, so the host deletes it"
+          ],
+          "answer": 0,
+          "why": "Simulation and vision are different questions."
+        },
+        {
+          "id": "geni-interest-2",
+          "kind": "mc",
+          "prompt": "CheckAOI assigns Relevant from a trace. How often does that timer run?",
+          "choices": [
+            "Every half second, on the authority",
+            "Every quarter second, with the vision pass",
+            "Every time a spotter clicks",
+            "Only while the unit is visible"
+          ],
+          "answer": 0,
+          "why": "0.5 seconds is interest. 0.25 is vision."
+        },
+        {
+          "id": "geni-interest-3",
+          "kind": "mc",
+          "prompt": "Reveal has a clear trace. What should it assign?",
+          "choices": [
+            "Visible for that team",
+            "Relevant for every client",
+            "The unit's current order",
+            "The team's supply total"
+          ],
+          "answer": 0,
+          "why": "The vision pass paints cells."
+        },
+        {
+          "id": "geni-interest-4",
+          "kind": "mc",
+          "prompt": "You skip ReceiveOrder while Visible is false. What does a spotter see when the fog lifts?",
+          "choices": [
+            "The unit pops from the last cell the fog remembered",
+            "The unit exactly where the host has been moving it",
+            "An empty order queue and a correct position",
+            "A second copy of the unit"
+          ],
+          "answer": 0,
+          "why": "Hidden is not frozen."
+        },
+        {
+          "id": "geni-interest-5",
+          "kind": "mc",
+          "prompt": "A client forces Relevant true. What arrives that the server had culled?",
+          "choices": [
+            "Actors that machine was not supposed to receive",
+            "Only the vision bits",
+            "Only the medal rows",
+            "The local camera boom"
+          ],
+          "answer": 0,
+          "why": "Interest is an authority trace."
+        },
+        {
+          "id": "geni-interest-6",
+          "kind": "tf",
+          "prompt": "Relevant and Visible are two names for the same bool.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "One is who simulates. One is who sees."
+        },
+        {
+          "id": "geni-interest-7",
+          "kind": "mc",
+          "prompt": "Which timer is the vision pass?",
+          "choices": [
+            "Reveal, about four times a second",
+            "An interest pass twice a second",
+            "A panic pulse once a second",
+            "The patrol step"
+          ],
+          "answer": 0,
+          "why": "0.25 seconds paints cells."
+        },
+        {
+          "id": "geni-interest-8",
+          "kind": "mc",
+          "prompt": "A wall blocks the team. Which assignment must not run?",
+          "choices": [
+            "Visible for the cell beyond the wall",
+            "The host's relevance for its own units",
+            "The selected unit's order",
+            "The supply row read"
+          ],
+          "answer": 0,
+          "why": "No hit, no vision."
+        },
+        {
+          "id": "geni-interest-9",
+          "kind": "mc",
+          "prompt": "You store both bools in the save so the map looks right immediately. What goes stale?",
+          "choices": [
+            "Any cell or actor that moved after the snapshot",
+            "Which weapon slot was selected",
+            "The medal row",
+            "The bound controls"
+          ],
+          "answer": 0,
+          "why": "Both passes run again after load."
+        },
+        {
+          "id": "geni-interest-10",
+          "kind": "mc",
+          "prompt": "Which line is interest, not vision?",
+          "choices": [
+            "Relevant assigned from the half-second trace",
+            "Visible assigned from the quarter-second trace",
+            "IsOpen written by the door flip",
+            "Throttle copied from walk speed"
+          ],
+          "answer": 0,
+          "why": "CheckAOI owns Relevant."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why is Relevant about receiving an actor, while Visible is about a team seeing a cell?",
+        "whyGamePrompt": "What freezes and then teleports if an order is skipped because the enemy cannot see the unit?"
+      }
+    },
+    "input-layer": {
+      "plainEnglish": "Enhanced Input turns a device into an action before the graph runs. The base context holds move, look, fire, and interact. Holding the left trigger pushes a second context, so the same face button can reload in one layer and open a radial slot in the other.",
+      "whyGame": "Reading the raw key inside the graph breaks the moment a player rebinds, and it makes one button unable to mean two things.",
+      "expansions": [
+        {
+          "title": "Reload",
+          "detail": "On the base layer the face button starts IA_Reload."
+        },
+        {
+          "title": "The radial",
+          "detail": "On the modifier layer that same button opens a slot."
+        },
+        {
+          "title": "The graph",
+          "detail": "It sees the action, never the key code."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "geni-layer-1",
+          "kind": "mc",
+          "prompt": "The player holds the left trigger and presses the face button that usually reloads. What should run?",
+          "choices": [
+            "The radial slot on the modifier layer",
+            "IA_Reload from the base layer",
+            "Both actions at once",
+            "A raw key code read inside the reload graph"
+          ],
+          "answer": 0,
+          "why": "The held trigger pushes the second context."
+        },
+        {
+          "id": "geni-layer-2",
+          "kind": "mc",
+          "prompt": "The base mapping context is active and the modifier is not. What does that face button start?",
+          "choices": [
+            "Reload",
+            "The slot wheel",
+            "The vehicle axis",
+            "The timed glimpse"
+          ],
+          "answer": 0,
+          "why": "The base layer owns reload."
+        },
+        {
+          "id": "geni-layer-3",
+          "kind": "mc",
+          "prompt": "A player rebinds reload from a keyboard key to a pad button. What stays the same in the graph?",
+          "choices": [
+            "IA_Reload still fires",
+            "The graph must compare the new key code",
+            "The radial layer has to be deleted",
+            "HasAuthority has to list the button"
+          ],
+          "answer": 0,
+          "why": "The graph never reads the key."
+        },
+        {
+          "id": "geni-layer-4",
+          "kind": "mc",
+          "prompt": "Both contexts stay pushed, so one press reloads and opens the radial. What was left down?",
+          "choices": [
+            "The modifier context, after the trigger came up",
+            "The server-only gate",
+            "The vision timer",
+            "The door curve"
+          ],
+          "answer": 0,
+          "why": "Pop the layer when the trigger releases."
+        },
+        {
+          "id": "geni-layer-5",
+          "kind": "mc",
+          "prompt": "The radial menu has chosen a slot. Which action should it send?",
+          "choices": [
+            "Equip, with that slot's id",
+            "A magazine refill, since that face button was involved",
+            "A shot, so the new gun fires immediately",
+            "The car's forward input"
+          ],
+          "answer": 0,
+          "why": "The menu selects. It does not reload."
+        },
+        {
+          "id": "geni-layer-6",
+          "kind": "tf",
+          "prompt": "The reload graph should compare the raw face-button code.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The context already resolved the device."
+        },
+        {
+          "id": "geni-layer-7",
+          "kind": "mc",
+          "prompt": "Which set belongs on the base context?",
+          "choices": [
+            "Move, look, fire, and interact",
+            "Only the radial slots",
+            "Only the vehicle wheels",
+            "The save struct fields"
+          ],
+          "answer": 0,
+          "why": "The base layer is everyday play."
+        },
+        {
+          "id": "geni-layer-8",
+          "kind": "mc",
+          "prompt": "When does Enhanced Input turn a pressed device into an action?",
+          "choices": [
+            "Before the graph runs",
+            "Inside the graph, from a key code",
+            "Inside the replication callback",
+            "While the save is writing"
+          ],
+          "answer": 0,
+          "why": "The graph receives the action."
+        },
+        {
+          "id": "geni-layer-9",
+          "kind": "mc",
+          "prompt": "You put the radial binding on the base layer beside reload. What can one press no longer do?",
+          "choices": [
+            "Mean reload until the trigger is held, and a slot after that",
+            "Reach the authority check. The layer is about which action fires, not who owns the number.",
+            "Start a line trace",
+            "Read a data row"
+          ],
+          "answer": 0,
+          "why": "The second meaning needs the second context."
+        },
+        {
+          "id": "geni-layer-10",
+          "kind": "mc",
+          "prompt": "Which line is the modifier, not the base reload?",
+          "choices": [
+            "Pushing the L2 context while the left trigger is held",
+            "IA_Reload firing from the base context",
+            "Health assigned inside HasAuthority",
+            "Visible assigned by Reveal"
+          ],
+          "answer": 0,
+          "why": "The push is the layer."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does holding the trigger push a second mapping context instead of the graph reading the key?",
+        "whyGamePrompt": "What rebind breaks, and which two actions fire together, if the graph reads the raw key?"
+      }
+    },
+    "effects": {
+      "plainEnglish": "A timeline, a dispatcher, and a timer are how work finishes. A door plays a curve and flips open or closed. The creak calls the hunter look. Fear broadcasts on its own one-second timer. A frame yaw never finishes, so the creak has no end.",
+      "whyGame": "Broadcasting fear from the creak makes every cupboard a panic, and yawing the hinge never tells the hunter the swing is over.",
+      "expansions": [
+        {
+          "title": "The curve",
+          "detail": "Keys at 0 and 1, started with PlayFromStart."
+        },
+        {
+          "title": "The creak",
+          "detail": "It calls Sense. It does not broadcast fear."
+        },
+        {
+          "title": "The pulse",
+          "detail": "Begin Play starts ApplyEffect once a second."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "geni-effects-1",
+          "kind": "mc",
+          "prompt": "A player overlaps a horror door. What starts the swing?",
+          "choices": [
+            "PlayFromStart on the timeline",
+            "Adding frame time to the hinge yaw",
+            "The one-second panic pulse",
+            "A supply spend"
+          ],
+          "answer": 0,
+          "why": "The curve has a start and a finish."
+        },
+        {
+          "id": "geni-effects-2",
+          "kind": "mc",
+          "prompt": "FlipFlop writes IsOpen after the curve. What does that line record?",
+          "choices": [
+            "Whether this swing opened or closed",
+            "Whether the hunter can see the player",
+            "How much fear to pulse",
+            "Which radial slot is equipped"
+          ],
+          "answer": 0,
+          "why": "The bool is the door."
+        },
+        {
+          "id": "geni-effects-3",
+          "kind": "mc",
+          "prompt": "The curve reaches 1. Which pin should the creak treat as the end?",
+          "choices": [
+            "The timeline's finished delegate",
+            "The next rendered frame",
+            "OnRep of limb health",
+            "The modifier-layer push"
+          ],
+          "answer": 0,
+          "why": "Finished is the end the yaw never has."
+        },
+        {
+          "id": "geni-effects-4",
+          "kind": "mc",
+          "prompt": "Tick yaws the hinge. What never arrives for the creak?",
+          "choices": [
+            "A finished event, so the sound has no clean end",
+            "Any rotation at all",
+            "The overlap that started the swing",
+            "The open bool on the actor"
+          ],
+          "answer": 0,
+          "why": "A yaw loop has no finished pin."
+        },
+        {
+          "id": "geni-effects-5",
+          "kind": "mc",
+          "prompt": "The creak plays. What should it call?",
+          "choices": [
+            "Sense, so the hunter can hear the door",
+            "The fear dispatcher, so a cupboard panics the player",
+            "A pickup, so the door counts as loot",
+            "The limb clamp"
+          ],
+          "answer": 0,
+          "why": "Sound is a look. Fear is a separate pulse."
+        },
+        {
+          "id": "geni-effects-6",
+          "kind": "tf",
+          "prompt": "A door creak should broadcast the fear dispatcher.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The creak calls Sense."
+        },
+        {
+          "id": "geni-effects-7",
+          "kind": "mc",
+          "prompt": "Begin Play runs on the fear component. What should it start?",
+          "choices": [
+            "One timer that calls ApplyEffect each second",
+            "A broadcast on every hunter glimpse",
+            "A hinge yaw",
+            "The modifier input layer"
+          ],
+          "answer": 0,
+          "why": "Fear is slower than sight."
+        },
+        {
+          "id": "geni-effects-8",
+          "kind": "mc",
+          "prompt": "ApplyEffect broadcasts OnEffect. Who should be listening?",
+          "choices": [
+            "The camera shake and the fear UI",
+            "The hunter's line trace",
+            "The reload graph",
+            "The supply row"
+          ],
+          "answer": 0,
+          "why": "Listeners bind. They do not poll."
+        },
+        {
+          "id": "geni-effects-9",
+          "kind": "mc",
+          "prompt": "Fear is broadcast inside Sense, on the 0.2 second glimpse. What shakes too often?",
+          "choices": [
+            "The camera, including glimpses the design meant to forgive",
+            "Only a finished door",
+            "Only a confirmed one-second pulse",
+            "No shake at all, if the glimpse were unable to broadcast"
+          ],
+          "answer": 0,
+          "why": "Sight and fear have different timers."
+        },
+        {
+          "id": "geni-effects-10",
+          "kind": "mc",
+          "prompt": "Which call is the door swing, not the fear pulse?",
+          "choices": [
+            "PlayFromStart on the door timeline",
+            "ApplyEffect on its one-second timer",
+            "OnEffect bound by the camera",
+            "The radial equip"
+          ],
+          "answer": 0,
+          "why": "The curve swings. The timer pulses."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a door finish on a timeline, and fear broadcast from a timer, instead of work on every frame?",
+        "whyGamePrompt": "What panic starts, and what cue never arrives, if fear broadcasts from the creak or the hinge only yaws?"
+      }
+    },
+    "saves": {
+      "plainEnglish": "A save packs numbers the authority already wrote and ids that pick project data. It does not pack poses, boom transforms, wheel bones, delegate bindings, or timer handles. Load at Begin Play, then start timers. Replaying a door from the start creaks the house awake.",
+      "whyGame": "A mid-reload snapshot and a replayed creak both apply work the player already finished.",
+      "expansions": [
+        {
+          "title": "The kit",
+          "detail": "Health, heat, magazine, reserve, equipped id, supplies, score, shells, fuel, alert, and the open bool are results."
+        },
+        {
+          "title": "The machinery",
+          "detail": "Curves, poses, and bindings rebuild."
+        },
+        {
+          "title": "Order",
+          "detail": "Apply the bools, then start Sense and the fear timer."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "geni-saves-1",
+          "kind": "mc",
+          "prompt": "Which set belongs in a cross-genre save?",
+          "choices": [
+            "Health, magazine, reserve, equipped id, supplies, score",
+            "The motion pose, the boom transform, and the wheel bones",
+            "Delegate bindings and timer handles",
+            "The raw key code for reload"
+          ],
+          "answer": 0,
+          "why": "Save results and ids. Rebuild the machinery."
+        },
+        {
+          "id": "geni-saves-2",
+          "kind": "mc",
+          "prompt": "The sample writes SlotValue = 1 at Begin Play. What replaces that stand-in?",
+          "choices": [
+            "The struct of finished numbers and ids",
+            "The current skeletal pose",
+            "The hinge transform",
+            "The mapping context object"
+          ],
+          "answer": 0,
+          "why": "1 is a placeholder."
+        },
+        {
+          "id": "geni-saves-3",
+          "kind": "mc",
+          "prompt": "A finished struct is on disk. When should it load?",
+          "choices": [
+            "At Begin Play, before the timers start looking",
+            "On the first frame of a chase",
+            "Inside the creak callback",
+            "When the radial menu opens"
+          ],
+          "answer": 0,
+          "why": "The components exist, and the timers should see the loaded values."
+        },
+        {
+          "id": "geni-saves-4",
+          "kind": "mc",
+          "prompt": "Loading an open door calls PlayFromStart. What else wakes?",
+          "choices": [
+            "The creak, and then the hunter look",
+            "Only the mesh, in silence",
+            "The medal board",
+            "The modifier input layer"
+          ],
+          "answer": 0,
+          "why": "Set the curve to the end instead."
+        },
+        {
+          "id": "geni-saves-5",
+          "kind": "mc",
+          "prompt": "The frame loop writes the slot during a reload. What can the next load restore?",
+          "choices": [
+            "A magazine transfer that never finished",
+            "A reload the player completed",
+            "The rebuilt boom, correctly",
+            "Fresh vision from a new pass"
+          ],
+          "answer": 0,
+          "why": "Write when the reload finishes."
+        },
+        {
+          "id": "geni-saves-6",
+          "kind": "tf",
+          "prompt": "The motion-matching pose belongs in the save.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The animator rebuilds it from speed."
+        },
+        {
+          "id": "geni-saves-7",
+          "kind": "mc",
+          "prompt": "You pack the boom transform so the camera matches. What are you storing?",
+          "choices": [
+            "A transform the camera rebuilds from the aim bool",
+            "The only copy of the equipped id",
+            "The shell budget",
+            "The alert flag"
+          ],
+          "answer": 0,
+          "why": "The boom is machinery."
+        },
+        {
+          "id": "geni-saves-8",
+          "kind": "mc",
+          "prompt": "Sense starts before the loaded door bool is applied. What does the hunter gain?",
+          "choices": [
+            "A look through a doorway that should already be closed",
+            "A correct calm house",
+            "The player's magazine",
+            "A radial slot"
+          ],
+          "answer": 0,
+          "why": "Apply the bool, then start the look."
+        },
+        {
+          "id": "geni-saves-9",
+          "kind": "mc",
+          "prompt": "Which three must Begin Play not call just because a value was loaded?",
+          "choices": [
+            "Spend, AwardMedal, and FireMission",
+            "The reveal timer, the interest timer, and a throttle read",
+            "Binding listeners, starting a timer, and setting a curve to its end",
+            "Reading a data row, resuming an order, and refreshing a board"
+          ],
+          "answer": 0,
+          "why": "Those three apply a result a second time."
+        },
+        {
+          "id": "geni-saves-10",
+          "kind": "mc",
+          "prompt": "Magazine loaded and reserve did not. What does the next reload lie about?",
+          "choices": [
+            "How many rounds are still on the body",
+            "Whether the door curve exists",
+            "Which machines still simulate the actor",
+            "Which face button reloads"
+          ],
+          "answer": 0,
+          "why": "Both gun numbers travel together."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a save pack authority numbers and ids, and not poses, booms, wheel bones, or bindings?",
+        "whyGamePrompt": "What finished work happens again if a mid-reload snapshot or a replayed creak is loaded?"
+      }
+    }
+  }
+}

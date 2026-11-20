@@ -1,0 +1,613 @@
+{
+  "id": "strategy-beginner",
+  "modules": {
+    "orders": {
+      "plainEnglish": "The right-click is an order, not a search of every unit. Selected is already true before the click. The graph branches on that bool and calls ReceiveOrder. A tank and a rifle squad answer the same name.",
+      "whyGame": "A cast list grows every time a new chassis arrives, and a click that ignores selection walks the whole army.",
+      "expansions": [
+        {
+          "title": "The gate",
+          "detail": "Unselected units do not hear the click."
+        },
+        {
+          "title": "The name",
+          "detail": "ReceiveOrder is the interface. The click does not list classes."
+        },
+        {
+          "title": "Vision",
+          "detail": "The click does not paint fog."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "stgc-orders-1",
+          "kind": "mc",
+          "prompt": "The player right-clicks a destination. Which units should receive it?",
+          "choices": [
+            "Only units whose Selected flag is already set",
+            "Every unit on the map",
+            "Only units inside the vision radius",
+            "The nearest neutral camp"
+          ],
+          "answer": 0,
+          "why": "Selection is the gate."
+        },
+        {
+          "id": "stgc-orders-2",
+          "kind": "mc",
+          "prompt": "The order excerpt branches on Selected and then calls the interface. What does the call accomplish?",
+          "choices": [
+            "It runs the selected unit's own order function",
+            "It searches the level for the cursor",
+            "It paints fog along the drag",
+            "It awards points"
+          ],
+          "answer": 0,
+          "why": "ReceiveOrder is the unit's response."
+        },
+        {
+          "id": "stgc-orders-3",
+          "kind": "mc",
+          "prompt": "A tank is selected and the player issues a move. What runs next?",
+          "choices": [
+            "ReceiveOrder on that tank",
+            "A fresh search of every actor",
+            "A vision write",
+            "Granting a result"
+          ],
+          "answer": 0,
+          "why": "The click reaches the selected unit."
+        },
+        {
+          "id": "stgc-orders-4",
+          "kind": "mc",
+          "prompt": "You search the whole level from the frame loop so orders feel instant. What starts walking?",
+          "choices": [
+            "Units nobody selected",
+            "Only the selected tank",
+            "Only a revealed camp",
+            "No movement at all, if a search were unable to move actors"
+          ],
+          "answer": 0,
+          "why": "The selection already knows who is listening."
+        },
+        {
+          "id": "stgc-orders-5",
+          "kind": "mc",
+          "prompt": "A tank and a rifle squad both need orders. Which function do both implement?",
+          "choices": [
+            "ReceiveOrder",
+            "One cast per chassis, growing forever",
+            "The vision bit",
+            "Granting a result"
+          ],
+          "answer": 0,
+          "why": "One name. The click does not list classes."
+        },
+        {
+          "id": "stgc-orders-6",
+          "kind": "tf",
+          "prompt": "An order click should move only the units that are already selected.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Unselected units do not hear it."
+        },
+        {
+          "id": "stgc-orders-7",
+          "kind": "mc",
+          "prompt": "Art adds a new chassis. What does the order graph change?",
+          "choices": [
+            "Nothing, if the chassis implements ReceiveOrder",
+            "A new cast to that class",
+            "A new vision timer",
+            "A new medal row"
+          ],
+          "answer": 0,
+          "why": "The click never lists classes."
+        },
+        {
+          "id": "stgc-orders-8",
+          "kind": "mc",
+          "prompt": "The click paints Visible along the path. What did the order steal?",
+          "choices": [
+            "The vision pass",
+            "The selection flag",
+            "The building's cost row",
+            "The medal board"
+          ],
+          "answer": 0,
+          "why": "Orders do not paint fog."
+        },
+        {
+          "id": "stgc-orders-9",
+          "kind": "mc",
+          "prompt": "Nobody is selected and the player clicks empty ground. What receives the order?",
+          "choices": [
+            "No unit",
+            "The nearest unit",
+            "The camp",
+            "The scoreboard"
+          ],
+          "answer": 0,
+          "why": "No flag, no receiver."
+        },
+        {
+          "id": "stgc-orders-10",
+          "kind": "mc",
+          "prompt": "Which line is the order gate?",
+          "choices": [
+            "The branch on Selected before ReceiveOrder",
+            "Visible set by the vision timer",
+            "Spending the team's money",
+            "Adding to the board"
+          ],
+          "answer": 0,
+          "why": "Selected decides who hears the click."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why is a right-click an order for the unit that is already selected, not a search of every unit?",
+        "whyGamePrompt": "What list grows with every new chassis, and what army walks, if the click ignores selection?"
+      }
+    },
+    "stock": {
+      "plainEnglish": "Spend is the build, not a frame drain. Only the authority changes supplies. The sample subtracts 25, and that number belongs on a row named by the building. A barracks and a turret do not cost the same. Income can be a slow timer that spends a negative cost.",
+      "whyGame": "A shared literal makes every building the same price, and a client subtract spends a private stock.",
+      "expansions": [
+        {
+          "title": "The row",
+          "detail": "The graph reads the cost and writes the stock."
+        },
+        {
+          "title": "The gate",
+          "detail": "HasAuthority wraps the write."
+        },
+        {
+          "title": "Income",
+          "detail": "A slow timer can call spend with a negative cost, or a sibling event."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "stgc-stock-1",
+          "kind": "mc",
+          "prompt": "A build should spend supplies. What kind of event is that spend?",
+          "choices": [
+            "A custom event the build calls once",
+            "A subtract on every frame the building exists",
+            "Painting what the team can see",
+            "Granting a result"
+          ],
+          "answer": 0,
+          "why": "Spend is intentional."
+        },
+        {
+          "id": "stgc-stock-2",
+          "kind": "mc",
+          "prompt": "The excerpt subtracts 25 inside the authority check. What does 25 stand for?",
+          "choices": [
+            "A sample cost a row should name",
+            "The required price of every building",
+            "The medal value",
+            "The vision interval"
+          ],
+          "answer": 0,
+          "why": "The number is a placeholder."
+        },
+        {
+          "id": "stgc-stock-3",
+          "kind": "mc",
+          "prompt": "The stock can cover the row. Which write follows?",
+          "choices": [
+            "The authority subtract of that row's cost",
+            "A client subtract so the number drops early",
+            "A vision bit on the plot",
+            "Ten points on the board"
+          ],
+          "answer": 0,
+          "why": "The server spends."
+        },
+        {
+          "id": "stgc-stock-4",
+          "kind": "mc",
+          "prompt": "Each client subtracts outside the authority check. What do the machines disagree about?",
+          "choices": [
+            "How much stock is left",
+            "Which unit heard the click",
+            "Which cell is visible",
+            "Which medal row exists"
+          ],
+          "answer": 0,
+          "why": "One stock, one writer."
+        },
+        {
+          "id": "stgc-stock-5",
+          "kind": "mc",
+          "prompt": "A barracks costs 80 and a turret costs 40. Where do those numbers live?",
+          "choices": [
+            "On their data rows",
+            "As one literal in the spend graph",
+            "On the vision bool",
+            "In the medal asset"
+          ],
+          "answer": 0,
+          "why": "The row names the bill."
+        },
+        {
+          "id": "stgc-stock-6",
+          "kind": "tf",
+          "prompt": "A barracks and a turret should read different costs from their own rows.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Each row names its own cost."
+        },
+        {
+          "id": "stgc-stock-7",
+          "kind": "mc",
+          "prompt": "Income arrives slowly. How can that add to the stock without a second float?",
+          "choices": [
+            "A timer that spends a negative cost",
+            "A frame drain run backwards",
+            "A medal that adds supplies",
+            "A vision pass that refunds"
+          ],
+          "answer": 0,
+          "why": "Negative spend is income, or a sibling event."
+        },
+        {
+          "id": "stgc-stock-8",
+          "kind": "mc",
+          "prompt": "The stock is 20 and the row costs 25. What should the spend do?",
+          "choices": [
+            "Refuse the build",
+            "Drive the stock negative and build anyway",
+            "Award a medal for trying",
+            "Clear fog around the plot"
+          ],
+          "answer": 0,
+          "why": "You cannot spend what you do not have."
+        },
+        {
+          "id": "stgc-stock-9",
+          "kind": "mc",
+          "prompt": "Which line is the money write?",
+          "choices": [
+            "The supply subtract inside the authority check",
+            "Visible set on a reveal hit",
+            "The selection gate",
+            "Adding to the board"
+          ],
+          "answer": 0,
+          "why": "That assignment is the spend."
+        },
+        {
+          "id": "stgc-stock-10",
+          "kind": "mc",
+          "prompt": "Why is the frame loop the wrong place to drain supplies?",
+          "choices": [
+            "The stock would fall while nobody is building",
+            "A float cannot be read there",
+            "Authority checks are illegal on a custom event",
+            "Rows cannot store costs"
+          ],
+          "answer": 0,
+          "why": "Spend happens when a build asks."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why is a build a spend on the authority, with the cost on a row instead of a typed 25?",
+        "whyGamePrompt": "What two buildings cost the same, and whose stock is private, if they share that literal and a client subtracts?"
+      }
+    },
+    "fog": {
+      "plainEnglish": "Begin Play starts the vision timer. Reveal runs four times a second. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact, not a spectator widget, and it is not Relevant.",
+      "whyGame": "Letting a client set the bit cheats the map, and an order that paints cells shows ground the team has not seen.",
+      "expansions": [
+        {
+          "title": "The wall",
+          "detail": "The trace stops. The cell beyond stays hidden."
+        },
+        {
+          "title": "Interest",
+          "detail": "Relevant decides whether the actor exists on a client. Vision decides the cell."
+        },
+        {
+          "title": "Orders",
+          "detail": "A click must not set Visible."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "stgc-fog-1",
+          "kind": "mc",
+          "prompt": "What does the vision bool mean?",
+          "choices": [
+            "This team can see that cell",
+            "A widget on one spectator's screen",
+            "This client receives the actor",
+            "This unit heard the click"
+          ],
+          "answer": 0,
+          "why": "Visible is a team fact."
+        },
+        {
+          "id": "stgc-fog-2",
+          "kind": "mc",
+          "prompt": "Reveal assigns Visible on a clear trace. How often does that timer run?",
+          "choices": [
+            "Four times a second",
+            "On every picture the game draws",
+            "Only when the player clicks",
+            "Twice a second, with interest"
+          ],
+          "answer": 0,
+          "why": "Begin Play starts the quarter-second pass."
+        },
+        {
+          "id": "stgc-fog-3",
+          "kind": "mc",
+          "prompt": "A wall blocks the team. Which assignment must not run?",
+          "choices": [
+            "Visible for the cell beyond the wall",
+            "The host's interest in its own units",
+            "A selected unit's order",
+            "A row read for a cost"
+          ],
+          "answer": 0,
+          "why": "No hit, no vision."
+        },
+        {
+          "id": "stgc-fog-4",
+          "kind": "mc",
+          "prompt": "A client sets Visible so its own map updates. What can that player mark?",
+          "choices": [
+            "Unseen cells as seen",
+            "Only cells the authority already revealed",
+            "Only the selected unit",
+            "Only the stock"
+          ],
+          "answer": 0,
+          "why": "The bit is not a client property."
+        },
+        {
+          "id": "stgc-fog-5",
+          "kind": "mc",
+          "prompt": "You replicate a spectator widget instead of the bit. What fails to be shared?",
+          "choices": [
+            "The team's vision",
+            "The unit mesh",
+            "The order action",
+            "The medal row"
+          ],
+          "answer": 0,
+          "why": "The bit is the replicated object."
+        },
+        {
+          "id": "stgc-fog-6",
+          "kind": "tf",
+          "prompt": "Visible and Relevant answer the same question.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "One is who sees. One is who receives the actor."
+        },
+        {
+          "id": "stgc-fog-7",
+          "kind": "mc",
+          "prompt": "An order paints cells along the drag. Which system was misused?",
+          "choices": [
+            "Orders, which are not allowed to write vision",
+            "The medal row",
+            "The building's cost row",
+            "The selection flag"
+          ],
+          "answer": 0,
+          "why": "Reveal is the writer."
+        },
+        {
+          "id": "stgc-fog-8",
+          "kind": "mc",
+          "prompt": "Which interval is the vision pass, not interest?",
+          "choices": [
+            "A quarter of a second",
+            "A half second",
+            "Once a second",
+            "Every frame of the match"
+          ],
+          "answer": 0,
+          "why": "Reveal is the faster of the two passes."
+        },
+        {
+          "id": "stgc-fog-9",
+          "kind": "mc",
+          "prompt": "Who starts the vision timer?",
+          "choices": [
+            "Begin Play, once",
+            "Every Reveal call",
+            "The right-click",
+            "Recording a kill"
+          ],
+          "answer": 0,
+          "why": "One timer."
+        },
+        {
+          "id": "stgc-fog-10",
+          "kind": "mc",
+          "prompt": "Which line is vision, not interest?",
+          "choices": [
+            "Visible set for the team after a clear trace",
+            "Relevant set from the half-second trace",
+            "The selection gate",
+            "Spending the team's money"
+          ],
+          "answer": 0,
+          "why": "Reveal paints cells."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does Begin Play start a vision timer that reveals four times a second, with only the authority writing Visible?",
+        "whyGamePrompt": "What map can a client cheat, and what unseen ground appears, if the client sets the bit or an order paints cells?"
+      }
+    },
+    "medal": {
+      "plainEnglish": "A kill or a capture calls AwardMedal on the server. The sample adds 10, and that number belongs on a medal row because a kill and a capture do not score the same. The board reads Score. Its notify refreshes. Revealing a cell does not add points, and neither does driving.",
+      "whyGame": "A notify that adds again doubles the award, and a fog cell that scores points pays the player for looking.",
+      "expansions": [
+        {
+          "title": "The row",
+          "detail": "The graph reads the value and adds it on the authority."
+        },
+        {
+          "title": "The board",
+          "detail": "OnRep refreshes. It does not add."
+        },
+        {
+          "title": "Not a result",
+          "detail": "A revealed cell and a drive are not medals."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "stgc-medal-1",
+          "kind": "mc",
+          "prompt": "A player captures an objective. What should record it?",
+          "choices": [
+            "AwardMedal on the server",
+            "The order click",
+            "The vision timer",
+            "A drive across the cell"
+          ],
+          "answer": 0,
+          "why": "A medal is a result."
+        },
+        {
+          "id": "stgc-medal-2",
+          "kind": "mc",
+          "prompt": "The excerpt adds 10 inside the authority check. What does 10 stand for?",
+          "choices": [
+            "A sample value the medal row should name",
+            "The points for every event, including a look",
+            "The building cost",
+            "The vision interval"
+          ],
+          "answer": 0,
+          "why": "Ten is a stand-in."
+        },
+        {
+          "id": "stgc-medal-3",
+          "kind": "mc",
+          "prompt": "The server has accepted a kill. Which write follows?",
+          "choices": [
+            "The authority add of that row's value",
+            "A client add so the popup appears first",
+            "Visible on the killer",
+            "A supply refund"
+          ],
+          "answer": 0,
+          "why": "The host grants the points."
+        },
+        {
+          "id": "stgc-medal-4",
+          "kind": "mc",
+          "prompt": "The board's notify adds 10 after the server already did. What does the board show?",
+          "choices": [
+            "Double the award",
+            "The host's granted total",
+            "How much the team can still spend",
+            "The vision radius"
+          ],
+          "answer": 0,
+          "why": "Refresh. Do not award again."
+        },
+        {
+          "id": "stgc-medal-5",
+          "kind": "mc",
+          "prompt": "A kill and a capture are worth different points. Where is that difference?",
+          "choices": [
+            "On two medal rows",
+            "As one literal for every award",
+            "On the vision bool",
+            "In the order graph"
+          ],
+          "answer": 0,
+          "why": "The row names the value."
+        },
+        {
+          "id": "stgc-medal-6",
+          "kind": "tf",
+          "prompt": "Revealing a fog cell should add points.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "A cell is not a kill."
+        },
+        {
+          "id": "stgc-medal-7",
+          "kind": "mc",
+          "prompt": "Driving across the map awards points. What was treated as a result?",
+          "choices": [
+            "Travel, which is not a medal",
+            "A kill the server confirmed",
+            "A capture the row named",
+            "A board refresh"
+          ],
+          "answer": 0,
+          "why": "Driving does not score."
+        },
+        {
+          "id": "stgc-medal-8",
+          "kind": "mc",
+          "prompt": "Where does the score assignment belong?",
+          "choices": [
+            "Inside the authority check in AwardMedal",
+            "On the client that saw the kill",
+            "Inside the vision pass",
+            "Inside the spend event"
+          ],
+          "answer": 0,
+          "why": "The host grants it."
+        },
+        {
+          "id": "stgc-medal-9",
+          "kind": "mc",
+          "prompt": "Which line is the award, not the refresh?",
+          "choices": [
+            "Score increased inside the authority check",
+            "The board widget reading Score",
+            "Visible set by Reveal",
+            "Spending the team's money"
+          ],
+          "answer": 0,
+          "why": "The add is the medal. The board displays it."
+        },
+        {
+          "id": "stgc-medal-10",
+          "kind": "mc",
+          "prompt": "The local popup plays before the server score arrives. What may it show?",
+          "choices": [
+            "A guess, until the authority value arrives",
+            "The official board",
+            "How much the team can still spend",
+            "The selected unit"
+          ],
+          "answer": 0,
+          "why": "The host number is the board."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a kill or a capture call AwardMedal on the server, with the points living on a medal row?",
+        "whyGamePrompt": "What award doubles, and what pays the player for looking, if the notify adds again or a fog cell scores points?"
+      }
+    }
+  }
+}

@@ -3,6 +3,8 @@
 
 import { challengesOf } from "./practice.mjs";
 import { readEventGraph } from "./graph.mjs";
+import { explainLine, expansionExamples, explainNode, headerNote } from "./lineExplain.js";
+import { isTrueFalse } from "./quizShuffle.js";
 
 function unique(list) {
   const seen = new Set();
@@ -113,6 +115,16 @@ function beginnerExtras(system) {
       ],
       0,
       "The quoted line is a write. Authority owns writes of shared state.",
+    ));
+  }
+  if (line && !questions.some(isTrueFalse)) {
+    questions.push(question(
+      "learn-tf",
+      "beginner",
+      `True or false: \`${line.text}\` should run on every client with no authority check.`,
+      ["True", "False"],
+      1,
+      "Shared writes belong on the authority. The line is a write, not a hint.",
     ));
   }
   return questions;
@@ -263,12 +275,20 @@ export function pictureOf(system) {
     from: wire.from?.node || wire.from,
     to: wire.to?.node || wire.to,
   })).filter((wire) => wire.from && wire.to);
+  const expansions = expansionsOf(system, nodes, props, quotedLine(system));
   return {
     nodes,
     wires,
-    lines,
+    lines: lines.map((row) => ({ ...row, note: explainLine(row.text) })),
     properties: props.map((item) => item.name).slice(0, 8),
     dependencies: dependencies.slice(0, 8),
-    expansions: expansionsOf(system, nodes, props, quotedLine(system)),
+    dependencyNotes: dependencies.slice(0, 8).map((name) => ({ name, note: headerNote(name) })),
+    expansions,
+    expansionCards: expansions.map((item) => ({ text: item, examples: expansionExamples(item) })),
+    whyNotes: (graph.nodes || []).map((node) => ({
+      id: node.id,
+      label: node.label,
+      layman: explainNode(node),
+    })),
   };
 }

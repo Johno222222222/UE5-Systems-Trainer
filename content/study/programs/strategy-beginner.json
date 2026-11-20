@@ -1,0 +1,1377 @@
+{
+  "id": "strategy-beginner",
+  "sections": {
+    "orders": {
+      "plainEnglish": "You select a unit, then you right-click an order. Only the selected unit hears it. A tank and a rifle squad implement the same receive function.",
+      "whyGame": "Searching the whole map for the cursor every frame repeats a question the selection already answered, and it moves units you never clicked.",
+      "expansions": [
+        {
+          "title": "A tank",
+          "detail": "The tank implements ReceiveOrder. The click does not name the tank class."
+        },
+        {
+          "title": "A squad",
+          "detail": "The rifle squad uses that same function and decides what a move means for infantry."
+        },
+        {
+          "title": "The rest of the army",
+          "detail": "Unselected units ignore the click."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "stgb-orders-1",
+          "kind": "mc",
+          "prompt": "The player right-clicks a destination. Which units should receive that order?",
+          "choices": [
+            "Only the units whose Selected flag is set",
+            "Every unit currently on the map",
+            "Only units inside the fog reveal radius",
+            "The neutral camp that happens to be nearest"
+          ],
+          "answer": 0,
+          "why": "Selection is the gate."
+        },
+        {
+          "id": "stgb-orders-2",
+          "kind": "mc",
+          "prompt": "The order excerpt branches on Selected and then calls ProcessEvent on ReceiveOrder. What does that call do?",
+          "choices": [
+            "It runs the selected unit's own order function",
+            "It subtracts the sample supply cost",
+            "It marks a map cell as visible",
+            "It adds ten to the match score"
+          ],
+          "answer": 0,
+          "why": "ReceiveOrder is the unit's response."
+        },
+        {
+          "id": "stgb-orders-3",
+          "kind": "mc",
+          "prompt": "A tank is selected and the player issues a move. Which node comes next?",
+          "choices": [
+            "ReceiveOrder on that tank",
+            "A fresh search of every actor for the cursor",
+            "A fog reveal that also lights the path",
+            "A medal award treating the move as a result"
+          ],
+          "answer": 0,
+          "why": "The click reaches the selected unit."
+        },
+        {
+          "id": "stgb-orders-4",
+          "kind": "mc",
+          "prompt": "You move the cursor search onto Tick so orders feel instant. What starts walking that nobody selected?",
+          "choices": [
+            "Every idle frame repeats a query",
+            "The mapping context forgets the right-click binding",
+            "Supplies stop replicating",
+            "Medals can no longer be named in data"
+          ],
+          "answer": 0,
+          "why": "The selection already knows who is listening."
+        },
+        {
+          "id": "stgb-orders-5",
+          "kind": "mc",
+          "prompt": "A rifle squad and a tank are both on the field, and only the squad is selected. Who walks?",
+          "choices": [
+            "The squad, because it is the one with Selected set",
+            "Both units, since they share one receive function",
+            "The tank, because vehicles outrank infantry",
+            "The neutral camp, because it is always listening"
+          ],
+          "answer": 0,
+          "why": "Sharing the function does not skip the flag."
+        },
+        {
+          "id": "stgb-orders-6",
+          "kind": "tf",
+          "prompt": "An order click moves only the selected units.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Unselected units do not hear the click."
+        },
+        {
+          "id": "stgb-orders-7",
+          "kind": "mc",
+          "prompt": "What is IA_Order in this lesson?",
+          "choices": [
+            "The right-click action that carries the order",
+            "The fog reveal timer",
+            "The supply spend event",
+            "The medal award"
+          ],
+          "answer": 0,
+          "why": "The action is the click. The unit decides the meaning."
+        },
+        {
+          "id": "stgb-orders-8",
+          "kind": "mc",
+          "prompt": "Art adds a new engineer unit. What must that unit implement so the existing click works?",
+          "choices": [
+            "ReceiveOrder",
+            "A private cursor trace on its own tick",
+            "A cast from the order graph to the engineer class",
+            "A fog write that lights the engineer by existing"
+          ],
+          "answer": 0,
+          "why": "The click never lists classes."
+        },
+        {
+          "id": "stgb-orders-9",
+          "kind": "mc",
+          "prompt": "Which line is the order gate, not the fog write?",
+          "choices": [
+            "The branch on Selected before ReceiveOrder",
+            "Visible = true after a reveal hit",
+            "Supplies = (Supplies - 25.f) inside the authority check",
+            "Score = (Score + 10.f) inside the authority check"
+          ],
+          "answer": 0,
+          "why": "Selected decides who hears the click."
+        },
+        {
+          "id": "stgb-orders-10",
+          "kind": "mc",
+          "prompt": "The player clicks empty ground with nobody selected. What should happen?",
+          "choices": [
+            "Nothing receives the order",
+            "The nearest unit walks there",
+            "Fog clears along the click",
+            "The match score increases"
+          ],
+          "answer": 0,
+          "why": "No selected unit means no receiver."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a right-click order reach only the unit you already selected?",
+        "whyGamePrompt": "What moves if the map searches for the cursor every frame instead of using that selection?"
+      }
+    },
+    "economy": {
+      "plainEnglish": "Supplies are a stock you spend on purpose. A build order calls a spend event. The server subtracts the cost. The cost itself lives in a data row, not as a typed 25 in the graph.",
+      "whyGame": "A client that subtracts on its own spends a private stock, and the other machines still show the old total.",
+      "expansions": [
+        {
+          "title": "A barracks",
+          "detail": "The barracks row names its cost. The graph reads the row."
+        },
+        {
+          "title": "A turret",
+          "detail": "The turret has a different cost in data. It does not need a second subtract literal."
+        },
+        {
+          "title": "A broke player",
+          "detail": "If the stock cannot cover the row, the spend does not happen."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "stgb-economy-1",
+          "kind": "mc",
+          "prompt": "A build order should spend supplies. What kind of event is that spend?",
+          "choices": [
+            "A custom event the build calls once",
+            "A subtract on every frame while the building exists",
+            "A fog reveal",
+            "A medal award"
+          ],
+          "answer": 0,
+          "why": "Spend is intentional, not a tick."
+        },
+        {
+          "id": "stgb-economy-2",
+          "kind": "mc",
+          "prompt": "The excerpt assigns Supplies = (Supplies - 25.f) inside HasAuthority. What is 25 standing in for?",
+          "choices": [
+            "A sample cost that a data row should own",
+            "The only legal price for every building",
+            "The fog timer interval",
+            "The medal value"
+          ],
+          "answer": 0,
+          "why": "The number is a placeholder."
+        },
+        {
+          "id": "stgb-economy-3",
+          "kind": "mc",
+          "prompt": "The player orders a barracks and the stock can cover it. Which write comes next?",
+          "choices": [
+            "The authority subtract of that row's cost",
+            "A client-side subtract so the number drops immediately",
+            "A fog bit on the building plot",
+            "Ten points added to the match score"
+          ],
+          "answer": 0,
+          "why": "The server spends the stock."
+        },
+        {
+          "id": "stgb-economy-4",
+          "kind": "mc",
+          "prompt": "Each client subtracts 25 outside the authority check. What do the machines disagree about?",
+          "choices": [
+            "Every machine spends a private stock and the totals diverge",
+            "The right-click binding stops firing",
+            "Camps freeze on their paths",
+            "Fog reveals through walls"
+          ],
+          "answer": 0,
+          "why": "One stock, written by the authority."
+        },
+        {
+          "id": "stgb-economy-5",
+          "kind": "mc",
+          "prompt": "A barracks costs 80 and a turret costs 40. Where do those two numbers live?",
+          "choices": [
+            "On their data rows",
+            "As two literals in the spend graph",
+            "On the fog bool",
+            "In the medal asset by accident"
+          ],
+          "answer": 0,
+          "why": "The row names the cost."
+        },
+        {
+          "id": "stgb-economy-6",
+          "kind": "tf",
+          "prompt": "Only the authority may subtract supplies.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The private subtract will not match the host."
+        },
+        {
+          "id": "stgb-economy-7",
+          "kind": "mc",
+          "prompt": "The stock is 20 and the row costs 25. What should the spend event do?",
+          "choices": [
+            "Refuse the build",
+            "Drive the stock negative and build anyway",
+            "Award a medal for the attempt",
+            "Clear fog around the plot"
+          ],
+          "answer": 0,
+          "why": "You cannot spend what you do not have."
+        },
+        {
+          "id": "stgb-economy-8",
+          "kind": "mc",
+          "prompt": "Which line is the supply write?",
+          "choices": [
+            "Supplies = (Supplies - 25.f) inside HasAuthority",
+            "Visible = true on a reveal hit",
+            "GoingRight = true on a camp path",
+            "The branch on Selected"
+          ],
+          "answer": 0,
+          "why": "That assignment is the spend."
+        },
+        {
+          "id": "stgb-economy-9",
+          "kind": "mc",
+          "prompt": "An order to build never calls the spend event. What does the player get?",
+          "choices": [
+            "A building and the same stock they started with",
+            "A medal",
+            "A revealed camp",
+            "A saved match"
+          ],
+          "answer": 0,
+          "why": "The order has to call the spend."
+        },
+        {
+          "id": "stgb-economy-10",
+          "kind": "mc",
+          "prompt": "Why is Tick the wrong place to drain supplies?",
+          "choices": [
+            "The stock would fall while nobody is building",
+            "Tick cannot read a float",
+            "The authority check is illegal on a custom event",
+            "Data rows cannot store costs"
+          ],
+          "answer": 0,
+          "why": "Spend happens when a build asks."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a build order spend supplies from a data row, and only on the server?",
+        "whyGamePrompt": "What total do the other machines still show if a client subtracts a private stock?"
+      }
+    },
+    "fog": {
+      "plainEnglish": "Fog is what this team can see. A short timer calls Reveal. A hit marks that cell visible. A wall blocks the look. Orders do not paint the map.",
+      "whyGame": "Letting a client set Visible cheats the map, and saving the bool shows camps that have already walked away.",
+      "expansions": [
+        {
+          "title": "A wall",
+          "detail": "The trace stops. The cell beyond stays hidden."
+        },
+        {
+          "title": "A spectator",
+          "detail": "Visibility is a team fact, not a widget each spectator owns."
+        },
+        {
+          "title": "After load",
+          "detail": "The timer recomputes vision from positions. Do not restore the old bits."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "stgb-fog-1",
+          "kind": "mc",
+          "prompt": "What does the fog bool mean?",
+          "choices": [
+            "This team can see that cell",
+            "A widget on one spectator's screen",
+            "The unit is selected",
+            "The camp is walking right"
+          ],
+          "answer": 0,
+          "why": "Visible is a team fact."
+        },
+        {
+          "id": "stgb-fog-2",
+          "kind": "mc",
+          "prompt": "Reveal assigns Visible = true when the trace hits. When does that line run?",
+          "choices": [
+            "Only on a hit from the reveal timer",
+            "Whenever any order is clicked",
+            "Whenever a camp takes a step",
+            "Whenever the score changes"
+          ],
+          "answer": 0,
+          "why": "The hit is the condition."
+        },
+        {
+          "id": "stgb-fog-3",
+          "kind": "mc",
+          "prompt": "Begin Play runs for fog. Which node should it start?",
+          "choices": [
+            "A looping Reveal timer at 0.25 seconds",
+            "A per-frame write of Visible",
+            "The order function",
+            "Granting points for a result"
+          ],
+          "answer": 0,
+          "why": "The excerpt starts that timer."
+        },
+        {
+          "id": "stgb-fog-4",
+          "kind": "mc",
+          "prompt": "An order click sets Visible along the path. What lights up that the team never saw?",
+          "choices": [
+            "Commanding a unit lights map the team has not actually seen",
+            "Supplies double",
+            "The camp path reverses. A reveal does not turn the patrol around.",
+            "Medals stop awarding"
+          ],
+          "answer": 0,
+          "why": "Orders must not paint fog."
+        },
+        {
+          "id": "stgb-fog-5",
+          "kind": "mc",
+          "prompt": "A wall stands between the team and a camp. What does Reveal do?",
+          "choices": [
+            "It stops on the wall and leaves the camp hidden",
+            "It marks the camp visible anyway",
+            "It orders the camp to move",
+            "It spends 25 supplies"
+          ],
+          "answer": 0,
+          "why": "The wall blocks the channel."
+        },
+        {
+          "id": "stgb-fog-6",
+          "kind": "tf",
+          "prompt": "Visible is a team fact, so a client may not paint its own map.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "That is a cheat. Gate the write."
+        },
+        {
+          "id": "stgb-fog-7",
+          "kind": "mc",
+          "prompt": "The sample reveal has no authority check. What do you add before a networked match?",
+          "choices": [
+            "A gate so only the authority writes Visible",
+            "A second timer at one second",
+            "A medal for every revealed cell",
+            "A save of every bool"
+          ],
+          "answer": 0,
+          "why": "The sample is local. The match is not."
+        },
+        {
+          "id": "stgb-fog-8",
+          "kind": "mc",
+          "prompt": "Which interval does the real Reveal timer use?",
+          "choices": [
+            "0.25 seconds",
+            "Once per drawn frame",
+            "Once at match start",
+            "The same one-second step as a camp"
+          ],
+          "answer": 0,
+          "why": "Begin Play starts 0.25."
+        },
+        {
+          "id": "stgb-fog-9",
+          "kind": "mc",
+          "prompt": "Why is Visible not a widget each spectator owns?",
+          "choices": [
+            "The team shares one fact about the map",
+            "Widgets cannot read bools",
+            "Spectators are the only ones who should cheat fog",
+            "The camp graph is the one that writes it"
+          ],
+          "answer": 0,
+          "why": "One team, one vision."
+        },
+        {
+          "id": "stgb-fog-10",
+          "kind": "mc",
+          "prompt": "You save Visible and load it after the camp has walked. What does the player see?",
+          "choices": [
+            "A camp drawn where it no longer stands",
+            "The correct camp, because the bit follows the actor",
+            "An empty stock",
+            "A medal popup"
+          ],
+          "answer": 0,
+          "why": "Recompute vision after load. Do not restore the bit."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a short timer's Reveal mark a cell visible, while orders do not paint the map?",
+        "whyGamePrompt": "What cheat appears if a client is allowed to set Visible?"
+      }
+    },
+    "patrol": {
+      "plainEnglish": "A neutral camp walks a route nobody ordered. Begin Play starts that walk on a one-second timer. Fog decides whether you draw the camp. The camp does not light the map by walking.",
+      "whyGame": "Moving the camp from Tick keeps it walking through a pause and spends a path query you already scheduled.",
+      "expansions": [
+        {
+          "title": "The way back",
+          "detail": "The return path is empty in the sample. The camp never walks home until you fill it."
+        },
+        {
+          "title": "Drawing",
+          "detail": "The client's Visible bit decides if the camp is drawn."
+        },
+        {
+          "title": "Orders",
+          "detail": "The player did not select this camp. It is not waiting for a click."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "stgb-patrol-1",
+          "kind": "mc",
+          "prompt": "Who ordered the neutral camp to walk?",
+          "choices": [
+            "Nobody. Begin Play started its route timer",
+            "The player's last right-click",
+            "The fog reveal",
+            "The medal event"
+          ],
+          "answer": 0,
+          "why": "A camp is not a selected unit."
+        },
+        {
+          "id": "stgb-patrol-2",
+          "kind": "mc",
+          "prompt": "The camp path sets GoingRight = true. What did that line decide?",
+          "choices": [
+            "The camp is on the outward leg",
+            "The team can see the camp",
+            "The camp is selected",
+            "The camp just earned a medal"
+          ],
+          "answer": 0,
+          "why": "GoingRight is direction, not vision."
+        },
+        {
+          "id": "stgb-patrol-3",
+          "kind": "mc",
+          "prompt": "The camp should step about once a second. Which node does that?",
+          "choices": [
+            "AdvancePatrol on the timer Begin Play started",
+            "A cursor search",
+            "The fog look",
+            "The supply subtract"
+          ],
+          "answer": 0,
+          "why": "The route timer owns the step."
+        },
+        {
+          "id": "stgb-patrol-4",
+          "kind": "mc",
+          "prompt": "The camp graph writes Visible as it walks. What does that walk paint on the map?",
+          "choices": [
+            "Walking lights the map even when the team cannot see",
+            "The camp stops forever",
+            "Supplies refund themselves",
+            "Score resets"
+          ],
+          "answer": 0,
+          "why": "Fog writes vision. The camp only walks."
+        },
+        {
+          "id": "stgb-patrol-5",
+          "kind": "mc",
+          "prompt": "The return path has no points. What does the camp do at the end of the route?",
+          "choices": [
+            "It stops, because the walk back was never authored",
+            "It becomes selected",
+            "It spends 25 supplies",
+            "It awards a medal"
+          ],
+          "answer": 0,
+          "why": "The B path is unfinished."
+        },
+        {
+          "id": "stgb-patrol-6",
+          "kind": "tf",
+          "prompt": "A neutral camp walks its route and leaves Visible to the vision pass.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Vision belongs to Reveal."
+        },
+        {
+          "id": "stgb-patrol-7",
+          "kind": "mc",
+          "prompt": "The match pauses while a Tick step is moving the camp. What keeps happening?",
+          "choices": [
+            "The camp keeps walking unless that step is gated",
+            "The camp is drawn through fog",
+            "The stock ticks down",
+            "A medal fires"
+          ],
+          "answer": 0,
+          "why": "A timer you own can pause. A raw step is easy to leave running."
+        },
+        {
+          "id": "stgb-patrol-8",
+          "kind": "mc",
+          "prompt": "The client's fog bit is false for this cell. What should the client draw?",
+          "choices": [
+            "Nothing for that camp",
+            "The camp at full detail",
+            "The camp's order queue",
+            "The camp's medal"
+          ],
+          "answer": 0,
+          "why": "Visible decides the draw."
+        },
+        {
+          "id": "stgb-patrol-9",
+          "kind": "mc",
+          "prompt": "Which line is the camp direction, not a player order?",
+          "choices": [
+            "GoingRight = true on the camp path",
+            "The branch on Selected",
+            "The supply subtract",
+            "The score add"
+          ],
+          "answer": 0,
+          "why": "The camp walks without a click."
+        },
+        {
+          "id": "stgb-patrol-10",
+          "kind": "mc",
+          "prompt": "You start a new route timer inside AdvancePatrol. What does the camp do?",
+          "choices": [
+            "It speeds up as timers pile up",
+            "It waits for a right-click",
+            "It reveals the whole map",
+            "It saves the match"
+          ],
+          "answer": 0,
+          "why": "Begin Play already started the timer."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does Begin Play start a neutral camp's route on a one-second timer?",
+        "whyGamePrompt": "What keeps walking through a pause if the camp moves from Tick?"
+      }
+    },
+    "scoring": {
+      "plainEnglish": "A medal is a result the server records. A kill or an objective calls AwardMedal. The point value lives on the medal's data, not as a typed 10.",
+      "whyGame": "A client that awards its own medal inflates a board the host never granted.",
+      "expansions": [
+        {
+          "title": "A kill",
+          "detail": "The kill calls AwardMedal on the server."
+        },
+        {
+          "title": "An objective",
+          "detail": "The objective uses the same event with its own data value."
+        },
+        {
+          "title": "The board",
+          "detail": "The board shows the host's score, not a local guess."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "stgb-scoring-1",
+          "kind": "mc",
+          "prompt": "A player captures an objective. What should record the result?",
+          "choices": [
+            "AwardMedal on the server",
+            "The order click",
+            "The fog timer",
+            "The camp step"
+          ],
+          "answer": 0,
+          "why": "A medal is a result, not an order."
+        },
+        {
+          "id": "stgb-scoring-2",
+          "kind": "mc",
+          "prompt": "The excerpt assigns Score = (Score + 10.f) inside HasAuthority. What is 10?",
+          "choices": [
+            "A sample value the medal data should name",
+            "The required score of every medal",
+            "The supply cost of a barracks",
+            "The fog interval"
+          ],
+          "answer": 0,
+          "why": "Ten is a stand-in."
+        },
+        {
+          "id": "stgb-scoring-3",
+          "kind": "mc",
+          "prompt": "The server has accepted a kill. Which write comes next?",
+          "choices": [
+            "The authority add of that medal's value",
+            "A client add so the popup appears first",
+            "Visible = true on the killer",
+            "A supply refund"
+          ],
+          "answer": 0,
+          "why": "The host grants the points."
+        },
+        {
+          "id": "stgb-scoring-4",
+          "kind": "mc",
+          "prompt": "A client adds 10 outside the authority check. What does the board show?",
+          "choices": [
+            "A local number the host never granted",
+            "The same score on every machine",
+            "The camp's direction",
+            "The fog radius"
+          ],
+          "answer": 0,
+          "why": "The inflate never replicates as truth."
+        },
+        {
+          "id": "stgb-scoring-5",
+          "kind": "mc",
+          "prompt": "Two medals are worth 5 and 25. Where is that difference stored?",
+          "choices": [
+            "On each medal's data asset",
+            "As two literals in AwardMedal",
+            "On the fog bool",
+            "In the camp path"
+          ],
+          "answer": 0,
+          "why": "Data names the value, the way a row names a cost."
+        },
+        {
+          "id": "stgb-scoring-6",
+          "kind": "tf",
+          "prompt": "Giving an order should award a medal.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "An order is not a result."
+        },
+        {
+          "id": "stgb-scoring-7",
+          "kind": "mc",
+          "prompt": "Where does the score assignment belong?",
+          "choices": [
+            "Inside HasAuthority in AwardMedal",
+            "On the client that saw the kill",
+            "In the fog look",
+            "On the neutral camp's route"
+          ],
+          "answer": 0,
+          "why": "The repair nests it there."
+        },
+        {
+          "id": "stgb-scoring-8",
+          "kind": "mc",
+          "prompt": "Which line is the medal write?",
+          "choices": [
+            "Score = (Score + 10.f) inside HasAuthority",
+            "Supplies = (Supplies - 25.f) inside HasAuthority",
+            "The fog bit set after a hit",
+            "The camp facing along its outward leg"
+          ],
+          "answer": 0,
+          "why": "Score is the board."
+        },
+        {
+          "id": "stgb-scoring-9",
+          "kind": "mc",
+          "prompt": "The kill popup plays on a machine that has not heard the server score. What is that popup showing?",
+          "choices": [
+            "A guess, until the authority value arrives",
+            "The official board",
+            "The supply stock",
+            "The camp path"
+          ],
+          "answer": 0,
+          "why": "The host number is the board."
+        },
+        {
+          "id": "stgb-scoring-10",
+          "kind": "mc",
+          "prompt": "Why does AwardMedal take the value from data instead of adding 10 for everything?",
+          "choices": [
+            "A kill and an objective are not worth the same points",
+            "Data assets cannot be read on the server",
+            "The fog timer overwrites Score",
+            "Selection clears the board"
+          ],
+          "answer": 0,
+          "why": "The asset names the medal."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the server record a medal whose points live on the medal's data?",
+        "whyGamePrompt": "What board inflates if a client awards its own medal?"
+      }
+    },
+    "save": {
+      "plainEnglish": "The match save stores supplies, score, each camp's direction, and orders that are still running. It does not store fog. After load, the reveal timer looks again.",
+      "whyGame": "A saved visibility bit draws a camp that has already walked somewhere else.",
+      "expansions": [
+        {
+          "title": "Orders in flight",
+          "detail": "A move that had not finished is part of the match."
+        },
+        {
+          "title": "Camps",
+          "detail": "Store GoingRight so the camp continues the leg it was on."
+        },
+        {
+          "title": "When",
+          "detail": "Load a finished struct at Begin Play. Do not write the slot from Tick."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "stgb-save-1",
+          "kind": "mc",
+          "prompt": "Which set belongs in the match save?",
+          "choices": [
+            "Supplies, score, camp direction, and orders still running",
+            "Every Visible bit",
+            "The reveal timer object",
+            "The cursor position each frame"
+          ],
+          "answer": 0,
+          "why": "Save results the timer cannot rebuild."
+        },
+        {
+          "id": "stgb-save-2",
+          "kind": "mc",
+          "prompt": "The sample assigns SlotValue = 1.f on Begin Play. What replaces that stand-in?",
+          "choices": [
+            "The match struct",
+            "A single Visible bit",
+            "The literal 25",
+            "The literal 10"
+          ],
+          "answer": 0,
+          "why": "1 is the sample shape."
+        },
+        {
+          "id": "stgb-save-3",
+          "kind": "mc",
+          "prompt": "A finished struct is on disk. Which event loads it?",
+          "choices": [
+            "Begin Play",
+            "The ordinary frame loop",
+            "The fog look",
+            "The right-click"
+          ],
+          "answer": 0,
+          "why": "Load when the match starts."
+        },
+        {
+          "id": "stgb-save-4",
+          "kind": "mc",
+          "prompt": "Tick writes the slot every frame. What half-finished state gets stored?",
+          "choices": [
+            "You store half-finished spends and half-finished orders",
+            "Fog becomes authoritative",
+            "Camps stop patrolling",
+            "Medals double on purpose"
+          ],
+          "answer": 0,
+          "why": "Write when something finishes."
+        },
+        {
+          "id": "stgb-save-5",
+          "kind": "mc",
+          "prompt": "You pack Visible so the map looks right immediately. What is stale?",
+          "choices": [
+            "Any cell a camp has walked out of since the save",
+            "The supply total",
+            "The score",
+            "The selected flag"
+          ],
+          "answer": 0,
+          "why": "The timer recomputes vision from positions."
+        },
+        {
+          "id": "stgb-save-6",
+          "kind": "tf",
+          "prompt": "The match save should include the fog bits.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Reveal rebuilds them."
+        },
+        {
+          "id": "stgb-save-7",
+          "kind": "mc",
+          "prompt": "A camp was walking back when the player saved. What must the struct remember?",
+          "choices": [
+            "That camp's direction",
+            "That camp's current Visible bit",
+            "The cursor pixel",
+            "The medal popup"
+          ],
+          "answer": 0,
+          "why": "GoingRight is the leg."
+        },
+        {
+          "id": "stgb-save-8",
+          "kind": "mc",
+          "prompt": "An order was halfway to its point. Why is that order in the slot?",
+          "choices": [
+            "The unit should keep executing it after load",
+            "Orders are the same thing as fog",
+            "The score is derived from open orders",
+            "The supply cost is recomputed from the click"
+          ],
+          "answer": 0,
+          "why": "In-flight orders are match state."
+        },
+        {
+          "id": "stgb-save-9",
+          "kind": "mc",
+          "prompt": "After load, what rebuilds the map the team can see?",
+          "choices": [
+            "The reveal timer, from where units now stand",
+            "The saved Visible bits",
+            "The camp step, by writing Visible",
+            "Granting points"
+          ],
+          "answer": 0,
+          "why": "Look again. Do not restore the bits."
+        },
+        {
+          "id": "stgb-save-10",
+          "kind": "mc",
+          "prompt": "Which line is the sample save shape you replace?",
+          "choices": [
+            "SlotValue = 1.f at Begin Play",
+            "The fog bit",
+            "The sample supply subtract",
+            "The sample score add"
+          ],
+          "answer": 0,
+          "why": "That assignment is the stand-in."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the match save store supplies, score, camp direction, and running orders, but not fog?",
+        "whyGamePrompt": "What camp do you still draw if a saved visibility bit outlives the unit that walked away?"
+      }
+    }
+  },
+  "repairWrongs": {
+    "strategy-beginner-e2": [
+      "Searching the level every frame finds the cursor more honestly",
+      "Fog should decide which unit receives the click",
+      "The supply stock should gate ReceiveOrder"
+    ],
+    "strategy-beginner-e4": [
+      "Each client should spend so the number drops before the host answers",
+      "The fog timer is a fine place to subtract the cost",
+      "A medal award should be what spends supplies"
+    ],
+    "strategy-beginner-e8": [
+      "Writing Visible every frame is fresher than a quarter-second look",
+      "The camp step should be the reveal interval",
+      "Right-click should paint the cells it crosses"
+    ],
+    "strategy-beginner-e13": [
+      "The client who saw the kill should add the points",
+      "Reveal should add the score when a unit is visible",
+      "The order click should be the award"
+    ],
+    "strategy-beginner-e15": [
+      "Tick is the honest place to snapshot a live match",
+      "Reveal should load the struct",
+      "The right-click should be the load"
+    ],
+    "strategy-beginner-e18": [
+      "Every unit should walk toward the cursor",
+      "Visible should decide who receives the order",
+      "The camp direction should gate the click"
+    ]
+  },
+  "exam": [
+    {
+      "id": "stgb-exam-1",
+      "kind": "mc",
+      "prompt": "Tick moves every strategy unit toward the cursor. What should have gated the order?",
+      "choices": [
+        "The Selected flag",
+        "The fog bit",
+        "How many supplies remain",
+        "The camp direction"
+      ],
+      "answer": 0,
+      "why": "Only the selection hears the click."
+    },
+    {
+      "id": "stgb-exam-2",
+      "kind": "mc",
+      "prompt": "A tank and a rifle squad share ReceiveOrder. What still differs?",
+      "choices": [
+        "Which of them has Selected set",
+        "Which of them writes Visible",
+        "Which of them owns the medal asset",
+        "Which of them stores the fog timer"
+      ],
+      "answer": 0,
+      "why": "The function is shared. The flag is not."
+    },
+    {
+      "id": "stgb-exam-3",
+      "kind": "tf",
+      "prompt": "Unselected units should ignore a right-click.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "The branch is the gate."
+    },
+    {
+      "id": "stgb-exam-4",
+      "kind": "mc",
+      "prompt": "Which call spends supplies for a build?",
+      "choices": [
+        "The spend event, on the authority",
+        "A per-frame drain",
+        "The fog look",
+        "A neutral camp taking one route step"
+      ],
+      "answer": 0,
+      "why": "The build calls the spend once."
+    },
+    {
+      "id": "stgb-exam-5",
+      "kind": "mc",
+      "prompt": "The graph subtracts 25 for a barracks and a turret. What did the author skip?",
+      "choices": [
+        "The data row that should name each cost",
+        "The fog interval",
+        "The camp return path",
+        "The medal popup"
+      ],
+      "answer": 0,
+      "why": "25 is the sample."
+    },
+    {
+      "id": "stgb-exam-6",
+      "kind": "mc",
+      "prompt": "The host has 100 supplies and a client has already subtracted 25 locally. What does a second client still show?",
+      "choices": [
+        "100, until the authority write arrives",
+        "Seventy-five, as if every client shared that private subtract",
+        "A wiped stock, as if a mismatch cleared it",
+        "The fog radius"
+      ],
+      "answer": 0,
+      "why": "The private spend is not the stock."
+    },
+    {
+      "id": "stgb-exam-7",
+      "kind": "tf",
+      "prompt": "A barracks and a turret should share one typed cost in the graph.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Each row names its own cost."
+    },
+    {
+      "id": "stgb-exam-8",
+      "kind": "mc",
+      "prompt": "What interval does Reveal use?",
+      "choices": [
+        "A quarter of a second",
+        "Every frame",
+        "The camp's one-second step",
+        "Only when the player clicks"
+      ],
+      "answer": 0,
+      "why": "The excerpt loops at 0.25."
+    },
+    {
+      "id": "stgb-exam-9",
+      "kind": "mc",
+      "prompt": "A right-click paints Visible along the drag. Which system was misused?",
+      "choices": [
+        "Orders, which are not allowed to write fog",
+        "The medal asset",
+        "The supply row",
+        "The camp return path"
+      ],
+      "answer": 0,
+      "why": "Reveal is the only writer."
+    },
+    {
+      "id": "stgb-exam-10",
+      "kind": "mc",
+      "prompt": "A wall blocks the team from a camp. Which assignment must not run?",
+      "choices": [
+        "Visible = true for the camp's cell",
+        "The camp's direction flag",
+        "The supply subtract",
+        "The score add"
+      ],
+      "answer": 0,
+      "why": "No hit, no reveal."
+    },
+    {
+      "id": "stgb-exam-11",
+      "kind": "tf",
+      "prompt": "Visible is one widget per spectator.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "It is a team fact."
+    },
+    {
+      "id": "stgb-exam-12",
+      "kind": "mc",
+      "prompt": "The camp reaches the end of an empty return path. What is missing?",
+      "choices": [
+        "Points on the way back",
+        "A Selected flag on the camp",
+        "A medal for arriving",
+        "A supply refund"
+      ],
+      "answer": 0,
+      "why": "The B path was never authored."
+    },
+    {
+      "id": "stgb-exam-13",
+      "kind": "mc",
+      "prompt": "Fog's bit is false and the camp graph is correct. What does the client draw?",
+      "choices": [
+        "No camp",
+        "The camp, because patrol ignores fog",
+        "The camp's order queue",
+        "A medal icon"
+      ],
+      "answer": 0,
+      "why": "The bit decides the draw."
+    },
+    {
+      "id": "stgb-exam-14",
+      "kind": "mc",
+      "prompt": "Which line is the camp, not the player?",
+      "choices": [
+        "GoingRight = true on a path Begin Play started",
+        "The branch on Selected",
+        "The right-click action",
+        "The medal event"
+      ],
+      "answer": 0,
+      "why": "Nobody selected the camp."
+    },
+    {
+      "id": "stgb-exam-15",
+      "kind": "tf",
+      "prompt": "A camp step should mark its cell visible.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Walking must not light the map."
+    },
+    {
+      "id": "stgb-exam-16",
+      "kind": "mc",
+      "prompt": "A kill and a finished objective need points. What do they both call?",
+      "choices": [
+        "AwardMedal",
+        "The unit's order function",
+        "Painting what the team can see",
+        "The camp route step"
+      ],
+      "answer": 0,
+      "why": "Both are results."
+    },
+    {
+      "id": "stgb-exam-17",
+      "kind": "mc",
+      "prompt": "The board shows 40 on the client and 30 on the host. Where was the extra 10 added?",
+      "choices": [
+        "On the client, outside HasAuthority",
+        "Inside the fog timer",
+        "On the camp path",
+        "In the save struct's fog bits"
+      ],
+      "answer": 0,
+      "why": "The client awarded itself."
+    },
+    {
+      "id": "stgb-exam-18",
+      "kind": "mc",
+      "prompt": "Where should a medal's point value live?",
+      "choices": [
+        "On the medal data",
+        "As the literal 10 for every award",
+        "On the Visible bit",
+        "In the cursor search"
+      ],
+      "answer": 0,
+      "why": "Data names it."
+    },
+    {
+      "id": "stgb-exam-19",
+      "kind": "tf",
+      "prompt": "Loading a match should restore every Visible bit.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "The timer looks again."
+    },
+    {
+      "id": "stgb-exam-20",
+      "kind": "mc",
+      "prompt": "Which event loads a finished match struct?",
+      "choices": [
+        "Begin Play",
+        "The ordinary frame loop",
+        "A neutral camp's route",
+        "A spectator widget"
+      ],
+      "answer": 0,
+      "why": "Load at the start."
+    },
+    {
+      "id": "stgb-exam-21",
+      "kind": "mc",
+      "prompt": "You are choosing what to pack. Which item do you leave out?",
+      "choices": [
+        "The fog bits",
+        "The supply total",
+        "The score",
+        "Orders that have not finished"
+      ],
+      "answer": 0,
+      "why": "Fog is recomputed."
+    },
+    {
+      "id": "stgb-exam-22",
+      "kind": "mc",
+      "prompt": "A camp was on the return leg. The load starts it outward. What field was dropped?",
+      "choices": [
+        "GoingRight for that camp",
+        "Visible for that cell",
+        "The medal literal",
+        "The cursor search"
+      ],
+      "answer": 0,
+      "why": "Direction is the leg."
+    },
+    {
+      "id": "stgb-exam-23",
+      "kind": "mc",
+      "prompt": "The player builds a turret, reveals a wall, and never clicks a unit. Which writes are allowed?",
+      "choices": [
+        "The authority supply subtract and the reveal hit",
+        "A cursor move of every unit and a client-side medal",
+        "A camp write of Visible and a tick snapshot",
+        "A local supply subtract and a saved fog bit"
+      ],
+      "answer": 0,
+      "why": "Spend and reveal are the two events that fired."
+    },
+    {
+      "id": "stgb-exam-24",
+      "kind": "tf",
+      "prompt": "Tick is a valid place to write the match slot.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Write a finished struct."
+    },
+    {
+      "id": "stgb-exam-25",
+      "kind": "mc",
+      "prompt": "Which pair is a result versus an order?",
+      "choices": [
+        "AwardMedal versus ReceiveOrder",
+        "Reveal versus the camp step",
+        "The supply row versus the fog bit",
+        "Begin Play versus the save struct"
+      ],
+      "answer": 0,
+      "why": "A medal records. An order commands."
+    },
+    {
+      "id": "stgb-exam-26",
+      "kind": "mc",
+      "prompt": "The stock cannot cover the row. What still must not happen?",
+      "choices": [
+        "The building appearing anyway",
+        "The fog timer continuing",
+        "The camp taking its next step",
+        "The score staying unchanged"
+      ],
+      "answer": 0,
+      "why": "Refuse the build."
+    },
+    {
+      "id": "stgb-exam-27",
+      "kind": "mc",
+      "prompt": "A spectator widget stores its own Visible flags. What can that player do?",
+      "choices": [
+        "Mark unseen cells as seen on their own screen",
+        "Spend the host's supplies",
+        "Reverse every camp",
+        "Grant a medal the host records"
+      ],
+      "answer": 0,
+      "why": "Vision has to be a team fact."
+    },
+    {
+      "id": "stgb-exam-28",
+      "kind": "mc",
+      "prompt": "Begin Play starts both a fog timer and a camp timer. Which one writes Visible?",
+      "choices": [
+        "The quarter-second reveal",
+        "The one-second camp step",
+        "Both timers, which would keep the map bright",
+        "Neither timer, if the click were what paints fog"
+      ],
+      "answer": 0,
+      "why": "Only Reveal paints."
+    },
+    {
+      "id": "stgb-exam-29",
+      "kind": "tf",
+      "prompt": "In-flight orders belong in the match struct.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "The unit should keep executing them."
+    },
+    {
+      "id": "stgb-exam-30",
+      "kind": "mc",
+      "prompt": "You need the line that gates a click, the line that spends, and the line that awards. Which trio is that?",
+      "choices": [
+        "The Selected branch, the authority supply subtract",
+        "What the team can see, plus camp direction, plus the sample slot",
+        "Three copies of the same tick search",
+        "A client subtract, a client score add, and a saved fog bit"
+      ],
+      "answer": 0,
+      "why": "Those are the three jobs."
+    },
+    {
+      "id": "stgb-exam-31",
+      "kind": "mc",
+      "prompt": "After load the map shows a camp in a cell the team can no longer see. What was restored?",
+      "choices": [
+        "A Visible bit",
+        "The supply total",
+        "The score",
+        "An in-flight order"
+      ],
+      "answer": 0,
+      "why": "The bit was stale."
+    },
+    {
+      "id": "stgb-exam-32",
+      "kind": "mc",
+      "prompt": "A new unit type arrives from art. What does the order graph not need?",
+      "choices": [
+        "A cast to that new class",
+        "The unit to implement ReceiveOrder",
+        "The Selected check",
+        "The right-click action"
+      ],
+      "answer": 0,
+      "why": "The click never lists classes."
+    },
+    {
+      "id": "stgb-exam-33",
+      "kind": "mc",
+      "prompt": "The pause menu is up and camps are still sliding. Which step is running?",
+      "choices": [
+        "A per-frame move that was never paused",
+        "The quarter-second reveal",
+        "The medal event",
+        "Loading the match struct"
+      ],
+      "answer": 0,
+      "why": "The route timer can be paused. A tick slide often is not."
+    },
+    {
+      "id": "stgb-exam-34",
+      "kind": "tf",
+      "prompt": "The sample cost 25 and the sample medal 10 should both move into data.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "Rows and assets name those numbers."
+    }
+  ]
+}

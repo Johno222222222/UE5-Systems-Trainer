@@ -1,0 +1,737 @@
+{
+  "id": "data-driven",
+  "modules": {
+    "table": {
+      "plainEnglish": "Rows, not code changes.",
+      "whyGame": "Designers edit rows.",
+      "expansions": [
+        {
+          "title": "Data tables as a door",
+          "detail": "If data tables is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+        },
+        {
+          "title": "Data tables as data",
+          "detail": "Designer numbers for data tables live on a row. AddToSlot through the interface when StackCount is positive, then the count is cleared reads the row instead of a literal."
+        },
+        {
+          "title": "Data tables as a listener",
+          "detail": "Later systems listen for Begin Overlap. They do not incrementing the stack from the use trace, which would count a look as a pickup."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "data-table-1",
+          "kind": "mc",
+          "prompt": "What is a data table for?",
+          "choices": [
+            "A list of rows designers can edit without a code change.",
+            "A Tick function that designers comment out.",
+            "A replicated widget full of numbers.",
+            "The character's constructor, where every gun's stats are literals."
+          ],
+          "answer": 0,
+          "why": "Rows, not code changes.",
+          "review_prompt": "What is a data table for?"
+        },
+        {
+          "id": "data-table-2",
+          "kind": "mc",
+          "prompt": "A new rifle needs a different magazine size. What should change?",
+          "choices": [
+            "A row in the data table.",
+            "A new C++ branch for that rifle's name.",
+            "The HUD's hard-coded text.",
+            "The input action's default value."
+          ],
+          "answer": 0,
+          "why": "Designers edit rows.",
+          "review_prompt": "A new rifle needs a different magazine size. What should change?"
+        },
+        {
+          "id": "data-table-3",
+          "kind": "tf",
+          "prompt": "True or false: A data table is a list of rows designers can edit without a code change.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "That is the lesson.",
+          "review_prompt": "True or false: A data table is a list of rows designers can edit without a code change."
+        },
+        {
+          "id": "data-table-4",
+          "kind": "tf",
+          "prompt": "A weapon's magazine size can change in the data row without a programmer editing the reload function.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The literals are what the table replaces.",
+          "review_prompt": "True or false: Adding a weapon should require a programmer to edit the reload function's literals."
+        },
+        {
+          "id": "data-table-5",
+          "kind": "mc",
+          "prompt": "Who ships a balance change to magazine size after release?",
+          "choices": [
+            "A designer, by editing the row. The reload code keeps reading that row.",
+            "A programmer, by recompiling a switch on the weapon name.",
+            "The player, by editing the widget at runtime as the source of truth.",
+            "The server RPC, whose argument is the new mag size from the client."
+          ],
+          "answer": 0,
+          "why": "Code reads. Data changes.",
+          "review_prompt": "Who ships a balance change to magazine size after release?"
+        },
+        {
+          "id": "data-table-6",
+          "kind": "mc",
+          "prompt": "Two rows share one reload function. What stays in code?",
+          "choices": [
+            "The rule: clamp Needed to the empty space and to the reserve. The numbers come from the row.",
+            "A copy of the function per row.",
+            "The mesh, compiled into the function.",
+            "A frame loop that scans the table for a row. The reload should read the row when the player asks."
+          ],
+          "answer": 0,
+          "why": "One function, many rows.",
+          "review_prompt": "Two rows share one reload function. What stays in code?"
+        },
+        {
+          "id": "data-table-7",
+          "kind": "tf",
+          "prompt": "True or false: The same reload function can serve every firearm whose numbers live in the table.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The function is the rule. The row is the numbers.",
+          "review_prompt": "True or false: The same reload function can serve every firearm whose numbers live in the table."
+        },
+        {
+          "id": "data-table-8",
+          "kind": "mc",
+          "prompt": "A row is missing at runtime. What should the component do?",
+          "choices": [
+            "Fail the lookup visibly and refuse to invent a magazine size.",
+            "Fall through to Tick and guess 30.",
+            "Use the widget's placeholder text as the mag size.",
+            "Replicate the entire table to every client as a mesh."
+          ],
+          "answer": 0,
+          "why": "Missing data is an error, not a guess.",
+          "review_prompt": "A row is missing at runtime. What should the component do?"
+        },
+        {
+          "id": "data-table-9",
+          "kind": "tf",
+          "prompt": "True or false: Data tables are only for localization strings. Gameplay numbers belong in C++ literals.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Gameplay numbers are the point of the table.",
+          "review_prompt": "True or false: Data tables are only for localization strings. Gameplay numbers belong in C++ literals."
+        },
+        {
+          "id": "data-table-10",
+          "kind": "mc",
+          "prompt": "Where does a designer look to see every weapon's damage?",
+          "choices": [
+            "The data table. Not a scatter of literals across components.",
+            "The character Tick.",
+            "The player controller input graph.",
+            "The health-change notify."
+          ],
+          "answer": 0,
+          "why": "One list.",
+          "review_prompt": "Where does a designer look to see every weapon's damage?"
+        },
+        {
+          "id": "data-table-11",
+          "kind": "tf",
+          "prompt": "True or false: Changing a row still requires a new Blueprint cast in the reload graph.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The cast list is what the row avoids.",
+          "review_prompt": "True or false: Changing a row still requires a new Blueprint cast in the reload graph."
+        },
+        {
+          "id": "data-table-12",
+          "kind": "mc",
+          "prompt": "What does the player notice if two weapons share a row by mistake?",
+          "choices": [
+            "They share magazine size, damage, or whatever else that row held, even though the meshes differ.",
+            "No row, if rows were only comments. Designers would be stuck editing C++ for every new gun.",
+            "The game will not cook.",
+            "Input unbinds the fire button."
+          ],
+          "answer": 0,
+          "why": "The row is the identity of the numbers.",
+          "review_prompt": "What does the player notice if two weapons share a row by mistake?"
+        }
+      ],
+      "graph": "inventory-slot",
+      "assignment": {
+        "plainPrompt": "Why is a data table a list of rows a designer can edit without a code change?",
+        "whyGamePrompt": "What ships late if every balance tweak has to be a code change?"
+      }
+    },
+    "row": {
+      "plainEnglish": "The row struct is the shape.",
+      "whyGame": "One struct, one row.",
+      "expansions": [
+        {
+          "title": "Row struct as a door",
+          "detail": "If row struct is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+        },
+        {
+          "title": "Row struct as data",
+          "detail": "Designer numbers for row struct live on a row. AddToSlot through the interface when StackCount is positive, then the count is cleared reads the row instead of a literal."
+        },
+        {
+          "title": "Row struct as a listener",
+          "detail": "Later systems listen for Begin Overlap. They do not incrementing the stack from the use trace, which would count a look as a pickup."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "data-row-1",
+          "kind": "mc",
+          "prompt": "What does a data table row inherit?",
+          "choices": [
+            "FTableRowBase. That is the shape of one row.",
+            "An actor base, so the row could tick.",
+            "A widget base, so the row could draw itself.",
+            "The character class, so each row is a pawn."
+          ],
+          "answer": 0,
+          "why": "The row struct is the shape.",
+          "review_prompt": "What does a data table row inherit?"
+        },
+        {
+          "id": "data-row-2",
+          "kind": "mc",
+          "prompt": "Magazine size, damage, and the mesh reference want to travel together. Where are they fields?",
+          "choices": [
+            "On the row struct.",
+            "As three unrelated globals.",
+            "Inside a private text block on the bar.",
+            "As arguments on the server RPC the client fills in."
+          ],
+          "answer": 0,
+          "why": "One struct, one row.",
+          "review_prompt": "Magazine size, damage, and the mesh reference want to travel together. Where are they fields?"
+        },
+        {
+          "id": "data-row-3",
+          "kind": "tf",
+          "prompt": "True or false: The row struct is the shape of one table row. It inherits FTableRowBase.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "That is the lesson.",
+          "review_prompt": "True or false: The row struct is the shape of one table row. It inherits FTableRowBase."
+        },
+        {
+          "id": "data-row-4",
+          "kind": "tf",
+          "prompt": "True or false: A row struct should inherit AActor so designers can place rows in the level.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "A row is data, not a placed actor.",
+          "review_prompt": "True or false: A row struct should inherit AActor so designers can place rows in the level."
+        },
+        {
+          "id": "data-row-5",
+          "kind": "mc",
+          "prompt": "Code asks the table for the rifle row. What does it get back?",
+          "choices": [
+            "The struct: the fields the designer filled for that row.",
+            "A live actor already simulating in the world.",
+            "The widget that edits the table.",
+            "A random other row, because lookup is by index zero only."
+          ],
+          "answer": 0,
+          "why": "Lookup returns the struct.",
+          "review_prompt": "Code asks the table for the rifle row. What does it get back?"
+        },
+        {
+          "id": "data-row-6",
+          "kind": "mc",
+          "prompt": "A field is added to the struct and not filled on old rows. What is the risk?",
+          "choices": [
+            "Old weapons load a default for that field and behave as if the designer chose it.",
+            "No new field, if adding one deleted the row.",
+            "The table stops replicating.",
+            "Tick fills the field from the player's framerate."
+          ],
+          "answer": 0,
+          "why": "Defaults are silent choices.",
+          "review_prompt": "A field is added to the struct and not filled on old rows. What is the risk?"
+        },
+        {
+          "id": "data-row-7",
+          "kind": "tf",
+          "prompt": "True or false: The component that reloads should read MagSize from the row struct instead of a literal 30.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The struct holds the number.",
+          "review_prompt": "True or false: The component that reloads should read MagSize from the row struct instead of a literal 30."
+        },
+        {
+          "id": "data-row-8",
+          "kind": "mc",
+          "prompt": "Who is allowed to treat the row as a pawn and call Tick on it?",
+          "choices": [
+            "No one. It is not an actor.",
+            "The table, once per frame, so rows stay fresh.",
+            "The predicting machine, so it can simulate the row.",
+            "The replication callback, which would tick the struct when it arrives."
+          ],
+          "answer": 0,
+          "why": "Rows do not tick.",
+          "review_prompt": "Who is allowed to treat the row as a pawn and call Tick on it?"
+        },
+        {
+          "id": "data-row-9",
+          "kind": "tf",
+          "prompt": "True or false: FTableRowBase means the struct is a networked character with authority.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "It means the struct can be a table row.",
+          "review_prompt": "True or false: FTableRowBase means the struct is a networked character with authority."
+        },
+        {
+          "id": "data-row-10",
+          "kind": "mc",
+          "prompt": "Two tables need the same shape. Which type do both rows use?",
+          "choices": [
+            "The row struct. Each table has its own rows.",
+            "One row, and the tables are views of that single struct instance.",
+            "The character class.",
+            "A Tick function."
+          ],
+          "answer": 0,
+          "why": "Shape is the struct. Content is the rows.",
+          "review_prompt": "Two tables need the same shape. What do they share?"
+        },
+        {
+          "id": "data-row-11",
+          "kind": "tf",
+          "prompt": "True or false: Putting the mesh, the mag size, and the damage in different structs is clearer than one row.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "One row is the thing the designer edits.",
+          "review_prompt": "True or false: Putting the mesh, the mag size, and the damage in different structs is clearer than one row."
+        },
+        {
+          "id": "data-row-12",
+          "kind": "mc",
+          "prompt": "What does a designer break by renaming a field without updating the code that reads it?",
+          "choices": [
+            "The lookup still returns a row",
+            "No names, if field names were comments.",
+            "The input action rebinds.",
+            "Authority flips to the client."
+          ],
+          "answer": 0,
+          "why": "The struct is a contract.",
+          "review_prompt": "What does a designer break by renaming a field without updating the code that reads it?"
+        }
+      ],
+      "graph": "inventory-slot",
+      "assignment": {
+        "plainPrompt": "Why is the row struct the shape of one table row?",
+        "whyGamePrompt": "What fails to load if two tables share a struct that matches neither row?"
+      }
+    },
+    "asset": {
+      "plainEnglish": "One asset, one item.",
+      "whyGame": "The actor points at the asset.",
+      "expansions": [
+        {
+          "title": "Data assets as a door",
+          "detail": "If data assets is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+        },
+        {
+          "title": "Data assets as data",
+          "detail": "Designer numbers for data assets live on a row. Ammo increased by one, then the pickup actor destroys itself reads the row instead of a literal."
+        },
+        {
+          "title": "Data assets as a listener",
+          "detail": "Later systems listen for Begin Overlap. They do not adding ammo from Tick, or leaving the pickup in the world after the count changes."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "data-asset-1",
+          "kind": "mc",
+          "prompt": "What is a primary data asset good for here?",
+          "choices": [
+            "One item definition: an id, a mesh reference, and the rules. The pickup actor points at it.",
+            "A ticking actor that is the item.",
+            "A replicated widget for that item. The bar would then own the mesh and the rules.",
+            "The player's entire save game."
+          ],
+          "answer": 0,
+          "why": "One asset, one item.",
+          "review_prompt": "What is a primary data asset good for here?"
+        },
+        {
+          "id": "data-asset-2",
+          "kind": "mc",
+          "prompt": "Ten pickups in the level should share the medkit's rules. What do they point at?",
+          "choices": [
+            "One data asset. They do not each embed a copy of the rules.",
+            "Ten copies of the rule code.",
+            "The heads-up display, which would store the medkit.",
+            "Each other, in a circle of actor references."
+          ],
+          "answer": 0,
+          "why": "The actor points at the asset.",
+          "review_prompt": "Ten pickups in the level should share the medkit's rules. What do they point at?"
+        },
+        {
+          "id": "data-asset-3",
+          "kind": "tf",
+          "prompt": "True or false: A data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "That is the lesson.",
+          "review_prompt": "True or false: A data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it."
+        },
+        {
+          "id": "data-asset-4",
+          "kind": "tf",
+          "prompt": "True or false: The pickup actor should be the only place the mesh and the heal amount exist, with no asset.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Then every pickup is a unique fork.",
+          "review_prompt": "True or false: The pickup actor should be the only place the mesh and the heal amount exist, with no asset."
+        },
+        {
+          "id": "data-asset-5",
+          "kind": "mc",
+          "prompt": "A designer changes the heal amount on the asset. What updates?",
+          "choices": [
+            "Every pickup that points at that asset, without a code change.",
+            "Only pickups placed after the next compile, because the amount was copied into the actor.",
+            "The player controller's interact key.",
+            "OnRep of health, which reads the asset name as a float."
+          ],
+          "answer": 0,
+          "why": "The asset is the shared definition.",
+          "review_prompt": "A designer changes the heal amount on the asset. What updates?"
+        },
+        {
+          "id": "data-asset-6",
+          "kind": "mc",
+          "prompt": "What replicates when another player sees you holding the item?",
+          "choices": [
+            "An id they can use to find the same asset. Not the asset object over the network as the inventory.",
+            "The data asset pointer, replicated as a live editor object. Clients need the values, not the editor asset.",
+            "The designer's uncommitted file.",
+            "The widget that edited the asset."
+          ],
+          "answer": 0,
+          "why": "Replicate the id. Resolve the asset locally.",
+          "review_prompt": "What replicates when another player sees you holding the item?"
+        },
+        {
+          "id": "data-asset-7",
+          "kind": "tf",
+          "prompt": "True or false: The pickup's Begin Overlap can read the heal amount from the asset it points at.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The actor asks the asset.",
+          "review_prompt": "True or false: The pickup's Begin Overlap can read the heal amount from the asset it points at."
+        },
+        {
+          "id": "data-asset-8",
+          "kind": "mc",
+          "prompt": "Someone subclasses the pickup per item instead of pointing at assets. What grows?",
+          "choices": [
+            "The class list, one Blueprint per item, with the rules copied.",
+            "No asset, if subclasses were the storage.",
+            "The row struct, which must inherit AActor.",
+            "A frame loop, if assets required one."
+          ],
+          "answer": 0,
+          "why": "Assets avoid the class explosion.",
+          "review_prompt": "Someone subclasses the pickup per item instead of pointing at assets. What grows?"
+        },
+        {
+          "id": "data-asset-9",
+          "kind": "tf",
+          "prompt": "True or false: A data asset should Tick so its rules stay updated.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Assets are definitions. They do not simulate.",
+          "review_prompt": "True or false: A data asset should Tick so its rules stay updated."
+        },
+        {
+          "id": "data-asset-10",
+          "kind": "mc",
+          "prompt": "Where is the mesh reference stored so a pickup and a UI icon can share it?",
+          "choices": [
+            "On the data asset both of them read.",
+            "Only on the pickup actor, with the UI casting to that actor in the level.",
+            "On the player controller.",
+            "Inside the server RPC argument the client types in."
+          ],
+          "answer": 0,
+          "why": "One reference, two readers.",
+          "review_prompt": "Where is the mesh reference stored so a pickup and a UI icon can share it?"
+        },
+        {
+          "id": "data-asset-11",
+          "kind": "tf",
+          "prompt": "True or false: Editing the asset while the game is running in a cooked build is the same as editing a C++ literal.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The asset is data. A literal is code.",
+          "review_prompt": "True or false: Editing the asset while the game is running in a cooked build is the same as editing a C++ literal."
+        },
+        {
+          "id": "data-asset-12",
+          "kind": "mc",
+          "prompt": "What does the player see if a pickup's asset pointer is empty?",
+          "choices": [
+            "No mesh and no heal amount, unless the actor invented defaults the designer did not choose.",
+            "A random other item, because empty means the first asset. An empty reference is a miss, not a wildcard.",
+            "The whole inventory UI, replicated.",
+            "Authority moves to that client."
+          ],
+          "answer": 0,
+          "why": "Empty pointer, no definition.",
+          "review_prompt": "What does the player see if a pickup's asset pointer is empty?"
+        }
+      ],
+      "graph": "pickup",
+      "assignment": {
+        "plainPrompt": "Why does one data asset describe one item, with the actor pointing at that asset?",
+        "whyGamePrompt": "What item do you spawn if the actor never points at an asset and a literal fills the gap?"
+      }
+    },
+    "reader": {
+      "plainEnglish": "The component reads. The widget draws.",
+      "whyGame": "The component that read the row owns the number.",
+      "expansions": [
+        {
+          "title": "Who reads the row as a door",
+          "detail": "If who reads the row is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+        },
+        {
+          "title": "Who reads the row as data",
+          "detail": "Designer numbers for who reads the row live on a row. Needed clamped between zero and the empty space in the magazine, then added to Magazine and taken from Reserve reads the row instead of a literal."
+        },
+        {
+          "title": "Who reads the row as a listener",
+          "detail": "Later systems listen for IA_Reload. They do not adding Needed inside Tick, or reloading when the mag is already full."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "data-read-1",
+          "kind": "mc",
+          "prompt": "Who should read the weapon row?",
+          "choices": [
+            "The weapon component. The widget does not decide magazine size.",
+            "The bar, because it is closer to the player's eyes.",
+            "The anim blueprint, which traces to discover the mag size.",
+            "The caller, stuffed into a server request argument."
+          ],
+          "answer": 0,
+          "why": "The component reads. The widget draws.",
+          "review_prompt": "Who should read the weapon row?"
+        },
+        {
+          "id": "data-read-2",
+          "kind": "mc",
+          "prompt": "The HUD shows 30 rounds because that is what it drew last time. The row says 20. Who is wrong?",
+          "choices": [
+            "The HUD, if it kept its own number instead of reading the component that read the row.",
+            "The row, because UI is the source of truth.",
+            "The input action.",
+            "The notify, which would copy the bar into the row. The bar is a view of the row, not the row's source."
+          ],
+          "answer": 0,
+          "why": "The component that read the row owns the number.",
+          "review_prompt": "The HUD shows 30 rounds because that is what it drew last time. The row says 20. Who is wrong?"
+        },
+        {
+          "id": "data-read-3",
+          "kind": "tf",
+          "prompt": "True or false: The component reads the row. The widget does not decide magazine size.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "That is the lesson.",
+          "review_prompt": "True or false: The component reads the row. The widget does not decide magazine size."
+        },
+        {
+          "id": "data-read-4",
+          "kind": "tf",
+          "prompt": "True or false: The widget should read the data table itself and ignore the component, so it can show a designer preview during play.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Then the game and the UI can disagree.",
+          "review_prompt": "True or false: The widget should read the data table itself and ignore the component, so it can show a designer preview during play."
+        },
+        {
+          "id": "data-read-5",
+          "kind": "mc",
+          "prompt": "Reload clamps Needed using MagSize. Where did MagSize come from?",
+          "choices": [
+            "The component read it from the row when the weapon was equipped.",
+            "The widget typed it into a text box the component trusts.",
+            "Tick sampled the player's framerate.",
+            "A client RPC argument."
+          ],
+          "answer": 0,
+          "why": "Read once from the row, use it in the rule.",
+          "review_prompt": "Reload clamps Needed using MagSize. Where did MagSize come from?"
+        },
+        {
+          "id": "data-read-6",
+          "kind": "mc",
+          "prompt": "A second system also reads the row and caches a different copy. What should it do instead?",
+          "choices": [
+            "Ask the component that already read it, or read the same row and not keep a secret cache as authority.",
+            "Tick until the two caches match.",
+            "Replicate both caches and let clients vote. Two memories of one row will disagree the moment either side reloads.",
+            "Store the cache on the widget."
+          ],
+          "answer": 0,
+          "why": "One reader the others ask.",
+          "review_prompt": "A second system also reads the row and caches a different copy. What should it do instead?"
+        },
+        {
+          "id": "data-read-7",
+          "kind": "tf",
+          "prompt": "True or false: The icon widget may read the display name from the same row the component uses for MagSize, and still must not write MagSize.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Reading to display is fine. Deciding is not.",
+          "review_prompt": "True or false: The icon widget may read the display name from the same row the component uses for MagSize, and still must not write MagSize."
+        },
+        {
+          "id": "data-read-8",
+          "kind": "mc",
+          "prompt": "Who runs the clamp?",
+          "choices": [
+            "The component, with the numbers it read. Not the widget, and not the data asset's imaginary Tick.",
+            "The bar, inside its paint.",
+            "The row struct, which is an actor.",
+            "The local machine, before the server has the row. That copy becomes a second authority."
+          ],
+          "answer": 0,
+          "why": "The component owns the rule.",
+          "review_prompt": "Who runs the clamp?"
+        },
+        {
+          "id": "data-read-9",
+          "kind": "tf",
+          "prompt": "True or false: If the widget and the component disagree, average them.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Averaging hides the bug.",
+          "review_prompt": "True or false: If the widget and the component disagree, average them."
+        },
+        {
+          "id": "data-read-10",
+          "kind": "mc",
+          "prompt": "A designer changes the row while you are in editor. What must be true on the next play?",
+          "choices": [
+            "The component reads the new MagSize. The widget follows the component.",
+            "The widget keeps 30 until a programmer edits the paint.",
+            "Tick notices the file change and recompiles C++.",
+            "OnRep of an old save overwrites the row."
+          ],
+          "answer": 0,
+          "why": "Readers pick up the row. They do not freeze a literal.",
+          "review_prompt": "A designer changes the row while you are in editor. What must be true on the next play?"
+        },
+        {
+          "id": "data-read-11",
+          "kind": "tf",
+          "prompt": "True or false: The anim blueprint should trace every frame to decide magazine size from whatever actor is in front of the camera.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Magazine size is data, not a trace.",
+          "review_prompt": "True or false: The anim blueprint should trace every frame to decide magazine size from whatever actor is in front of the camera."
+        },
+        {
+          "id": "data-read-12",
+          "kind": "mc",
+          "prompt": "What does the player notice when the widget decides magazine size and the component reloads from the row?",
+          "choices": [
+            "The number on screen and the number that reloads are not the same number.",
+            "A faster reload, because two readers are quicker.",
+            "The data table deletes itself.",
+            "Input loses the fire button."
+          ],
+          "answer": 0,
+          "why": "One reader decides.",
+          "review_prompt": "What does the player notice when the widget decides magazine size and the component reloads from the row?"
+        }
+      ],
+      "graph": "tactical-ammo",
+      "assignment": {
+        "plainPrompt": "Why does the component read the row, while the widget only draws?",
+        "whyGamePrompt": "What number drifts if the widget reads the table itself and the component reads it again?"
+      }
+    }
+  }
+}

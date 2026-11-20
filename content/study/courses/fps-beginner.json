@@ -1,0 +1,613 @@
+{
+  "id": "fps-beginner",
+  "modules": {
+    "press": {
+      "plainEnglish": "A first-person look starts when the player asks. The interact action traces from the camera, and a hit calls Interact. Fire is the same shape for a shot. The mapping context owns the key, so the graph never reads a key code.",
+      "whyGame": "Tracing every frame spends a query while the player stands still, and reading the key code breaks the moment they rebind.",
+      "expansions": [
+        {
+          "title": "Use",
+          "detail": "IA_Interact fires Triggered, then the trace, then the interface."
+        },
+        {
+          "title": "Fire",
+          "detail": "IA_Fire is the same shape for a shot."
+        },
+        {
+          "title": "Rebind",
+          "detail": "Move the binding in the context. Leave the graph alone."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "fpsc-press-1",
+          "kind": "mc",
+          "prompt": "The player presses the use key in a first-person kit. What starts?",
+          "choices": [
+            "IA_Interact, then a trace from the camera",
+            "A query on every idle frame",
+            "Moving rounds into the gun",
+            "A patrol step"
+          ],
+          "answer": 0,
+          "why": "The press is the question."
+        },
+        {
+          "id": "fpsc-press-2",
+          "kind": "mc",
+          "prompt": "The interact function runs because Triggered fired. What did the player just do?",
+          "choices": [
+            "Pressed the bound use control",
+            "Took a hit from another player",
+            "Overlapped a pickup",
+            "Finished a save"
+          ],
+          "answer": 0,
+          "why": "That function is the use action."
+        },
+        {
+          "id": "fpsc-press-3",
+          "kind": "mc",
+          "prompt": "The use trace hits a door. What call runs on the door?",
+          "choices": [
+            "Interact, through the interface",
+            "A cast that names the door class",
+            "Topping the gun up",
+            "Changing how fast you move"
+          ],
+          "answer": 0,
+          "why": "The hit asks the actor."
+        },
+        {
+          "id": "fpsc-press-4",
+          "kind": "mc",
+          "prompt": "You move the use trace onto the frame loop so the prompt never feels late. What keeps getting paid for?",
+          "choices": [
+            "A physics query while nobody is pressing use",
+            "A second mapping context",
+            "A replicated widget",
+            "A data row"
+          ],
+          "answer": 0,
+          "why": "The press already asks at the right time."
+        },
+        {
+          "id": "fpsc-press-5",
+          "kind": "mc",
+          "prompt": "Fire should trace the shot. Which action is that, in the same shape as use?",
+          "choices": [
+            "IA_Fire",
+            "The use action, reused for the bullet",
+            "The overlap that picks up ammo",
+            "The frame loop"
+          ],
+          "answer": 0,
+          "why": "A shot is its own press."
+        },
+        {
+          "id": "fpsc-press-6",
+          "kind": "tf",
+          "prompt": "The mapping context owns the key or pad binding, so the interact graph never reads a raw key code.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The mapping context owns the device."
+        },
+        {
+          "id": "fpsc-press-7",
+          "kind": "mc",
+          "prompt": "A player moves use from a keyboard key to a pad face button. What changes in the trace?",
+          "choices": [
+            "Nothing. The action still fires Triggered",
+            "The trace origin moves to the chest",
+            "Branch starts comparing key codes",
+            "The door must register the new button"
+          ],
+          "answer": 0,
+          "why": "Rebind the context, not the graph."
+        },
+        {
+          "id": "fpsc-press-8",
+          "kind": "mc",
+          "prompt": "Where does the first-person use trace begin?",
+          "choices": [
+            "At the camera, along the aim",
+            "At the pawn's feet",
+            "At the last pickup",
+            "At the muzzle flash actor"
+          ],
+          "answer": 0,
+          "why": "The crosshair is the camera."
+        },
+        {
+          "id": "fpsc-press-9",
+          "kind": "mc",
+          "prompt": "The hit bool is false. What should the use graph do?",
+          "choices": [
+            "Stop, without calling Interact",
+            "Call Interact on the nearest actor",
+            "Topping up the gun",
+            "Lowering hit points"
+          ],
+          "answer": 0,
+          "why": "A miss is not a use."
+        },
+        {
+          "id": "fpsc-press-10",
+          "kind": "mc",
+          "prompt": "Which line is the first-person press, not a timer?",
+          "choices": [
+            "The interact function that runs when the action fires",
+            "A hunter look on a fifth-of-a-second loop",
+            "A vision pass four times a second",
+            "A route step once a second"
+          ],
+          "answer": 0,
+          "why": "The player asked."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a first-person look start when the player presses use or fire, not on the frame?",
+        "whyGamePrompt": "What query runs while the player stands still, and what breaks on rebind, if the graph reads the key code?"
+      }
+    },
+    "magazine": {
+      "plainEnglish": "Reload is its own button. The magazine is in the gun, reserve is on the body, and mag size is the cap. Both checks have to pass before the clamp moves rounds into the gap.",
+      "whyGame": "Reloading from the frame loop fills the gun while the player is only looking, or while they are doing nothing.",
+      "expansions": [
+        {
+          "title": "The gap",
+          "detail": "Clamp writes how many rounds fit, and no more."
+        },
+        {
+          "title": "An empty body",
+          "detail": "Reserve at zero fails the greater-than check."
+        },
+        {
+          "title": "A full gun",
+          "detail": "A magazine at mag size fails the less-than check."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "fpsc-magazine-1",
+          "kind": "mc",
+          "prompt": "Which action is allowed to move rounds from the body into the gun?",
+          "choices": [
+            "IA_Reload",
+            "The fire button",
+            "The frame loop",
+            "The interact control"
+          ],
+          "answer": 0,
+          "why": "Reload is the only start."
+        },
+        {
+          "id": "fpsc-magazine-2",
+          "kind": "mc",
+          "prompt": "The reload excerpt clamps reserve into the space left in the gun. What does that result count?",
+          "choices": [
+            "Rounds that will move on this reload",
+            "The player's hit points",
+            "How far the camera sits",
+            "How many items are in the backpack"
+          ],
+          "answer": 0,
+          "why": "The clamp is the transfer."
+        },
+        {
+          "id": "fpsc-magazine-3",
+          "kind": "mc",
+          "prompt": "The magazine is below its cap and the body still has a round. What runs next?",
+          "choices": [
+            "The clamp into the gap",
+            "A line trace from the camera",
+            "A health subtract",
+            "A save write"
+          ],
+          "answer": 0,
+          "why": "Both checks passed."
+        },
+        {
+          "id": "fpsc-magazine-4",
+          "kind": "mc",
+          "prompt": "The frame loop adds the clamped amount every frame. What happens while the player is only aiming?",
+          "choices": [
+            "The gun keeps filling",
+            "The mapping context pops",
+            "The door opens",
+            "No change, if aiming blocked the frame loop"
+          ],
+          "answer": 0,
+          "why": "Reload is a button."
+        },
+        {
+          "id": "fpsc-magazine-5",
+          "kind": "mc",
+          "prompt": "The gun holds 30 of 30 and the body has rounds. Which check refuses the reload?",
+          "choices": [
+            "Less than the cap",
+            "Greater than zero on the body",
+            "The authority gate",
+            "The interact hit"
+          ],
+          "answer": 0,
+          "why": "A full magazine does not take more."
+        },
+        {
+          "id": "fpsc-magazine-6",
+          "kind": "tf",
+          "prompt": "Fire starts the shot, and a separate reload action is what moves rounds into the magazine.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Fire traces. Reload transfers."
+        },
+        {
+          "id": "fpsc-magazine-7",
+          "kind": "mc",
+          "prompt": "The body has zero rounds and the gun is half empty. Which check fails?",
+          "choices": [
+            "The reserve still has a round",
+            "The magazine is below its cap",
+            "The camera origin",
+            "The use binding"
+          ],
+          "answer": 0,
+          "why": "There is nothing to move."
+        },
+        {
+          "id": "fpsc-magazine-8",
+          "kind": "mc",
+          "prompt": "Which three numbers describe this reload?",
+          "choices": [
+            "Rounds in the gun, rounds on the body, and the cap",
+            "A life total, a gait, and whether the sights are up",
+            "Stack count, route direction, and heat",
+            "The key code, the pad code, and the widget font"
+          ],
+          "answer": 0,
+          "why": "Magazine, reserve, and mag size."
+        },
+        {
+          "id": "fpsc-magazine-9",
+          "kind": "mc",
+          "prompt": "The clamp runs and reserve is not reduced. What does the next reload still see?",
+          "choices": [
+            "Those same rounds on the body",
+            "An empty body",
+            "A larger cap",
+            "A slower walk"
+          ],
+          "answer": 0,
+          "why": "The transfer has to leave the body."
+        },
+        {
+          "id": "fpsc-magazine-10",
+          "kind": "mc",
+          "prompt": "The gun holds 20 of 30 and the body holds 4. How many rounds move?",
+          "choices": [
+            "4, because the body cannot give the full gap",
+            "The whole ten-round gap, even though the body is short",
+            "A fresh thirty-round gun, as if this one were replaced",
+            "No transfer, if looking down the sights were the reload"
+          ],
+          "answer": 0,
+          "why": "The clamp takes the smaller of the gap and the reserve."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why is reload its own button, and only after both the magazine and the reserve have room to move?",
+        "whyGamePrompt": "What fills the gun while the player is only looking if reload runs from the frame loop?"
+      }
+    },
+    "pickup": {
+      "plainEnglish": "Overlap is the pickup. If the stack still has room, the true pin calls AddToSlot, so a rifle and a medkit share one call. The trace that highlights a door does not increment a stack.",
+      "whyGame": "A cast to one pickup class drops the other on the floor forever, and a use-trace that adds items picks them up by looking.",
+      "expansions": [
+        {
+          "title": "A rifle",
+          "detail": "It implements the slot add. The overlap does not cast to the rifle."
+        },
+        {
+          "title": "A medkit",
+          "detail": "Same call, different item data."
+        },
+        {
+          "title": "The highlight",
+          "detail": "The interact trace can show a prompt. It does not add."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "fpsc-pickup-1",
+          "kind": "mc",
+          "prompt": "A rifle touches the capsule. Which event adds it?",
+          "choices": [
+            "Overlap, through AddToSlot",
+            "The press that highlights a door",
+            "The fire trace",
+            "Moving rounds into the gun"
+          ],
+          "answer": 0,
+          "why": "Touching the capsule is the pickup."
+        },
+        {
+          "id": "fpsc-pickup-2",
+          "kind": "mc",
+          "prompt": "The overlap sees a stack that still has room and calls the slot function. What does the call accomplish?",
+          "choices": [
+            "It asks the inventory to take the item",
+            "It opens the door under the crosshair",
+            "It moves rounds inside the gun",
+            "It subtracts health"
+          ],
+          "answer": 0,
+          "why": "Room means add."
+        },
+        {
+          "id": "fpsc-pickup-3",
+          "kind": "mc",
+          "prompt": "The stack still has room. What runs on the true pin?",
+          "choices": [
+            "AddToSlot",
+            "The interact miss log",
+            "The magazine clamp",
+            "A save snapshot"
+          ],
+          "answer": 0,
+          "why": "The branch's true pin adds."
+        },
+        {
+          "id": "fpsc-pickup-4",
+          "kind": "mc",
+          "prompt": "Looking at a medkit puts it in the inventory. What did the use trace do that belongs to overlap?",
+          "choices": [
+            "The add",
+            "The highlight",
+            "The camera origin",
+            "The key binding"
+          ],
+          "answer": 0,
+          "why": "Use can show a prompt. Overlap picks up."
+        },
+        {
+          "id": "fpsc-pickup-5",
+          "kind": "mc",
+          "prompt": "A rifle and a medkit need to enter the same inventory. Which call do both answer?",
+          "choices": [
+            "AddToSlot",
+            "A cast to the rifle class only",
+            "The fire action",
+            "The health write"
+          ],
+          "answer": 0,
+          "why": "One call. The item differs in data."
+        },
+        {
+          "id": "fpsc-pickup-6",
+          "kind": "tf",
+          "prompt": "A cast to the rifle class is enough for every pickup.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The medkit never matches that cast."
+        },
+        {
+          "id": "fpsc-pickup-7",
+          "kind": "mc",
+          "prompt": "The stack is already full. What should another overlap do?",
+          "choices": [
+            "Refuse the extra",
+            "Grow the stack past the item data",
+            "Reload the gun",
+            "Open the nearest door"
+          ],
+          "answer": 0,
+          "why": "The room check failed."
+        },
+        {
+          "id": "fpsc-pickup-8",
+          "kind": "mc",
+          "prompt": "Where does the stack size live?",
+          "choices": [
+            "On the item data",
+            "As a literal in the use graph",
+            "On the camera",
+            "In the reload clamp"
+          ],
+          "answer": 0,
+          "why": "The component reads a decision the data already made."
+        },
+        {
+          "id": "fpsc-pickup-9",
+          "kind": "mc",
+          "prompt": "The overlap runs and the stack count is zero. What happens?",
+          "choices": [
+            "Nothing is added",
+            "AddToSlot runs anyway",
+            "The gun refills",
+            "Health clamps to zero"
+          ],
+          "answer": 0,
+          "why": "Empty means no add."
+        },
+        {
+          "id": "fpsc-pickup-10",
+          "kind": "mc",
+          "prompt": "Which graph highlights a door without changing a stack?",
+          "choices": [
+            "The interact trace",
+            "The overlap",
+            "Moving rounds into the gun",
+            "The health notify"
+          ],
+          "answer": 0,
+          "why": "Highlight and pickup are different events."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why is overlap the pickup, with one AddToSlot call shared by a rifle and a medkit?",
+        "whyGamePrompt": "What stays on the floor forever, and what is collected by looking, if you cast to one class or add items from the use trace?"
+      }
+    },
+    "authority": {
+      "plainEnglish": "Damage is an event. The server writes health inside the authority check. Other machines learn the float from OnRep and play the hit. They do not subtract again. The widget reads the float. It is not what you replicate.",
+      "whyGame": "A second subtract on the notify bites twice, and replicating the widget ships fonts and layout.",
+      "expansions": [
+        {
+          "title": "The write",
+          "detail": "The generated health function nests the assignment inside the owner authority check."
+        },
+        {
+          "title": "The flash",
+          "detail": "OnRep plays it. The number is already final."
+        },
+        {
+          "title": "The bar",
+          "detail": "Read the float. Do not replicate the widget."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "fpsc-authority-1",
+          "kind": "mc",
+          "prompt": "A first-person hit should change health. Where does that write sit?",
+          "choices": [
+            "Inside HasAuthority, from the damage event",
+            "On the owning client, beside the hit flash",
+            "Beside the reaction in the notify",
+            "Inside the widget paint"
+          ],
+          "answer": 0,
+          "why": "The server owns the number."
+        },
+        {
+          "id": "fpsc-authority-2",
+          "kind": "mc",
+          "prompt": "The health function nests the assignment inside the owner authority check. What does that nesting prevent?",
+          "choices": [
+            "A client write that the server will snap back",
+            "The camera trace",
+            "A transfer of rounds",
+            "A pickup overlap"
+          ],
+          "answer": 0,
+          "why": "The check is the gate."
+        },
+        {
+          "id": "fpsc-authority-3",
+          "kind": "mc",
+          "prompt": "The server has written the new health. What should the other machines play?",
+          "choices": [
+            "The hit reaction, from the notify",
+            "Another subtract of the same hit",
+            "A transfer of rounds",
+            "A door swing"
+          ],
+          "answer": 0,
+          "why": "The notify shows the result."
+        },
+        {
+          "id": "fpsc-authority-4",
+          "kind": "mc",
+          "prompt": "OnRep both flashes and subtracts. What does the shot land as?",
+          "choices": [
+            "Two hits",
+            "One hit and a flash",
+            "A refilled magazine",
+            "An opened door"
+          ],
+          "answer": 0,
+          "why": "The server already subtracted."
+        },
+        {
+          "id": "fpsc-authority-5",
+          "kind": "mc",
+          "prompt": "You replicate the health widget so the bar matches. What extra payload moves?",
+          "choices": [
+            "Fonts and layout",
+            "Only the health float",
+            "The damage type name",
+            "The interact binding"
+          ],
+          "answer": 0,
+          "why": "Replicate the float. Let the bar read it."
+        },
+        {
+          "id": "fpsc-authority-6",
+          "kind": "tf",
+          "prompt": "The hit notify should subtract health again.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "It only plays the reaction."
+        },
+        {
+          "id": "fpsc-authority-7",
+          "kind": "mc",
+          "prompt": "A widget reads health. What should it not do?",
+          "choices": [
+            "Become the replicated object",
+            "Bind to the float",
+            "Hide when the pawn is dead",
+            "Sit on the owning player's screen"
+          ],
+          "answer": 0,
+          "why": "The float is the fact. The bar is a view."
+        },
+        {
+          "id": "fpsc-authority-8",
+          "kind": "mc",
+          "prompt": "A client subtracts health so the flash feels instant. What snaps?",
+          "choices": [
+            "The number, back to whatever the server still has",
+            "How many rounds the gun holds",
+            "The mapping context",
+            "The pickup mesh"
+          ],
+          "answer": 0,
+          "why": "The client number was never authority."
+        },
+        {
+          "id": "fpsc-authority-9",
+          "kind": "mc",
+          "prompt": "Which line is the first-person health write?",
+          "choices": [
+            "The assignment nested in the owner authority check",
+            "A subtract inside the hit notify",
+            "A paint of the health bar",
+            "A clamp of reserve into the magazine"
+          ],
+          "answer": 0,
+          "why": "That nest is the repair."
+        },
+        {
+          "id": "fpsc-authority-10",
+          "kind": "mc",
+          "prompt": "Damage, the authority write, and the notify are three steps. Which order matches them?",
+          "choices": [
+            "The hit event, then the server assignment, then the reaction",
+            "The reaction, then a client subtract, then a widget replicate",
+            "A frame subtract, then a flash, then a save",
+            "A highlight, then a transfer of rounds, then a pickup"
+          ],
+          "answer": 0,
+          "why": "Event, write, present."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does damage write health on the server, while other machines only play the hit from OnRep?",
+        "whyGamePrompt": "What bites twice, and what heavy payload ships, if the notify subtracts again or the widget itself is replicated?"
+      }
+    }
+  }
+}

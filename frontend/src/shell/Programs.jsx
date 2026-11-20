@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { api, errorText } from "../lib/api";
 import ChoiceButton from "../components/ChoiceButton";
 import GlossaryText, { GlossaryTags } from "../components/GlossaryText";
+import LessonStudio from "./LessonStudio";
 import { useShell } from "./ShellContext";
 import { loadWorkspace } from "../lib/practice.mjs";
 import { refactorCheck } from "../lib/graph.mjs";
@@ -85,6 +86,13 @@ export default function Programs() {
   const [assignmentText, setAssignmentText] = useState("");
   const [trackResult, setTrackResult] = useState(null);
   const [examMode, setExamMode] = useState(false);
+  const [savedPrograms, setSavedPrograms] = useState(() => {
+    try { return JSON.parse(window.localStorage.getItem("ue5_program_bookmarks") || "[]"); }
+    catch { return []; }
+  });
+  const [lastTrackId, setLastTrackId] = useState("");
+  const [resume, setResume] = useState(null);
+  const [saveNote, setSaveNote] = useState("");
 
   const refreshCards = () => api.get("/study").then((r) => {
     setCards(r.data?.programs || []);
@@ -99,21 +107,37 @@ export default function Programs() {
 
   const openTrack = (id) => {
     api.get(`/tracks/${id}`).then((response) => {
+      const checkpoint = response.data.state?.checkpoint || null;
       setTrack(response.data.track);
-      setSectionIndex(0);
-      setTrackAnswers({});
+      setLastTrackId(id);
+      setSectionIndex(checkpoint?.sectionIndex || 0);
+      setTrackAnswers(checkpoint?.answers || {});
       setAssignmentText("");
-      setTrackResult(null);
-      setExamMode(false);
+      setTrackResult(checkpoint?.scores || null);
+      setExamMode(!!checkpoint?.examMode);
+      setResume(checkpoint ? { ...checkpoint, token: Date.now() } : null);
+      setSaveNote("");
     }).catch((err) => toast.error(errorText(err)));
   };
 
-  const submitSection = async () => {
+  const saveProgramPick = () => {
+    const current = tracks.find((item) => item.id === lastTrackId) || tracks.find((item) => item.genre === genre && item.level === trackLevel);
+    if (!current) return;
+    const next = [
+      { id: current.id, title: current.title, genre: current.genre, level: current.level, at: new Date().toISOString() },
+      ...savedPrograms.filter((item) => item.id !== current.id),
+    ].slice(0, 12);
+    setSavedPrograms(next);
+    try { window.localStorage.setItem("ue5_program_bookmarks", JSON.stringify(next)); }
+    catch { /* the dropdown still shows this visit */ }
+  };
+
+  const submitSection = async (answers) => {
     const section = track?.sections?.[sectionIndex];
     if (!track || !section) return;
     try {
       const { data } = await api.post(`/tracks/${track.id}/sections/${section.id}/attempt`, {
-        answers: trackAnswers,
+        answers: answers || trackAnswers,
         assignment: assignmentText,
       });
       setTrackResult(data);
@@ -122,10 +146,25 @@ export default function Programs() {
     }
   };
 
-  const submitExam = async () => {
+  const saveLesson = async (snapshot) => {
     if (!track) return;
     try {
-      const { data } = await api.post(`/tracks/${track.id}/exam`, { answers: trackAnswers });
+      await api.post(`/tracks/${track.id}/checkpoint`, {
+        ...snapshot,
+        sectionIndex,
+        examMode,
+      });
+      setSaveNote("Saved on this computer.");
+      saveProgramPick();
+    } catch (err) {
+      setSaveNote(errorText(err));
+    }
+  };
+
+  const submitExam = async (answers) => {
+    if (!track) return;
+    try {
+      const { data } = await api.post(`/tracks/${track.id}/exam`, { answers: answers || trackAnswers });
       setTrackResult(data);
     } catch (err) {
       toast.error(errorText(err));
@@ -198,75 +237,40 @@ export default function Programs() {
   };
 
   if (track) {
-    const section = track.sections[sectionIndex];
-    const questions = examMode ? track.exam.questions : section.quiz;
+    const next = track.sections[sectionIndex + 1];
     return (
-      <div className="home-screen" data-testid="track-screen">
-        <div className="home-inner">
-          <button type="button" className="why-concept !mt-0" onClick={() => { setTrack(null); setTrackResult(null); }}>All programs</button>
-          <div className="eyebrow mt-3">{track.genre} · {track.level}</div>
-          <h1 className="font-display text-[32px] font-extrabold uppercase tracking-wider leading-none mt-1">{track.title}</h1>
-          <img className="mt-4 w-full" alt="" src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(track.map)}`} data-testid="track-map" />
-          <div className="mt-3 flex flex-wrap gap-2">
-            {track.sections.map((item, index) => (
-              <button key={item.id} type="button" className={`chip ${!examMode && index === sectionIndex ? "active" : ""}`} data-testid={`track-section-${item.id}`} onClick={() => { setExamMode(false); setSectionIndex(index); setTrackAnswers({}); setTrackResult(null); setAssignmentText(""); }}>{item.order}. {item.title}</button>
-            ))}
-            <button type="button" className={`chip ${examMode ? "active" : ""}`} data-testid="track-exam" onClick={() => { setExamMode(true); setTrackAnswers({}); setTrackResult(null); }}>Final exam</button>
-          </div>
-          {!examMode && section && (
-            <div className="panel p-4 mt-4" data-testid="track-lesson">
-              <img className="w-full" alt="" src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(section.image)}`} data-testid="track-lesson-image" />
-              {section.flow && <img className="w-full mt-3" alt="" src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(section.flow)}`} data-testid="track-lesson-flow" />}
-              {section.reading.map((line, index) => {
-                const heading = typeof line === "string" ? "" : line.heading;
-                const body = typeof line === "string" ? line : line.body;
-                return (
-                  <div key={`${section.id}-${index}`} className="mt-3">
-                    {heading && <h2 className="text-[14px] font-semibold">{heading}</h2>}
-                    <p className="mt-1 text-[13px] text-[var(--text-secondary)]"><GlossaryText text={body} /></p>
-                  </div>
-                );
-              })}
-              {section.cpp?.length > 0 && (
-                <pre className="mt-3 text-[12px] font-mono text-[var(--text-secondary)] overflow-auto" data-testid="track-cpp">
-                  {section.cpp.map((row) => `${String(row.line).padStart(3, " ")}  ${row.text}`).join("\n")}
-                </pre>
-              )}
-              <label className="block mt-3">
-                <span className="eyebrow">Assignment</span>
-                <div className="mt-1 text-[13px]"><GlossaryText text={section.assignment.prompt} /></div>
-                <input className="mt-2 w-full bg-[var(--bg-main)] border border-[var(--border)] rounded px-2 py-1" data-testid="track-assignment" value={assignmentText} onChange={(event) => setAssignmentText(event.target.value)} />
-              </label>
-              {trackResult?.model && <p className="mt-2 text-[13px] text-[var(--text-secondary)]" data-testid="track-model">{trackResult.model}</p>}
-            </div>
-          )}
-          <div className="panel p-4 mt-4" data-testid="track-questions">
-            {(questions || []).map((question) => (
-              <div key={question.id} className="mt-3">
-                <div className="text-[13px]" data-testid={`track-q-${question.id}`}><GlossaryText text={question.prompt} /></div>
-                {question.figure && <img className="mt-2 w-full" alt="" src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(question.figure)}`} data-testid={`track-figure-${question.id}`} />}
-                {question.sample && <pre className="mt-2 text-[12px] font-mono text-[var(--text-secondary)] overflow-auto" data-testid={`track-sample-${question.id}`}>{question.sample}</pre>}
-                <div className="mt-2 flex flex-col gap-2">
-                  {question.choices.map((choice, choiceIndex) => (
-                    <ChoiceButton
-                      key={`${question.id}-${choiceIndex}`}
-                      id={choiceIndex}
-                      label={choice}
-                      picked={trackAnswers[question.id] ?? null}
-                      correct={trackResult ? question.answer : null}
-                      revealed={!!trackResult}
-                      onPick={(choiceId) => setTrackAnswers((current) => ({ ...current, [question.id]: choiceId }))}
-                      testId={`track-choice-${question.id}-${choiceIndex}`}
-                    />
-                  ))}
-                </div>
-              </div>
-            ))}
-            <button type="button" className="ue-btn ue-btn-primary mt-3" data-testid="track-submit" onClick={examMode ? submitExam : submitSection}>{examMode ? "Score exam" : "Score section"}</button>
-            {trackResult && <p className="mt-2 text-[13px]" data-testid="track-score">{trackResult.percent}% · {trackResult.passed ? "Passed" : "Not yet"}{trackResult.assignment_ok === false ? " · assignment needs another look" : ""}</p>}
-          </div>
-        </div>
-      </div>
+      <LessonStudio
+        eyebrow="programs"
+        title={track.title}
+        summary={`${track.genre} · ${track.level}`}
+        map={track.map}
+        sections={track.sections}
+        sectionIndex={sectionIndex}
+        examQuestions={track.exam?.questions || []}
+        examMode={examMode}
+        result={trackResult}
+        nextLabel={next ? next.title : "Final exam"}
+        onClose={() => { setTrack(null); setTrackResult(null); }}
+        onSection={(index) => { setExamMode(false); setSectionIndex(index); setTrackResult(null); }}
+        onExam={() => { setExamMode(true); setTrackResult(null); }}
+        onNext={() => {
+          if (next) {
+            setExamMode(false);
+            setSectionIndex(sectionIndex + 1);
+          } else {
+            setExamMode(true);
+          }
+          setTrackResult(null);
+        }}
+        resume={resume}
+        onSave={saveLesson}
+        saveNote={saveNote}
+        onScore={(answers) => {
+          setTrackAnswers(answers);
+          if (examMode) submitExam(answers);
+          else submitSection(answers);
+        }}
+      />
     );
   }
 
@@ -303,9 +307,36 @@ export default function Programs() {
             {["fps", "tps", "horror", "strategy"].map((id) => (
               <button key={id} type="button" className={`chip ${genre === id ? "active" : ""}`} data-testid={`track-genre-${id}`} onClick={() => setGenre(id)}>{id.toUpperCase()}</button>
             ))}
+          </div>
+          <div className="track-divider" data-testid="track-group-divider" />
+          <div className="mt-3 flex flex-wrap items-center gap-2" data-testid="track-level-row">
             <button type="button" className={`chip ${trackLevel === "beginner" ? "active" : ""}`} data-testid="track-level-beginner" onClick={() => setTrackLevel("beginner")}>Beginner</button>
             <button type="button" className={`chip ${trackLevel === "intermediate" ? "active" : ""}`} data-testid="track-level-intermediate" onClick={() => setTrackLevel("intermediate")}>Intermediate</button>
+            <span className="track-divider-inline" data-testid="track-load-divider" />
+            <label className="text-[12px] text-[var(--text-secondary)]">
+              Load saved
+              <select
+                className="ml-2 bg-[var(--bg-main)] border border-[var(--border)] rounded px-2 py-1"
+                data-testid="track-load-saved"
+                value=""
+                onChange={(event) => {
+                  const id = event.target.value;
+                  const saved = savedPrograms.find((item) => item.id === id);
+                  if (!saved) return;
+                  setGenre(saved.genre);
+                  setTrackLevel(saved.level);
+                  openTrack(saved.id);
+                }}
+              >
+                <option value="">Choose a save</option>
+                {savedPrograms.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}
+              </select>
+            </label>
+            <button type="button" className="ue-btn" data-testid="program-save" onClick={saveProgramPick}>Save</button>
           </div>
+          <p className="mt-3 text-[12px] text-[var(--text-secondary)] max-w-xl" data-testid="program-grading-note">
+            Editable C++ and node graph assignments with automatic grading are coming in a future update. The assignments in a lesson are self-scored, with a reveal toggle.
+          </p>
           <div className="home-grid mt-3">
             {tracks.filter((item) => item.genre === genre && item.level === trackLevel).map((item) => (
               <button key={item.id} type="button" className="panel home-card text-left" data-testid={`track-card-${item.id}`} onClick={() => openTrack(item.id)}>
@@ -315,18 +346,7 @@ export default function Programs() {
               </button>
             ))}
           </div>
-          <div className="eyebrow mt-8">Saved lesson packs</div>
-          <div className="home-grid mt-3">
-            {cards.map((card) => (
-              <button key={card.id} type="button" className="panel home-card text-left" data-testid={`program-card-${card.id}`} onClick={() => openProgram(card.id)}>
-                <div className="font-sub font-semibold text-[15px]">{card.title}</div>
-                <p className="mt-1 text-[12px] text-[var(--text-secondary)]">{card.summary}</p>
-                <div className="mt-2 text-[11px] font-mono text-[var(--text-muted)]">
-                  {card.complete ? "Complete" : `${(card.steps_done || []).length} steps saved`}
-                </div>
-              </button>
-            ))}
-          </div>
+          {/* Saved lesson packs stay in the study data. The list returns in Version 2 as System-specific Programs. */}
         </div>
       </div>
     );

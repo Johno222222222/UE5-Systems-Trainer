@@ -1,0 +1,613 @@
+{
+  "id": "strategy-intermediate",
+  "modules": {
+    "march": {
+      "plainEnglish": "A unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because the team cannot see the unit freezes it, then teleports it when a spotter arrives. The formation id still selects the offsets.",
+      "whyGame": "Hidden is not frozen. The host keeps marching units the enemy has not spotted.",
+      "expansions": [
+        {
+          "title": "The order",
+          "detail": "ReceiveOrder still branches on Selected."
+        },
+        {
+          "title": "The shape",
+          "detail": "The formation id picks the offsets. The graph does not invent them."
+        },
+        {
+          "title": "The spotter",
+          "detail": "When vision returns, the unit is where the host moved it."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "stgm-march-1",
+          "kind": "mc",
+          "prompt": "The enemy cannot see a unit and the host still has it selected. What should keep running?",
+          "choices": [
+            "The unit's order",
+            "No march at all, until a spotter arrives",
+            "A vision write on the enemy team",
+            "A shell spend"
+          ],
+          "answer": 0,
+          "why": "Hidden is not frozen."
+        },
+        {
+          "id": "stgm-march-2",
+          "kind": "mc",
+          "prompt": "You skip ReceiveOrder while Visible is false. What does a spotter see when the fog lifts?",
+          "choices": [
+            "The unit pops from the last cell the fog remembered",
+            "The unit where the host has been moving it",
+            "An empty queue and a correct position",
+            "A second copy of the unit"
+          ],
+          "answer": 0,
+          "why": "The host kept the order. The client must not have dropped it."
+        },
+        {
+          "id": "stgm-march-3",
+          "kind": "mc",
+          "prompt": "The formation id selects offsets. What does the graph not invent?",
+          "choices": [
+            "The shape",
+            "The selection flag",
+            "The vision bit",
+            "The shell budget"
+          ],
+          "answer": 0,
+          "why": "The id picks a shape that already exists."
+        },
+        {
+          "id": "stgm-march-4",
+          "kind": "mc",
+          "prompt": "A hidden unit's order is also dropped on the host. What is lost?",
+          "choices": [
+            "The march the server was supposed to keep",
+            "Only the enemy's view, correctly",
+            "Only a cosmetic wheel",
+            "Only a medal popup"
+          ],
+          "answer": 0,
+          "why": "The host simulates. Vision is the enemy's problem."
+        },
+        {
+          "id": "stgm-march-5",
+          "kind": "mc",
+          "prompt": "Two squads are hidden and only one is selected. Who changes formation?",
+          "choices": [
+            "The selected squad",
+            "Both squads, since they share one data asset",
+            "Whichever the enemy can see",
+            "The gun battery"
+          ],
+          "answer": 0,
+          "why": "Selected still gates the click."
+        },
+        {
+          "id": "stgm-march-6",
+          "kind": "tf",
+          "prompt": "A unit the enemy cannot see should keep executing its order on the host.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The host keeps the order."
+        },
+        {
+          "id": "stgm-march-7",
+          "kind": "mc",
+          "prompt": "Which pair can both be true?",
+          "choices": [
+            "Relevant to the host",
+            "Not relevant, and still marching on the host",
+            "Visible to the enemy, and culled from the host",
+            "Hearing this click without being selected"
+          ],
+          "answer": 0,
+          "why": "Simulation and vision differ."
+        },
+        {
+          "id": "stgm-march-8",
+          "kind": "mc",
+          "prompt": "Design renames the wedge to a column in the squad data. What does the order graph change?",
+          "choices": [
+            "Nothing. The id now picks the new shape",
+            "Every offset literal",
+            "The vision interval",
+            "Spending one round of ammunition"
+          ],
+          "answer": 0,
+          "why": "The graph does not own the shape."
+        },
+        {
+          "id": "stgm-march-9",
+          "kind": "mc",
+          "prompt": "Which line still gates a hidden unit's click?",
+          "choices": [
+            "The branch on Selected",
+            "The vision bool",
+            "The shell count",
+            "The wheel transform"
+          ],
+          "answer": 0,
+          "why": "Selection, not vision."
+        },
+        {
+          "id": "stgm-march-10",
+          "kind": "mc",
+          "prompt": "A spotter arrives and the unit teleports. What was skipped while it was hidden?",
+          "choices": [
+            "The order, on the machine that should have kept marching",
+            "Painting cells, which would have been fine",
+            "A medal, correctly",
+            "A wheel rebuild, correctly"
+          ],
+          "answer": 0,
+          "why": "Keep the order. Reveal only the cell."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why can a unit stay invisible to the enemy and still be relevant, so the server keeps its order?",
+        "whyGamePrompt": "What freezes in the last remembered cell if hidden units skip their orders?"
+      }
+    },
+    "barrage": {
+      "plainEnglish": "A fire mission spends a shell. It does not set Visible. A spotter's reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock unless the design said ammo is the team's money.",
+      "whyGame": "Spending supplies for every shell bankrupts the base, and painting the impact cell shows ground nobody spotted.",
+      "expansions": [
+        {
+          "title": "The shell",
+          "detail": "One shell per mission, on the authority."
+        },
+        {
+          "title": "The spotter",
+          "detail": "Reveal lifts fog. The gun does not."
+        },
+        {
+          "title": "A hit",
+          "detail": "The impact can call AwardMedal when it destroys the marked target."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "stgm-barrage-1",
+          "kind": "mc",
+          "prompt": "The player orders a barrage. What does the gun spend?",
+          "choices": [
+            "A shell",
+            "The team's build money, always",
+            "Whether a cell is revealed",
+            "A formation id"
+          ],
+          "answer": 0,
+          "why": "Shells are the artillery budget."
+        },
+        {
+          "id": "stgm-barrage-2",
+          "kind": "mc",
+          "prompt": "The mission excerpt subtracts one shell inside the authority check. What does that line spend?",
+          "choices": [
+            "Ammunition, not the base's money",
+            "The base's money, if a shot were a purchase",
+            "The points total, as a penalty",
+            "Fuel from a truck"
+          ],
+          "answer": 0,
+          "why": "Money is a separate call only if the design said so."
+        },
+        {
+          "id": "stgm-barrage-3",
+          "kind": "mc",
+          "prompt": "A blind barrage marks the impact cell visible. What did the gun steal?",
+          "choices": [
+            "The spotter's eyes",
+            "The formation shape",
+            "Who was selected",
+            "The wheel simulation"
+          ],
+          "answer": 0,
+          "why": "Reveal lifts fog. The gun does not."
+        },
+        {
+          "id": "stgm-barrage-4",
+          "kind": "mc",
+          "prompt": "Every shell also subtracts supplies and the design never said ammo is money. What goes broke?",
+          "choices": [
+            "The base, from shots that should have spent shells",
+            "Only the shell rack, correctly",
+            "Only the medal board",
+            "Only the vision timer"
+          ],
+          "answer": 0,
+          "why": "Keep the budgets apart."
+        },
+        {
+          "id": "stgm-barrage-5",
+          "kind": "mc",
+          "prompt": "The impact destroys a marked target. What may the gun call besides the shell spend?",
+          "choices": [
+            "AwardMedal",
+            "Painting the crater so the shooter can see it",
+            "A formation change",
+            "A wheel replicate"
+          ],
+          "answer": 0,
+          "why": "A destroyed target can be a result. The cell is not."
+        },
+        {
+          "id": "stgm-barrage-6",
+          "kind": "tf",
+          "prompt": "A fire mission spends a shell and leaves the impact cell's visibility to the spotter.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "A spotter reveals. A gun fires."
+        },
+        {
+          "id": "stgm-barrage-7",
+          "kind": "mc",
+          "prompt": "A shell misses the mark. What still happened, and what did not?",
+          "choices": [
+            "The shell was spent, and no medal was awarded",
+            "Supplies were refunded and fog cleared",
+            "The formation changed",
+            "The unit stopped marching"
+          ],
+          "answer": 0,
+          "why": "The spend is the shot. The medal is the mark."
+        },
+        {
+          "id": "stgm-barrage-8",
+          "kind": "mc",
+          "prompt": "There is no shell budget. What can one click do?",
+          "choices": [
+            "Stream impacts",
+            "Only reveal a cell",
+            "Only march a squad",
+            "Only award a medal"
+          ],
+          "answer": 0,
+          "why": "The budget is the anti-spam."
+        },
+        {
+          "id": "stgm-barrage-9",
+          "kind": "mc",
+          "prompt": "The design says a shell also costs money. Where does that money leave?",
+          "choices": [
+            "A separate spend call with the row's cost",
+            "Inside the shell line, by also touching supplies",
+            "On the board notify",
+            "In the vision trace"
+          ],
+          "answer": 0,
+          "why": "Do not fold money into the shell line."
+        },
+        {
+          "id": "stgm-barrage-10",
+          "kind": "mc",
+          "prompt": "Which event spends a shell without lifting fog?",
+          "choices": [
+            "FireMission",
+            "The spotter's vision pass",
+            "A drain on each drawn frame",
+            "Refreshing the points display"
+          ],
+          "answer": 0,
+          "why": "The mission is the spend."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a fire mission spend a shell without setting Visible, leaving fog to the spotter?",
+        "whyGamePrompt": "What bankrupts the base, and what unspotted ground appears, if every shell spends supplies or the impact cell is painted visible?"
+      }
+    },
+    "cells": {
+      "plainEnglish": "Relevant and Visible answer different questions. Interest assigns Relevant twice a second from a trace, inside the authority check. Vision assigns Visible four times a second. One bool means culling the actor deletes it from a spotter's future vision.",
+      "whyGame": "A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible cheats the map.",
+      "expansions": [
+        {
+          "title": "Interest",
+          "detail": "Half a second, authority, the hit becomes Relevant."
+        },
+        {
+          "title": "Vision",
+          "detail": "A quarter second, the hit becomes Visible for that team."
+        },
+        {
+          "title": "Cheats",
+          "detail": "Neither bool is a client write."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "stgm-cells-1",
+          "kind": "mc",
+          "prompt": "What does Relevant answer?",
+          "choices": [
+            "Whether this client receives the actor",
+            "Whether this team may see the cell",
+            "Whether the unit is selected",
+            "Whether a shell is left"
+          ],
+          "answer": 0,
+          "why": "Delivery, not vision."
+        },
+        {
+          "id": "stgm-cells-2",
+          "kind": "mc",
+          "prompt": "CheckAOI assigns Relevant from a trace. How often, and under what gate?",
+          "choices": [
+            "Twice a second, on the authority",
+            "Four times a second, on every client",
+            "Every frame, with no gate",
+            "Only while the cell is visible"
+          ],
+          "answer": 0,
+          "why": "0.5 seconds, inside the check."
+        },
+        {
+          "id": "stgm-cells-3",
+          "kind": "mc",
+          "prompt": "You use one bool for both questions. What does culling the actor also delete?",
+          "choices": [
+            "A spotter's future chance to see it",
+            "Only the wheel bones",
+            "Only the medal row",
+            "Only the formation id"
+          ],
+          "answer": 0,
+          "why": "Vision needs the actor to still exist for the host."
+        },
+        {
+          "id": "stgm-cells-4",
+          "kind": "mc",
+          "prompt": "A client forces Relevant. What arrives that the server had hidden?",
+          "choices": [
+            "Cosmetics that machine was not supposed to receive",
+            "Only the vision bits",
+            "Only the shell count",
+            "Only the local UI"
+          ],
+          "answer": 0,
+          "why": "Interest is not a client switch."
+        },
+        {
+          "id": "stgm-cells-5",
+          "kind": "mc",
+          "prompt": "A client forces Visible. What can that player mark?",
+          "choices": [
+            "Unseen cells as seen",
+            "Only cells the authority revealed",
+            "Only selected units",
+            "Only trucks"
+          ],
+          "answer": 0,
+          "why": "Vision is not a client switch either."
+        },
+        {
+          "id": "stgm-cells-6",
+          "kind": "tf",
+          "prompt": "One bool can serve as both interest and vision.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Culling would delete future sight."
+        },
+        {
+          "id": "stgm-cells-7",
+          "kind": "mc",
+          "prompt": "Which timer is vision?",
+          "choices": [
+            "Reveal, four times a second",
+            "An interest pass twice a second",
+            "The shell spend",
+            "The wheel rebuild"
+          ],
+          "answer": 0,
+          "why": "0.25 seconds paints cells."
+        },
+        {
+          "id": "stgm-cells-8",
+          "kind": "mc",
+          "prompt": "A wall blocks the team and the host still simulates the unit beyond it. Which bools are those?",
+          "choices": [
+            "Visible false, Relevant true on the host",
+            "Both false",
+            "The team sees it and the host also has it",
+            "The team sees it while the host has dropped it"
+          ],
+          "answer": 0,
+          "why": "The host has the actor. The team does not see the cell."
+        },
+        {
+          "id": "stgm-cells-9",
+          "kind": "mc",
+          "prompt": "You save both bools. What is stale after units move?",
+          "choices": [
+            "Cells and delivery that the passes would have recomputed",
+            "The formation id",
+            "The shell rack",
+            "The order that was still running"
+          ],
+          "answer": 0,
+          "why": "Run both passes again."
+        },
+        {
+          "id": "stgm-cells-10",
+          "kind": "mc",
+          "prompt": "Which line is interest, not vision?",
+          "choices": [
+            "Relevant assigned from the half-second trace",
+            "Visible assigned from the quarter-second trace",
+            "A shell subtracted by the gun",
+            "A formation id read"
+          ],
+          "answer": 0,
+          "why": "CheckAOI owns delivery."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why do Relevant and Visible stay two different bools, each written from its own authority pass?",
+        "whyGamePrompt": "What cosmetics get pulled, and what map gets cheated, if a client forces either bool?"
+      }
+    },
+    "convoy": {
+      "plainEnglish": "A strategy truck replicates fuel, or supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from throttle and fuel. Driving does not drain supplies unless the design said the convoy spends the team's stock.",
+      "whyGame": "Streaming every wheel bone wastes the match, and spending the build budget on driving bankrupts the base.",
+      "expansions": [
+        {
+          "title": "Fuel",
+          "detail": "It can be its own number."
+        },
+        {
+          "title": "The order",
+          "detail": "The order id says where the truck was told to go."
+        },
+        {
+          "title": "Wheels",
+          "detail": "Rebuild them. Do not replicate the bones."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "stgm-convoy-1",
+          "kind": "mc",
+          "prompt": "What should a strategy truck replicate?",
+          "choices": [
+            "Fuel, or the named stock, and the order id",
+            "Each wheel transform",
+            "The vision widget",
+            "A points toast"
+          ],
+          "answer": 0,
+          "why": "The simulation rebuilds the wheels."
+        },
+        {
+          "id": "stgm-convoy-2",
+          "kind": "mc",
+          "prompt": "The client receives fuel and the order id. What does it rebuild locally?",
+          "choices": [
+            "The wheels, from throttle and fuel",
+            "The team's vision",
+            "The medal rows",
+            "The formation data asset"
+          ],
+          "answer": 0,
+          "why": "Bones are a simulation."
+        },
+        {
+          "id": "stgm-convoy-3",
+          "kind": "mc",
+          "prompt": "Driving drains supplies and the design never said the convoy spends that money. What was coupled?",
+          "choices": [
+            "Fuel and the team's build budget",
+            "The order id and the formation id",
+            "Vision and interest",
+            "A shell and a medal"
+          ],
+          "answer": 0,
+          "why": "Fuel can be its own number."
+        },
+        {
+          "id": "stgm-convoy-4",
+          "kind": "mc",
+          "prompt": "You replicate every wheel bone. What streams that the client could have rebuilt?",
+          "choices": [
+            "Transforms, every frame the truck rolls",
+            "Only the fuel float",
+            "Only the order id",
+            "Only a destroyed-truck medal"
+          ],
+          "answer": 0,
+          "why": "The bones are the waste."
+        },
+        {
+          "id": "stgm-convoy-5",
+          "kind": "mc",
+          "prompt": "The truck is destroyed. What may that call, separate from fuel?",
+          "choices": [
+            "A medal, if the design named that result",
+            "A vision clear of the whole map",
+            "A formation rewrite",
+            "A client interest force"
+          ],
+          "answer": 0,
+          "why": "Destruction can be a result. Fuel was the stock."
+        },
+        {
+          "id": "stgm-convoy-6",
+          "kind": "tf",
+          "prompt": "Each wheel transform should replicate.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Rebuild the wheels from throttle and fuel."
+        },
+        {
+          "id": "stgm-convoy-7",
+          "kind": "mc",
+          "prompt": "Which value tells the client where the truck was told to go?",
+          "choices": [
+            "The order id",
+            "A wheel bone",
+            "The vision bool",
+            "A points definition"
+          ],
+          "answer": 0,
+          "why": "The order is the intent."
+        },
+        {
+          "id": "stgm-convoy-8",
+          "kind": "mc",
+          "prompt": "Fuel hits zero and the axis is still pushed. What should stop the truck?",
+          "choices": [
+            "The fuel budget",
+            "Setting the on-foot gait to 200",
+            "Wiping the cells the team has revealed",
+            "Unequipping a formation"
+          ],
+          "answer": 0,
+          "why": "Fuel is the truck's stock."
+        },
+        {
+          "id": "stgm-convoy-9",
+          "kind": "mc",
+          "prompt": "A client writes fuel so the gauge drops early. What corrects?",
+          "choices": [
+            "The gauge, when the authority value arrives",
+            "The formation asset",
+            "The vision timer",
+            "The medal board"
+          ],
+          "answer": 0,
+          "why": "Fuel is a server number."
+        },
+        {
+          "id": "stgm-convoy-10",
+          "kind": "mc",
+          "prompt": "Which pair is the truck's replicated state, not its bones?",
+          "choices": [
+            "Fuel and the order id",
+            "Two wheel transforms",
+            "Visible and the spectator widget",
+            "A medal popup and a font"
+          ],
+          "answer": 0,
+          "why": "State replicates. Bones rebuild."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a strategy truck replicate fuel and the order id, but not each wheel transform?",
+        "whyGamePrompt": "What wastes the bandwidth, and what build budget dies, if every wheel bone is streamed or driving spends the build stock?"
+      }
+    }
+  }
+}

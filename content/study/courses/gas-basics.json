@@ -1,0 +1,737 @@
+{
+  "id": "gas-basics",
+  "modules": {
+    "asc": {
+      "plainEnglish": "The component owns activate, cost, and cooldown.",
+      "whyGame": "Cost and cooldown stay on the ability system.",
+      "expansions": [
+        {
+          "title": "The ability system as a door",
+          "detail": "If the ability system is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+        },
+        {
+          "title": "The ability system as data",
+          "detail": "Designer numbers for the ability system live on a row. a one second timer that broadcasts OnEffect, which is the fear or cost reaction reads the row instead of a literal."
+        },
+        {
+          "title": "The ability system as a listener",
+          "detail": "Later systems listen for ApplyEffect. They do not broadcasting OnEffect from Tick, or also subtracting the cost by hand."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "gas-asc-1",
+          "kind": "mc",
+          "prompt": "Who checks an ability's cost before it commits?",
+          "choices": [
+            "The ability system component on the character.",
+            "The character class, in its Tick.",
+            "The widget that draws the stamina bar.",
+            "Whoever pressed the button, before the ability system is asked."
+          ],
+          "answer": 0,
+          "why": "The component owns activate, cost, and cooldown.",
+          "review_prompt": "Who checks an ability's cost before it commits?"
+        },
+        {
+          "id": "gas-asc-2",
+          "kind": "mc",
+          "prompt": "A designer puts the cooldown test on the character Tick so it never misses a frame. What breaks?",
+          "choices": [
+            "The character is doing the ability system's job",
+            "No separate clock, if a cooldown could only live on the frame loop.",
+            "The ability system refuses to start if Tick is also checking.",
+            "OnRep of health starts the ability instead."
+          ],
+          "answer": 0,
+          "why": "Cost and cooldown stay on the ability system.",
+          "review_prompt": "A designer puts the cooldown test on the character Tick so it never misses a frame. What breaks?"
+        },
+        {
+          "id": "gas-asc-3",
+          "kind": "tf",
+          "prompt": "True or false: The ability system component owns activate, cost, and cooldown. The character does not.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "That is the whole lesson.",
+          "review_prompt": "True or false: The ability system component owns activate, cost, and cooldown. The character does not."
+        },
+        {
+          "id": "gas-asc-4",
+          "kind": "tf",
+          "prompt": "Cost and cooldown stay on the ability system, not copied into each character's Tick.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The component already owns that check.",
+          "review_prompt": "True or false: Each new character class should copy the cost check into its own Tick."
+        },
+        {
+          "id": "gas-asc-5",
+          "kind": "mc",
+          "prompt": "A rifle and a medic both spend stamina. Where does that shared check live?",
+          "choices": [
+            "On the ability system component both characters already have.",
+            "In each character's constructor, as a different float.",
+            "On the HUD, which subtracts stamina when it redraws.",
+            "In the player controller's input function, before any ability exists."
+          ],
+          "answer": 0,
+          "why": "One component, many characters.",
+          "review_prompt": "A rifle and a medic both spend stamina. Where does that shared check live?"
+        },
+        {
+          "id": "gas-asc-6",
+          "kind": "mc",
+          "prompt": "What is the character allowed to do when the player presses the ability button?",
+          "choices": [
+            "Ask the ability system to activate. It does not decide the cost.",
+            "Subtract the cost itself and then tell the system the ability already ran.",
+            "Start a Tick that polls the button for the rest of the match.",
+            "Write the cooldown onto a replicated mesh pointer."
+          ],
+          "answer": 0,
+          "why": "The character asks. The system decides.",
+          "review_prompt": "What is the character allowed to do when the player presses the ability button?"
+        },
+        {
+          "id": "gas-asc-7",
+          "kind": "tf",
+          "prompt": "True or false: Two characters can share one ability system component type and still have different abilities granted to them.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The component is the owner. The grants differ.",
+          "review_prompt": "True or false: Two characters can share one ability system component type and still have different abilities granted to them."
+        },
+        {
+          "id": "gas-asc-8",
+          "kind": "mc",
+          "prompt": "A cooldown is checked in the character and again in the ability system. What does the player see?",
+          "choices": [
+            "The ability can be blocked twice, or the two checks can disagree.",
+            "A faster cooldown, because two checks finish sooner.",
+            "The widget hides, because cooldowns are visual only.",
+            "The server ignores both and activates anyway."
+          ],
+          "answer": 0,
+          "why": "One owner, one check.",
+          "review_prompt": "A cooldown is checked in the character and again in the ability system. What does the player see?"
+        },
+        {
+          "id": "gas-asc-9",
+          "kind": "tf",
+          "prompt": "True or false: The HUD should subtract stamina when it draws the bar, so the ability system can stay empty.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The bar reads the value. It does not spend it.",
+          "review_prompt": "True or false: The HUD should subtract stamina when it draws the bar, so the ability system can stay empty."
+        },
+        {
+          "id": "gas-asc-10",
+          "kind": "mc",
+          "prompt": "Where does a new ability get told it may start?",
+          "choices": [
+            "The ability system, after cost and tags pass.",
+            "Once at startup, for every ability the character might ever have.",
+            "The overlap of a nearby pickup.",
+            "OnRep of an unrelated health float."
+          ],
+          "answer": 0,
+          "why": "Activate is a system call.",
+          "review_prompt": "Where does a new ability get told it may start?"
+        },
+        {
+          "id": "gas-asc-11",
+          "kind": "tf",
+          "prompt": "True or false: Deleting the ability system and inlining its checks into every character is how you keep costs consistent.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Inlining is how the checks drift apart.",
+          "review_prompt": "True or false: Deleting the ability system and inlining its checks into every character is how you keep costs consistent."
+        },
+        {
+          "id": "gas-asc-12",
+          "kind": "mc",
+          "prompt": "A client predicts the ability started. Who still has to accept the cost?",
+          "choices": [
+            "The authority's ability system. The client's guess is not the commit.",
+            "The client alone, because prediction already played the animation.",
+            "The health bar, on its next paint.",
+            "No one. Costs are cosmetic."
+          ],
+          "answer": 0,
+          "why": "Prediction can show. The system still commits.",
+          "review_prompt": "A client predicts the ability started. Who still has to accept the cost?"
+        }
+      ],
+      "graph": "gas-effect",
+      "assignment": {
+        "plainPrompt": "Why does the ability system component own activate, cost, and cooldown?",
+        "whyGamePrompt": "What splits if cost and cooldown live on a second component the ability never asks?"
+      }
+    },
+    "attributes": {
+      "plainEnglish": "One number, on the attribute set.",
+      "whyGame": "Do not keep a second health float.",
+      "expansions": [
+        {
+          "title": "Attributes as a door",
+          "detail": "If attributes is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+        },
+        {
+          "title": "Attributes as data",
+          "detail": "Designer numbers for attributes live on a row. a one second timer that broadcasts OnEffect, which is the fear or cost reaction reads the row instead of a literal."
+        },
+        {
+          "title": "Attributes as a listener",
+          "detail": "Later systems listen for ApplyEffect. They do not broadcasting OnEffect from Tick, or also subtracting the cost by hand."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "gas-attr-1",
+          "kind": "mc",
+          "prompt": "Where does GAS health live?",
+          "choices": [
+            "On an attribute set the ability system can change.",
+            "In a second float on the character, next to the attribute.",
+            "Only inside the health bar's text.",
+            "In the mesh component, replicated as a transform."
+          ],
+          "answer": 0,
+          "why": "One number, on the attribute set.",
+          "review_prompt": "Where does GAS health live?"
+        },
+        {
+          "id": "gas-attr-2",
+          "kind": "mc",
+          "prompt": "A programmer keeps Character.Health and an attribute named Health. A heal updates only the attribute. What does the HUD show if it reads the character float?",
+          "choices": [
+            "The old value. The two numbers have diverged.",
+            "The attribute, because Unreal copies it across automatically.",
+            "A literal zero, if a second float were illegal.",
+            "The mesh bounds, because health is a transform."
+          ],
+          "answer": 0,
+          "why": "Do not keep a second health float.",
+          "review_prompt": "A programmer keeps Character.Health and an attribute named Health. A heal updates only the attribute. What does the HUD show if it reads the character float?"
+        },
+        {
+          "id": "gas-attr-3",
+          "kind": "tf",
+          "prompt": "True or false: Health as an attribute is one number the ability system can change. Do not keep a second health float.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "That is the lesson.",
+          "review_prompt": "True or false: Health as an attribute is one number the ability system can change. Do not keep a second health float."
+        },
+        {
+          "id": "gas-attr-4",
+          "kind": "tf",
+          "prompt": "True or false: A second health float is useful so the HUD can disagree with the ability system on purpose.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Disagreement is the bug.",
+          "review_prompt": "True or false: A second health float is useful so the HUD can disagree with the ability system on purpose."
+        },
+        {
+          "id": "gas-attr-5",
+          "kind": "mc",
+          "prompt": "A damage effect should change which number?",
+          "choices": [
+            "The health attribute, through the ability system.",
+            "A local float the character subtracts in Tick.",
+            "The widget's cached text.",
+            "The actor's location Z, as a clever encoding."
+          ],
+          "answer": 0,
+          "why": "Effects write attributes.",
+          "review_prompt": "A damage effect should change which number?"
+        },
+        {
+          "id": "gas-attr-6",
+          "kind": "mc",
+          "prompt": "Who is allowed to be the source of truth for that attribute in a multiplayer game?",
+          "choices": [
+            "The authority's ability system. Clients receive the result.",
+            "Each machine, so the hit feels instant and the server guesses later.",
+            "The UI on the owning client only.",
+            "The projectile, which stores health for the victim."
+          ],
+          "answer": 0,
+          "why": "The system on the authority owns the attribute.",
+          "review_prompt": "Who is allowed to be the source of truth for that attribute in a multiplayer game?"
+        },
+        {
+          "id": "gas-attr-7",
+          "kind": "tf",
+          "prompt": "True or false: An attribute set can hold health, stamina, and ammo as separate attributes without a parallel set of raw floats.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The set is the list of numbers.",
+          "review_prompt": "True or false: An attribute set can hold health, stamina, and ammo as separate attributes without a parallel set of raw floats."
+        },
+        {
+          "id": "gas-attr-8",
+          "kind": "mc",
+          "prompt": "A save writes the raw character float and ignores the attribute. What loads?",
+          "choices": [
+            "A health the ability system is no longer using.",
+            "Both copies, if they were the same memory.",
+            "The mesh, because attributes serialize as transforms.",
+            "No attribute, if attributes could not be saved at all."
+          ],
+          "answer": 0,
+          "why": "Save the attribute value, not a shadow float.",
+          "review_prompt": "A save writes the raw character float and ignores the attribute. What loads?"
+        },
+        {
+          "id": "gas-attr-9",
+          "kind": "tf",
+          "prompt": "True or false: The widget should own a third copy of health so animations can read it faster.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The widget reads. It does not own.",
+          "review_prompt": "True or false: The widget should own a third copy of health so animations can read it faster."
+        },
+        {
+          "id": "gas-attr-10",
+          "kind": "mc",
+          "prompt": "A buff adds 20 health. Where is the addition expressed?",
+          "choices": [
+            "In a gameplay effect that modifies the health attribute.",
+            "In the character Tick, which adds 20 whenever the buff tag might be on.",
+            "In the HUD paint, which draws a higher number without changing the attribute.",
+            "In the damage type class constructor."
+          ],
+          "answer": 0,
+          "why": "Effects modify attributes.",
+          "review_prompt": "A buff adds 20 health. Where is the addition expressed?"
+        },
+        {
+          "id": "gas-attr-11",
+          "kind": "tf",
+          "prompt": "True or false: Keeping the old float 'just in case' is safe as long as you remember to update it in most paths.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The path you forget is the desync.",
+          "review_prompt": "True or false: Keeping the old float 'just in case' is safe as long as you remember to update it in most paths."
+        },
+        {
+          "id": "gas-attr-12",
+          "kind": "mc",
+          "prompt": "What does the player notice when only the attribute changes and the HUD still reads the old float?",
+          "choices": [
+            "The bar lies. The character can be dead while the bar looks full, or the reverse.",
+            "No binding, if the bar read the attribute by magic.",
+            "The ability system shuts down.",
+            "Input stops."
+          ],
+          "answer": 0,
+          "why": "One number, one reader.",
+          "review_prompt": "What does the player notice when only the attribute changes and the HUD still reads the old float?"
+        }
+      ],
+      "graph": "gas-effect",
+      "assignment": {
+        "plainPrompt": "Why does health live as one number on the attribute set?",
+        "whyGamePrompt": "What disagrees in a match if gameplay also keeps a second health float beside that attribute?"
+      }
+    },
+    "activate": {
+      "plainEnglish": "Activate by tag.",
+      "whyGame": "The tag is the handle. The system finds the ability.",
+      "expansions": [
+        {
+          "title": "Activate by tag as a door",
+          "detail": "If activate by tag is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+        },
+        {
+          "title": "Activate by tag as data",
+          "detail": "Designer numbers for activate by tag live on a row. a one second timer that broadcasts OnEffect, which is the fear or cost reaction reads the row instead of a literal."
+        },
+        {
+          "title": "Activate by tag as a listener",
+          "detail": "Later systems listen for ApplyEffect. They do not broadcasting OnEffect from Tick, or also subtracting the cost by hand."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "gas-act-1",
+          "kind": "mc",
+          "prompt": "How does this course start an ability?",
+          "choices": [
+            "By gameplay tag, so a new ability does not need a new cast.",
+            "By casting to each ability Blueprint from the character.",
+            "By trying every ability on each frame.",
+            "By OnRep of health, which is assumed to mean 'pressed the button'."
+          ],
+          "answer": 0,
+          "why": "Activate by tag.",
+          "review_prompt": "How does this course start an ability?"
+        },
+        {
+          "id": "gas-act-2",
+          "kind": "mc",
+          "prompt": "A new dash ability is added. What code change does a tag activation avoid?",
+          "choices": [
+            "A new cast, or a new branch, inside the character.",
+            "No lookup, if you still cast to every ability class.",
+            "A new Tick function per ability.",
+            "A new replicated mesh for the dash."
+          ],
+          "answer": 0,
+          "why": "The tag is the handle. The system finds the ability.",
+          "review_prompt": "A new dash ability is added. What code change does a tag activation avoid?"
+        },
+        {
+          "id": "gas-act-3",
+          "kind": "tf",
+          "prompt": "True or false: Activate by gameplay tag so a new ability does not need a new cast.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "That is the lesson.",
+          "review_prompt": "True or false: Activate by gameplay tag so a new ability does not need a new cast."
+        },
+        {
+          "id": "gas-act-4",
+          "kind": "tf",
+          "prompt": "True or false: Each ability should be started with its own Cast node on the character so the graph shows every class.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "That cast list is what the tag avoids.",
+          "review_prompt": "True or false: Each ability should be started with its own Cast node on the character so the graph shows every class."
+        },
+        {
+          "id": "gas-act-5",
+          "kind": "mc",
+          "prompt": "The button for reload is pressed. What does input call?",
+          "choices": [
+            "Activate by the reload tag. The ability system finds the granted ability.",
+            "A cast to the reload Blueprint, written into the input function.",
+            "Set Magazine directly, skipping the ability so cost cannot block it.",
+            "The health notify, if reload were a replication event."
+          ],
+          "answer": 0,
+          "why": "Input asks. The system activates.",
+          "review_prompt": "The button for reload is pressed. What does input call?"
+        },
+        {
+          "id": "gas-act-6",
+          "kind": "mc",
+          "prompt": "A stun tag is on. What can block the reload ability without a special case in the character?",
+          "choices": [
+            "The ability system, because the tag activation can fail its tag check.",
+            "No failure, if a tag could not fail to activate.",
+            "The button art, by refusing to draw.",
+            "Deleting the ability on each frame."
+          ],
+          "answer": 0,
+          "why": "Tags are how the system says no.",
+          "review_prompt": "A stun tag is on. What can block the reload ability without a special case in the character?"
+        },
+        {
+          "id": "gas-act-7",
+          "kind": "tf",
+          "prompt": "True or false: Two weapons can grant different abilities under the same input tag, and the character function does not change.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The grant changes. The activate call does not.",
+          "review_prompt": "True or false: Two weapons can grant different abilities under the same input tag, and the character function does not change."
+        },
+        {
+          "id": "gas-act-8",
+          "kind": "mc",
+          "prompt": "Someone activates by class with a hard cast 'so it is explicit'. What grows when the tenth ability arrives?",
+          "choices": [
+            "The cast list, and every character that copied it.",
+            "No cost, if a cast named no class.",
+            "The attribute set, which must add a float per cast.",
+            "The fog system, which traces for each cast."
+          ],
+          "answer": 0,
+          "why": "Tags stay one call.",
+          "review_prompt": "Someone activates by class with a hard cast 'so it is explicit'. What grows when the tenth ability arrives?"
+        },
+        {
+          "id": "gas-act-9",
+          "kind": "tf",
+          "prompt": "True or false: Begin Play should activate every ability once so they are 'warmed up'.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Activate means start. Begin Play would fire them all at spawn.",
+          "review_prompt": "True or false: Begin Play should activate every ability once so they are 'warmed up'."
+        },
+        {
+          "id": "gas-act-10",
+          "kind": "mc",
+          "prompt": "Where does the cost get a chance to refuse the tag activation?",
+          "choices": [
+            "Inside the ability system, before the ability commits.",
+            "After the montage has finished, when it is too late to refuse.",
+            "On the client only, with the server forced to accept.",
+            "In the damage number popup."
+          ],
+          "answer": 0,
+          "why": "Cost runs as part of activation.",
+          "review_prompt": "Where does the cost get a chance to refuse the tag activation?"
+        },
+        {
+          "id": "gas-act-11",
+          "kind": "tf",
+          "prompt": "True or false: A gameplay tag is just a comment. The real start is still a chain of casts.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The tag is the lookup.",
+          "review_prompt": "True or false: A gameplay tag is just a comment. The real start is still a chain of casts."
+        },
+        {
+          "id": "gas-act-12",
+          "kind": "mc",
+          "prompt": "What does the player see if the tag is misspelled and nothing is granted under it?",
+          "choices": [
+            "The button does nothing. No cast error lists the missing class, because there is no cast.",
+            "Every ability fires, because a bad tag means all tags.",
+            "Health drops to zero.",
+            "The character Tick takes over and runs the ability by name."
+          ],
+          "answer": 0,
+          "why": "A missing grant is a quiet no.",
+          "review_prompt": "What does the player see if the tag is misspelled and nothing is granted under it?"
+        }
+      ],
+      "graph": "gas-effect",
+      "assignment": {
+        "plainPrompt": "Why do you activate an ability by tag instead of naming the class at the call site?",
+        "whyGamePrompt": "What cannot be found if the tag is not the handle the ability system searches?"
+      }
+    },
+    "effects": {
+      "plainEnglish": "The effect is the cost and the cooldown.",
+      "whyGame": "One cost, in the effect.",
+      "expansions": [
+        {
+          "title": "Effects as a door",
+          "detail": "If effects is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+        },
+        {
+          "title": "Effects as data",
+          "detail": "Designer numbers for effects live on a row. a one second timer that broadcasts OnEffect, which is the fear or cost reaction reads the row instead of a literal."
+        },
+        {
+          "title": "Effects as a listener",
+          "detail": "Later systems listen for ApplyEffect. They do not broadcasting OnEffect from Tick, or also subtracting the cost by hand."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "gas-fx-1",
+          "kind": "mc",
+          "prompt": "What applies the cooldown and the cost?",
+          "choices": [
+            "A gameplay effect. Do not also subtract the cost by hand.",
+            "The character Tick, subtracting a float and setting a timer of its own.",
+            "The fade, when the bar finishes animating.",
+            "The notify, which would play the flash and spend the cost again."
+          ],
+          "answer": 0,
+          "why": "The effect is the cost and the cooldown.",
+          "review_prompt": "What applies the cooldown and the cost?"
+        },
+        {
+          "id": "gas-fx-2",
+          "kind": "mc",
+          "prompt": "A programmer subtracts stamina in the ability and also applies a cost effect. What does the player feel?",
+          "choices": [
+            "Stamina drops twice for one activation.",
+            "A shorter cooldown, because two costs finish faster.",
+            "No change. The effect deletes the hand subtract.",
+            "The ability cannot start, because effects block all activation."
+          ],
+          "answer": 0,
+          "why": "One cost, in the effect.",
+          "review_prompt": "A programmer subtracts stamina in the ability and also applies a cost effect. What does the player feel?"
+        },
+        {
+          "id": "gas-fx-3",
+          "kind": "tf",
+          "prompt": "True or false: A gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "That is the lesson.",
+          "review_prompt": "True or false: A gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well."
+        },
+        {
+          "id": "gas-fx-4",
+          "kind": "tf",
+          "prompt": "True or false: Hand-subtracting the cost is required because effects only change visuals.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Effects change attributes.",
+          "review_prompt": "True or false: Hand-subtracting the cost is required because effects only change visuals."
+        },
+        {
+          "id": "gas-fx-5",
+          "kind": "mc",
+          "prompt": "A damage-over-time should tick how?",
+          "choices": [
+            "As an effect the ability system applies, on its own period.",
+            "As a character Tick that subtracts health whenever a bool might be set.",
+            "As an OnRep that subtracts every time the value replicates.",
+            "As a line trace from the camera."
+          ],
+          "answer": 0,
+          "why": "Duration and period belong to the effect.",
+          "review_prompt": "A damage-over-time should tick how?"
+        },
+        {
+          "id": "gas-fx-6",
+          "kind": "mc",
+          "prompt": "Who removes the effect when the stun ends?",
+          "choices": [
+            "The ability system, when the effect expires or is removed.",
+            "The animator, by stopping the montage.",
+            "The owning machine, by writing the attribute back to full.",
+            "The overlap of the floor."
+          ],
+          "answer": 0,
+          "why": "The system owns the effect lifetime.",
+          "review_prompt": "Who removes the effect when the stun ends?"
+        },
+        {
+          "id": "gas-fx-7",
+          "kind": "tf",
+          "prompt": "True or false: A cooldown effect can block a second activation without a parallel float named CooldownRemaining on the character.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The effect is the cooldown.",
+          "review_prompt": "True or false: A cooldown effect can block a second activation without a parallel float named CooldownRemaining on the character."
+        },
+        {
+          "id": "gas-fx-8",
+          "kind": "mc",
+          "prompt": "The HUD wants the remaining cooldown. What should it read?",
+          "choices": [
+            "The effect or the attribute the system already exposes. It should not keep its own timer as the source of truth.",
+            "A timer it starts itself when it sees the button, ignoring the server. The widget would then own cooldown.",
+            "Tick's frame count.",
+            "The mesh material parameter, as the only stored duration."
+          ],
+          "answer": 0,
+          "why": "Read the system. Do not invent a second clock.",
+          "review_prompt": "The HUD wants the remaining cooldown. What should it read?"
+        },
+        {
+          "id": "gas-fx-9",
+          "kind": "tf",
+          "prompt": "True or false: Applying the effect and also calling the old health subtract keeps both generations of the code correct.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Both will run.",
+          "review_prompt": "True or false: Applying the effect and also calling the old health subtract keeps both generations of the code correct."
+        },
+        {
+          "id": "gas-fx-10",
+          "kind": "mc",
+          "prompt": "A heal effect and a damage effect touch the same health attribute. What prevents a second secret float from ignoring one of them?",
+          "choices": [
+            "There is no second float. Both effects modify the one attribute.",
+            "The character Tick rewrites health from the float after every effect.",
+            "The widget averages the float and the attribute.",
+            "OnRep copies the float back over the attribute."
+          ],
+          "answer": 0,
+          "why": "One attribute, many effects.",
+          "review_prompt": "A heal effect and a damage effect touch the same health attribute. What prevents a second secret float from ignoring one of them?"
+        },
+        {
+          "id": "gas-fx-11",
+          "kind": "tf",
+          "prompt": "True or false: Effects are client-only cosmetics, so the authority should keep a hand-written subtract as the real cost.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The effect is the real cost.",
+          "review_prompt": "True or false: Effects are client-only cosmetics, so the authority should keep a hand-written subtract as the real cost."
+        },
+        {
+          "id": "gas-fx-12",
+          "kind": "mc",
+          "prompt": "What does the player notice if the cost effect is missing and only the montage plays?",
+          "choices": [
+            "The ability looks like it ran",
+            "The montage refuses to play.",
+            "Health replicates as the montage length.",
+            "Input unbinds."
+          ],
+          "answer": 0,
+          "why": "No effect, no cost.",
+          "review_prompt": "What does the player notice if the cost effect is missing and only the montage plays?"
+        }
+      ],
+      "graph": "gas-effect",
+      "assignment": {
+        "plainPrompt": "Why do the cost and the cooldown live in the gameplay effect?",
+        "whyGamePrompt": "What gets paid twice if the ability and the effect each subtract the cost?"
+      }
+    }
+  }
+}

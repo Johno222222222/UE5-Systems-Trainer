@@ -1,0 +1,1347 @@
+{
+  "id": "horror-beginner",
+  "sections": {
+    "perception": {
+      "plainEnglish": "Five times a second the hunter looks. A wall stops the look. A loud bottle uses that same look instead of growing a second brain.",
+      "whyGame": "Tracing every frame makes every idle hunter expensive, and a second audio brain will not share the Alert flag the stalk already reads.",
+      "expansions": [
+        {
+          "title": "A bottle",
+          "detail": "The bottle calls Sense. It does not own a private alert float."
+        },
+        {
+          "title": "Darkness",
+          "detail": "A failed trace leaves Alert alone. Darkness is a miss, not a special case in Tick."
+        },
+        {
+          "title": "Glimpse",
+          "detail": "A short clear trace sets Alert to 1. The stalk lesson decides what to do with that."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "horb-sense-1",
+          "kind": "mc",
+          "prompt": "How often does the hunter run Sense in this lesson?",
+          "choices": [
+            "About five times a second, from a timer armed at spawn",
+            "Every rendered frame",
+            "Only when the player presses use",
+            "Only at the moment the level finishes loading"
+          ],
+          "answer": 0,
+          "why": "0.2 seconds is five times a second."
+        },
+        {
+          "id": "horb-sense-2",
+          "kind": "mc",
+          "prompt": "Graph_Sense_tpl_perception_sense traces and may set Alert. What does a blocked trace do?",
+          "choices": [
+            "Leaves Alert unchanged",
+            "Sets Alert to 1 anyway",
+            "Opens the nearest door",
+            "Subtracts the player's health"
+          ],
+          "answer": 0,
+          "why": "A wall is a miss."
+        },
+        {
+          "id": "horb-sense-3",
+          "kind": "mc",
+          "prompt": "A bottle smashes. Which event should raise Alert?",
+          "choices": [
+            "The same Sense event the eyes use",
+            "A brand new brain with its own float",
+            "The player's use key",
+            "The door timeline"
+          ],
+          "answer": 0,
+          "why": "Sound and sight share Sense."
+        },
+        {
+          "id": "horb-sense-4",
+          "kind": "mc",
+          "prompt": "Moving Sense onto Tick keeps the hunter perfectly current. What cost shows up first?",
+          "choices": [
+            "A physics query every frame from every idle hunter",
+            "The use key stops working",
+            "Doors refuse to swing",
+            "Saves cannot store Alert"
+          ],
+          "answer": 0,
+          "why": "The timer already asks often enough."
+        },
+        {
+          "id": "horb-sense-5",
+          "kind": "mc",
+          "prompt": "Alert becomes 1 only on a clear hit. Which node sits between the trace and that write?",
+          "choices": [
+            "A branch on the hit bool",
+            "A flip of the patrol direction",
+            "The player's Interact call",
+            "A clamp of health"
+          ],
+          "answer": 0,
+          "why": "The true pin is the clear look."
+        },
+        {
+          "id": "horb-sense-6",
+          "kind": "mc",
+          "prompt": "Begin Play in this graph does not look. What does it do?",
+          "choices": [
+            "Arms the Sense timer",
+            "Sets Alert to 1 immediately",
+            "Opens every door",
+            "Loads the save by itself"
+          ],
+          "answer": 0,
+          "why": "The timer is the schedule."
+        },
+        {
+          "id": "horb-sense-7",
+          "kind": "tf",
+          "prompt": "True or false: a loud sound should call Sense instead of owning a second alert.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "One brain."
+        },
+        {
+          "id": "horb-sense-8",
+          "kind": "tf",
+          "prompt": "A wall blocks the hunter's look, so a blocked trace should not set Alert.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "A blocked trace is not a sighting."
+        },
+        {
+          "id": "horb-sense-9",
+          "kind": "mc",
+          "prompt": "The player crouches behind a crate that blocks the trace. What is Alert allowed to do?",
+          "choices": [
+            "Stay at its old value",
+            "Jump to 1 because the player is nearby",
+            "Open the crate",
+            "Zero the player's health"
+          ],
+          "answer": 0,
+          "why": "No clear hit, no new sighting."
+        },
+        {
+          "id": "horb-sense-10",
+          "kind": "tf",
+          "prompt": "Sense is started by its own timer, not by the player's use key.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Use is the player's graph. Sense is the hunter's."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the hunter look five times a second, and why does a bottle reuse that same look?",
+        "whyGamePrompt": "What gets expensive, and which flag splits, if every idle hunter traces every frame?"
+      }
+    },
+    "interaction": {
+      "plainEnglish": "The player presses use and calls Interact on whatever the look hit. The hunter's Sense trace is not this graph and must not be pasted into it.",
+      "whyGame": "If use also sets Alert, opening a fuse box aggros the hunter. If Sense is rewritten to call Interact, the hunter opens doors by looking at them.",
+      "expansions": [
+        {
+          "title": "Fuse box",
+          "detail": "Interact on the box inserts a fuse. Sense never hears that call."
+        },
+        {
+          "title": "Hide lever",
+          "detail": "A locker can answer Interact by starting a hide. The trace is still the player's."
+        },
+        {
+          "title": "Note",
+          "detail": "A note answers Interact with text. It does not raise Alert."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "horb-use-1",
+          "kind": "mc",
+          "prompt": "Whose trace calls Interact in the dark?",
+          "choices": [
+            "The player's, from the use key",
+            "The hunter's Sense timer",
+            "The door's overlap",
+            "The save load"
+          ],
+          "answer": 0,
+          "why": "Use is the player's press."
+        },
+        {
+          "id": "horb-use-2",
+          "kind": "mc",
+          "prompt": "Graph_IA_Interact runs on a hit and calls ProcessEvent Interact. What must that line not assign?",
+          "choices": [
+            "Alert, which belongs to Sense",
+            "The call itself is all that line should do",
+            "The hit actor's own response",
+            "A miss log when the bool is false"
+          ],
+          "answer": 0,
+          "why": "A broken sample assigns Alert inside the use function."
+        },
+        {
+          "id": "horb-use-3",
+          "kind": "mc",
+          "prompt": "The true pin is taken. What runs?",
+          "choices": [
+            "Interact on the actor that was hit",
+            "The hunter look should run because the player looked",
+            "The patrol step",
+            "A health clamp"
+          ],
+          "answer": 0,
+          "why": "True means a usable actor."
+        },
+        {
+          "id": "horb-use-4",
+          "kind": "mc",
+          "prompt": "Pasting the Sense trace into the use graph makes the hunter open doors. Why?",
+          "choices": [
+            "Sense would call Interact on whatever it sees",
+            "Doors only open from Tick",
+            "Alert cannot exist without a door",
+            "Saves require Sense to call Interact"
+          ],
+          "answer": 0,
+          "why": "The two traces ask different questions."
+        },
+        {
+          "id": "horb-use-5",
+          "kind": "mc",
+          "prompt": "A fuse box and a hide locker both sit in the hall. How many use traces do you add?",
+          "choices": [
+            "None, if both implement Interact",
+            "One per Blueprint",
+            "One that only hits fuses and one that only hits lockers",
+            "A Tick search"
+          ],
+          "answer": 0,
+          "why": "The interface already covers both."
+        },
+        {
+          "id": "horb-use-6",
+          "kind": "mc",
+          "prompt": "The false pin logs a miss. A designer sets Alert there so darkness still scares the hunter. What went wrong?",
+          "choices": [
+            "Missing a use is not a sighting",
+            "A missed grab should still spook the hunter",
+            "The door will not compile",
+            "Health clamps to zero"
+          ],
+          "answer": 0,
+          "why": "Alert is Sense's write."
+        },
+        {
+          "id": "horb-use-7",
+          "kind": "tf",
+          "prompt": "True or false: the player's use graph and the hunter's Sense graph are different events.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Press versus timer."
+        },
+        {
+          "id": "horb-use-8",
+          "kind": "tf",
+          "prompt": "Graph_IA_Interact calls the hit actor's use function and does not set Alert.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "That line belongs in Sense."
+        },
+        {
+          "id": "horb-use-9",
+          "kind": "mc",
+          "prompt": "You rebind use to a shoulder button. What edits?",
+          "choices": [
+            "The mapping context, not the trace",
+            "ProcessEvent's function name",
+            "The Sense interval",
+            "The door yaw"
+          ],
+          "answer": 0,
+          "why": "The graph does not know the button."
+        },
+        {
+          "id": "horb-use-10",
+          "kind": "tf",
+          "prompt": "A missed use leaves Alert alone.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "A miss is not a sighting."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why must the use press call Interact without pasting the hunter's Sense trace into it?",
+        "whyGamePrompt": "What aggros the hunter if opening a fuse box also sets Alert?"
+      }
+    },
+    "stalk": {
+      "plainEnglish": "The hunter walks a route on a one-second timer. Alert from Sense is what pulls them off that route. The route itself is not stepped every frame.",
+      "whyGame": "Stepping the route from Tick makes the hunter skate. Ignoring Alert means a clear sighting never becomes a chase.",
+      "expansions": [
+        {
+          "title": "Search",
+          "detail": "After Alert falls, a search can walk back toward the last point. It is another timer, not Tick."
+        },
+        {
+          "title": "Leash",
+          "detail": "Too far from the route, the hunter drops the chase and resumes AdvancePatrol."
+        },
+        {
+          "title": "Footsteps",
+          "detail": "Footstep loudness can call Sense. The patrol function does not hear."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "horb-stalk-1",
+          "kind": "mc",
+          "prompt": "What walks the hunter along the route?",
+          "choices": [
+            "AdvancePatrol on a one-second timer",
+            "A frame-by-frame skate along the points",
+            "The player's use key",
+            "The door creak by itself"
+          ],
+          "answer": 0,
+          "why": "Begin Play arms that timer."
+        },
+        {
+          "id": "horb-stalk-2",
+          "kind": "mc",
+          "prompt": "GoingRight flips at the end of the route. What does that line change?",
+          "choices": [
+            "Which way the next patrol step walks",
+            "The player's health",
+            "Whether a door is open",
+            "Forcing a chase just by turning around"
+          ],
+          "answer": 0,
+          "why": "The flag is the route direction."
+        },
+        {
+          "id": "horb-stalk-3",
+          "kind": "mc",
+          "prompt": "Alert becomes 1. What should the route timer allow next?",
+          "choices": [
+            "Leaving the route to chase",
+            "A sighting should be ignored as decoration",
+            "Opening every door",
+            "Saving the game"
+          ],
+          "answer": 0,
+          "why": "Sense decides the sighting. The stalk decides to leave."
+        },
+        {
+          "id": "horb-stalk-4",
+          "kind": "mc",
+          "prompt": "Tick steps the hunter so the chase feels smooth. What does the route look like?",
+          "choices": [
+            "A slide, because the step no longer waits a second",
+            "The same timed walk",
+            "A save load",
+            "A closed door"
+          ],
+          "answer": 0,
+          "why": "The timer is the pace."
+        },
+        {
+          "id": "horb-stalk-5",
+          "kind": "mc",
+          "prompt": "Begin Play in the patrol graph should not set Alert. What should it schedule?",
+          "choices": [
+            "The route function on its timer",
+            "The player's use call",
+            "The health clamp",
+            "A door yaw"
+          ],
+          "answer": 0,
+          "why": "The route starts at spawn. The sighting does not."
+        },
+        {
+          "id": "horb-stalk-6",
+          "kind": "mc",
+          "prompt": "A clear Sense expires and Alert falls. Where does the hunter go?",
+          "choices": [
+            "Back to the route the timer already owns",
+            "They stay in chase forever",
+            "They open the nearest door",
+            "They write the save every frame"
+          ],
+          "answer": 0,
+          "why": "The route is the home behavior."
+        },
+        {
+          "id": "horb-stalk-7",
+          "kind": "tf",
+          "prompt": "True or false: AdvancePatrol is a timer, and Alert is what starts a chase.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Route and sighting are separate."
+        },
+        {
+          "id": "horb-stalk-8",
+          "kind": "tf",
+          "prompt": "True or false: the patrol function should also set Alert when it flips direction.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Turning around is not a sighting."
+        },
+        {
+          "id": "horb-stalk-9",
+          "kind": "mc",
+          "prompt": "The hunter is far from the route during a chase. What ends the chase without using Tick?",
+          "choices": [
+            "A leash check on the chase event that resumes the patrol timer",
+            "Setting Alert from the door",
+            "Clamping health",
+            "Calling Interact on the player"
+          ],
+          "answer": 0,
+          "why": "The route is still the home."
+        },
+        {
+          "id": "horb-stalk-10",
+          "kind": "tf",
+          "prompt": "True or false: Tick is required to move the hunter between patrol points.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The one-second timer is the step."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the hunter walk the route on a one-second timer until Sense sets Alert?",
+        "whyGamePrompt": "What does the hunter do if the route steps from Tick, or if a clear sighting never becomes a chase?"
+      }
+    },
+    "door": {
+      "plainEnglish": "Someone enters the volume, a timeline swings the door, and FlipFlop stores whether it is open. The creak is the sound of that swing.",
+      "whyGame": "Yawing the door a degree per Tick never finishes a swing and never lines up with the creak that should alert the hunter.",
+      "expansions": [
+        {
+          "title": "Creak",
+          "detail": "The creak can call Sense. The door does not set Alert itself."
+        },
+        {
+          "title": "Locked",
+          "detail": "A locked door can ignore the overlap until Interact unlocks it."
+        },
+        {
+          "title": "Slam",
+          "detail": "A second timeline can slam shut. It is still not a per-frame yaw."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "horb-door-1",
+          "kind": "mc",
+          "prompt": "What starts the door swing?",
+          "choices": [
+            "Overlap, which then plays the timeline",
+            "Tick adding yaw",
+            "The hunter's Sense",
+            "The player's health hitting zero"
+          ],
+          "answer": 0,
+          "why": "Someone entered the volume."
+        },
+        {
+          "id": "horb-door-2",
+          "kind": "mc",
+          "prompt": "PlayFromStart runs on the timeline component. What does the player hear if that call is skipped?",
+          "choices": [
+            "No swing and no creak lined up with it",
+            "A correct creak with no motion",
+            "Sense setting Alert without a sound",
+            "A save of IsOpen"
+          ],
+          "answer": 0,
+          "why": "The timeline is the motion and the cue."
+        },
+        {
+          "id": "horb-door-3",
+          "kind": "mc",
+          "prompt": "FlipFlop writes IsOpen after the timeline starts. What does the next overlap do?",
+          "choices": [
+            "Plays the curve the other way",
+            "Deletes the door",
+            "Sets Alert to 1 by itself",
+            "Clamps health"
+          ],
+          "answer": 0,
+          "why": "FlipFlop alternates open and closed."
+        },
+        {
+          "id": "horb-door-4",
+          "kind": "mc",
+          "prompt": "Yaw increases by one degree every frame. Why does the creak never match?",
+          "choices": [
+            "There is no swing curve for the sound to follow",
+            "Creaks require Tick",
+            "IsOpen cannot be a bool",
+            "Sense cannot hear timeline audio"
+          ],
+          "answer": 0,
+          "why": "The timeline is the swing."
+        },
+        {
+          "id": "horb-door-5",
+          "kind": "mc",
+          "prompt": "The creak should alert the hunter. Who sets Alert?",
+          "choices": [
+            "Sense, which the creak calls",
+            "The door overlap directly",
+            "The use key",
+            "The save struct"
+          ],
+          "answer": 0,
+          "why": "Sound shares Sense. The door does not own Alert."
+        },
+        {
+          "id": "horb-door-6",
+          "kind": "mc",
+          "prompt": "A locked door uses Interact to unlock, then the volume swings it. How many yaw Ticks does that need?",
+          "choices": [
+            "None",
+            "One per degree of the swing",
+            "One per Sense tick",
+            "One per save"
+          ],
+          "answer": 0,
+          "why": "The timeline replaces the yaw loop."
+        },
+        {
+          "id": "horb-door-7",
+          "kind": "tf",
+          "prompt": "True or false: overlap should play the door timeline instead of adding yaw on Tick.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "That is the graph."
+        },
+        {
+          "id": "horb-door-8",
+          "kind": "tf",
+          "prompt": "True or false: FlipFlop should set Alert as well as IsOpen.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Alert is Sense's job."
+        },
+        {
+          "id": "horb-door-9",
+          "kind": "mc",
+          "prompt": "IsOpen is saved. On continue, what should Begin Play restore?",
+          "choices": [
+            "The bool, and then the timeline can show that pose",
+            "A full Tick yaw until the angle matches",
+            "Alert forced to 1",
+            "The player's use binding"
+          ],
+          "answer": 0,
+          "why": "The bool is the fact. The curve displays it."
+        },
+        {
+          "id": "horb-door-10",
+          "kind": "tf",
+          "prompt": "True or false: the creak is a reason to move the door onto Tick.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The creak follows the timeline."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a timeline swing the door while FlipFlop stores whether it is open?",
+        "whyGamePrompt": "What never finishes, and what never lines up with the creak, if the door yaws one degree per Tick?"
+      }
+    },
+    "health": {
+      "plainEnglish": "This lesson is local health. Damage subtracts, a clamp keeps the number between zero and the max, and a branch notices zero. It is not the replicated authority lesson.",
+      "whyGame": "Without the clamp, a big hit goes negative and the death check for exactly zero never fires. Putting this subtract on Tick drains the player in an empty hallway.",
+      "expansions": [
+        {
+          "title": "Bandage",
+          "detail": "A bandage can add health through the same clamp. It is not a Tick regen."
+        },
+        {
+          "title": "Death",
+          "detail": "The zero branch is the death. It should not also set Alert."
+        },
+        {
+          "title": "Later co-op",
+          "detail": "The replicated lesson replaces this local write. Do not run both subtracts."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "horb-hp-1",
+          "kind": "mc",
+          "prompt": "This horror health is local. What starts the subtract?",
+          "choices": [
+            "Any Damage",
+            "A point of damage every frame",
+            "The hunter's look timer",
+            "The door overlap"
+          ],
+          "answer": 0,
+          "why": "Damage is the event."
+        },
+        {
+          "id": "horb-hp-2",
+          "kind": "mc",
+          "prompt": "Health = Clamp(Health - Damage, 0, MaxHealth). What does the clamp save?",
+          "choices": [
+            "A death check that looks for exactly zero",
+            "The patrol direction",
+            "Whether the door is currently open",
+            "The use binding"
+          ],
+          "answer": 0,
+          "why": "Negative health skips the zero branch."
+        },
+        {
+          "id": "horb-hp-3",
+          "kind": "mc",
+          "prompt": "After the clamp, which comparison notices death?",
+          "choices": [
+            "Health equal to zero",
+            "Alert equal to 1",
+            "IsOpen equal to false",
+            "The stick greater than zero"
+          ],
+          "answer": 0,
+          "why": "The branch is the death test."
+        },
+        {
+          "id": "horb-hp-4",
+          "kind": "mc",
+          "prompt": "Damage is subtracted with no clamp. The player took 50 with 10 health. Why might death never run?",
+          "choices": [
+            "Health is -40, and the branch asked for zero",
+            "Clamp is illegal in horror",
+            "Sense cleared the branch",
+            "The door timeline paused health"
+          ],
+          "answer": 0,
+          "why": "The check is equality with zero."
+        },
+        {
+          "id": "horb-hp-5",
+          "kind": "mc",
+          "prompt": "Tick subtracts one health so the house feels dangerous. What happens in an empty room?",
+          "choices": [
+            "The player still dies",
+            "An empty room should stop the frame drain",
+            "Alert falls",
+            "The door locks"
+          ],
+          "answer": 0,
+          "why": "Tick does not wait for a hit."
+        },
+        {
+          "id": "horb-hp-6",
+          "kind": "mc",
+          "prompt": "This lesson is not the replicated one. What should you not add yet?",
+          "choices": [
+            "An authority gate and an OnRep that also subtracts",
+            "The clamp",
+            "The zero branch",
+            "The damage event"
+          ],
+          "answer": 0,
+          "why": "Local first. Replication is a different lesson."
+        },
+        {
+          "id": "horb-hp-7",
+          "kind": "tf",
+          "prompt": "True or false: local horror health should clamp after the subtract.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The clamp feeds the zero test."
+        },
+        {
+          "id": "horb-hp-8",
+          "kind": "tf",
+          "prompt": "True or false: this beginner health write belongs on the authority.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "This lesson is local. Authority comes later."
+        },
+        {
+          "id": "horb-hp-9",
+          "kind": "mc",
+          "prompt": "A bandage adds 25. Where does the clamp still matter?",
+          "choices": [
+            "It keeps the result from passing MaxHealth",
+            "It sets Alert",
+            "It flips IsOpen",
+            "It steps the patrol"
+          ],
+          "answer": 0,
+          "why": "The same clamp caps heals."
+        },
+        {
+          "id": "horb-hp-10",
+          "kind": "tf",
+          "prompt": "True or false: the death branch should also set the hunter's Alert.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Death is local health. Alert is Sense."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why is this health local: damage subtracts, a clamp holds the range, and a branch notices zero?",
+        "whyGamePrompt": "What death check never fires if a big hit is allowed to go negative?"
+      }
+    },
+    "save": {
+      "plainEnglish": "Begin Play restores Alert, Health, and whether the door is open, together. The house does not write that snapshot from Tick.",
+      "whyGame": "A Tick save stores a half-decayed Alert and a door mid-swing. Loading those three from different moments makes a continue that never happened.",
+      "expansions": [
+        {
+          "title": "Safe room",
+          "detail": "The safe room calls the same struct write."
+        },
+        {
+          "title": "Continue",
+          "detail": "Continue is Begin Play applying Alert, Health, and IsOpen."
+        },
+        {
+          "title": "New game",
+          "detail": "New game skips the load. It does not Tick the fields back to defaults."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "horb-save-1",
+          "kind": "mc",
+          "prompt": "Which three facts does this house save together?",
+          "choices": [
+            "Alert, Health, and IsOpen",
+            "The hunter's bone pose, the mouse, and the key code",
+            "Only the door yaw in degrees",
+            "Tick's last delta"
+          ],
+          "answer": 0,
+          "why": "Those are the lesson's facts."
+        },
+        {
+          "id": "horb-save-2",
+          "kind": "mc",
+          "prompt": "Graph_BeginPlay_tpl_saveload_begin restores the house. What should it not redo?",
+          "choices": [
+            "The chase that produced the saved Alert",
+            "Putting the door bool back",
+            "Putting the health number back",
+            "Reading the struct"
+          ],
+          "answer": 0,
+          "why": "Load applies results."
+        },
+        {
+          "id": "horb-save-3",
+          "kind": "mc",
+          "prompt": "The struct is written when the timeline finishes or the player hits a save point. Why not every frame?",
+          "choices": [
+            "Alert may be mid-decay and the door mid-swing",
+            "Frames cannot store bools",
+            "Begin Play cannot read structs",
+            "Sense forbids saves"
+          ],
+          "answer": 0,
+          "why": "A finished event is the snapshot."
+        },
+        {
+          "id": "horb-save-4",
+          "kind": "mc",
+          "prompt": "Tick stores Alert while Sense is still decaying. What continue do you get?",
+          "choices": [
+            "A suspicion level the player never actually left behind",
+            "A perfect checkpoint",
+            "A deleted door",
+            "Health stuck at max because Tick heals"
+          ],
+          "answer": 0,
+          "why": "The decay had not finished."
+        },
+        {
+          "id": "horb-save-5",
+          "kind": "mc",
+          "prompt": "IsOpen loads true. How should the door show that without yawing on Tick?",
+          "choices": [
+            "Pose the timeline to the open end",
+            "Add one degree per frame until it looks open",
+            "Set Alert to 1",
+            "Call the use key"
+          ],
+          "answer": 0,
+          "why": "The bool is the fact. The curve displays it."
+        },
+        {
+          "id": "horb-save-6",
+          "kind": "mc",
+          "prompt": "Why is the constructor too early for this load?",
+          "choices": [
+            "The door, the hunter",
+            "Constructors cannot assign floats",
+            "Begin Play runs before the constructor",
+            "Saves are illegal in horror"
+          ],
+          "answer": 0,
+          "why": "Apply the slot onto actors that are already there."
+        },
+        {
+          "id": "horb-save-7",
+          "kind": "tf",
+          "prompt": "True or false: Begin Play should restore Alert, Health, and IsOpen together.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "One snapshot."
+        },
+        {
+          "id": "horb-save-8",
+          "kind": "tf",
+          "prompt": "True or false: Tick should keep the horror slot current.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Tick catches unfinished values."
+        },
+        {
+          "id": "horb-save-9",
+          "kind": "mc",
+          "prompt": "A safe-room volume and the pause menu both save. What do they share?",
+          "choices": [
+            "One struct write",
+            "Two Tick functions",
+            "The Sense interval",
+            "The door yaw step"
+          ],
+          "answer": 0,
+          "why": "One shape."
+        },
+        {
+          "id": "horb-save-10",
+          "kind": "tf",
+          "prompt": "True or false: continue should replay the chase that set Alert.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "It applies Alert. It does not resimulate."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does Begin Play restore Alert, Health, and the door together?",
+        "whyGamePrompt": "What continuity breaks if those three values are saved from different moments?"
+      }
+    }
+  },
+  "repairWrongs": {
+    "horror-beginner-e2": [
+      "Tracing every frame is fresher than five looks a second",
+      "The use key should be what schedules Sense",
+      "A loud sound deserves a private alert float"
+    ],
+    "horror-beginner-e6": [
+      "Opening a door should mark the hunter as alerted",
+      "ProcessEvent is only legal inside Sense",
+      "The miss log should set Alert"
+    ],
+    "horror-beginner-e8": [
+      "A smooth chase requires a per-frame step",
+      "The use key should advance the route",
+      "Door yaw should move the hunter"
+    ],
+    "horror-beginner-e12": [
+      "Negative health is a fine way to store overkill",
+      "The zero check works on any negative number",
+      "Sense should clamp health"
+    ],
+    "horror-beginner-e15": [
+      "Per-frame yaw is easier to save than a bool",
+      "Sense should swing the door",
+      "The player's death should rotate the door"
+    ],
+    "horror-beginner-e17": [
+      "A decaying Alert is the right thing to checkpoint",
+      "The constructor can already see the door",
+      "Health should be stored only inside Sense"
+    ]
+  },
+  "exam": [
+    {
+      "id": "horb-exam-1",
+      "kind": "mc",
+      "prompt": "A bottle breaks and the hunter is behind a wall. What may become 1?",
+      "choices": [
+        "Nothing from sight, and only if that bottle calls Sense",
+        "Sound should ignore walls and alert anyway",
+        "The door's open flag",
+        "The player's health"
+      ],
+      "answer": 0,
+      "why": "Sound calls Sense. Sense still traces."
+    },
+    {
+      "id": "horb-exam-2",
+      "kind": "tf",
+      "prompt": "True or false: the use key should set Alert when it hits a fuse box.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Use calls Interact. Sense owns Alert."
+    },
+    {
+      "id": "horb-exam-3",
+      "kind": "mc",
+      "prompt": "Alert is 1 and the route timer fires. What is the hunter allowed to do?",
+      "choices": [
+        "Leave the route",
+        "Open the fuse box via Interact",
+        "Clamp the player's health",
+        "Write the save from this timer"
+      ],
+      "answer": 0,
+      "why": "The sighting pulls them off the walk."
+    },
+    {
+      "id": "horb-exam-4",
+      "kind": "mc",
+      "prompt": "The creak plays with no swing. Which call was skipped?",
+      "choices": [
+        "PlayFromStart on the door timeline",
+        "The route step between points",
+        "Keeping health from going negative",
+        "ProcessEvent Interact on the hunter"
+      ],
+      "answer": 0,
+      "why": "The timeline is the swing."
+    },
+    {
+      "id": "horb-exam-5",
+      "kind": "tf",
+      "prompt": "True or false: local horror health should go negative so overkill is visible.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "The zero check needs the clamp."
+    },
+    {
+      "id": "horb-exam-6",
+      "kind": "mc",
+      "prompt": "Continue shows an open door, a wounded player, and a calm hunter. Which write produced that?",
+      "choices": [
+        "One struct applied at Begin Play",
+        "Three Ticks that happened to agree",
+        "Sense running in the constructor",
+        "FlipFlop during the load"
+      ],
+      "answer": 0,
+      "why": "Alert, Health, and IsOpen traveled together."
+    },
+    {
+      "id": "horb-exam-7",
+      "kind": "mc",
+      "prompt": "Which function is the hunter's look?",
+      "choices": [
+        "Graph_Sense_tpl_perception_sense",
+        "The press that starts a use",
+        "The door volume function",
+        "The local damage function"
+      ],
+      "answer": 0,
+      "why": "Sense is the look."
+    },
+    {
+      "id": "horb-exam-8",
+      "kind": "tf",
+      "prompt": "True or false: FlipFlop on the door should also raise Alert.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "The creak calls Sense. The bool is IsOpen."
+    },
+    {
+      "id": "horb-exam-9",
+      "kind": "mc",
+      "prompt": "The hunter skates along the route. What schedule replaced the one-second timer?",
+      "choices": [
+        "Tick",
+        "The use key",
+        "A finished save",
+        "The zero-health branch"
+      ],
+      "answer": 0,
+      "why": "The timer was the pace."
+    },
+    {
+      "id": "horb-exam-10",
+      "kind": "mc",
+      "prompt": "A miss on the player's use sets Alert. Which lesson was crossed?",
+      "choices": [
+        "Sense's write was pasted into the use graph",
+        "The door timeline failed",
+        "The clamp was removed",
+        "Begin Play loaded too late"
+      ],
+      "answer": 0,
+      "why": "Use does not sight."
+    },
+    {
+      "id": "horb-exam-11",
+      "kind": "tf",
+      "prompt": "True or false: a wall blocks the Sense trace.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "A blocked trace does not set Alert."
+    },
+    {
+      "id": "horb-exam-12",
+      "kind": "mc",
+      "prompt": "Health is -40 and the death branch looks for zero. What line was removed?",
+      "choices": [
+        "The clamp after the subtract",
+        "GoingRight = true",
+        "Starting the swing curve",
+        "The use mapping"
+      ],
+      "answer": 0,
+      "why": "The clamp makes overkill land on zero."
+    },
+    {
+      "id": "horb-exam-13",
+      "kind": "mc",
+      "prompt": "Who calls Sense when the door creaks?",
+      "choices": [
+        "The creak itself, not the yaw loop",
+        "A per-frame yaw",
+        "The health branch",
+        "The save constructor"
+      ],
+      "answer": 0,
+      "why": "Sound shares Sense."
+    },
+    {
+      "id": "horb-exam-14",
+      "kind": "tf",
+      "prompt": "True or false: AdvancePatrol should set Alert when it turns around.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Turning is not a sighting."
+    },
+    {
+      "id": "horb-exam-15",
+      "kind": "mc",
+      "prompt": "IsOpen loads true. How do you show the door without per-frame yaw?",
+      "choices": [
+        "Pose the timeline at the open end",
+        "Add degrees until it looks right",
+        "Raising the hunter's suspicion",
+        "Call Interact on the hunter"
+      ],
+      "answer": 0,
+      "why": "The bool is enough."
+    },
+    {
+      "id": "horb-exam-16",
+      "kind": "mc",
+      "prompt": "Why keep this health lesson local?",
+      "choices": [
+        "Authority and OnRep are a later lesson and must not double-subtract",
+        "Horror cannot replicate. A second player is exactly when the limb write has to move to the server.",
+        "Clamps require a client",
+        "Sense is the authority"
+      ],
+      "answer": 0,
+      "why": "One subtract, local, clamped."
+    },
+    {
+      "id": "horb-exam-17",
+      "kind": "tf",
+      "prompt": "True or false: five Sense passes a second is the timer in this lesson.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "0.2 seconds."
+    },
+    {
+      "id": "horb-exam-18",
+      "kind": "mc",
+      "prompt": "A new hide locker arrives. What do you add to the use graph?",
+      "choices": [
+        "Nothing, if it implements Interact",
+        "A cast placed before the trace",
+        "A second Sense",
+        "A yaw Tick"
+      ],
+      "answer": 0,
+      "why": "The interface covers it."
+    },
+    {
+      "id": "horb-exam-19",
+      "kind": "mc",
+      "prompt": "The route timer and the sighting disagree. Who writes Alert?",
+      "choices": [
+        "Sense",
+        "The timed walk along the route",
+        "Toggling the door bool",
+        "The health clamp"
+      ],
+      "answer": 0,
+      "why": "Sight and sound share Sense."
+    },
+    {
+      "id": "horb-exam-20",
+      "kind": "tf",
+      "prompt": "True or false: Tick yaw is how this door matches its creak.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "The timeline is the swing."
+    },
+    {
+      "id": "horb-exam-21",
+      "kind": "mc",
+      "prompt": "Which trio is the house snapshot?",
+      "choices": [
+        "Alert, Health, and IsOpen",
+        "Unrelated rifle-kit numbers from a different genre",
+        "Rifle gait plus ammo plus the equipped weapon",
+        "Network interest, fog, and barrel heat"
+      ],
+      "answer": 0,
+      "why": "Those are this track's facts."
+    },
+    {
+      "id": "horb-exam-22",
+      "kind": "mc",
+      "prompt": "Graph_IA_Interact on a hit should call what?",
+      "choices": [
+        "Interact on that actor",
+        "The hunter's timed look",
+        "The limb floor",
+        "The interest pass"
+      ],
+      "answer": 0,
+      "why": "Use does not sight and does not heal."
+    },
+    {
+      "id": "horb-exam-23",
+      "kind": "tf",
+      "prompt": "True or false: a decaying Alert is a good value for Tick to checkpoint.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Wait until the decay or the save point finishes."
+    },
+    {
+      "id": "horb-exam-24",
+      "kind": "mc",
+      "prompt": "The player dies at 10 health from a 50 hit. Death does not run. What is Health?",
+      "choices": [
+        "Negative, so the zero test missed",
+        "Exactly zero",
+        "The health you had before the hit",
+        "A full health bar"
+      ],
+      "answer": 0,
+      "why": "No clamp."
+    },
+    {
+      "id": "horb-exam-25",
+      "kind": "mc",
+      "prompt": "GoingRight flips. What did not happen?",
+      "choices": [
+        "A sighting",
+        "The route turning around",
+        "A patrol step reaching an end",
+        "The timer still owning the walk"
+      ],
+      "answer": 0,
+      "why": "Direction is not Alert."
+    },
+    {
+      "id": "horb-exam-26",
+      "kind": "tf",
+      "prompt": "True or false: the creak may call Sense.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "Sound shares the look."
+    },
+    {
+      "id": "horb-exam-27",
+      "kind": "mc",
+      "prompt": "Why not load Alert in the constructor?",
+      "choices": [
+        "The hunter component may not exist yet",
+        "Alert is not a float",
+        "Begin Play runs first",
+        "Doors cannot be open at start"
+      ],
+      "answer": 0,
+      "why": "Begin Play is late enough."
+    },
+    {
+      "id": "horb-exam-28",
+      "kind": "mc",
+      "prompt": "Which schedule is the hunter's walk?",
+      "choices": [
+        "AdvancePatrol about once a second",
+        "Every rendered frame",
+        "The use key",
+        "Every health subtract"
+      ],
+      "answer": 0,
+      "why": "The timer is the pace."
+    },
+    {
+      "id": "horb-exam-29",
+      "kind": "tf",
+      "prompt": "True or false: one Interact implementation on a fuse box is enough for the use trace.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "The trace does not name the box."
+    },
+    {
+      "id": "horb-exam-30",
+      "kind": "mc",
+      "prompt": "The door bool says open and the swing is at the closed end. What do you pose?",
+      "choices": [
+        "The timeline, to the open end",
+        "A per-frame yaw",
+        "Suspicion of the hunter",
+        "The player's hit points"
+      ],
+      "answer": 0,
+      "why": "Show the saved bool."
+    },
+    {
+      "id": "horb-exam-31",
+      "kind": "mc",
+      "prompt": "A second audio brain stores its own alert. What does the stalk fail to read?",
+      "choices": [
+        "The Sense flag it already understands",
+        "Whether the door happens to be open",
+        "The clamp",
+        "The use binding"
+      ],
+      "answer": 0,
+      "why": "One Alert."
+    },
+    {
+      "id": "horb-exam-32",
+      "kind": "tf",
+      "prompt": "True or false: this beginner's health path is the replicated authority path.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "It is local, clamped, and branched."
+    },
+    {
+      "id": "horb-exam-33",
+      "kind": "mc",
+      "prompt": "Overlap on the door plays a timeline. Overlap on a pickup would ask a slot. Why is that not this door?",
+      "choices": [
+        "This overlap starts a swing",
+        "Doors cannot overlap",
+        "The swing curve raises suspicion by itself",
+        "Pickups are what yaw a door"
+      ],
+      "answer": 0,
+      "why": "Same event name, different job."
+    },
+    {
+      "id": "horb-exam-34",
+      "kind": "mc",
+      "prompt": "Which line is the hunter look, not the player use?",
+      "choices": [
+        "Graph_Sense_tpl_perception_sense",
+        "The function for the use key",
+        "The clamped local subtract",
+        "GoingRight = true"
+      ],
+      "answer": 0,
+      "why": "Sense is the look."
+    }
+  ]
+}

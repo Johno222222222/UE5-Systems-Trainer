@@ -1,0 +1,613 @@
+{
+  "id": "general-beginner",
+  "modules": {
+    "look": {
+      "plainEnglish": "A look is a question you ask on purpose. A rifle asks when you fire or aim. Third-person use asks from the interact button. A hunter asks on a short timer, and a loud sound calls that same look. A strategy team asks a few times a second. None of those ask from the frame loop.",
+      "whyGame": "A query every frame, for every pawn, is how a listen server falls over, and it keeps asking through a pause.",
+      "expansions": [
+        {
+          "title": "A rifle",
+          "detail": "The shot or the aim starts the trace at the camera."
+        },
+        {
+          "title": "A hunter",
+          "detail": "The timer is the glimpse. A bottle calls the same event."
+        },
+        {
+          "title": "A team",
+          "detail": "Reveal writes what the team can see. A walking camp does not."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "genb-look-1",
+          "kind": "mc",
+          "prompt": "A first-person rifle needs to know what is under the crosshair. When does it trace?",
+          "choices": [
+            "When the player fires or aims",
+            "On every drawn frame, even while idle",
+            "When the animation blueprint wants a gait",
+            "When a widget paints the crosshair"
+          ],
+          "answer": 0,
+          "why": "The shot and the aim are the questions."
+        },
+        {
+          "id": "genb-look-2",
+          "kind": "mc",
+          "prompt": "The line that starts a rifle trace uses the camera location. What does that origin match?",
+          "choices": [
+            "The crosshair",
+            "The pawn's chest",
+            "The hunter's eyes",
+            "The last saved door"
+          ],
+          "answer": 0,
+          "why": "The player aims with the camera."
+        },
+        {
+          "id": "genb-look-3",
+          "kind": "mc",
+          "prompt": "Third-person use is about to trace. Where should it start?",
+          "choices": [
+            "At the camera, along the crosshair",
+            "At the chest, which hits cover the camera can see past",
+            "At the feet",
+            "At the ally walking beside you"
+          ],
+          "answer": 0,
+          "why": "A chest trace lights the wrong actor."
+        },
+        {
+          "id": "genb-look-4",
+          "kind": "mc",
+          "prompt": "You move every look onto the frame loop so nothing feels late. What keeps running during a pause?",
+          "choices": [
+            "The queries, for pawns that are standing still",
+            "Only the save write",
+            "Only the medal popup",
+            "No query at all, if a frame loop always paused"
+          ],
+          "answer": 0,
+          "why": "An event can stop. A raw frame query is easy to leave on."
+        },
+        {
+          "id": "genb-look-5",
+          "kind": "mc",
+          "prompt": "A bottle hits the floor near a hunter. What should the bottle call?",
+          "choices": [
+            "The same Sense the glimpse timer uses",
+            "A private audio brain",
+            "The rifle's fire trace",
+            "The strategy reveal for a different team"
+          ],
+          "answer": 0,
+          "why": "One look, so the stalk reads one flag."
+        },
+        {
+          "id": "genb-look-6",
+          "kind": "tf",
+          "prompt": "A strategy camp stays unseen until the vision pass marks that cell.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Reveal writes vision. Walking does not."
+        },
+        {
+          "id": "genb-look-7",
+          "kind": "mc",
+          "prompt": "Which interval matches a strategy team's glimpse?",
+          "choices": [
+            "About four times a second",
+            "Once on every drawn frame",
+            "Only when the player clicks",
+            "Once at match start"
+          ],
+          "answer": 0,
+          "why": "Reveal is the quarter-second pass."
+        },
+        {
+          "id": "genb-look-8",
+          "kind": "mc",
+          "prompt": "The animation blueprint traces to rediscover a gait the movement graph already wrote. What do you delete?",
+          "choices": [
+            "That extra trace",
+            "The movement graph's speed",
+            "The camera",
+            "The interact button"
+          ],
+          "answer": 0,
+          "why": "Read the value. Do not ask again."
+        },
+        {
+          "id": "genb-look-9",
+          "kind": "mc",
+          "prompt": "A horror hunter and a strategy team both 'look'. What is different?",
+          "choices": [
+            "The hunter writes an alert flag",
+            "No difference, if both wrote the same float",
+            "The team looks from the player's fire button",
+            "The hunter looks only when the player presses use"
+          ],
+          "answer": 0,
+          "why": "Same idea, different results."
+        },
+        {
+          "id": "genb-look-10",
+          "kind": "mc",
+          "prompt": "Which line is a look that waits for the player, not a timer?",
+          "choices": [
+            "The interact trace that runs when the use action fires",
+            "Sense on its 0.2 second loop",
+            "Reveal on its quarter-second loop",
+            "A camp step"
+          ],
+          "answer": 0,
+          "why": "Use is a press. The other two are timers."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why is a look a question you ask on a button or a short timer, instead of every frame?",
+        "whyGamePrompt": "What falls over, and what keeps asking through a pause, if every pawn queries every frame?"
+      }
+    },
+    "interface": {
+      "plainEnglish": "One function name beats a cast list. Doors and switches answer Interact. A tank and a squad answer ReceiveOrder. A key and a fuel can answer AddToSlot. The graph looks the function up once.",
+      "whyGame": "A new prop from art does nothing until someone edits the cast list, which is how content waits on a programmer.",
+      "expansions": [
+        {
+          "title": "A door",
+          "detail": "It implements Interact. The trace does not name the door class."
+        },
+        {
+          "title": "A squad",
+          "detail": "It implements ReceiveOrder. The click does not name the squad class."
+        },
+        {
+          "title": "A key",
+          "detail": "It implements the slot add. The overlap does not cast to the key."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "genb-interface-1",
+          "kind": "mc",
+          "prompt": "A door, a rifle on the ground, and a switch all need use. What do they implement?",
+          "choices": [
+            "Interact",
+            "A cast chain, one class each",
+            "The order function a squad uses",
+            "The vision write"
+          ],
+          "answer": 0,
+          "why": "Use is one call."
+        },
+        {
+          "id": "genb-interface-2",
+          "kind": "mc",
+          "prompt": "ProcessEvent on Interact runs after a hit. What does the call accomplish?",
+          "choices": [
+            "It calls the hit actor's own use function",
+            "It casts to every prop class until one works",
+            "It writes the alert flag",
+            "It spends supplies"
+          ],
+          "answer": 0,
+          "why": "The lookup is the interface."
+        },
+        {
+          "id": "genb-interface-3",
+          "kind": "mc",
+          "prompt": "Art adds a new wall switch. What does the existing use graph change?",
+          "choices": [
+            "Nothing, if the switch implements Interact",
+            "A new cast to the switch class",
+            "A new timer",
+            "A new supply row"
+          ],
+          "answer": 0,
+          "why": "The graph never lists classes."
+        },
+        {
+          "id": "genb-interface-4",
+          "kind": "mc",
+          "prompt": "The use graph casts to each prop class. What fails when the tenth prop arrives?",
+          "choices": [
+            "That prop never responds, until a programmer adds another cast",
+            "The trace stops compiling",
+            "Every older prop forgets Interact",
+            "Supplies reset"
+          ],
+          "answer": 0,
+          "why": "The list is the dependency."
+        },
+        {
+          "id": "genb-interface-5",
+          "kind": "mc",
+          "prompt": "A tank and a rifle squad both receive a right-click. Which function do both implement?",
+          "choices": [
+            "ReceiveOrder",
+            "The use function a door implements",
+            "The pickup add",
+            "The vision bit"
+          ],
+          "answer": 0,
+          "why": "An order is not a use."
+        },
+        {
+          "id": "genb-interface-6",
+          "kind": "tf",
+          "prompt": "A key and a fuel can can enter inventory through the same slot call.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Both answer the slot add."
+        },
+        {
+          "id": "genb-interface-7",
+          "kind": "mc",
+          "prompt": "Which call belongs to a pickup rather than a door?",
+          "choices": [
+            "AddToSlot",
+            "Interact on the door mesh",
+            "The order a tank receives",
+            "The team's vision pass"
+          ],
+          "answer": 0,
+          "why": "The overlap adds. The door answers use."
+        },
+        {
+          "id": "genb-interface-8",
+          "kind": "mc",
+          "prompt": "A horror fuse and a strategy tank both get clicked. Why are their functions different?",
+          "choices": [
+            "A fuse is used, and a tank is ordered",
+            "They must share one function name",
+            "Both should cast from the same graph",
+            "The tank should answer Interact and ignore selection"
+          ],
+          "answer": 0,
+          "why": "Use and order are different questions."
+        },
+        {
+          "id": "genb-interface-9",
+          "kind": "mc",
+          "prompt": "The graph looks the function up once. What does a beginner often write instead?",
+          "choices": [
+            "A growing cast list",
+            "A single ProcessEvent",
+            "A data row for a cost",
+            "An authority check"
+          ],
+          "answer": 0,
+          "why": "The list is the trap."
+        },
+        {
+          "id": "genb-interface-10",
+          "kind": "mc",
+          "prompt": "Which line is the shared use, not a cast?",
+          "choices": [
+            "ProcessEvent on Interact",
+            "A cast to the door class, then a custom pin",
+            "A cast to the switch class",
+            "A cast to the rifle class"
+          ],
+          "answer": 0,
+          "why": "One lookup."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why do doors, orders, and pickups share one function name instead of a cast list?",
+        "whyGamePrompt": "What waits on a programmer when art adds a prop and the cast list is the only path?"
+      }
+    },
+    "authority": {
+      "plainEnglish": "A shared number has one writer. Health, a limb, supplies, score, shells, the equipped id, and relevance are all that kind of number. The write sits inside the authority check. A client that writes early will snap when the server answers.",
+      "whyGame": "Two writers make two machines disagree about a body, a stock, or which weapon is in the hands.",
+      "expansions": [
+        {
+          "title": "Health",
+          "detail": "The sample 90 is a stand-in inside the check, not a client write."
+        },
+        {
+          "title": "The equipped id",
+          "detail": "Proxies build the mesh from the server id."
+        },
+        {
+          "title": "A limb",
+          "detail": "A bruise stops at 10 percent. The server applies it."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "genb-authority-1",
+          "kind": "mc",
+          "prompt": "Which numbers need a single writer?",
+          "choices": [
+            "Health, supplies, score, shells, the equipped id, and relevance",
+            "The spring-arm mesh and the mapping context",
+            "A local muzzle flash",
+            "The camera boom length on one machine"
+          ],
+          "answer": 0,
+          "why": "Those are shared facts."
+        },
+        {
+          "id": "genb-authority-2",
+          "kind": "mc",
+          "prompt": "The sample assigns Health = 90.f inside HasAuthority. Where must that assignment sit?",
+          "choices": [
+            "Inside the check, not on the line after an empty one",
+            "On every client, so the flash is early",
+            "Inside the widget paint",
+            "Inside the animation blueprint"
+          ],
+          "answer": 0,
+          "why": "An empty check does not wrap the write."
+        },
+        {
+          "id": "genb-authority-3",
+          "kind": "mc",
+          "prompt": "The server writes health. What should other machines do when the value arrives?",
+          "choices": [
+            "Show it",
+            "Subtract the hit again",
+            "Ignore it and keep their local number",
+            "Write it back to the server"
+          ],
+          "answer": 0,
+          "why": "The notify presents. It does not recompute."
+        },
+        {
+          "id": "genb-authority-4",
+          "kind": "mc",
+          "prompt": "A client spends supplies so the number drops immediately. What do the other machines still show?",
+          "choices": [
+            "The old stock, until the authority write arrives",
+            "The same private spend",
+            "A wiped stock, as if a mismatch cleared it",
+            "The score instead"
+          ],
+          "answer": 0,
+          "why": "The private spend is not the stock."
+        },
+        {
+          "id": "genb-authority-5",
+          "kind": "mc",
+          "prompt": "A proxy shows a rifle the server did not equip. Where was the id written?",
+          "choices": [
+            "Outside the authority check",
+            "Inside the authority check",
+            "In a data row",
+            "On the camera"
+          ],
+          "answer": 0,
+          "why": "The mesh follows the server id."
+        },
+        {
+          "id": "genb-authority-6",
+          "kind": "tf",
+          "prompt": "A client may write Relevant so its own pawn stays smooth.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The authority traces."
+        },
+        {
+          "id": "genb-authority-7",
+          "kind": "mc",
+          "prompt": "A bruise on a limb of max 50 should stop where?",
+          "choices": [
+            "At 5, unless the hit is a real down",
+            "At zero for every bruise",
+            "Wherever the client predicted",
+            "Back at the maximum, if limbs could not change"
+          ],
+          "answer": 0,
+          "why": "Ten percent is the floor."
+        },
+        {
+          "id": "genb-authority-8",
+          "kind": "mc",
+          "prompt": "Shells and supplies both decrease during a battle. Why are they still two writes?",
+          "choices": [
+            "A barrage must not bankrupt the base",
+            "They are the same float under two names",
+            "Only the client may touch either",
+            "The widget owns both"
+          ],
+          "answer": 0,
+          "why": "Two budgets."
+        },
+        {
+          "id": "genb-authority-9",
+          "kind": "mc",
+          "prompt": "Which line is an authority write of a selection?",
+          "choices": [
+            "EquippedId assigned from the equip action inside the check",
+            "A client write of the same id",
+            "A local muzzle flash",
+            "A camera boom shorten"
+          ],
+          "answer": 0,
+          "why": "The id is shared. The flash is not."
+        },
+        {
+          "id": "genb-authority-10",
+          "kind": "mc",
+          "prompt": "Score is added on the client that saw the kill. What is the board showing?",
+          "choices": [
+            "A number the host never granted",
+            "The official total",
+            "The supply stock",
+            "The relevance bit"
+          ],
+          "answer": 0,
+          "why": "The host grants points."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a shared number such as health, supplies, or the equipped id have exactly one writer?",
+        "whyGamePrompt": "What do two machines disagree about if health and the equipped weapon each gain a second writer?"
+      }
+    },
+    "data": {
+      "plainEnglish": "A literal in a graph is a designer number pretending to be code. A building's cost and a medal's points belong on rows. A key stacks to one and a fuel can stacks higher, and that cap lives on the item.",
+      "whyGame": "Sharing the literal 25 makes a barracks and a turret cost the same, and sharing 10 makes every medal worth the same.",
+      "expansions": [
+        {
+          "title": "A barracks",
+          "detail": "Its row names the cost. The spend reads the row."
+        },
+        {
+          "title": "A medal",
+          "detail": "A kill and a capture do not have to be worth 10."
+        },
+        {
+          "title": "A fuel can",
+          "detail": "The stack cap sits on the item, beside the name."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "genb-data-1",
+          "kind": "mc",
+          "prompt": "A barracks and a turret should not cost the same. Where do the two costs live?",
+          "choices": [
+            "On their data rows",
+            "As one literal 25 in the spend graph",
+            "On the widget",
+            "Inside the authority check as comments"
+          ],
+          "answer": 0,
+          "why": "The row names the bill."
+        },
+        {
+          "id": "genb-data-2",
+          "kind": "mc",
+          "prompt": "The excerpt spends Supplies minus 25. What does that 25 stand for?",
+          "choices": [
+            "A sample cost a row should replace",
+            "The required price of every building",
+            "The medal value",
+            "How many rounds fit in the gun"
+          ],
+          "answer": 0,
+          "why": "The number is a placeholder."
+        },
+        {
+          "id": "genb-data-3",
+          "kind": "mc",
+          "prompt": "A kill and a capture both award points. What should differ?",
+          "choices": [
+            "The row each one reads",
+            "No difference, if both added ten",
+            "Which client is allowed to award",
+            "Which widget paints the popup"
+          ],
+          "answer": 0,
+          "why": "The asset names the value."
+        },
+        {
+          "id": "genb-data-4",
+          "kind": "mc",
+          "prompt": "You leave 10 in the award graph for every result. What becomes impossible?",
+          "choices": [
+            "A capture that is worth more than a kill",
+            "An authority check",
+            "Refilling the gun",
+            "A camera trace"
+          ],
+          "answer": 0,
+          "why": "One literal is one price."
+        },
+        {
+          "id": "genb-data-5",
+          "kind": "mc",
+          "prompt": "A key stacks to one and a fuel can stacks higher. Where is that difference?",
+          "choices": [
+            "On each item",
+            "As a magic number in the overlap",
+            "On the door bool",
+            "In the medal asset by accident"
+          ],
+          "answer": 0,
+          "why": "The item owns the cap."
+        },
+        {
+          "id": "genb-data-6",
+          "kind": "tf",
+          "prompt": "MagSize in the reload clamp is the same kind of mistake as a typed building cost.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The clamp's cap is the right shape. 25 and 10 are the literals to move."
+        },
+        {
+          "id": "genb-data-7",
+          "kind": "mc",
+          "prompt": "Which number in the beginner samples should move onto a row?",
+          "choices": [
+            "The sample building cost",
+            "The magazine compared with its cap",
+            "The stick compared with zero",
+            "The camera location"
+          ],
+          "answer": 0,
+          "why": "Cost is designer data."
+        },
+        {
+          "id": "genb-data-8",
+          "kind": "mc",
+          "prompt": "A designer retunes a turret from 40 to 60. What should they edit?",
+          "choices": [
+            "The turret's row",
+            "The spend graph's literal",
+            "The medal graph",
+            "The interact cast list"
+          ],
+          "answer": 0,
+          "why": "The graph reads the row."
+        },
+        {
+          "id": "genb-data-9",
+          "kind": "mc",
+          "prompt": "The overlap only checks that the stack count is positive. What still belongs beside that test?",
+          "choices": [
+            "The item's stack cap",
+            "A second literal for every item class",
+            "The authority health write",
+            "The reveal interval"
+          ],
+          "answer": 0,
+          "why": "Positive is not the cap."
+        },
+        {
+          "id": "genb-data-10",
+          "kind": "mc",
+          "prompt": "Which pair is a sample literal versus a cap that already has the right shape?",
+          "choices": [
+            "The medal's 10, versus MagSize in the reload clamp",
+            "Two copies of the building cost",
+            "The stick check versus the camera origin",
+            "Interact versus ReceiveOrder"
+          ],
+          "answer": 0,
+          "why": "Move 10. Keep the clamp's shape."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why do a building's cost and a medal's points belong on rows instead of literals in the graph?",
+        "whyGamePrompt": "What ends up the same price if the literal 25 is shared by a barracks and a turret?"
+      }
+    }
+  }
+}

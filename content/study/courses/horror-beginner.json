@@ -1,0 +1,613 @@
+{
+  "id": "horror-beginner",
+  "modules": {
+    "sense": {
+      "plainEnglish": "Begin Play starts one timer. The hunter looks every fifth of a second. A closed door blocks the look. A hit sets the alert flag. A miss should decay it. A dropped bottle calls that same look instead of growing a second brain.",
+      "whyGame": "Tracing every frame sees through pauses, and a private audio brain writes a flag the stalk never reads.",
+      "expansions": [
+        {
+          "title": "The glimpse",
+          "detail": "The timer is the quiet look."
+        },
+        {
+          "title": "The bottle",
+          "detail": "It calls Sense immediately."
+        },
+        {
+          "title": "A miss",
+          "detail": "Without a decay the hunter stays sure forever."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "horc-sense-1",
+          "kind": "mc",
+          "prompt": "How often does the beginner hunter look, when nothing sudden has happened?",
+          "choices": [
+            "Every 0.2 seconds, from the timer Begin Play started",
+            "On every rendered frame",
+            "Only when the player presses use",
+            "Only when health changes"
+          ],
+          "answer": 0,
+          "why": "The timer is the glimpse."
+        },
+        {
+          "id": "horc-sense-2",
+          "kind": "mc",
+          "prompt": "The sense excerpt assigns Alert = 1 on a hit. When does that line run?",
+          "choices": [
+            "Only after the trace reports a hit",
+            "Every time the timer fires, hit or miss",
+            "When the door yaw starts",
+            "When the player saves"
+          ],
+          "answer": 0,
+          "why": "The assignment is gated on the hit."
+        },
+        {
+          "id": "horc-sense-3",
+          "kind": "mc",
+          "prompt": "A closed door stands between the hunter and the player. What does the visibility trace do?",
+          "choices": [
+            "It stops on the door",
+            "It continues through the door",
+            "It sets the alert flag anyway",
+            "It swings the door"
+          ],
+          "answer": 0,
+          "why": "The channel stops on the door."
+        },
+        {
+          "id": "horc-sense-4",
+          "kind": "mc",
+          "prompt": "A miss never decays the alert flag. What does the hunter stay?",
+          "choices": [
+            "Sure, forever, after one glimpse",
+            "Already calm, if a miss cleared suspicion",
+            "Frozen on the route",
+            "Unable to hear a bottle"
+          ],
+          "answer": 0,
+          "why": "The miss owes a decay."
+        },
+        {
+          "id": "horc-sense-5",
+          "kind": "mc",
+          "prompt": "A bottle hits the floor. What should it call?",
+          "choices": [
+            "The same Sense event the timer uses",
+            "A private audio brain",
+            "The player's use function",
+            "A loss of hit points"
+          ],
+          "answer": 0,
+          "why": "One look, one flag."
+        },
+        {
+          "id": "horc-sense-6",
+          "kind": "tf",
+          "prompt": "A missed horror trace should let the alert flag decay.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "A miss should decay, or the hunter never forgives."
+        },
+        {
+          "id": "horc-sense-7",
+          "kind": "mc",
+          "prompt": "You move the look onto the frame loop so glimpses feel fresh. What keeps running in a pause?",
+          "choices": [
+            "The trace, for a hunter that should be still",
+            "Only the door curve",
+            "Only the save write",
+            "No trace at all, if the frame loop always paused"
+          ],
+          "answer": 0,
+          "why": "The timer can stop. A frame trace is easy to leave on."
+        },
+        {
+          "id": "horc-sense-8",
+          "kind": "mc",
+          "prompt": "Which line is the glimpse assignment?",
+          "choices": [
+            "Alert set to 1 when the trace hits",
+            "IsOpen flipped by the door",
+            "Health subtracted on a bite",
+            "The use interface call"
+          ],
+          "answer": 0,
+          "why": "That is the hit write."
+        },
+        {
+          "id": "horc-sense-9",
+          "kind": "mc",
+          "prompt": "Where does a decay belong if you add one?",
+          "choices": [
+            "On the miss path inside Sense",
+            "At the top of every frame, before the trace",
+            "Inside the save, every frame",
+            "On the door's finished pin"
+          ],
+          "answer": 0,
+          "why": "Decay is the miss of the same event."
+        },
+        {
+          "id": "horc-sense-10",
+          "kind": "mc",
+          "prompt": "Who starts the glimpse timer?",
+          "choices": [
+            "Begin Play, once",
+            "Every call of Sense",
+            "The player's use key",
+            "The door overlap"
+          ],
+          "answer": 0,
+          "why": "One timer. Sense does not start another."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does Begin Play start one timer so the hunter looks every fifth of a second, with a closed door blocking the look?",
+        "whyGamePrompt": "What sees through a pause, and which flag goes unread, if the look is every frame or sound has its own brain?"
+      }
+    },
+    "use": {
+      "plainEnglish": "Use traces from the camera and calls Interact on a hit. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. A miss logs and stops. It does not raise the alert flag and it does not yaw a door.",
+      "whyGame": "If the hunter runs use, it turns valves. If use writes the alert flag, waving the crosshair at empty air alerts the house.",
+      "expansions": [
+        {
+          "title": "A fuse",
+          "detail": "It implements Interact. The trace does not name the fuse."
+        },
+        {
+          "title": "A miss",
+          "detail": "Log and return. Do not set Alert."
+        },
+        {
+          "title": "The hunter",
+          "detail": "Sense is the hunter. Use is the player."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "horc-use-1",
+          "kind": "mc",
+          "prompt": "A fuse, a hide lever, and a door handle all need the player's press. What do they implement?",
+          "choices": [
+            "Interact",
+            "A private frame graph each",
+            "The timed glimpse",
+            "Keeping hit points from going negative"
+          ],
+          "answer": 0,
+          "why": "One call."
+        },
+        {
+          "id": "horc-use-2",
+          "kind": "mc",
+          "prompt": "The use excerpt calls ProcessEvent on Interact after a hit. What does the call accomplish?",
+          "choices": [
+            "It runs the hit actor's own use function",
+            "It sets the hunter's alert flag",
+            "It swings the hinge by frame time",
+            "It subtracts health"
+          ],
+          "answer": 0,
+          "why": "The interface is the press."
+        },
+        {
+          "id": "horc-use-3",
+          "kind": "mc",
+          "prompt": "The trace hits a hide lever. What runs next?",
+          "choices": [
+            "Interact on that lever",
+            "A cast that names the lever class",
+            "The timed glimpse",
+            "Turning the hinge by hand"
+          ],
+          "answer": 0,
+          "why": "The lever answers the same function."
+        },
+        {
+          "id": "horc-use-4",
+          "kind": "mc",
+          "prompt": "The hunter runs the player's use graph. What does the hunter start turning?",
+          "choices": [
+            "Valves and door handles",
+            "Only its own patrol",
+            "Only suspicion, which would be the right job",
+            "No valves at all, if use ignored every AI"
+          ],
+          "answer": 0,
+          "why": "Use is the player's press."
+        },
+        {
+          "id": "horc-use-5",
+          "kind": "mc",
+          "prompt": "The miss branch sets the alert flag. What alerts the hunter?",
+          "choices": [
+            "Waving the crosshair at empty air",
+            "A real glimpse",
+            "A bottle calling Sense",
+            "A finished door creak"
+          ],
+          "answer": 0,
+          "why": "A miss only logs."
+        },
+        {
+          "id": "horc-use-6",
+          "kind": "tf",
+          "prompt": "A missed use trace should log and leave the hunter's alert flag alone.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The miss logs and stops."
+        },
+        {
+          "id": "horc-use-7",
+          "kind": "mc",
+          "prompt": "Where should the horror use trace start?",
+          "choices": [
+            "At the camera, along the crosshair",
+            "At the hunter's eyes",
+            "Down at the feet",
+            "At the door hinge"
+          ],
+          "answer": 0,
+          "why": "The player aims with the camera."
+        },
+        {
+          "id": "horc-use-8",
+          "kind": "mc",
+          "prompt": "The miss path yaws the nearest door. What moves that the player did not use?",
+          "choices": [
+            "The hinge",
+            "Only suspicion, from the hunter look",
+            "Only the health clamp",
+            "Only a stored snapshot"
+          ],
+          "answer": 0,
+          "why": "A miss does not swing a door."
+        },
+        {
+          "id": "horc-use-9",
+          "kind": "mc",
+          "prompt": "Which function is the player's press, not the hunter look?",
+          "choices": [
+            "Interact after the use trace hits",
+            "Sense on its timer",
+            "The alert assignment inside Sense",
+            "A clamped bite"
+          ],
+          "answer": 0,
+          "why": "Use and Sense are different events."
+        },
+        {
+          "id": "horc-use-10",
+          "kind": "mc",
+          "prompt": "Art adds a new wall switch. What must it implement so the existing trace works?",
+          "choices": [
+            "Interact",
+            "A new cast in the use graph",
+            "Its own alert float",
+            "A timeline on Tick"
+          ],
+          "answer": 0,
+          "why": "The trace never lists classes."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does use trace from the camera and call Interact, while the hunter does not run this graph?",
+        "whyGamePrompt": "What turns valves, and what alerts an empty room, if the hunter runs use or use writes the alert flag?"
+      }
+    },
+    "door": {
+      "plainEnglish": "A door builds a timeline, keys a curve from closed to open, and plays it from the start. A flip writes whether it is open. The first use opens. The next closes. The creak calls Sense. Yawing the hinge every frame never finishes, so the creak has no end.",
+      "whyGame": "Without a finished event the hunter never gets a clean audio cue, and a creak that subtracts health damages the player for opening a cupboard.",
+      "expansions": [
+        {
+          "title": "The curve",
+          "detail": "PlayFromStart, keys at the two ends."
+        },
+        {
+          "title": "The flip",
+          "detail": "IsOpen alternates open and closed."
+        },
+        {
+          "title": "The creak",
+          "detail": "It calls Sense. It does not touch health."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "horc-door-1",
+          "kind": "mc",
+          "prompt": "The player uses a door. What starts the swing?",
+          "choices": [
+            "PlayFromStart on the timeline",
+            "Adding frame time to the hinge yaw",
+            "A loss of hit points",
+            "The hunter's miss path"
+          ],
+          "answer": 0,
+          "why": "The curve has a start."
+        },
+        {
+          "id": "horc-door-2",
+          "kind": "mc",
+          "prompt": "FlipFlop writes IsOpen. What does the line record?",
+          "choices": [
+            "Whether this swing opened or closed",
+            "Whether the hunter can see the player",
+            "How much health to remove",
+            "Which way the patrol faces"
+          ],
+          "answer": 0,
+          "why": "The bool is the door."
+        },
+        {
+          "id": "horc-door-3",
+          "kind": "mc",
+          "prompt": "The first use opened the door. What should the next use do?",
+          "choices": [
+            "Close it, because the flip alternates",
+            "Open it again from the start",
+            "Set the alert flag directly",
+            "Removing hit points"
+          ],
+          "answer": 0,
+          "why": "The flip is the direction."
+        },
+        {
+          "id": "horc-door-4",
+          "kind": "mc",
+          "prompt": "Tick yaws the hinge. What never arrives for the creak?",
+          "choices": [
+            "A finished event, so the sound has no clean end",
+            "Any rotation",
+            "The overlap that started the idea of a door",
+            "The open bool on the actor"
+          ],
+          "answer": 0,
+          "why": "A yaw has no finished pin."
+        },
+        {
+          "id": "horc-door-5",
+          "kind": "mc",
+          "prompt": "The creak plays. What should it call?",
+          "choices": [
+            "Sense, so the hunter hears the door",
+            "A loss of hit points, so a cupboard hurts",
+            "The player's use function",
+            "The save write"
+          ],
+          "answer": 0,
+          "why": "The creak is a sound, not damage."
+        },
+        {
+          "id": "horc-door-6",
+          "kind": "tf",
+          "prompt": "A door creak should subtract health.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Damage is a different event."
+        },
+        {
+          "id": "horc-door-7",
+          "kind": "mc",
+          "prompt": "Which pin is the end of the swing?",
+          "choices": [
+            "The timeline finished delegate",
+            "The next rendered frame",
+            "The hunter's miss path",
+            "The bite's lower bound"
+          ],
+          "answer": 0,
+          "why": "Finished is the end."
+        },
+        {
+          "id": "horc-door-8",
+          "kind": "mc",
+          "prompt": "A trap on the door should hurt the player. Which event is that, instead of the creak?",
+          "choices": [
+            "Damage, with its own clamp",
+            "The hunter's timed look",
+            "The flip of the open bool",
+            "The quiet look timer"
+          ],
+          "answer": 0,
+          "why": "Hurt is not the sound."
+        },
+        {
+          "id": "horc-door-9",
+          "kind": "mc",
+          "prompt": "Loading an open door by playing the curve from the start does what extra?",
+          "choices": [
+            "It creaks, and the hunter hears a door you already opened",
+            "It shows the open pose in silence",
+            "It refills health",
+            "It starts the player's use trace"
+          ],
+          "answer": 0,
+          "why": "Set the curve to the end."
+        },
+        {
+          "id": "horc-door-10",
+          "kind": "mc",
+          "prompt": "Which call is the swing, not the hunter look?",
+          "choices": [
+            "PlayFromStart on the door timeline",
+            "Sense on its timer",
+            "Alert set on a hit",
+            "A clamped bite"
+          ],
+          "answer": 0,
+          "why": "The curve swings. Sense looks."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a door play a curve from closed to open and record the result with a flip?",
+        "whyGamePrompt": "What audio cue never reaches the hunter, and who gets hurt, if there is no finished event or the creak subtracts health?"
+      }
+    },
+    "sight": {
+      "plainEnglish": "Seeing the player sets the alert flag. It does not subtract health. An attack calls damage, and that graph clamps. This lesson is single player, so a replication notify can be absent until a second machine exists.",
+      "whyGame": "Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero a reachable down instead of a stuck negative.",
+      "expansions": [
+        {
+          "title": "A glimpse",
+          "detail": "It writes the alert flag only."
+        },
+        {
+          "title": "A bite",
+          "detail": "Any Damage clamps. Sight does not."
+        },
+        {
+          "title": "A second machine",
+          "detail": "The moment co-op arrives, the write needs an authority gate and a notify that only presents."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "horc-sight-1",
+          "kind": "mc",
+          "prompt": "The hunter confirms a sight. What should change?",
+          "choices": [
+            "The alert flag",
+            "How many hit points the player has",
+            "Turning the hinge",
+            "The save slot"
+          ],
+          "answer": 0,
+          "why": "Sight is not a bite."
+        },
+        {
+          "id": "horc-sight-2",
+          "kind": "mc",
+          "prompt": "Sense subtracts health on every glimpse. What kills the player?",
+          "choices": [
+            "Being seen, with no attack",
+            "A real damage event",
+            "A door creak that only calls Sense",
+            "A miss that decays the flag"
+          ],
+          "answer": 0,
+          "why": "The look must not bite."
+        },
+        {
+          "id": "horc-sight-3",
+          "kind": "mc",
+          "prompt": "An attack should hurt. Which event starts that write?",
+          "choices": [
+            "Any Damage",
+            "The hunter's timed look",
+            "The door flip",
+            "The use miss"
+          ],
+          "answer": 0,
+          "why": "Damage is the bite."
+        },
+        {
+          "id": "horc-sight-4",
+          "kind": "mc",
+          "prompt": "The bite skips the clamp. What number becomes reachable that a down should pass through cleanly?",
+          "choices": [
+            "A negative health that never quite hits zero",
+            "Exactly zero, as a deliberate down",
+            "The alert flag at 1",
+            "The open bool"
+          ],
+          "answer": 0,
+          "why": "The clamp makes zero reachable."
+        },
+        {
+          "id": "horc-sight-5",
+          "kind": "mc",
+          "prompt": "This lesson is single player. What can be absent until a second machine exists?",
+          "choices": [
+            "A replication notify",
+            "The hunter's suspicion",
+            "The damage clamp",
+            "The fifth-of-a-second look"
+          ],
+          "answer": 0,
+          "why": "One machine does not need a notify yet."
+        },
+        {
+          "id": "horc-sight-6",
+          "kind": "tf",
+          "prompt": "A confirmed sight should subtract health.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Sight sets the flag. Damage hurts."
+        },
+        {
+          "id": "horc-sight-7",
+          "kind": "mc",
+          "prompt": "A second machine joins and the client applies the bite locally. What will disagree?",
+          "choices": [
+            "Which body fell",
+            "Whether the door curve exists",
+            "Whether Sense is a function",
+            "The camera's existence"
+          ],
+          "answer": 0,
+          "why": "That is when the authority gate arrives."
+        },
+        {
+          "id": "horc-sight-8",
+          "kind": "mc",
+          "prompt": "Which line is the bite, not the glimpse?",
+          "choices": [
+            "A clamped health subtract inside damage",
+            "Alert set to 1 on a clear trace",
+            "IsOpen flipped by the door",
+            "Interact called from the use trace"
+          ],
+          "answer": 0,
+          "why": "Damage owns the number."
+        },
+        {
+          "id": "horc-sight-9",
+          "kind": "mc",
+          "prompt": "The creak calls Sense and Sense subtracts health. What hurts the player for opening a cupboard?",
+          "choices": [
+            "The sound path, which should only alert",
+            "A separate damage volume on the door",
+            "The clamp, working as designed",
+            "A miss that decays the flag"
+          ],
+          "answer": 0,
+          "why": "The creak is a look. The bite is damage."
+        },
+        {
+          "id": "horc-sight-10",
+          "kind": "mc",
+          "prompt": "You want zero to mean down, not a stuck negative. Where does that rule live?",
+          "choices": [
+            "In the damage clamp",
+            "In the glimpse assignment",
+            "In the door flip",
+            "In the use miss log"
+          ],
+          "answer": 0,
+          "why": "The clamp is what makes zero reachable."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does seeing the player set the alert flag without subtracting health?",
+        "whyGamePrompt": "What kills the player for being seen if Sense subtracts on every glimpse and skips the clamp?"
+      }
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { api } from "../lib/api";
 import { addGlossaryRequest, GLOSSARY_REQUESTS_KEY, linkTerms, phrasesForTags, prepareGlossary } from "../lib/glossary.mjs";
 
@@ -67,7 +68,7 @@ function wordFromEvent(event) {
   return text.slice(start, end);
 }
 
-function Popup({ term, summary, detail, see, terms, onClose, pending }) {
+function Popup({ term, termId, summary, detail, see, terms, onClose, pending, anchor }) {
   const ref = useRef(null);
   const [more, setMore] = useState(false);
   const [focus, setFocus] = useState(null);
@@ -85,8 +86,15 @@ function Popup({ term, summary, detail, see, terms, onClose, pending }) {
     };
   }, [onClose]);
   const related = (shown.see || []).map((id) => (terms || []).find((item) => item.id === id)).filter(Boolean);
-  return (
-    <span ref={ref} className="glossary-pop" role="dialog" aria-label={shown.term} data-testid="glossary-popup">
+  const style = {
+    position: "fixed",
+    left: Math.max(8, Math.min(anchor?.left || 16, window.innerWidth - 300)),
+    top: Math.max(8, anchor?.bottom ? anchor.bottom + 6 : 80),
+    zIndex: 4200,
+    width: "min(280px, 70vw)",
+  };
+  return createPortal(
+    <span ref={ref} className="glossary-pop top-pop" style={style} role="dialog" aria-label={shown.term} data-testid="glossary-popup">
       <span className="glossary-pop-term">{shown.term}</span>
       <span className="glossary-pop-body">{pending ? "Definition coming soon." : (shown.summary || shown.definition || "")}</span>
       {!pending && shown.detail && (
@@ -100,6 +108,19 @@ function Popup({ term, summary, detail, see, terms, onClose, pending }) {
           {shown.detail}
         </span>
       )}
+      {!pending && (
+        <button
+          type="button"
+          className="glossary-more"
+          data-testid="glossary-see-more"
+          onClick={() => {
+            window.dispatchEvent(new CustomEvent("open-glossary-term", { detail: { id: termId || "", term: shown.term } }));
+            onClose();
+          }}
+        >
+          See more
+        </button>
+      )}
       {!pending && !!related.length && (
         <span className="glossary-see">
           See also
@@ -110,7 +131,8 @@ function Popup({ term, summary, detail, see, terms, onClose, pending }) {
           ))}
         </span>
       )}
-    </span>
+    </span>,
+    document.body,
   );
 }
 
@@ -120,6 +142,7 @@ export default function GlossaryText({ text, className }) {
   const visible = useMemo(() => phrasesForTags(phrases, tags), [phrases, tags]);
   const parts = useMemo(() => linkTerms(text, visible), [text, visible]);
   const [openId, setOpenId] = useState(null);
+  const [anchor, setAnchor] = useState(null);
   const [menu, setMenu] = useState(null);
   if (!text) return null;
   const known = (word) => visible.some((phrase) => phrase.lower === String(word || "").toLowerCase())
@@ -144,25 +167,31 @@ export default function GlossaryText({ text, className }) {
               className="glossary-term"
               data-testid={`glossary-term-${part.id}`}
               aria-expanded={open}
-              onClick={() => setOpenId(open ? null : index)}
+              onClick={(event) => {
+                if (open) { setOpenId(null); return; }
+                setAnchor(event.currentTarget.getBoundingClientRect());
+                setOpenId(index);
+              }}
             >
               {part.text}
             </button>
             {open && (
               <Popup
                 term={part.term}
+                termId={part.id}
                 summary={part.summary || part.definition}
                 detail={part.detail}
                 see={part.see}
                 terms={terms}
+                anchor={anchor}
                 onClose={() => setOpenId(null)}
               />
             )}
           </span>
         );
       })}
-      {menu && (
-        <span className="glossary-request" style={{ left: menu.x, top: menu.y }} data-testid="glossary-request-menu">
+      {menu && createPortal(
+        <span className="glossary-request top-pop" style={{ left: menu.x, top: menu.y, zIndex: 4200 }} data-testid="glossary-request-menu">
           <button
             type="button"
             data-testid="glossary-request"
@@ -170,7 +199,8 @@ export default function GlossaryText({ text, className }) {
           >
             Request definition
           </button>
-        </span>
+        </span>,
+        document.body,
       )}
     </span>
   );

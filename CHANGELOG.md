@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.19.0
+
+- Version is 1.19.0. The last Version 1 stage before public launch.
+- Quizzes shuffle answer order each time they open, and mix true/false with multiple choice.
+- Learn, Programs, and Courses share one glossary popover. C++ lines are clickable and carry a built-in plain-language note.
+- Program and course lessons use one lesson screen. The quiz is the next screen. Assignments are self-scored, including C++ and graph blanks.
+- A welcome tour, a Report a bug link, and a quiet check for a newer GitHub release.
+
 ## 1.18.0
 
 - Glossary adds the concepts the 1.17.0 tracks teach: GASP, vehicles, ballistics, scoring, fog of war, and the rest of that list. See also links resolve. Search still drops duplicate cards.

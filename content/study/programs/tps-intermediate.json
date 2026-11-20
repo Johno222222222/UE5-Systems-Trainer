@@ -1,0 +1,1665 @@
+{
+  "id": "tps-intermediate",
+  "sections": {
+    "camera": {
+      "plainEnglish": "Aim still starts at the shoulder button and the trace still starts at the camera. The boom shortens because that bool is set. Motion matching reads speed. It does not fire a second trace to decide if the camera is tight.",
+      "whyGame": "A second trace in the animation graph will disagree with the aim trace about what the crosshair hit.",
+      "expansions": [
+        {
+          "title": "The boom",
+          "detail": "It reads the aiming bool and shortens. It does not trace."
+        },
+        {
+          "title": "Motion matching",
+          "detail": "It reads speed and the trajectory."
+        },
+        {
+          "title": "The sights",
+          "detail": "Only the aim action sets the bool."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tpsi-camera-1",
+          "kind": "mc",
+          "prompt": "Motion matching wants to know if the camera is tight. What should it read?",
+          "choices": [
+            "The aiming bool the shoulder button already set",
+            "A second line trace of its own",
+            "The vehicle throttle",
+            "The heat on the weapon"
+          ],
+          "answer": 0,
+          "why": "The bool exists. A second trace will disagree."
+        },
+        {
+          "id": "tpsi-camera-2",
+          "kind": "mc",
+          "prompt": "The aim action sets Aiming. Which input is that action?",
+          "choices": [
+            "The shoulder button",
+            "The fire button",
+            "The equip menu",
+            "The vehicle axis"
+          ],
+          "answer": 0,
+          "why": "IA_Aim is still the sights."
+        },
+        {
+          "id": "tpsi-camera-3",
+          "kind": "mc",
+          "prompt": "The shoulder button fires. What should the boom do after the bool is set?",
+          "choices": [
+            "Shorten",
+            "Write movement speed",
+            "Add weapon heat",
+            "Mark the pawn relevant"
+          ],
+          "answer": 0,
+          "why": "The boom reads the bool."
+        },
+        {
+          "id": "tpsi-camera-4",
+          "kind": "mc",
+          "prompt": "You set Aiming from Tick so the boom never lags. What stays true after the player releases the button?",
+          "choices": [
+            "The pawn is still marked as aiming",
+            "Heat climbs",
+            "The equipped slot changes",
+            "Fuel drains"
+          ],
+          "answer": 0,
+          "why": "The action is the press and the release."
+        },
+        {
+          "id": "tpsi-camera-5",
+          "kind": "mc",
+          "prompt": "The animation graph traces again to decide the aim pose. The two traces disagree at a corner. Which trace do you delete?",
+          "choices": [
+            "The one inside motion matching",
+            "The one from the shoulder button",
+            "Both traces, with the pose baked in",
+            "Who receives this pawn"
+          ],
+          "answer": 0,
+          "why": "Aim owns the look. Animation reads the bool."
+        },
+        {
+          "id": "tpsi-camera-6",
+          "kind": "tf",
+          "prompt": "Motion matching reads the aiming bool and should not fire its own trace.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "It reads the bool."
+        },
+        {
+          "id": "tpsi-camera-7",
+          "kind": "mc",
+          "prompt": "Which line is the intermediate aim write?",
+          "choices": [
+            "Aiming assigned inside the shoulder-button action",
+            "Speed forced to 600",
+            "Heat increased by five hundredths",
+            "Equipped id taken from a number key"
+          ],
+          "answer": 0,
+          "why": "That action is the sights."
+        },
+        {
+          "id": "tpsi-camera-8",
+          "kind": "mc",
+          "prompt": "Where does the aim trace begin?",
+          "choices": [
+            "At the camera",
+            "At the vehicle origin",
+            "At the equipped weapon's magazine",
+            "At the last saved pose"
+          ],
+          "answer": 0,
+          "why": "The crosshair is on the camera."
+        },
+        {
+          "id": "tpsi-camera-9",
+          "kind": "mc",
+          "prompt": "GASP builds a trajectory. What does it read for that path?",
+          "choices": [
+            "Speed",
+            "The aim trace result",
+            "Weapon heat",
+            "Vehicle fuel"
+          ],
+          "answer": 0,
+          "why": "The trajectory is motion, not the look."
+        },
+        {
+          "id": "tpsi-camera-10",
+          "kind": "mc",
+          "prompt": "The broken camera graph uses the red tick node. Which action replaces it?",
+          "choices": [
+            "The shoulder button",
+            "Pulling the trigger",
+            "Choosing a weapon slot",
+            "The car's forward axis"
+          ],
+          "answer": 0,
+          "why": "The repair names IA_Aim."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does aim still start at the shoulder button and the camera, while motion matching only reads speed?",
+        "whyGamePrompt": "What disagrees if the animation graph traces again about what the crosshair hit?"
+      }
+    },
+    "movement": {
+      "plainEnglish": "A pushed stick writes a sprint speed of 600. A stick that is not pushed writes 200. Motion matching builds a trajectory from that number. The aiming bool may pick an aim set. It is not a second speed.",
+      "whyGame": "If the camera graph also writes speed, whichever write lands last in the frame wins, and the gait flickers.",
+      "expansions": [
+        {
+          "title": "Sprint",
+          "detail": "600 is the pushed stick."
+        },
+        {
+          "title": "The slower gait",
+          "detail": "200 is the stick at rest in this excerpt, not a camera setting."
+        },
+        {
+          "title": "Aim sets",
+          "detail": "The bool selects an animation set. It does not assign speed."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tpsi-movement-1",
+          "kind": "mc",
+          "prompt": "The stick is pushed. What speed does the excerpt write?",
+          "choices": [
+            "600",
+            "The unpushed gait",
+            "Whatever the boom length implies",
+            "The vehicle throttle"
+          ],
+          "answer": 0,
+          "why": "Pushed is the sprint literal."
+        },
+        {
+          "id": "tpsi-movement-2",
+          "kind": "mc",
+          "prompt": "The line Speed = 600.f sits inside if (IA_Move > 0.f). When does it run?",
+          "choices": [
+            "Only while the stick is pushed",
+            "On every frame, including a menu",
+            "While the player is only aiming",
+            "While the pawn is in a vehicle"
+          ],
+          "answer": 0,
+          "why": "The comparison is the gate."
+        },
+        {
+          "id": "tpsi-movement-3",
+          "kind": "mc",
+          "prompt": "The stick returns to center. Which speed should the next write use?",
+          "choices": [
+            "200",
+            "The sprint number",
+            "A full stop, if this excerpt had no slower gait",
+            "The heat value"
+          ],
+          "answer": 0,
+          "why": "The else branch is 200."
+        },
+        {
+          "id": "tpsi-movement-4",
+          "kind": "mc",
+          "prompt": "Tick writes 600 while the pause menu is open. What gait is wrong?",
+          "choices": [
+            "A sprint that continues through the menu",
+            "The aim set",
+            "Warming the barrel",
+            "The equipped mesh"
+          ],
+          "answer": 0,
+          "why": "The sprint literal belongs inside the stick check."
+        },
+        {
+          "id": "tpsi-movement-5",
+          "kind": "mc",
+          "prompt": "The camera graph and the move graph both assign Speed. What decides the gait?",
+          "choices": [
+            "Whichever write happens last in the frame",
+            "The sights flag, by design",
+            "The relevance timer",
+            "The ten-slot record"
+          ],
+          "answer": 0,
+          "why": "Two writers flicker."
+        },
+        {
+          "id": "tpsi-movement-6",
+          "kind": "tf",
+          "prompt": "The aiming bool may pick an aim set, and it should not be a second speed write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "It selects an aim set."
+        },
+        {
+          "id": "tpsi-movement-7",
+          "kind": "mc",
+          "prompt": "What does motion matching build from the speed number?",
+          "choices": [
+            "A trajectory",
+            "A line trace",
+            "How hot the barrel is",
+            "The equipped slot"
+          ],
+          "answer": 0,
+          "why": "The trajectory is the gait."
+        },
+        {
+          "id": "tpsi-movement-8",
+          "kind": "mc",
+          "prompt": "Which line is the sprint?",
+          "choices": [
+            "Speed = 600.f while the stick is pushed",
+            "Speed = 200.f in the other branch",
+            "Heat = Heat + 0.05 on a hit",
+            "Throttle copied from speed"
+          ],
+          "answer": 0,
+          "why": "600 is the push."
+        },
+        {
+          "id": "tpsi-movement-9",
+          "kind": "mc",
+          "prompt": "Aiming selects an aim set and also writes 200. What did the camera steal?",
+          "choices": [
+            "The gait",
+            "Rounds in the gun",
+            "Who currently receives the pawn",
+            "The car's remaining fuel"
+          ],
+          "answer": 0,
+          "why": "The bool picks a set. Speed stays in the move graph."
+        },
+        {
+          "id": "tpsi-movement-10",
+          "kind": "mc",
+          "prompt": "Where does the excerpt put the sprint literal?",
+          "choices": [
+            "Inside the stick check",
+            "During menus, so the pawn keeps running",
+            "Inside the sights action",
+            "Inside the fire action"
+          ],
+          "answer": 0,
+          "why": "That is the repair."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a pushed stick write 600 and a resting stick write 200 for the motion-matching trajectory?",
+        "whyGamePrompt": "What flickers if the camera graph also writes speed in the same frame?"
+      }
+    },
+    "aoi": {
+      "plainEnglish": "A third-person mesh and its animation are expensive. Twice a second the authority traces and sets whether this pawn is relevant. Machines that are not relevant do not receive it.",
+      "whyGame": "Writing that bool every frame, or from a client, either wastes the budget or hides pawns the player should still see.",
+      "expansions": [
+        {
+          "title": "The timer",
+          "detail": "Begin Play starts a 0.5 second loop."
+        },
+        {
+          "title": "The hit",
+          "detail": "Relevant follows the trace, including a miss."
+        },
+        {
+          "title": "The save",
+          "detail": "Do not store the bit. The timer runs again after load."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tpsi-aoi-1",
+          "kind": "mc",
+          "prompt": "What does Relevant mean for a third-person pawn?",
+          "choices": [
+            "This machine should receive the actor",
+            "The player is aiming",
+            "The weapon is hot",
+            "The car has fuel"
+          ],
+          "answer": 0,
+          "why": "It is who gets the pawn."
+        },
+        {
+          "id": "tpsi-aoi-2",
+          "kind": "mc",
+          "prompt": "CheckAOI assigns Relevant from the hit. What schedule wraps that line?",
+          "choices": [
+            "A half-second loop started at Begin Play",
+            "Once on each drawn frame",
+            "Pulling the trigger",
+            "The radial weapon menu"
+          ],
+          "answer": 0,
+          "why": "0.5 seconds, looping."
+        },
+        {
+          "id": "tpsi-aoi-3",
+          "kind": "mc",
+          "prompt": "The trace misses. What should the next assignment do?",
+          "choices": [
+            "Clear relevance",
+            "Leave the old true bit forever",
+            "Warming the barrel",
+            "Change the equipped slot"
+          ],
+          "answer": 0,
+          "why": "The bool is the hit, including a miss."
+        },
+        {
+          "id": "tpsi-aoi-4",
+          "kind": "mc",
+          "prompt": "You write Relevant from Tick. What cost comes back?",
+          "choices": [
+            "A relevance trace on every frame for a heavy mesh",
+            "A second aim trace",
+            "A sprint during the menu",
+            "A doubled medal"
+          ],
+          "answer": 0,
+          "why": "The half-second timer is the budget."
+        },
+        {
+          "id": "tpsi-aoi-5",
+          "kind": "mc",
+          "prompt": "A client marks itself relevant so its animation stays smooth. Who else is forced to receive it?",
+          "choices": [
+            "Whoever trusts that client write",
+            "No other machine, if clients were unable to replicate",
+            "Only the vehicle",
+            "Only the gunsmith menu"
+          ],
+          "answer": 0,
+          "why": "The authority traces."
+        },
+        {
+          "id": "tpsi-aoi-6",
+          "kind": "tf",
+          "prompt": "A client that is not relevant should not receive the full third-person pawn.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Dropping them is the point."
+        },
+        {
+          "id": "tpsi-aoi-7",
+          "kind": "mc",
+          "prompt": "Which pair matches the real relevance timer?",
+          "choices": [
+            "Half a second, looping, then the bool follows the hit",
+            "A frame write with no trace",
+            "The fire action",
+            "The throttle axis"
+          ],
+          "answer": 0,
+          "why": "That is the repair."
+        },
+        {
+          "id": "tpsi-aoi-8",
+          "kind": "mc",
+          "prompt": "Why is a third-person pawn a stricter relevance case than a tiny pickup?",
+          "choices": [
+            "The mesh is large and the animation is busy",
+            "Pickups cannot be replicated at all",
+            "Third person has no transforms",
+            "Heat requires a pawn to be irrelevant"
+          ],
+          "answer": 0,
+          "why": "The animation is the cost."
+        },
+        {
+          "id": "tpsi-aoi-9",
+          "kind": "mc",
+          "prompt": "You save Relevant so a distant pawn stays culled. What is stale after the player drives closer?",
+          "choices": [
+            "The saved bit, which still says the pawn is gone",
+            "How much fuel is left",
+            "Which slot is in the hands",
+            "The heat float"
+          ],
+          "answer": 0,
+          "why": "Run the timer again. Do not restore the bit."
+        },
+        {
+          "id": "tpsi-aoi-10",
+          "kind": "mc",
+          "prompt": "Who runs the relevance trace?",
+          "choices": [
+            "The authority",
+            "Each cosmetic-only client",
+            "The motion-matching graph",
+            "The gunsmith radial menu"
+          ],
+          "answer": 0,
+          "why": "The excerpt gates it."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the authority set third-person relevance twice a second instead of every frame?",
+        "whyGamePrompt": "What pawns hide, or what budget blows up, if a client or Tick writes that relevance bool?"
+      }
+    },
+    "ballistics": {
+      "plainEnglish": "Fire is its own button. A hit adds a small step of heat. Wear is the other float on the same weapon. The muzzle flash on the third-person mesh is local. It is not a replicated projectile. A miss adds no heat.",
+      "whyGame": "Adding heat while the player is only aiming makes the gun wear out from looking.",
+      "expansions": [
+        {
+          "title": "The step",
+          "detail": "Heat increases by 0.05 on a hit."
+        },
+        {
+          "title": "Wear",
+          "detail": "Wear lives beside heat. It is not the camera bool."
+        },
+        {
+          "title": "The flash",
+          "detail": "The visible muzzle is a local effect of the action."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tpsi-ballistics-1",
+          "kind": "mc",
+          "prompt": "Which action starts a third-person shot?",
+          "choices": [
+            "Fire",
+            "The shoulder button",
+            "A per-frame loop",
+            "Choosing a weapon slot"
+          ],
+          "answer": 0,
+          "why": "IA_Fire is the shot."
+        },
+        {
+          "id": "tpsi-ballistics-2",
+          "kind": "mc",
+          "prompt": "The excerpt does Heat = (Heat + 0.05f) on a hit. What did that line add?",
+          "choices": [
+            "A small heat step, only because the trace hit",
+            "Heat on every frame the player aims",
+            "A point of wear on a miss",
+            "The car's fuel tank"
+          ],
+          "answer": 0,
+          "why": "The add is inside the hit."
+        },
+        {
+          "id": "tpsi-ballistics-3",
+          "kind": "mc",
+          "prompt": "The trace hits. What runs next inside the fire action?",
+          "choices": [
+            "The heat step",
+            "A second camera trace",
+            "A speed write of 600",
+            "An equip change"
+          ],
+          "answer": 0,
+          "why": "The hit is the heat."
+        },
+        {
+          "id": "tpsi-ballistics-4",
+          "kind": "mc",
+          "prompt": "Heat climbs while the player is only aiming. Where was the add placed?",
+          "choices": [
+            "Outside the fire action",
+            "Inside fire, on a hit",
+            "Inside the relevance timer",
+            "Inside the vehicle axis"
+          ],
+          "answer": 0,
+          "why": "Aiming is not firing."
+        },
+        {
+          "id": "tpsi-ballistics-5",
+          "kind": "mc",
+          "prompt": "The muzzle flash is replicated as a projectile. What does every other machine simulate that it did not need?",
+          "choices": [
+            "A moving actor, when a local flash would do",
+            "The gait trajectory",
+            "The ten weapon slots",
+            "The camera boom's mesh"
+          ],
+          "answer": 0,
+          "why": "The flash is local."
+        },
+        {
+          "id": "tpsi-ballistics-6",
+          "kind": "tf",
+          "prompt": "A missed third-person shot should add no heat.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The sample adds heat on a hit."
+        },
+        {
+          "id": "tpsi-ballistics-7",
+          "kind": "mc",
+          "prompt": "Wear and heat are both on the weapon. What is wear?",
+          "choices": [
+            "The sibling float beside heat",
+            "The sights flag",
+            "Who receives the pawn",
+            "The car's forward axis"
+          ],
+          "answer": 0,
+          "why": "Same weapon, different float."
+        },
+        {
+          "id": "tpsi-ballistics-8",
+          "kind": "mc",
+          "prompt": "Where does the excerpt add 0.05?",
+          "choices": [
+            "Inside the fire action, on a hit",
+            "While the player is only aiming",
+            "On the relevance timer",
+            "When the pawn enters a vehicle"
+          ],
+          "answer": 0,
+          "why": "That is the repair."
+        },
+        {
+          "id": "tpsi-ballistics-9",
+          "kind": "mc",
+          "prompt": "You want the third-person muzzle to show on the firing client immediately. What do you play locally?",
+          "choices": [
+            "The muzzle effect",
+            "A replicated projectile",
+            "A second heat write on every proxy",
+            "The check for who receives the pawn"
+          ],
+          "answer": 0,
+          "why": "The flash is an effect of the action."
+        },
+        {
+          "id": "tpsi-ballistics-10",
+          "kind": "mc",
+          "prompt": "Which float does a hit change in the excerpt?",
+          "choices": [
+            "Heat",
+            "The gait number",
+            "The vehicle axis",
+            "The equipped id"
+          ],
+          "answer": 0,
+          "why": "0.05 is heat."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the fire button add a step of heat on a hit, while the third-person muzzle flash stays local?",
+        "whyGamePrompt": "What wears out if heat climbs while the player is only aiming?"
+      }
+    },
+    "limbs": {
+      "plainEnglish": "Other players see the limp, so the limb is one server number. Any Damage starts the write, inside the authority check. A bruise stops at 10 percent of that limb's max. Crossing zero is the down. The number 90 in the sample is a stand-in.",
+      "whyGame": "A client that subtracts so the limp appears early will snap, and a tick write injures the pawn while nobody hit it.",
+      "expansions": [
+        {
+          "title": "A max of 50",
+          "detail": "The bruise floor is 5."
+        },
+        {
+          "title": "The down",
+          "detail": "Zero is not a bruise."
+        },
+        {
+          "title": "The notify",
+          "detail": "Play the limp. Do not subtract again."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tpsi-limbs-1",
+          "kind": "mc",
+          "prompt": "Which event starts a third-person limb write?",
+          "choices": [
+            "Any Damage, on the authority",
+            "A per-frame drain",
+            "The aim action",
+            "The equip menu"
+          ],
+          "answer": 0,
+          "why": "Damage is the hit."
+        },
+        {
+          "id": "tpsi-limbs-2",
+          "kind": "mc",
+          "prompt": "The excerpt assigns Health = 90.f inside the authority check. What replaces 90?",
+          "choices": [
+            "The clamped result",
+            "A constant every bruise must use",
+            "How hot the barrel got",
+            "The car axis"
+          ],
+          "answer": 0,
+          "why": "90 is a sample."
+        },
+        {
+          "id": "tpsi-limbs-3",
+          "kind": "mc",
+          "prompt": "A bruise would take a limb of max 50 down to 2. Where does it land?",
+          "choices": [
+            "At 5, which is 10 percent of 50",
+            "Down at two",
+            "Down at nothing",
+            "Back at the maximum, if authority rejected the bruise"
+          ],
+          "answer": 0,
+          "why": "The floor holds a bruise."
+        },
+        {
+          "id": "tpsi-limbs-4",
+          "kind": "mc",
+          "prompt": "Tick writes the limb. What happens while the player is only running?",
+          "choices": [
+            "The limb falls with no attack",
+            "The camera tightens",
+            "Heat climbs from the run",
+            "The equipped slot rotates"
+          ],
+          "answer": 0,
+          "why": "Damage is the event, not the frame."
+        },
+        {
+          "id": "tpsi-limbs-5",
+          "kind": "mc",
+          "prompt": "A normal hit crosses zero. What state is that, if it was allowed?",
+          "choices": [
+            "A down, which a bruise is not allowed to cause",
+            "A legal bruise",
+            "A magazine refill",
+            "A gear change"
+          ],
+          "answer": 0,
+          "why": "Zero is the down. The floor stops a bruise."
+        },
+        {
+          "id": "tpsi-limbs-6",
+          "kind": "tf",
+          "prompt": "A bruise may drop a limb to zero.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Ten percent is the floor."
+        },
+        {
+          "id": "tpsi-limbs-7",
+          "kind": "mc",
+          "prompt": "The limp plays by subtracting on the notify. What does the attack land as?",
+          "choices": [
+            "Two hits",
+            "One hit",
+            "A small warmth step",
+            "An equip change"
+          ],
+          "answer": 0,
+          "why": "The server already wrote the number."
+        },
+        {
+          "id": "tpsi-limbs-8",
+          "kind": "mc",
+          "prompt": "Why must this limb be one replicated number?",
+          "choices": [
+            "Other players can see the limp",
+            "The boom requires it",
+            "Heat is stored in the same float",
+            "Vehicles read limbs as throttle"
+          ],
+          "answer": 0,
+          "why": "The body is visible."
+        },
+        {
+          "id": "tpsi-limbs-9",
+          "kind": "mc",
+          "prompt": "A client applies the bruise before the server answers. What snaps?",
+          "choices": [
+            "The limp, back to the server number",
+            "The aim trace",
+            "The ten slot records",
+            "The motion trajectory forever"
+          ],
+          "answer": 0,
+          "why": "The client number was not authority."
+        },
+        {
+          "id": "tpsi-limbs-10",
+          "kind": "mc",
+          "prompt": "Which line is the limb write?",
+          "choices": [
+            "The assignment nested in the authority check, from Any Damage",
+            "A frame drain",
+            "The heat step",
+            "The throttle copy. A car axis does not record a bruise."
+          ],
+          "answer": 0,
+          "why": "That is the repair."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why is the third-person limp one server number that a normal hit cannot drop below ten percent?",
+        "whyGamePrompt": "Who gets injured with nobody shooting if Tick writes the limb, and what snaps if a client subtracts early?"
+      }
+    },
+    "gunsmith": {
+      "plainEnglish": "The body shows the weapon other players see, so the equipped id has to match. There are ten slots. A number key or the radial menu selects one. The server writes that id. Everyone builds the mesh from the notify.",
+      "whyGame": "A write outside the authority check lets a proxy pop a different weapon than the one the server has.",
+      "expansions": [
+        {
+          "title": "Ten slots",
+          "detail": "The record is ten wide. The id picks one."
+        },
+        {
+          "title": "The menu",
+          "detail": "The radial menu and the number keys are the same equip action."
+        },
+        {
+          "title": "The mesh",
+          "detail": "Clients build the visible gun from the replicated id."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tpsi-gunsmith-1",
+          "kind": "mc",
+          "prompt": "How many slots does the gunsmith record have?",
+          "choices": [
+            "Ten",
+            "Only the weapon already in the hands",
+            "The magazine count and the reserve count",
+            "As many as the radial menu draws this frame"
+          ],
+          "answer": 0,
+          "why": "The record is ten wide."
+        },
+        {
+          "id": "tpsi-gunsmith-2",
+          "kind": "mc",
+          "prompt": "The excerpt assigns EquippedId = IA_Equip inside the authority check. What does that line store?",
+          "choices": [
+            "Which of the ten slots is in the hands",
+            "Barrel warmth",
+            "Whether the sights are up",
+            "Vehicle fuel"
+          ],
+          "answer": 0,
+          "why": "The id is the selection."
+        },
+        {
+          "id": "tpsi-gunsmith-3",
+          "kind": "mc",
+          "prompt": "The player picks slot 4 from the radial menu. Who writes the id?",
+          "choices": [
+            "The authority",
+            "Each proxy, so the mesh pops locally first",
+            "The motion-matching graph",
+            "The half-second interest loop"
+          ],
+          "answer": 0,
+          "why": "The check wraps the write."
+        },
+        {
+          "id": "tpsi-gunsmith-4",
+          "kind": "mc",
+          "prompt": "EquippedId is written outside the authority check. What do proxies show?",
+          "choices": [
+            "A different weapon than the server has",
+            "The correct gun, because proxies ignore the id",
+            "No mesh, until heat replicates",
+            "The vehicle"
+          ],
+          "answer": 0,
+          "why": "The pop is the disagreement."
+        },
+        {
+          "id": "tpsi-gunsmith-5",
+          "kind": "mc",
+          "prompt": "A number key and the radial menu both equip. Which action do they both fire?",
+          "choices": [
+            "The equip action",
+            "The fire action",
+            "The throttle axis",
+            "Who is close enough to receive the pawn"
+          ],
+          "answer": 0,
+          "why": "IA_Equip is both inputs."
+        },
+        {
+          "id": "tpsi-gunsmith-6",
+          "kind": "tf",
+          "prompt": "Each proxy should write EquippedId so its mesh updates first.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "They build the mesh from the server id."
+        },
+        {
+          "id": "tpsi-gunsmith-7",
+          "kind": "mc",
+          "prompt": "What is the repair for a weapon that pops on proxies?",
+          "choices": [
+            "Nest the equipped-id write inside the authority check",
+            "Replicate the whole skeletal mesh every frame",
+            "Store the id in heat",
+            "Let the camera graph equip"
+          ],
+          "answer": 0,
+          "why": "The id is the replicated fact."
+        },
+        {
+          "id": "tpsi-gunsmith-8",
+          "kind": "mc",
+          "prompt": "The notify arrives with a new id. What do the owning client and the proxies build?",
+          "choices": [
+            "The mesh for that slot",
+            "A new heat value",
+            "A new relevance bit",
+            "A new throttle"
+          ],
+          "answer": 0,
+          "why": "The mesh follows the id."
+        },
+        {
+          "id": "tpsi-gunsmith-9",
+          "kind": "mc",
+          "prompt": "Why does the third-person body make this id matter more than a hidden first-person gun?",
+          "choices": [
+            "Other players can see which weapon is in the hands",
+            "Heat only exists in third person",
+            "Vehicles equip slots",
+            "Relevance is the equipped id"
+          ],
+          "answer": 0,
+          "why": "The body is the display."
+        },
+        {
+          "id": "tpsi-gunsmith-10",
+          "kind": "mc",
+          "prompt": "Which line is the equip?",
+          "choices": [
+            "EquippedId assigned from the equip action, inside the authority check",
+            "Heat increased on a hit",
+            "Speed set to 600",
+            "Throttle copied from speed. The car's axis is not which of the ten slots is equipped."
+          ],
+          "answer": 0,
+          "why": "That is the selection."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why must the equipped id on the body other players see be the slot the server wrote?",
+        "whyGamePrompt": "What weapon pops on a proxy if that write skips the authority check?"
+      }
+    },
+    "vehicle": {
+      "plainEnglish": "A vehicle is a different component. The throttle axis is its input, written on the authority. The chaos vehicle reads that axis. It does not read the on-foot speeds of 600 or 200.",
+      "whyGame": "Copying walk speed into throttle launches the car at a sprint number the vehicle was never tuned for.",
+      "expansions": [
+        {
+          "title": "The axis",
+          "detail": "IA_Throttle is the input."
+        },
+        {
+          "title": "The car",
+          "detail": "It reads throttle, not the pawn's speed."
+        },
+        {
+          "title": "Fuel",
+          "detail": "Fuel is a save field when the mode has a car."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tpsi-vehicle-1",
+          "kind": "mc",
+          "prompt": "What does the vehicle excerpt assign?",
+          "choices": [
+            "Throttle from its own axis, inside the authority check",
+            "The on-foot speed of 600",
+            "Whether the camera is tight",
+            "Barrel temperature"
+          ],
+          "answer": 0,
+          "why": "The axis is the input."
+        },
+        {
+          "id": "tpsi-vehicle-2",
+          "kind": "mc",
+          "prompt": "The line Throttle = IA_Throttle runs inside HasAuthority. What is being copied?",
+          "choices": [
+            "The vehicle axis",
+            "The pawn's sprint speed",
+            "The equipped slot",
+            "Whether anyone receives the pawn"
+          ],
+          "answer": 0,
+          "why": "IA_Throttle is the axis."
+        },
+        {
+          "id": "tpsi-vehicle-3",
+          "kind": "mc",
+          "prompt": "The player presses the vehicle forward. What should the chaos vehicle read?",
+          "choices": [
+            "Throttle",
+            "The on-foot speed",
+            "The aim trace",
+            "The bruise minimum"
+          ],
+          "answer": 0,
+          "why": "The car reads the axis."
+        },
+        {
+          "id": "tpsi-vehicle-4",
+          "kind": "mc",
+          "prompt": "Tick copies the on-foot speed into throttle. What does the car do?",
+          "choices": [
+            "It launches at a sprint number",
+            "It aims",
+            "It equips slot 1",
+            "It adds heat"
+          ],
+          "answer": 0,
+          "why": "600 is not a throttle."
+        },
+        {
+          "id": "tpsi-vehicle-5",
+          "kind": "mc",
+          "prompt": "The pawn's 200 walk and the car's creep are both 'slow'. Why are they not the same write?",
+          "choices": [
+            "One is a gait and the other is an axis on a different component",
+            "They share a float by design",
+            "The camera boom converts one into the other",
+            "Heat scales both"
+          ],
+          "answer": 0,
+          "why": "Leaving the pawn is a different component."
+        },
+        {
+          "id": "tpsi-vehicle-6",
+          "kind": "tf",
+          "prompt": "The chaos vehicle should read the on-foot speed of 600.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "It reads throttle."
+        },
+        {
+          "id": "tpsi-vehicle-7",
+          "kind": "mc",
+          "prompt": "Which action does the real vehicle graph read?",
+          "choices": [
+            "The throttle axis",
+            "The move stick's sprint literal",
+            "Pulling the trigger",
+            "Choosing from the radial menu"
+          ],
+          "answer": 0,
+          "why": "That is the repair."
+        },
+        {
+          "id": "tpsi-vehicle-8",
+          "kind": "mc",
+          "prompt": "A client writes throttle so the car feels local. What snaps?",
+          "choices": [
+            "The axis, when the authority value arrives",
+            "The ten weapon slots",
+            "The aim bool permanently",
+            "Ten percent of the limb max"
+          ],
+          "answer": 0,
+          "why": "The write is inside the check."
+        },
+        {
+          "id": "tpsi-vehicle-9",
+          "kind": "mc",
+          "prompt": "Fuel is low and the axis is still pushed. What should eventually stop the car?",
+          "choices": [
+            "The fuel budget, not a rewrite of the on-foot gait",
+            "Setting speed to 200",
+            "Clearing the aiming bool",
+            "Unequipping the weapon"
+          ],
+          "answer": 0,
+          "why": "Fuel is the vehicle's stock."
+        },
+        {
+          "id": "tpsi-vehicle-10",
+          "kind": "mc",
+          "prompt": "Which line is the vehicle input?",
+          "choices": [
+            "Throttle assigned from its axis inside the authority check",
+            "Speed assigned 600",
+            "Heat increased by 0.05",
+            "Equipped id from a number key"
+          ],
+          "answer": 0,
+          "why": "The axis is not the gait."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why is throttle the vehicle's own axis on the authority, instead of the on-foot sprint speed?",
+        "whyGamePrompt": "What launch happens if walk speed is copied into the car's throttle?"
+      }
+    },
+    "save": {
+      "plainEnglish": "The kit save stores limb floats, heat, wear, the magazine, the reserve, the equipped id, and vehicle fuel if there is a car. It does not store the motion-matching pose, the boom transform, or relevance. Load is Begin Play. Do not snapshot throttle in the middle of a gear change.",
+      "whyGame": "A pose in the slot fights the animator, and a mid-gear throttle is not a finished fact.",
+      "expansions": [
+        {
+          "title": "The pose",
+          "detail": "Motion matching rebuilds it from speed."
+        },
+        {
+          "title": "The boom",
+          "detail": "The camera rebuilds from the aiming bool if you saved that bool."
+        },
+        {
+          "title": "Relevance",
+          "detail": "The timer looks again."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tpsi-save-1",
+          "kind": "mc",
+          "prompt": "Which set belongs in the intermediate third-person slot?",
+          "choices": [
+            "Limbs, heat, wear, magazine, reserve, the equipped id, and fuel if there is a car",
+            "The motion-matching pose and the boom transform",
+            "Who was receiving the pawn",
+            "The raw stick sample from the last frame"
+          ],
+          "answer": 0,
+          "why": "Save the kit. Rebuild the pose and the passes."
+        },
+        {
+          "id": "tpsi-save-2",
+          "kind": "mc",
+          "prompt": "The sample assigns SlotValue = 1.f at Begin Play. What replaces it?",
+          "choices": [
+            "The kit struct",
+            "The current pose",
+            "The boom transform",
+            "A single relevance bit"
+          ],
+          "answer": 0,
+          "why": "1 is the stand-in."
+        },
+        {
+          "id": "tpsi-save-3",
+          "kind": "mc",
+          "prompt": "A finished struct is on disk. Which event loads it?",
+          "choices": [
+            "Begin Play",
+            "The next rendered frame",
+            "The fire button",
+            "A gear change"
+          ],
+          "answer": 0,
+          "why": "The mesh, the camera, and the vehicle exist then."
+        },
+        {
+          "id": "tpsi-save-4",
+          "kind": "mc",
+          "prompt": "Tick writes throttle into the slot during a gear change. What can you restore?",
+          "choices": [
+            "A half-finished gear",
+            "A committed vehicle state",
+            "The correct motion pose",
+            "A fresh relevance pass"
+          ],
+          "answer": 0,
+          "why": "Write on an event."
+        },
+        {
+          "id": "tpsi-save-5",
+          "kind": "mc",
+          "prompt": "You pack the motion-matching pose so the load looks seamless. What fights the animator?",
+          "choices": [
+            "That saved pose",
+            "The magazine count",
+            "Which weapon slot was selected",
+            "How much fuel remains"
+          ],
+          "answer": 0,
+          "why": "The trajectory rebuilds from speed."
+        },
+        {
+          "id": "tpsi-save-6",
+          "kind": "tf",
+          "prompt": "Relevant belongs in the third-person kit save.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The timer runs again."
+        },
+        {
+          "id": "tpsi-save-7",
+          "kind": "mc",
+          "prompt": "The mode has no car. What do you leave out?",
+          "choices": [
+            "Vehicle fuel",
+            "Barrel warmth",
+            "The selected weapon slot",
+            "The limb floats"
+          ],
+          "answer": 0,
+          "why": "Fuel is only for a mode that has a car."
+        },
+        {
+          "id": "tpsi-save-8",
+          "kind": "mc",
+          "prompt": "Magazine loaded and reserve did not. What does the next shot lie about?",
+          "choices": [
+            "How many rounds are left on the body",
+            "Whether the camera is tight",
+            "Who is relevant",
+            "Which gear the car is in"
+          ],
+          "answer": 0,
+          "why": "Both gun numbers travel together."
+        },
+        {
+          "id": "tpsi-save-9",
+          "kind": "mc",
+          "prompt": "Heat loaded and wear did not. What wears out at the wrong time?",
+          "choices": [
+            "The weapon, whose two floats were split",
+            "The boom",
+            "The interest loop",
+            "The throttle axis binding"
+          ],
+          "answer": 0,
+          "why": "Heat and wear are a pair."
+        },
+        {
+          "id": "tpsi-save-10",
+          "kind": "mc",
+          "prompt": "Why is Begin Play the load rather than the middle of a gear change?",
+          "choices": [
+            "The actors exist, and a gear change is not a finished fact",
+            "Begin Play cannot read floats",
+            "Gear changes are the only legal save point",
+            "The pose must be stored first"
+          ],
+          "answer": 0,
+          "why": "Load a finished struct into actors that are there."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the kit save store limbs, heat, wear, ammo, the equipped id, and fuel, but not the motion-matching pose?",
+        "whyGamePrompt": "What fights the animator if a pose or a mid-gear throttle is stored as a finished fact?"
+      }
+    }
+  },
+  "repairWrongs": {
+    "tps-intermediate-e2": [
+      "Keeping the sights on Tick stops the boom from popping",
+      "Fire should be what tightens the camera",
+      "The equip menu should set the aiming bool"
+    ],
+    "tps-intermediate-e5": [
+      "A menu should keep the sprint so the resume feels instant",
+      "The camera graph should own the 600",
+      "The vehicle axis should write the on-foot sprint"
+    ],
+    "tps-intermediate-e8": [
+      "A relevance trace every frame is fresher for a busy animation",
+      "The aim trace should also set who receives the pawn",
+      "Heat should decide relevance"
+    ],
+    "tps-intermediate-e11": [
+      "Aiming should warm the gun so the first shot is ready",
+      "The relevance timer is a fine place to add heat",
+      "A miss should heat the barrel too"
+    ],
+    "tps-intermediate-e14": [
+      "A limb that drains every frame reads as a steady injury",
+      "The client who saw the hit should write the limp",
+      "Equip should be what changes a limb"
+    ],
+    "tps-intermediate-e17": [
+      "Proxies should write the id so the mesh never waits",
+      "Replicating the whole skeleton is cheaper than an id",
+      "Heat can store which slot is equipped"
+    ],
+    "tps-intermediate-e20": [
+      "On-foot speed is a fine throttle for a car",
+      "The aim bool should scale the car",
+      "Fire should be the vehicle axis"
+    ],
+    "tps-intermediate-e24": [
+      "Mid-gear is the most honest throttle to restore",
+      "The fire button should load the slot",
+      "The relevance bit should be the load"
+    ]
+  },
+  "exam": [
+    {
+      "id": "tpsi-exam-1",
+      "kind": "mc",
+      "prompt": "The shoulder camera sets Aiming from Tick. Which action does the real graph use?",
+      "choices": [
+        "The shoulder button",
+        "The shot",
+        "A weapon slot change",
+        "Pressing the car forward"
+      ],
+      "answer": 0,
+      "why": "IA_Aim is the sights."
+    },
+    {
+      "id": "tpsi-exam-2",
+      "kind": "mc",
+      "prompt": "Motion matching traces to pick an aim pose. What should it read instead?",
+      "choices": [
+        "The aiming bool",
+        "A second hit result",
+        "The car axis",
+        "How worn the barrel is"
+      ],
+      "answer": 0,
+      "why": "The bool is already the answer."
+    },
+    {
+      "id": "tpsi-exam-3",
+      "kind": "tf",
+      "prompt": "The boom shortens by reading the aiming bool.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "It does not trace."
+    },
+    {
+      "id": "tpsi-exam-4",
+      "kind": "mc",
+      "prompt": "Tick writes 600 during a menu. Where does the sprint literal belong?",
+      "choices": [
+        "Inside the check that the stick is pushed",
+        "On each drawn frame",
+        "In the sights graph",
+        "In the vehicle graph"
+      ],
+      "answer": 0,
+      "why": "The menu is not a push."
+    },
+    {
+      "id": "tpsi-exam-5",
+      "kind": "mc",
+      "prompt": "The stick is centered. Which speed is the excerpt's other branch?",
+      "choices": [
+        "200",
+        "The sprint gait",
+        "The tiny heat increment",
+        "The throttle value"
+      ],
+      "answer": 0,
+      "why": "200 is the unpushed gait."
+    },
+    {
+      "id": "tpsi-exam-6",
+      "kind": "tf",
+      "prompt": "The camera graph may also assign Speed.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Two writers flicker."
+    },
+    {
+      "id": "tpsi-exam-7",
+      "kind": "mc",
+      "prompt": "What does the real relevance timer use?",
+      "choices": [
+        "A half-second loop, then the bool follows the hit",
+        "A write every frame",
+        "Firing a shot",
+        "Opening the radial menu"
+      ],
+      "answer": 0,
+      "why": "That is the pass."
+    },
+    {
+      "id": "tpsi-exam-8",
+      "kind": "mc",
+      "prompt": "A heavy animated pawn is sent to every client. What check was skipped?",
+      "choices": [
+        "Relevance",
+        "How many rounds the gun holds",
+        "Adding barrel temperature",
+        "Opening the weapon wheel"
+      ],
+      "answer": 0,
+      "why": "Unseen pawns should drop."
+    },
+    {
+      "id": "tpsi-exam-9",
+      "kind": "mc",
+      "prompt": "Heat steps while the player is only aiming. Where does 0.05 belong?",
+      "choices": [
+        "Inside the fire action, on a hit",
+        "While only looking down the sights",
+        "On the relevance timer",
+        "While driving"
+      ],
+      "answer": 0,
+      "why": "Looking is not a shot."
+    },
+    {
+      "id": "tpsi-exam-10",
+      "kind": "mc",
+      "prompt": "A miss adds heat and spawns a replicated projectile. What should a miss do?",
+      "choices": [
+        "Add no heat, and play only a local muzzle effect on a real shot",
+        "Add heat and replicate the projectile",
+        "Equip a new slot",
+        "Set speed to 200"
+      ],
+      "answer": 0,
+      "why": "Heat is the hit. The flash is local."
+    },
+    {
+      "id": "tpsi-exam-11",
+      "kind": "tf",
+      "prompt": "Wear is a second float on the same weapon as heat.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "They are siblings."
+    },
+    {
+      "id": "tpsi-exam-12",
+      "kind": "mc",
+      "prompt": "A limb of max 50 takes a bruise of 20 from a current value of 8. Where does it land?",
+      "choices": [
+        "At 5",
+        "Down at nothing",
+        "Left at eight, if clients could not change limbs",
+        "Back at the maximum"
+      ],
+      "answer": 0,
+      "why": "Ten percent of 50 is 5."
+    },
+    {
+      "id": "tpsi-exam-13",
+      "kind": "mc",
+      "prompt": "The limb graph writes health from Tick. Which event starts the real write?",
+      "choices": [
+        "Any Damage",
+        "The aim action",
+        "A weapon change",
+        "A gear change"
+      ],
+      "answer": 0,
+      "why": "Damage is the hit."
+    },
+    {
+      "id": "tpsi-exam-14",
+      "kind": "tf",
+      "prompt": "The limp notify should subtract the bruise again.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "It only plays the result."
+    },
+    {
+      "id": "tpsi-exam-15",
+      "kind": "mc",
+      "prompt": "A proxy pops a rifle the server does not have equipped. Where was the id written?",
+      "choices": [
+        "Outside the authority check",
+        "Inside the authority check",
+        "Inside the heat step",
+        "Inside the trajectory builder"
+      ],
+      "answer": 0,
+      "why": "Nest the write."
+    },
+    {
+      "id": "tpsi-exam-16",
+      "kind": "mc",
+      "prompt": "A number key and the radial menu disagree about which function to call. What should both call?",
+      "choices": [
+        "The equip action",
+        "The shot button",
+        "The aim action",
+        "Pressing the vehicle forward"
+      ],
+      "answer": 0,
+      "why": "One selection path."
+    },
+    {
+      "id": "tpsi-exam-17",
+      "kind": "mc",
+      "prompt": "The vehicle graph copies speed from Tick. Which action should it read?",
+      "choices": [
+        "The throttle axis",
+        "The move stick",
+        "Firing the gun",
+        "Changing weapons"
+      ],
+      "answer": 0,
+      "why": "The car is a different component."
+    },
+    {
+      "id": "tpsi-exam-18",
+      "kind": "tf",
+      "prompt": "Copying the sprint speed 600 into throttle is a valid launch.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "The car was not tuned for that number."
+    },
+    {
+      "id": "tpsi-exam-19",
+      "kind": "mc",
+      "prompt": "Tick stores throttle mid gear change. What should load a finished slot?",
+      "choices": [
+        "Begin Play, from a struct written on an event",
+        "The next frame",
+        "Pulling the trigger to shoot",
+        "Checking who receives the pawn"
+      ],
+      "answer": 0,
+      "why": "Do not restore a half-shift."
+    },
+    {
+      "id": "tpsi-exam-20",
+      "kind": "mc",
+      "prompt": "Which three does the kit save leave out?",
+      "choices": [
+        "The motion pose, the boom transform",
+        "Barrel warmth, wear, and the selected slot",
+        "The gun's two ammo numbers and the limbs",
+        "Fuel in a mode that has a car"
+      ],
+      "answer": 0,
+      "why": "Those rebuild."
+    },
+    {
+      "id": "tpsi-exam-21",
+      "kind": "mc",
+      "prompt": "After load a distant pawn stays hidden even though you drove up to it. What was restored?",
+      "choices": [
+        "A relevance bit",
+        "The selected slot",
+        "How hot the gun was",
+        "Remaining fuel"
+      ],
+      "answer": 0,
+      "why": "Run the timer again."
+    },
+    {
+      "id": "tpsi-exam-22",
+      "kind": "tf",
+      "prompt": "The equipped id belongs in the kit save.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "Other players see that weapon."
+    },
+    {
+      "id": "tpsi-exam-23",
+      "kind": "mc",
+      "prompt": "You are pairing sights, gait, and a shot. Which three writes match?",
+      "choices": [
+        "The aiming bool, speed from the stick, and heat on a fire hit",
+        "Three writes on Tick",
+        "The car axis for all three",
+        "Who receives the pawn, for all three"
+      ],
+      "answer": 0,
+      "why": "Three actions."
+    },
+    {
+      "id": "tpsi-exam-24",
+      "kind": "mc",
+      "prompt": "A bruise, an equip, and a throttle push all arrive from clients. Which can stand before the server agrees?",
+      "choices": [
+        "None of them",
+        "Only the bruise",
+        "Only the equip",
+        "Only the throttle"
+      ],
+      "answer": 0,
+      "why": "All three writes sit inside the authority check."
+    },
+    {
+      "id": "tpsi-exam-25",
+      "kind": "mc",
+      "prompt": "The gun shows heat but wear is still zero after a long fight you saved. What was dropped?",
+      "choices": [
+        "Wear",
+        "The boom transform, correctly",
+        "The motion pose, correctly",
+        "Who receives the pawn, correctly"
+      ],
+      "answer": 0,
+      "why": "Wear travels with heat."
+    },
+    {
+      "id": "tpsi-exam-26",
+      "kind": "mc",
+      "prompt": "Ten slots are equipped by two different inputs. What must those inputs not do?",
+      "choices": [
+        "Write the id on the client",
+        "Share the equip action",
+        "Replicate the id",
+        "Build the mesh from the notify"
+      ],
+      "answer": 0,
+      "why": "The server owns the id."
+    },
+    {
+      "id": "tpsi-exam-27",
+      "kind": "tf",
+      "prompt": "A third-person muzzle flash needs its own replicated projectile.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "The flash is local."
+    },
+    {
+      "id": "tpsi-exam-28",
+      "kind": "mc",
+      "prompt": "Speed is 200, the player fires and hits, and the stick is not pushed. What may change?",
+      "choices": [
+        "Heat",
+        "The gait, up to a sprint",
+        "The car axis",
+        "The relevance schedule"
+      ],
+      "answer": 0,
+      "why": "The hit heats. The stick did not push."
+    },
+    {
+      "id": "tpsi-exam-29",
+      "kind": "mc",
+      "prompt": "The car, the gun, and the limb are three components. Which inputs match them?",
+      "choices": [
+        "Throttle, fire, and damage",
+        "The stick for all three",
+        "The aim button for all three",
+        "The relevance timer for all three"
+      ],
+      "answer": 0,
+      "why": "Three events."
+    },
+    {
+      "id": "tpsi-exam-30",
+      "kind": "mc",
+      "prompt": "After load the gait rebuilds and a culled pawn is tested again. What was left out of the slot on purpose?",
+      "choices": [
+        "The motion pose and the relevance bit",
+        "Heat and the equipped id",
+        "Magazine and reserve",
+        "The limb floats"
+      ],
+      "answer": 0,
+      "why": "The trajectory and the timer rebuild those two."
+    },
+    {
+      "id": "tpsi-exam-31",
+      "kind": "mc",
+      "prompt": "A saved match shows the right gun, the right heat, and a car with no fuel in a mode that has no car. What extra field was packed?",
+      "choices": [
+        "Fuel",
+        "The equipped id",
+        "How hot the gun got",
+        "The limb floor value"
+      ],
+      "answer": 0,
+      "why": "Fuel is only for a mode with a car."
+    },
+    {
+      "id": "tpsi-exam-32",
+      "kind": "tf",
+      "prompt": "Begin Play should load the kit, and a gear change should not be the snapshot.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "Save a finished event."
+    }
+  ]
+}

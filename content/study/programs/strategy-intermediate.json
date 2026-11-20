@@ -1,0 +1,1667 @@
+{
+  "id": "strategy-intermediate",
+  "sections": {
+    "orders": {
+      "plainEnglish": "A formation is a shape stored on the squad. The right-click still reaches only selected units. Each member reads its own slot in that shape when the order arrives.",
+      "whyGame": "Writing an offset on every member every frame fights the driver's throttle and ignores the shape the designer already named.",
+      "expansions": [
+        {
+          "title": "A wedge",
+          "detail": "The squad data names the wedge. Members do not invent offsets."
+        },
+        {
+          "title": "A truck in the wedge",
+          "detail": "The truck is a member with a throttle. The order branch does not special-case it."
+        },
+        {
+          "title": "An unselected squad",
+          "detail": "It keeps its current shape and ignores the click."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "stgi-orders-1",
+          "kind": "mc",
+          "prompt": "A selected squad receives a move. Where does the wedge shape come from?",
+          "choices": [
+            "The squad data, read when each member accepts the order",
+            "A per-frame offset written onto every member",
+            "Painting cells the team has not seen",
+            "Ammunition reserved for the guns"
+          ],
+          "answer": 0,
+          "why": "The data names the shape."
+        },
+        {
+          "id": "stgi-orders-2",
+          "kind": "mc",
+          "prompt": "The order excerpt still branches if (Selected) before ProcessEvent. What does that branch protect?",
+          "choices": [
+            "Unselected squads, so a click cannot retarget them",
+            "The supply stock",
+            "Whether a shell is in the air",
+            "The relevance timer"
+          ],
+          "answer": 0,
+          "why": "Selection is still the gate."
+        },
+        {
+          "id": "stgi-orders-3",
+          "kind": "mc",
+          "prompt": "A truck sits in the formation. Which node should the click reach?",
+          "choices": [
+            "ReceiveOrder, the same call the infantry uses",
+            "A direct write of the truck throttle",
+            "A barrage the gun would run",
+            "A relevance trace"
+          ],
+          "answer": 0,
+          "why": "The truck is a member, not a special branch."
+        },
+        {
+          "id": "stgi-orders-4",
+          "kind": "mc",
+          "prompt": "You stamp formation offsets from Tick. What fights the driver?",
+          "choices": [
+            "The offset overwrites the throttle the driver just applied",
+            "The medal board doubles",
+            "Fog reveals the enemy base",
+            "The save struct drops the score"
+          ],
+          "answer": 0,
+          "why": "The shape is applied when the order is accepted."
+        },
+        {
+          "id": "stgi-orders-5",
+          "kind": "mc",
+          "prompt": "Two squads share the field and only one is selected. Who changes shape?",
+          "choices": [
+            "The selected squad",
+            "Both squads, because they share the data asset",
+            "Whichever squad is closest to the cursor",
+            "The gun battery"
+          ],
+          "answer": 0,
+          "why": "The flag still decides."
+        },
+        {
+          "id": "stgi-orders-6",
+          "kind": "tf",
+          "prompt": "A formation click names a destination and does not write Throttle.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The order tells the driver where to go. The driver writes throttle."
+        },
+        {
+          "id": "stgi-orders-7",
+          "kind": "mc",
+          "prompt": "Which line is the formation gate?",
+          "choices": [
+            "The branch on Selected before ReceiveOrder",
+            "The relevance hit",
+            "Subtracting one shell",
+            "Stamping the driver's input onto the truck"
+          ],
+          "answer": 0,
+          "why": "Selected is what the broken tick graph skipped."
+        },
+        {
+          "id": "stgi-orders-8",
+          "kind": "mc",
+          "prompt": "Design renames the wedge to a column in the squad data. What does the order graph change?",
+          "choices": [
+            "Nothing. Members read the new shape when they accept",
+            "Every offset literal in the tick",
+            "How often vision is refreshed",
+            "The shell subtract"
+          ],
+          "answer": 0,
+          "why": "The graph does not own the shape."
+        },
+        {
+          "id": "stgi-orders-9",
+          "kind": "mc",
+          "prompt": "An AI driver and a player driver share the truck. Who turns a formation order into motion?",
+          "choices": [
+            "The driver, after ReceiveOrder names the destination",
+            "The order branch, by assigning throttle",
+            "Painting what the team can see",
+            "The medal notify"
+          ],
+          "answer": 0,
+          "why": "The order does not stomp the axis."
+        },
+        {
+          "id": "stgi-orders-10",
+          "kind": "mc",
+          "prompt": "Which mistake is the red tick node on the formation graph?",
+          "choices": [
+            "Writing member offsets every frame",
+            "Branching on Selected",
+            "Reading the squad data",
+            "Leaving unselected squads alone"
+          ],
+          "answer": 0,
+          "why": "The repair branches on Selected instead."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a formation live on the squad, while the right-click still hits only selected units?",
+        "whyGamePrompt": "What input gets stomped if every member writes an offset every frame?"
+      }
+    },
+    "economy": {
+      "plainEnglish": "Supplies pay for buildings and units. Shells are a different budget for the guns. A barrage must not bankrupt the base, and a barracks must not eat ammunition.",
+      "whyGame": "One shared float makes those two spends fight, and a client subtract still diverges from the host.",
+      "expansions": [
+        {
+          "title": "A barracks",
+          "detail": "Its row names a supply cost. Spend subtracts that."
+        },
+        {
+          "title": "A fire mission",
+          "detail": "The gun subtracts a shell. It does not touch Supplies unless a second call says the shell also costs money."
+        },
+        {
+          "title": "The board",
+          "detail": "Scoring reads the score. It does not read the stock."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "stgi-economy-1",
+          "kind": "mc",
+          "prompt": "A barracks and a fire mission both cost something. What must they not share?",
+          "choices": [
+            "One float that is both money and ammunition",
+            "The authority check pattern",
+            "The right-click action",
+            "The save slot"
+          ],
+          "answer": 0,
+          "why": "Supplies and shells are different budgets."
+        },
+        {
+          "id": "stgi-economy-2",
+          "kind": "mc",
+          "prompt": "The excerpt still assigns Supplies = (Supplies - 25.f) inside HasAuthority. What replaces 25?",
+          "choices": [
+            "The data row for that building or that unit",
+            "The shell count",
+            "How often cells are tested",
+            "The relevance radius"
+          ],
+          "answer": 0,
+          "why": "The row names the bill."
+        },
+        {
+          "id": "stgi-economy-3",
+          "kind": "mc",
+          "prompt": "A gun fires and the base should keep its money. Which write runs?",
+          "choices": [
+            "The shell subtract, not the supply subtract",
+            "Both subtracts, because a shot is a purchase",
+            "The score add",
+            "A relevance write"
+          ],
+          "answer": 0,
+          "why": "Shells are the artillery budget."
+        },
+        {
+          "id": "stgi-economy-4",
+          "kind": "mc",
+          "prompt": "Clients subtract Supplies and shells use that same float. What does the battle lose?",
+          "choices": [
+            "A separate ammunition budget, and a stock the host agrees with",
+            "The formation shape. Squad offsets do not name the ammunition budget.",
+            "The throttle axis",
+            "The order click"
+          ],
+          "answer": 0,
+          "why": "Nest the supply write and keep shells apart."
+        },
+        {
+          "id": "stgi-economy-5",
+          "kind": "mc",
+          "prompt": "A shell also costs money. How does the gun pay?",
+          "choices": [
+            "A second call to Spend, using the row's cost",
+            "By subtracting Supplies inside FireMission itself",
+            "By awarding a negative medal",
+            "By clearing fog"
+          ],
+          "answer": 0,
+          "why": "Money is a separate call when the design says so."
+        },
+        {
+          "id": "stgi-economy-6",
+          "kind": "tf",
+          "prompt": "A barrage spends shells, and the barracks spends the supply stock.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "That bankrupts the base or eats the ammo."
+        },
+        {
+          "id": "stgi-economy-7",
+          "kind": "mc",
+          "prompt": "Which line is the money write?",
+          "choices": [
+            "Supplies = (Supplies - 25.f) inside HasAuthority",
+            "Subtracting one shell inside the authority check",
+            "The relevance hit",
+            "Copying the driver's axis"
+          ],
+          "answer": 0,
+          "why": "Supplies is the stock."
+        },
+        {
+          "id": "stgi-economy-8",
+          "kind": "mc",
+          "prompt": "Scoring reads the supply float to paint the board. What number is wrong?",
+          "choices": [
+            "The board, which should read Score",
+            "The formation slot",
+            "The throttle",
+            "The reveal interval"
+          ],
+          "answer": 0,
+          "why": "The board is not the stock."
+        },
+        {
+          "id": "stgi-economy-9",
+          "kind": "mc",
+          "prompt": "The host has shells left and a client has already decremented Supplies for the shot. What diverges?",
+          "choices": [
+            "The money, on a machine that was not supposed to pay",
+            "The formation ids",
+            "The driver's axis binding",
+            "The order action name"
+          ],
+          "answer": 0,
+          "why": "The shot was not a supply spend."
+        },
+        {
+          "id": "stgi-economy-10",
+          "kind": "mc",
+          "prompt": "Why does the repair mention both the authority nest and a separate shell budget?",
+          "choices": [
+            "Clients were spending money",
+            "Fog and relevance had been collapsed",
+            "Throttle was copied from walking speed",
+            "The board was adding 10 twice"
+          ],
+          "answer": 0,
+          "why": "Those are the two bugs in that graph."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why are building supplies and shell ammunition two budgets instead of one float?",
+        "whyGamePrompt": "What spends fight, and whose total diverges, if both budgets share a float and a client subtracts?"
+      }
+    },
+    "fog": {
+      "plainEnglish": "Fog is still a vision pass on a quarter-second timer. A hit marks the cell visible. In a networked match only the authority may write that bit, or a client can see the enemy base.",
+      "whyGame": "The widget on a spectator's screen is not the replicated object. The bit is.",
+      "expansions": [
+        {
+          "title": "The cheat",
+          "detail": "A client write of Visible is the map hack."
+        },
+        {
+          "title": "Orders",
+          "detail": "A click still must not paint cells."
+        },
+        {
+          "title": "Relevance",
+          "detail": "A unit can be simulated and still be invisible to the enemy."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "stgi-fog-1",
+          "kind": "mc",
+          "prompt": "What is the anti-cheat on a strategy fog write?",
+          "choices": [
+            "HasAuthority around the Visible assignment",
+            "A widget each spectator owns",
+            "Ammunition reserved for guns",
+            "The formation offset"
+          ],
+          "answer": 0,
+          "why": "The sample has no gate. The match needs one."
+        },
+        {
+          "id": "stgi-fog-2",
+          "kind": "mc",
+          "prompt": "Reveal assigns Visible = true on a hit. How often does that timer run?",
+          "choices": [
+            "Every 0.25 seconds",
+            "Every frame",
+            "Every time a gun fires",
+            "Only at match start"
+          ],
+          "answer": 0,
+          "why": "The excerpt starts that interval."
+        },
+        {
+          "id": "stgi-fog-3",
+          "kind": "mc",
+          "prompt": "A client wants the enemy base lit. Which write must the server reject?",
+          "choices": [
+            "That client's assignment of Visible",
+            "The driver's throttle",
+            "A legal shell subtract",
+            "A formation slot read"
+          ],
+          "answer": 0,
+          "why": "Vision is not a client property."
+        },
+        {
+          "id": "stgi-fog-4",
+          "kind": "mc",
+          "prompt": "You replicate the spectator widget instead of the bit. What does another player fail to share?",
+          "choices": [
+            "The team's vision",
+            "The truck's mesh",
+            "The order action",
+            "The medal data asset"
+          ],
+          "answer": 0,
+          "why": "The bit is the replicated object."
+        },
+        {
+          "id": "stgi-fog-5",
+          "kind": "mc",
+          "prompt": "A unit is relevant to the host and invisible to the enemy. What did someone wrongly collapse?",
+          "choices": [
+            "Relevant and Visible",
+            "Money and the board",
+            "Throttle and formation slot",
+            "Shells and fuel"
+          ],
+          "answer": 0,
+          "why": "Simulation and vision are different questions."
+        },
+        {
+          "id": "stgi-fog-6",
+          "kind": "tf",
+          "prompt": "Only the authority should write Visible.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "That is the cheat."
+        },
+        {
+          "id": "stgi-fog-7",
+          "kind": "mc",
+          "prompt": "Which pair matches the real fog timer?",
+          "choices": [
+            "0.25 seconds, then Visible = true on a hit",
+            "A per-frame write with no hit test",
+            "The relevance timer at 0.5 seconds",
+            "The shell subtract"
+          ],
+          "answer": 0,
+          "why": "That is the repair."
+        },
+        {
+          "id": "stgi-fog-8",
+          "kind": "mc",
+          "prompt": "An order paints fog along the drag path. Which rule from the beginner match still holds?",
+          "choices": [
+            "Orders do not write vision",
+            "Every click spends a shell",
+            "Throttle is a formation offset",
+            "The board adds points for a click"
+          ],
+          "answer": 0,
+          "why": "Reveal remains the only painter."
+        },
+        {
+          "id": "stgi-fog-9",
+          "kind": "mc",
+          "prompt": "Where does the authority gate sit?",
+          "choices": [
+            "Immediately around the Visible write",
+            "Around the widget constructor",
+            "Around the formation data read",
+            "Around the throttle binding"
+          ],
+          "answer": 0,
+          "why": "Nest it on the assignment."
+        },
+        {
+          "id": "stgi-fog-10",
+          "kind": "mc",
+          "prompt": "Why is Tick the wrong writer for strategy fog?",
+          "choices": [
+            "It skips the hit test and the quarter-second budget",
+            "Tick cannot assign a bool",
+            "The shell budget requires a frame write",
+            "Formations only update on Tick"
+          ],
+          "answer": 0,
+          "why": "The timer and the hit are the pass."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why may only the authority write the visible bit on a networked fog pass?",
+        "whyGamePrompt": "What actually replicates if a spectator's widget is treated as the fog?"
+      }
+    },
+    "scoring": {
+      "plainEnglish": "The server adds the medal. A kill, a capture, and a fire mission that hits a marked target can be different rows. A miss, a reveal, and a supply spend do not award. The board only displays the server number.",
+      "whyGame": "A notify that adds another 10 grants the medal twice.",
+      "expansions": [
+        {
+          "title": "A miss",
+          "detail": "The shell landed off the mark. No row is awarded."
+        },
+        {
+          "title": "A reveal",
+          "detail": "Seeing a unit is not a result."
+        },
+        {
+          "title": "The board",
+          "detail": "OnRep reads Score and refreshes the widget."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "stgi-scoring-1",
+          "kind": "mc",
+          "prompt": "A fire mission hits a marked target. What may award points?",
+          "choices": [
+            "A medal row for that hit, added on the server",
+            "The fog bit flipping true",
+            "The supply spend",
+            "The relevance trace"
+          ],
+          "answer": 0,
+          "why": "A hit on the mark is a result. The others are not."
+        },
+        {
+          "id": "stgi-scoring-2",
+          "kind": "mc",
+          "prompt": "The excerpt adds Score = (Score + 10.f) inside HasAuthority. What is 10 now?",
+          "choices": [
+            "A sample standing in for the row's value",
+            "The points for every event including misses",
+            "The shell cost",
+            "The relevance interval"
+          ],
+          "answer": 0,
+          "why": "Rows can differ."
+        },
+        {
+          "id": "stgi-scoring-3",
+          "kind": "mc",
+          "prompt": "The board's notify runs on another machine. What should it do?",
+          "choices": [
+            "Read Score and refresh the widget",
+            "Add another 10",
+            "Subtract a shell",
+            "Set the formation offset"
+          ],
+          "answer": 0,
+          "why": "The add already happened."
+        },
+        {
+          "id": "stgi-scoring-4",
+          "kind": "mc",
+          "prompt": "The notify adds 10 and the server already did. What does the board show?",
+          "choices": [
+            "Double the medal",
+            "The correct server total",
+            "The shell count",
+            "The throttle"
+          ],
+          "answer": 0,
+          "why": "Display does not award."
+        },
+        {
+          "id": "stgi-scoring-5",
+          "kind": "mc",
+          "prompt": "A shell misses the mark. Which award is legal?",
+          "choices": [
+            "None",
+            "The kill row",
+            "The capture row",
+            "Half the marked-target row"
+          ],
+          "answer": 0,
+          "why": "A miss does not award."
+        },
+        {
+          "id": "stgi-scoring-6",
+          "kind": "tf",
+          "prompt": "Revealing an enemy unit should award a medal.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Fog is not a result."
+        },
+        {
+          "id": "stgi-scoring-7",
+          "kind": "mc",
+          "prompt": "Spending supplies awards points so the economy feels rewarding. What did you couple?",
+          "choices": [
+            "The stock and the board",
+            "Throttle and formation",
+            "Relevant and the shell trace",
+            "The save slot and the widget"
+          ],
+          "answer": 0,
+          "why": "Spending is not a medal."
+        },
+        {
+          "id": "stgi-scoring-8",
+          "kind": "mc",
+          "prompt": "A kill, a capture, and a marked hit are worth different points. Where is that stored?",
+          "choices": [
+            "On three medal rows",
+            "As one literal 10",
+            "On the fog bit",
+            "On the truck throttle"
+          ],
+          "answer": 0,
+          "why": "The row names the value."
+        },
+        {
+          "id": "stgi-scoring-9",
+          "kind": "mc",
+          "prompt": "Which line is the award?",
+          "choices": [
+            "Score = (Score + 10.f) inside HasAuthority",
+            "The widget's extra add",
+            "Subtracting one shell",
+            "Marking a cell seen"
+          ],
+          "answer": 0,
+          "why": "The server add is the medal."
+        },
+        {
+          "id": "stgi-scoring-10",
+          "kind": "mc",
+          "prompt": "The local popup plays before the server score arrives. What may it show?",
+          "choices": [
+            "A prediction, not the official total",
+            "The host's granted value",
+            "How many shells remain",
+            "Which shape the squad was holding"
+          ],
+          "answer": 0,
+          "why": "The board catches up from Score."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why can a kill, a capture, and a marked fire mission be different medal rows, while a miss is not?",
+        "whyGamePrompt": "What gets granted twice if the notify adds another 10 after the server already awarded the medal?"
+      }
+    },
+    "aoi": {
+      "plainEnglish": "A large map cannot simulate every unit on every machine. CheckAOI runs twice a second on the authority, traces, and sets Relevant from the hit. That bool is who receives the actor. Fog is still who may see it.",
+      "whyGame": "Copying Visible into Relevant hides units from the machine that is supposed to simulate them.",
+      "expansions": [
+        {
+          "title": "The host",
+          "detail": "A unit can be relevant to the host and invisible to the enemy."
+        },
+        {
+          "title": "The timer",
+          "detail": "Half a second, not every frame."
+        },
+        {
+          "title": "The trace",
+          "detail": "The hit is the assignment. Tick is not."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "stgi-aoi-1",
+          "kind": "mc",
+          "prompt": "What does Relevant mean on this map?",
+          "choices": [
+            "This machine should receive the actor",
+            "This team can see the actor",
+            "This unit is selected",
+            "This gun has shells left"
+          ],
+          "answer": 0,
+          "why": "Relevance is simulation, not vision."
+        },
+        {
+          "id": "stgi-aoi-2",
+          "kind": "mc",
+          "prompt": "CheckAOI assigns Relevant = bHit. What schedule wraps that line?",
+          "choices": [
+            "A looping timer at 0.5 seconds, on the authority",
+            "Every rendered frame of play",
+            "The fog timer at 0.25 seconds",
+            "The right-click"
+          ],
+          "answer": 0,
+          "why": "That is the excerpt."
+        },
+        {
+          "id": "stgi-aoi-3",
+          "kind": "mc",
+          "prompt": "The host should keep simulating a unit the enemy cannot see. Which two bools stay different?",
+          "choices": [
+            "Relevant and Visible",
+            "Money and ammunition",
+            "The board and the driver's axis",
+            "Selection and a camp's direction"
+          ],
+          "answer": 0,
+          "why": "Collapsing them culls the unit the host needs."
+        },
+        {
+          "id": "stgi-aoi-4",
+          "kind": "mc",
+          "prompt": "The relevance graph copies Visible every frame. What gets culled?",
+          "choices": [
+            "Units the enemy cannot see, including ones the host must simulate",
+            "Only trucks with no driver",
+            "Only guns with empty shell racks",
+            "Only squads that are unselected"
+          ],
+          "answer": 0,
+          "why": "Vision is the wrong source for relevance."
+        },
+        {
+          "id": "stgi-aoi-5",
+          "kind": "mc",
+          "prompt": "Who runs the relevance trace?",
+          "choices": [
+            "The authority",
+            "Every spectator widget",
+            "The gun's impact trace",
+            "The formation member"
+          ],
+          "answer": 0,
+          "why": "The excerpt gates it with HasAuthority."
+        },
+        {
+          "id": "stgi-aoi-6",
+          "kind": "tf",
+          "prompt": "Relevant and Visible answer the same question.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "One is who simulates. One is who sees."
+        },
+        {
+          "id": "stgi-aoi-7",
+          "kind": "mc",
+          "prompt": "Which assignment does CheckAOI make?",
+          "choices": [
+            "Relevant = bHit",
+            "Marking a cell the team can see",
+            "Copying the driver's axis",
+            "Subtracting one round of ammunition"
+          ],
+          "answer": 0,
+          "why": "The hit becomes relevance."
+        },
+        {
+          "id": "stgi-aoi-8",
+          "kind": "mc",
+          "prompt": "Why is a strategy map stricter about this than a small FPS match?",
+          "choices": [
+            "There are more units than an FPS has players",
+            "Strategy units have no transforms",
+            "Fog does not exist on large maps",
+            "Orders cannot replicate"
+          ],
+          "answer": 0,
+          "why": "You cannot simulate the whole map everywhere."
+        },
+        {
+          "id": "stgi-aoi-9",
+          "kind": "mc",
+          "prompt": "A unit leaves the trace. What should the next CheckAOI do?",
+          "choices": [
+            "Set Relevant from that miss",
+            "Leave the old true bit forever",
+            "Award a medal",
+            "Spend a shell"
+          ],
+          "answer": 0,
+          "why": "The bool tracks the hit, including a miss."
+        },
+        {
+          "id": "stgi-aoi-10",
+          "kind": "mc",
+          "prompt": "Which timer is relevance, not fog?",
+          "choices": [
+            "The half-second CheckAOI loop",
+            "The quarter-second Reveal loop",
+            "The formation tick",
+            "The board notify"
+          ],
+          "answer": 0,
+          "why": "0.5 seconds is the relevance pass."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does CheckAOI set Relevant from an authority trace twice a second on a large map?",
+        "whyGamePrompt": "What units vanish from the simulating machine if Visible is copied into Relevant?"
+      }
+    },
+    "vehicles": {
+      "plainEnglish": "A transport is a unit the order system can command and a vehicle a driver can throttle. The authority copies the throttle axis. The order tells the AI where to go. The order does not write the axis.",
+      "whyGame": "A formation click that writes throttle stomps the driver's input, and copying walking speed gives the truck a person's pace.",
+      "expansions": [
+        {
+          "title": "The player driver",
+          "detail": "Throttle comes from IA_Throttle."
+        },
+        {
+          "title": "The AI driver",
+          "detail": "ReceiveOrder names a destination. The driver then writes throttle."
+        },
+        {
+          "title": "Fuel",
+          "detail": "Fuel is part of the battle save, separate from shells and supplies."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "stgi-vehicles-1",
+          "kind": "mc",
+          "prompt": "A player is driving the transport. What does the excerpt assign?",
+          "choices": [
+            "Throttle = IA_Throttle, inside HasAuthority",
+            "The squad's walking speed",
+            "A formation offset",
+            "A shell subtract"
+          ],
+          "answer": 0,
+          "why": "The axis is the input."
+        },
+        {
+          "id": "stgi-vehicles-2",
+          "kind": "mc",
+          "prompt": "ReceiveOrder runs on the same truck. What should it avoid writing?",
+          "choices": [
+            "Throttle",
+            "The destination the AI driver will steer toward",
+            "The member slot in the formation",
+            "Nothing at all, because trucks ignore orders"
+          ],
+          "answer": 0,
+          "why": "The order must not stomp the axis."
+        },
+        {
+          "id": "stgi-vehicles-3",
+          "kind": "mc",
+          "prompt": "The AI driver has a destination from the formation. Who writes throttle?",
+          "choices": [
+            "The AI driver",
+            "The order branch directly",
+            "The vision pass",
+            "The medal notify"
+          ],
+          "answer": 0,
+          "why": "The driver owns the axis."
+        },
+        {
+          "id": "stgi-vehicles-4",
+          "kind": "mc",
+          "prompt": "Throttle copies an on-foot speed. What does the truck do?",
+          "choices": [
+            "It crawls at a person's pace",
+            "It spends a shell per meter",
+            "It reveals the map",
+            "It awards a medal"
+          ],
+          "answer": 0,
+          "why": "Speed is not throttle."
+        },
+        {
+          "id": "stgi-vehicles-5",
+          "kind": "mc",
+          "prompt": "A formation click and the driver's stick disagree. Which one should win the axis?",
+          "choices": [
+            "The driver's stick, or the AI driver after it accepts the destination",
+            "The click, by assigning throttle",
+            "Whichever client last rendered the truck",
+            "Whether the team can see the cell"
+          ],
+          "answer": 0,
+          "why": "The click names a place. It does not own the axis."
+        },
+        {
+          "id": "stgi-vehicles-6",
+          "kind": "tf",
+          "prompt": "A transport order should assign Throttle from the click.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "That stomps the driver."
+        },
+        {
+          "id": "stgi-vehicles-7",
+          "kind": "mc",
+          "prompt": "Which line is the vehicle input?",
+          "choices": [
+            "Throttle = IA_Throttle inside HasAuthority",
+            "The relevance hit",
+            "Marking a cell seen",
+            "Adding the sample medal"
+          ],
+          "answer": 0,
+          "why": "That is the excerpt."
+        },
+        {
+          "id": "stgi-vehicles-8",
+          "kind": "mc",
+          "prompt": "Fuel, shells, and supplies are all on the truck's team. Why are they three numbers?",
+          "choices": [
+            "Driving, shooting, and building spend different stocks",
+            "The save slot only has room for one float",
+            "Throttle is stored as fuel",
+            "Relevance consumes fuel"
+          ],
+          "answer": 0,
+          "why": "Each budget has its own spend."
+        },
+        {
+          "id": "stgi-vehicles-9",
+          "kind": "mc",
+          "prompt": "A client writes throttle so the truck feels local. What snaps?",
+          "choices": [
+            "The axis, when the authority value arrives",
+            "The formation data asset",
+            "The medal rows",
+            "The reveal interval"
+          ],
+          "answer": 0,
+          "why": "The write is inside HasAuthority."
+        },
+        {
+          "id": "stgi-vehicles-10",
+          "kind": "mc",
+          "prompt": "The truck is both a unit and a vehicle. Which pair of calls is that?",
+          "choices": [
+            "ReceiveOrder for the destination",
+            "A barrage together with a vision write",
+            "The simulation pass together with a medal",
+            "Spend and the board notify"
+          ],
+          "answer": 0,
+          "why": "Command it, and let the driver move it."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why can an order tell a transport where to go while only the authority copies throttle?",
+        "whyGamePrompt": "What pace does the truck get if a formation click writes throttle from walking speed?"
+      }
+    },
+    "artillery": {
+      "plainEnglish": "A fire mission is an order the gun implements. The authority trace is the impact, and it subtracts one shell. Without that budget a click streams impacts. The mission does not lift fog, and it does not spend supplies.",
+      "whyGame": "Spending shells from Tick fires while nobody ordered a mission, and lifting fog shows the target you have not seen.",
+      "expansions": [
+        {
+          "title": "The budget",
+          "detail": "Shells - 1 is the anti-spam."
+        },
+        {
+          "title": "Money",
+          "detail": "If a shell also costs money, call Spend separately."
+        },
+        {
+          "title": "A miss",
+          "detail": "The impact still spent a shell. It did not award a medal."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "stgi-artillery-1",
+          "kind": "mc",
+          "prompt": "The player orders a barrage. Which event should the gun run?",
+          "choices": [
+            "FireMission",
+            "A per-frame shell drain",
+            "The vision pass",
+            "The throttle assign"
+          ],
+          "answer": 0,
+          "why": "The mission is an order the gun implements."
+        },
+        {
+          "id": "stgi-artillery-2",
+          "kind": "mc",
+          "prompt": "The excerpt assigns Shells = (Shells - 1.f) inside HasAuthority. What does that line spend?",
+          "choices": [
+            "One shell from the gun's budget",
+            "Supplies from the base",
+            "Score from the board",
+            "Fuel from the transport"
+          ],
+          "answer": 0,
+          "why": "The shell budget is the anti-spam."
+        },
+        {
+          "id": "stgi-artillery-3",
+          "kind": "mc",
+          "prompt": "The trace in FireMission hits. What is that hit?",
+          "choices": [
+            "The impact",
+            "A vision pass over the target",
+            "A relevance update",
+            "A formation slot"
+          ],
+          "answer": 0,
+          "why": "The trace is the impact."
+        },
+        {
+          "id": "stgi-artillery-4",
+          "kind": "mc",
+          "prompt": "Shells drain from Tick and the mission also lifts fog. What does the player get?",
+          "choices": [
+            "Impacts nobody ordered",
+            "A correct single impact",
+            "A medal for every frame",
+            "A free barracks"
+          ],
+          "answer": 0,
+          "why": "The event spends one shell and does not write Visible."
+        },
+        {
+          "id": "stgi-artillery-5",
+          "kind": "mc",
+          "prompt": "There is no shell budget. What can one click do?",
+          "choices": [
+            "Stream impacts",
+            "No impact at all, if guns required vision first",
+            "Only move a transport",
+            "Only award a medal"
+          ],
+          "answer": 0,
+          "why": "The budget is the anti-spam."
+        },
+        {
+          "id": "stgi-artillery-6",
+          "kind": "tf",
+          "prompt": "A fire mission should set Visible true on the target.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The gun does not lift fog."
+        },
+        {
+          "id": "stgi-artillery-7",
+          "kind": "mc",
+          "prompt": "A shell lands off the mark. What still happened?",
+          "choices": [
+            "The shell was spent, and no medal was awarded",
+            "Supplies were refunded",
+            "Fog cleared",
+            "The formation changed"
+          ],
+          "answer": 0,
+          "why": "The spend is the shot. The medal is the mark."
+        },
+        {
+          "id": "stgi-artillery-8",
+          "kind": "mc",
+          "prompt": "Which line is the mission spend?",
+          "choices": [
+            "Shells = (Shells - 1.f) inside HasAuthority",
+            "The sample money subtract",
+            "Marking the target seen",
+            "Copying the driver's axis"
+          ],
+          "answer": 0,
+          "why": "That is the excerpt."
+        },
+        {
+          "id": "stgi-artillery-9",
+          "kind": "mc",
+          "prompt": "The design says a shell also costs money. Where does that money leave?",
+          "choices": [
+            "A separate Spend call with the row's cost",
+            "Inside the shell subtract, by also touching Supplies",
+            "On the board notify",
+            "In the relevance trace"
+          ],
+          "answer": 0,
+          "why": "Do not fold money into the shell line."
+        },
+        {
+          "id": "stgi-artillery-10",
+          "kind": "mc",
+          "prompt": "Which event spends the shell without writing fog?",
+          "choices": [
+            "FireMission",
+            "A drain on each drawn frame",
+            "Painting cells from a timer",
+            "The simulation pass"
+          ],
+          "answer": 0,
+          "why": "That is the repair."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why is a fire mission an order whose authority trace subtracts one shell?",
+        "whyGamePrompt": "What streams, and what fog lifts, if shells are spent from Tick or the impact paints the cell visible?"
+      }
+    },
+    "save": {
+      "plainEnglish": "The battle save stores supplies, score, shells, fuel, formation ids, and orders still running. It does not store vision or relevance. Those passes run again after load. Begin Play must not spend, award, or fire.",
+      "whyGame": "Calling Spend, AwardMedal, or FireMission at load applies the battle a second time. Tick stores a half-spent shell.",
+      "expansions": [
+        {
+          "title": "Vision",
+          "detail": "Leave Visible out. Reveal looks again."
+        },
+        {
+          "title": "Relevance",
+          "detail": "Leave Relevant out. CheckAOI looks again."
+        },
+        {
+          "title": "Formations",
+          "detail": "The ids say which shape each squad was holding."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "stgi-save-1",
+          "kind": "mc",
+          "prompt": "Which set belongs in the battle slot?",
+          "choices": [
+            "Supplies, score, shells, fuel, formation ids, and orders still running",
+            "Vision and who simulates the actor",
+            "The reveal timer and the relevance timer",
+            "The throttle axis binding"
+          ],
+          "answer": 0,
+          "why": "Save budgets and intents. Recompute the passes."
+        },
+        {
+          "id": "stgi-save-2",
+          "kind": "mc",
+          "prompt": "The sample assigns SlotValue = 1.f at Begin Play. What replaces it?",
+          "choices": [
+            "The battle struct",
+            "A single Visible bit",
+            "The literal shell subtract",
+            "The walking speed"
+          ],
+          "answer": 0,
+          "why": "1 is the stand-in."
+        },
+        {
+          "id": "stgi-save-3",
+          "kind": "mc",
+          "prompt": "Begin Play loads the struct and then calls FireMission. What happens to the guns?",
+          "choices": [
+            "They fire again and spend another shell",
+            "They restore the saved rack and stop",
+            "They reveal the map",
+            "They rewrite formation data"
+          ],
+          "answer": 0,
+          "why": "Load must not replay the mission."
+        },
+        {
+          "id": "stgi-save-4",
+          "kind": "mc",
+          "prompt": "Tick writes the slot during a barrage. What can you restore?",
+          "choices": [
+            "A half-spent shell rack from the middle of a mission",
+            "A clean finished battle",
+            "Only the fog bits, correctly",
+            "Only the throttle binding"
+          ],
+          "answer": 0,
+          "why": "Write when the mission finishes."
+        },
+        {
+          "id": "stgi-save-5",
+          "kind": "mc",
+          "prompt": "You pack Relevant so units stay simulated after load. What is stale?",
+          "choices": [
+            "Any unit that moved out of the trace after the save",
+            "The money total, which this pass does not rebuild",
+            "Which shape the squad held",
+            "Ammunition sitting on the gun"
+          ],
+          "answer": 0,
+          "why": "CheckAOI runs again."
+        },
+        {
+          "id": "stgi-save-6",
+          "kind": "tf",
+          "prompt": "Begin Play should call Spend to reapply the loaded stock.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "That spends again. Assign the loaded value."
+        },
+        {
+          "id": "stgi-save-7",
+          "kind": "mc",
+          "prompt": "Which three calls must Begin Play not make?",
+          "choices": [
+            "Spend, AwardMedal, and FireMission",
+            "Looking again, checking who simulates, and reading the axis",
+            "Resuming an order, reading a data row, and refreshing the widget",
+            "The formation read, the fuel read, and the order resume"
+          ],
+          "answer": 0,
+          "why": "Those three apply results a second time."
+        },
+        {
+          "id": "stgi-save-8",
+          "kind": "mc",
+          "prompt": "A squad was in a column. The load rebuilds a wedge. What field was dropped?",
+          "choices": [
+            "The formation id",
+            "Whether the team could see",
+            "The throttle binding",
+            "The relevance timer interval"
+          ],
+          "answer": 0,
+          "why": "The id is the shape they were holding."
+        },
+        {
+          "id": "stgi-save-9",
+          "kind": "mc",
+          "prompt": "After load, what rebuilds enemy vision?",
+          "choices": [
+            "The reveal timer",
+            "The saved Visible bits",
+            "Replaying the barrage",
+            "The board notify"
+          ],
+          "answer": 0,
+          "why": "Look again."
+        },
+        {
+          "id": "stgi-save-10",
+          "kind": "mc",
+          "prompt": "An order was still running when the player saved. Why is it in the struct?",
+          "choices": [
+            "The unit should keep executing it",
+            "Orders are stored as fog bits",
+            "The shell rack is derived from open orders",
+            "Throttle is recomputed from the click"
+          ],
+          "answer": 0,
+          "why": "In-flight orders are battle state."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the battle save keep supplies, score, shells, fuel, formations, and running orders, but not vision?",
+        "whyGamePrompt": "What applies a second time if load calls Spend, AwardMedal, or FireMission again?"
+      }
+    }
+  },
+  "repairWrongs": {
+    "strategy-intermediate-e2": [
+      "Writing an offset every frame holds the wedge more tightly",
+      "The fog bit should decide who accepts the formation",
+      "Throttle should be the branch condition"
+    ],
+    "strategy-intermediate-e6": [
+      "Clients should spend money so the bill feels instant",
+      "Shells and supplies are the same stock under two names",
+      "The board should subtract the cost"
+    ],
+    "strategy-intermediate-e10": [
+      "A per-frame fog write is fresher than a quarter-second pass",
+      "Relevance should be what paints the cells",
+      "A fire mission should lift the fog it targets"
+    ],
+    "strategy-intermediate-e14": [
+      "The notify should add the medal so proxies catch up",
+      "The widget should subtract a shell",
+      "The board should copy Visible"
+    ],
+    "strategy-intermediate-e17": [
+      "Copying Visible keeps simulation and vision in agreement",
+      "Tick is a better relevance schedule than half a second",
+      "The formation offset should decide who receives the actor"
+    ],
+    "strategy-intermediate-e19": [
+      "Walking speed is a fine throttle for a truck",
+      "The order click should write the axis",
+      "The shell budget should scale the throttle"
+    ],
+    "strategy-intermediate-e22": [
+      "Draining shells every frame keeps the barrage smooth",
+      "The impact should set Visible on the target",
+      "Spend should be the only way a gun fires"
+    ],
+    "strategy-intermediate-e24": [
+      "A shell is just a supply cost with a tracer",
+      "The board should be what decrements",
+      "Fuel is the artillery budget"
+    ]
+  },
+  "exam": [
+    {
+      "id": "stgi-exam-1",
+      "kind": "mc",
+      "prompt": "The formation graph writes offsets from Tick. What should it branch on instead?",
+      "choices": [
+        "Selected",
+        "Whether the team can see",
+        "Who should simulate the actor",
+        "Whether shells remain"
+      ],
+      "answer": 0,
+      "why": "The click still respects selection."
+    },
+    {
+      "id": "stgi-exam-2",
+      "kind": "mc",
+      "prompt": "A truck in the wedge receives the same order as the infantry. What does the truck not take from that click?",
+      "choices": [
+        "A direct throttle write",
+        "A destination",
+        "Its slot in the shape",
+        "The right to ignore the click when unselected"
+      ],
+      "answer": 0,
+      "why": "The driver owns throttle."
+    },
+    {
+      "id": "stgi-exam-3",
+      "kind": "tf",
+      "prompt": "Squad data, not a tick offset, names the formation shape.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "Members read the shape when they accept."
+    },
+    {
+      "id": "stgi-exam-4",
+      "kind": "mc",
+      "prompt": "Which repair keeps money and ammunition apart?",
+      "choices": [
+        "Nest the supply write in HasAuthority and keep a separate shell budget",
+        "Subtract both from Supplies on the client",
+        "Let the board store both",
+        "Store both in Visible"
+      ],
+      "answer": 0,
+      "why": "That is the economy repair."
+    },
+    {
+      "id": "stgi-exam-5",
+      "kind": "mc",
+      "prompt": "A barracks finishes and a gun fires in the same second. Which two numbers may change?",
+      "choices": [
+        "Supplies and shells",
+        "Only supplies, twice",
+        "Visible and Relevant",
+        "Throttle and the formation offset"
+      ],
+      "answer": 0,
+      "why": "Two budgets."
+    },
+    {
+      "id": "stgi-exam-6",
+      "kind": "mc",
+      "prompt": "What does the real fog timer use?",
+      "choices": [
+        "0.25 seconds, then Visible = true on a hit",
+        "A frame write with no hit test",
+        "The half-second relevance loop",
+        "The fire-mission trace"
+      ],
+      "answer": 0,
+      "why": "The pass is the timer plus the hit."
+    },
+    {
+      "id": "stgi-exam-7",
+      "kind": "tf",
+      "prompt": "A spectator widget is the object you replicate for fog.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "The bit is."
+    },
+    {
+      "id": "stgi-exam-8",
+      "kind": "mc",
+      "prompt": "The board notify adds another 10. What should it do instead?",
+      "choices": [
+        "Read Score and refresh the widget",
+        "Subtract a shell",
+        "Write throttle",
+        "Copy Relevant into Visible"
+      ],
+      "answer": 0,
+      "why": "The medal was already added."
+    },
+    {
+      "id": "stgi-exam-9",
+      "kind": "mc",
+      "prompt": "A miss, a reveal, and a supply spend all want points. Which one can be a medal row?",
+      "choices": [
+        "None of those three",
+        "The reveal",
+        "The spend",
+        "All three"
+      ],
+      "answer": 0,
+      "why": "A miss, a look, and a bill are not results."
+    },
+    {
+      "id": "stgi-exam-10",
+      "kind": "mc",
+      "prompt": "CheckAOI assigns what, and on what timer?",
+      "choices": [
+        "Relevant = bHit on a 0.5 second timer",
+        "Visible = true every frame",
+        "Throttle from walking speed",
+        "Shells from Tick"
+      ],
+      "answer": 0,
+      "why": "That is the relevance excerpt."
+    },
+    {
+      "id": "stgi-exam-11",
+      "kind": "mc",
+      "prompt": "The enemy cannot see a unit and the host stops simulating it. Which bool was copied?",
+      "choices": [
+        "Visible, into Relevant",
+        "The board, copied into the money stock",
+        "The driver's axis, copied into the wedge offset",
+        "Ammunition, copied into the fuel tank"
+      ],
+      "answer": 0,
+      "why": "Vision must not cull simulation."
+    },
+    {
+      "id": "stgi-exam-12",
+      "kind": "tf",
+      "prompt": "A unit may be relevant to the host and invisible to the enemy.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "The two bools answer different questions."
+    },
+    {
+      "id": "stgi-exam-13",
+      "kind": "mc",
+      "prompt": "Throttle copies walking speed. What should the vehicle excerpt assign?",
+      "choices": [
+        "Throttle = IA_Throttle, inside HasAuthority",
+        "The squad member offset",
+        "A shell",
+        "Whether the team can see the truck"
+      ],
+      "answer": 0,
+      "why": "The axis is the input."
+    },
+    {
+      "id": "stgi-exam-14",
+      "kind": "mc",
+      "prompt": "A formation click stomps the driver's stick. What did the click write?",
+      "choices": [
+        "Throttle",
+        "The destination only",
+        "Which shape the squad was holding",
+        "The fuel left in the tank"
+      ],
+      "answer": 0,
+      "why": "The order must not own the axis."
+    },
+    {
+      "id": "stgi-exam-15",
+      "kind": "mc",
+      "prompt": "Which event spends a shell without lifting fog?",
+      "choices": [
+        "FireMission",
+        "A per-frame drain",
+        "The vision pass",
+        "The board notify"
+      ],
+      "answer": 0,
+      "why": "The mission is the spend."
+    },
+    {
+      "id": "stgi-exam-16",
+      "kind": "mc",
+      "prompt": "A shell subtracts Supplies. What should the excerpt assign instead?",
+      "choices": [
+        "Shells = (Shells - 1.f)",
+        "Adding the sample medal",
+        "Who receives the actor after a trace",
+        "Copying the throttle axis from the stick"
+      ],
+      "answer": 0,
+      "why": "Ammunition is its own float."
+    },
+    {
+      "id": "stgi-exam-17",
+      "kind": "tf",
+      "prompt": "Without a shell budget one click can stream impacts.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "The budget is the anti-spam."
+    },
+    {
+      "id": "stgi-exam-18",
+      "kind": "mc",
+      "prompt": "Begin Play loads a battle and calls AwardMedal. What doubles?",
+      "choices": [
+        "The score",
+        "The fog timer",
+        "The throttle binding",
+        "The formation asset"
+      ],
+      "answer": 0,
+      "why": "Do not replay awards."
+    },
+    {
+      "id": "stgi-exam-19",
+      "kind": "mc",
+      "prompt": "Which pair must the battle struct leave out?",
+      "choices": [
+        "Visible and Relevant",
+        "Supplies and shells",
+        "Score and fuel",
+        "Formation ids and running orders"
+      ],
+      "answer": 0,
+      "why": "Both passes recompute."
+    },
+    {
+      "id": "stgi-exam-20",
+      "kind": "mc",
+      "prompt": "A saved Relevant bit hides a unit that has since driven back into the trace. What should have run after load?",
+      "choices": [
+        "CheckAOI",
+        "Replaying the barrage",
+        "Granting the medal again",
+        "A throttle write from walking speed"
+      ],
+      "answer": 0,
+      "why": "Look again."
+    },
+    {
+      "id": "stgi-exam-21",
+      "kind": "tf",
+      "prompt": "Tick is a safe place to snapshot shells mid-mission.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "You would restore a half-spent rack."
+    },
+    {
+      "id": "stgi-exam-22",
+      "kind": "mc",
+      "prompt": "You are pairing a click, a vision pass, and a simulation pass. Which timers and gates match?",
+      "choices": [
+        "Selected for the click, 0.25 seconds for fog, 0.5 seconds for relevance",
+        "Tick for all three",
+        "The shell budget for all three",
+        "Throttle for the click and Visible for both passes"
+      ],
+      "answer": 0,
+      "why": "Three different questions."
+    },
+    {
+      "id": "stgi-exam-23",
+      "kind": "mc",
+      "prompt": "A marked hit, a miss, and a reveal happen together. What may change Score?",
+      "choices": [
+        "Only the marked hit",
+        "The miss, because a shell was spent",
+        "The reveal, because the target is now known",
+        "All three"
+      ],
+      "answer": 0,
+      "why": "Only the mark is a medal."
+    },
+    {
+      "id": "stgi-exam-24",
+      "kind": "mc",
+      "prompt": "Fuel is low, shells are full, and supplies can cover a barracks. Which spend is blocked?",
+      "choices": [
+        "Driving farther than the fuel allows",
+        "The barracks",
+        "One fire mission",
+        "Refreshing the board"
+      ],
+      "answer": 0,
+      "why": "Fuel is its own stock."
+    },
+    {
+      "id": "stgi-exam-25",
+      "kind": "mc",
+      "prompt": "The AI driver and the player driver both need an axis. What do they share?",
+      "choices": [
+        "A throttle write that stays inside HasAuthority",
+        "A tick offset on the formation",
+        "The shell trace",
+        "The fog widget"
+      ],
+      "answer": 0,
+      "why": "Whoever drives writes throttle on the authority."
+    },
+    {
+      "id": "stgi-exam-26",
+      "kind": "tf",
+      "prompt": "A fire mission that also costs money should subtract Supplies inside the shell line.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Call Spend separately."
+    },
+    {
+      "id": "stgi-exam-27",
+      "kind": "mc",
+      "prompt": "Which line is ammunition, not money?",
+      "choices": [
+        "Shells = (Shells - 1.f)",
+        "The sample money subtract",
+        "The sample medal add",
+        "The sample slot stand-in"
+      ],
+      "answer": 0,
+      "why": "Shells are the gun's budget."
+    },
+    {
+      "id": "stgi-exam-28",
+      "kind": "mc",
+      "prompt": "Load order is wrong and the enemy base is visible in a match you saved as hidden. What was restored?",
+      "choices": [
+        "A Visible bit",
+        "The shell rack",
+        "Which shape the squad held",
+        "The fuel left in the truck"
+      ],
+      "answer": 0,
+      "why": "Vision is recomputed."
+    },
+    {
+      "id": "stgi-exam-29",
+      "kind": "mc",
+      "prompt": "A client writes Visible, Relevant, and Throttle before the host answers. Which of those can stand?",
+      "choices": [
+        "None of them",
+        "Only the vision write",
+        "Only the axis",
+        "Only who simulates the actor"
+      ],
+      "answer": 0,
+      "why": "All three writes sit inside HasAuthority."
+    },
+    {
+      "id": "stgi-exam-30",
+      "kind": "mc",
+      "prompt": "The gun, the truck, and the squad each receive an order. Which three implementations fit?",
+      "choices": [
+        "FireMission on the gun, a destination on the truck, a formation slot on the squad",
+        "Throttle on all three",
+        "A fog write on all three. Vision is not how a gun, a truck, and a squad accept an order.",
+        "A score add on all three"
+      ],
+      "answer": 0,
+      "why": "Same click, different ReceiveOrder bodies."
+    },
+    {
+      "id": "stgi-exam-31",
+      "kind": "tf",
+      "prompt": "Formation ids belong in the battle struct.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "They are the shapes squads were holding."
+    },
+    {
+      "id": "stgi-exam-32",
+      "kind": "mc",
+      "prompt": "You finish a mission, a build, and a capture, then save. What must already have happened on the host?",
+      "choices": [
+        "The shell subtract, the supply subtract, and the score add",
+        "Three client predicts and a fog restore",
+        "A tick offset, a widget add, and a copied Visible",
+        "Throttle from walking speed, a streamed impact, and a saved Relevant bit"
+      ],
+      "answer": 0,
+      "why": "Those are the three authority writes."
+    }
+  ]
+}

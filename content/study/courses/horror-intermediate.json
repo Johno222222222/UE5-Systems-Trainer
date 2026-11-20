@@ -1,0 +1,613 @@
+{
+  "id": "horror-intermediate",
+  "modules": {
+    "one-sense": {
+      "plainEnglish": "Co-op still has one look. The authority traces, and the alert flag replicates. A loud sound calls that same event on the authority. Each client that traces on its own makes the hunters disagree about a wall. The player's use trace still must not write the flag.",
+      "whyGame": "Two machines looking through different corners produce two hunters, and a local use that sets the flag alerts the house from empty air.",
+      "expansions": [
+        {
+          "title": "One owner",
+          "detail": "The machine that owns the hunter traces."
+        },
+        {
+          "title": "The bottle",
+          "detail": "It calls Sense on the authority, not a new component on every client."
+        },
+        {
+          "title": "Use",
+          "detail": "The press stays local and does not write Alert."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "hoci-sense-1",
+          "kind": "mc",
+          "prompt": "Each co-op client runs the hunter look and the hunters disagree about a wall. Who should trace?",
+          "choices": [
+            "The machine that owns the hunter",
+            "All machines, with the bools averaged",
+            "Only the player who threw the bottle",
+            "The client with the lowest ping"
+          ],
+          "answer": 0,
+          "why": "One owner. Clients do not vote."
+        },
+        {
+          "id": "hoci-sense-2",
+          "kind": "mc",
+          "prompt": "The alert flag replicates after the authority trace. What do the other machines receive?",
+          "choices": [
+            "The flag, not a second trace of their own",
+            "A private audio component",
+            "The player's use result",
+            "The door hinge transform"
+          ],
+          "answer": 0,
+          "why": "The result replicates. The look does not."
+        },
+        {
+          "id": "hoci-sense-3",
+          "kind": "mc",
+          "prompt": "A bottle is thrown. Where should that call run?",
+          "choices": [
+            "On the authority, through the same look",
+            "On every client, in a new component",
+            "Inside the player's use miss",
+            "Inside the fear pulse"
+          ],
+          "answer": 0,
+          "why": "Sound is still the shared look."
+        },
+        {
+          "id": "hoci-sense-4",
+          "kind": "mc",
+          "prompt": "The player's use trace writes the alert flag on the pressing client. What alerts the house?",
+          "choices": [
+            "Empty air, on that one machine",
+            "A real glimpse from the owner",
+            "A bottle on the authority",
+            "A finished door, quietly"
+          ],
+          "answer": 0,
+          "why": "Use must not write the flag."
+        },
+        {
+          "id": "hoci-sense-5",
+          "kind": "mc",
+          "prompt": "Two clients report different hits and you average them. What can the average claim?",
+          "choices": [
+            "A wall neither machine actually agreed on",
+            "The owner's single trace",
+            "The replicated flag as written",
+            "A miss that decays cleanly"
+          ],
+          "answer": 0,
+          "why": "Do not vote. Trace once."
+        },
+        {
+          "id": "hoci-sense-6",
+          "kind": "tf",
+          "prompt": "In co-op, the hunter's owner is the machine that should run the look.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The authority traces."
+        },
+        {
+          "id": "hoci-sense-7",
+          "kind": "mc",
+          "prompt": "Which write is the co-op look?",
+          "choices": [
+            "The alert flag, on the owning machine",
+            "A client-side flag that never replicates",
+            "The player's use miss",
+            "The panic dispatcher"
+          ],
+          "answer": 0,
+          "why": "One writer, then replicate."
+        },
+        {
+          "id": "hoci-sense-8",
+          "kind": "mc",
+          "prompt": "A loud sound grows a second component on every machine. What does the stalk fail to read?",
+          "choices": [
+            "The flag it was already taught",
+            "The door's open pose",
+            "The player's hit points",
+            "The hide lever's mesh"
+          ],
+          "answer": 0,
+          "why": "The stalk knows one flag."
+        },
+        {
+          "id": "hoci-sense-9",
+          "kind": "mc",
+          "prompt": "The owner is tracing and a client also traces through a different doorway. Which result should win?",
+          "choices": [
+            "The owner's",
+            "The client's, because it is closer to the player",
+            "Whichever finished last",
+            "The fear timer's"
+          ],
+          "answer": 0,
+          "why": "One pair of eyes."
+        },
+        {
+          "id": "hoci-sense-10",
+          "kind": "mc",
+          "prompt": "What still stays local to the press, even in co-op?",
+          "choices": [
+            "The use trace",
+            "The hunter's hit test",
+            "The hunter's suspicion",
+            "The authority check around the look"
+          ],
+          "answer": 0,
+          "why": "The press is the player's. The look is the hunter's."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does co-op keep one authority look, with the alert flag replicated and a loud sound calling that same event?",
+        "whyGamePrompt": "What two hunters appear, and what alerts the house, if each machine looks on its own or local use sets the flag?"
+      }
+    },
+    "hide": {
+      "plainEnglish": "A hide lever implements Interact. It does not get its own graph and it does not get a frame loop. The player's trace starts at the camera. The hunter does not run this call, and the hunter's overlap is not how you hide.",
+      "whyGame": "A trace from the actor location grabs the frame beside the lever, and a Tick on the lever traces the player forever.",
+      "expansions": [
+        {
+          "title": "The lever",
+          "detail": "It answers Interact. The trace does not name the lever class."
+        },
+        {
+          "title": "The camera",
+          "detail": "Start where the crosshair is."
+        },
+        {
+          "title": "The hunter",
+          "detail": "Its overlap is not a hide button."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "hoci-hide-1",
+          "kind": "mc",
+          "prompt": "What does a hide lever implement?",
+          "choices": [
+            "Interact",
+            "Its own frame loop",
+            "The hunter's short look",
+            "A panic pulse"
+          ],
+          "answer": 0,
+          "why": "It is a prop."
+        },
+        {
+          "id": "hoci-hide-2",
+          "kind": "mc",
+          "prompt": "The use trace hits the lever and calls the interface. What does that line accomplish?",
+          "choices": [
+            "It runs the lever's own use function",
+            "It alerts every hunter",
+            "It starts a fear pulse",
+            "It writes the night save"
+          ],
+          "answer": 0,
+          "why": "The lever answers."
+        },
+        {
+          "id": "hoci-hide-3",
+          "kind": "mc",
+          "prompt": "The crosshair is on the lever and the trace starts at the actor location. What gets grabbed?",
+          "choices": [
+            "The frame beside the lever, not the lever",
+            "The lever, because actor location is the crosshair",
+            "The hunter",
+            "A stored snapshot"
+          ],
+          "answer": 0,
+          "why": "Start at the camera."
+        },
+        {
+          "id": "hoci-hide-4",
+          "kind": "mc",
+          "prompt": "The lever is given a frame loop so the prompt feels instant. What traces forever?",
+          "choices": [
+            "The lever, toward the player",
+            "Only the player's press",
+            "Only the authority look",
+            "No trace at all, if a prop were unable to tick"
+          ],
+          "answer": 0,
+          "why": "The lever waits for the press."
+        },
+        {
+          "id": "hoci-hide-5",
+          "kind": "mc",
+          "prompt": "The hunter's overlap is wired as the hide button. What hides the player?",
+          "choices": [
+            "Being touched by the hunter",
+            "Using the lever",
+            "A finished door",
+            "A decayed alert flag"
+          ],
+          "answer": 0,
+          "why": "Hide is a prop the player uses."
+        },
+        {
+          "id": "hoci-hide-6",
+          "kind": "tf",
+          "prompt": "A hide lever is a prop that answers Interact, the same way a fuse does.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "It implements Interact."
+        },
+        {
+          "id": "hoci-hide-7",
+          "kind": "mc",
+          "prompt": "The hunter runs the hide call. What does the hunter start operating?",
+          "choices": [
+            "Levers",
+            "Only its route",
+            "Only the replicated flag",
+            "Only the fear timer"
+          ],
+          "answer": 0,
+          "why": "The hunter does not use props."
+        },
+        {
+          "id": "hoci-hide-8",
+          "kind": "mc",
+          "prompt": "Where does the hide trace start?",
+          "choices": [
+            "At the camera",
+            "At the lever's pivot",
+            "At the hunter's eyes",
+            "At the last saved hinge"
+          ],
+          "answer": 0,
+          "why": "Match the crosshair."
+        },
+        {
+          "id": "hoci-hide-9",
+          "kind": "mc",
+          "prompt": "Which call is the lever, not the hunter?",
+          "choices": [
+            "Interact on the prop the player hit",
+            "The authority look",
+            "The panic dispatcher",
+            "The night-save write"
+          ],
+          "answer": 0,
+          "why": "The prop answers use."
+        },
+        {
+          "id": "hoci-hide-10",
+          "kind": "mc",
+          "prompt": "Art adds a second hide spot. What does the use graph change?",
+          "choices": [
+            "Nothing, if the new spot implements Interact",
+            "A new cast to the new mesh",
+            "A new frame loop",
+            "A new alert float"
+          ],
+          "answer": 0,
+          "why": "The trace never lists classes."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why is a hide lever just an Interact prop, with the player's trace starting at the camera?",
+        "whyGamePrompt": "What gets traced forever if the lever runs on Tick, or the trace starts at the actor location?"
+      }
+    },
+    "fear": {
+      "plainEnglish": "Fear binds a dispatcher and broadcasts it from ApplyEffect once a second. Begin Play starts that timer once. The look only writes the alert flag. A creak calls the look. It does not broadcast fear, or every cupboard terrifies the player.",
+      "whyGame": "Broadcasting inside the glimpse shakes the camera on looks the design meant to forgive.",
+      "expansions": [
+        {
+          "title": "The pulse",
+          "detail": "One second, started once."
+        },
+        {
+          "title": "The glimpse",
+          "detail": "It writes the flag. It does not shake the camera."
+        },
+        {
+          "title": "The cupboard",
+          "detail": "The creak calls the look, not the dispatcher."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "hoci-fear-1",
+          "kind": "mc",
+          "prompt": "What does Begin Play start for fear?",
+          "choices": [
+            "One timer that calls ApplyEffect each second",
+            "A broadcast on every glimpse",
+            "A hinge yaw",
+            "The player's use trace"
+          ],
+          "answer": 0,
+          "why": "Fear is slower than sight."
+        },
+        {
+          "id": "hoci-fear-2",
+          "kind": "mc",
+          "prompt": "ApplyEffect broadcasts the dispatcher. What does that line accomplish?",
+          "choices": [
+            "It tells listeners that fear just pulsed",
+            "It sets the alert flag",
+            "It opens a door",
+            "It hides the player"
+          ],
+          "answer": 0,
+          "why": "The broadcast is the pulse."
+        },
+        {
+          "id": "hoci-fear-3",
+          "kind": "mc",
+          "prompt": "Who should bind to that dispatcher?",
+          "choices": [
+            "The camera shake and the fear UI",
+            "The hunter's line trace",
+            "The hide lever",
+            "The save snapshot"
+          ],
+          "answer": 0,
+          "why": "Listeners bind. They do not poll."
+        },
+        {
+          "id": "hoci-fear-4",
+          "kind": "mc",
+          "prompt": "Fear is broadcast inside the glimpse, five times a second. What shakes too often?",
+          "choices": [
+            "The camera, including glimpses meant to be forgiven",
+            "Only a finished one-second pulse",
+            "Only a cupboard that called the look",
+            "No shake at all, if a glimpse were unable to broadcast"
+          ],
+          "answer": 0,
+          "why": "Sight and fear have different periods."
+        },
+        {
+          "id": "hoci-fear-5",
+          "kind": "mc",
+          "prompt": "A cupboard creak panics the player. Which call was wired to the sound?",
+          "choices": [
+            "The fear dispatcher, where the look belonged",
+            "The hunter's short look, which is what a creak should call",
+            "The hide interface",
+            "The night save"
+          ],
+          "answer": 0,
+          "why": "The creak is not the pulse."
+        },
+        {
+          "id": "hoci-fear-6",
+          "kind": "tf",
+          "prompt": "A door creak should broadcast fear.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The creak calls the look."
+        },
+        {
+          "id": "hoci-fear-7",
+          "kind": "mc",
+          "prompt": "The look writes the alert flag and also shakes the camera. What did sight steal?",
+          "choices": [
+            "The fear pulse",
+            "The hide lever",
+            "The save snapshot",
+            "The press that calls a prop"
+          ],
+          "answer": 0,
+          "why": "The flag is sight. The shake is fear."
+        },
+        {
+          "id": "hoci-fear-8",
+          "kind": "mc",
+          "prompt": "Begin Play starts a new fear timer every time the pawn spawns a second copy of the component. What piles up?",
+          "choices": [
+            "Pulses",
+            "Hide levers",
+            "Door curves",
+            "Use traces"
+          ],
+          "answer": 0,
+          "why": "Start the timer once."
+        },
+        {
+          "id": "hoci-fear-9",
+          "kind": "mc",
+          "prompt": "Which period is fear, not the glimpse?",
+          "choices": [
+            "One second",
+            "A fifth of a second",
+            "Once on each drawn frame",
+            "Only while the trigger is held"
+          ],
+          "answer": 0,
+          "why": "ApplyEffect is the slow timer."
+        },
+        {
+          "id": "hoci-fear-10",
+          "kind": "mc",
+          "prompt": "Which line is the pulse, not the look?",
+          "choices": [
+            "ApplyEffect broadcasting to its listeners",
+            "The alert flag written on a hit",
+            "Interact on a hide lever",
+            "A curve played from the start"
+          ],
+          "answer": 0,
+          "why": "The broadcast is fear."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does fear broadcast from ApplyEffect once a second, while the look only writes the alert flag?",
+        "whyGamePrompt": "What shakes on glimpses the design meant to forgive if the broadcast sits inside the look?"
+      }
+    },
+    "quiet-save": {
+      "plainEnglish": "A horror save packs the alert flag, whether the door is open, the patrol direction, and health. It does not pack the hinge transform, the fear bindings, or the timer handle. Begin Play binds listeners again and starts timers after the bools are applied. Playing a door from the start on load creaks the hunter awake.",
+      "whyGame": "A replayed creak calls the look and wakes a house you loaded as calm.",
+      "expansions": [
+        {
+          "title": "The bool",
+          "detail": "Set the curve to the end that matches IsOpen."
+        },
+        {
+          "title": "The bindings",
+          "detail": "Rebuild them. Do not save them."
+        },
+        {
+          "title": "Order",
+          "detail": "Apply the door, then start the look."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "hoci-save-1",
+          "kind": "mc",
+          "prompt": "Which set belongs in the co-op horror slot?",
+          "choices": [
+            "The alert flag, the open bool, the patrol direction, and health",
+            "The hinge transform and the fear delegate bindings",
+            "The timer handle",
+            "The hunter mesh"
+          ],
+          "answer": 0,
+          "why": "Save results. Rebuild the machinery."
+        },
+        {
+          "id": "hoci-save-2",
+          "kind": "mc",
+          "prompt": "A finished struct is on disk. What happens before the look timer starts?",
+          "choices": [
+            "The loaded bools are applied",
+            "The creak plays from the start",
+            "Fear broadcasts once for free",
+            "The hide lever ticks"
+          ],
+          "answer": 0,
+          "why": "Apply, then look."
+        },
+        {
+          "id": "hoci-save-3",
+          "kind": "mc",
+          "prompt": "Loading an open door calls PlayFromStart. What wakes?",
+          "choices": [
+            "The creak, and then the hunter",
+            "Only the mesh, in silence",
+            "The player's inventory",
+            "The fear bindings, correctly"
+          ],
+          "answer": 0,
+          "why": "Set the curve to the end."
+        },
+        {
+          "id": "hoci-save-4",
+          "kind": "mc",
+          "prompt": "You pack the hinge transform so the door matches. What are you storing?",
+          "choices": [
+            "A pose the open bool already describes",
+            "The only copy of the alert flag",
+            "The life total",
+            "The patrol direction"
+          ],
+          "answer": 0,
+          "why": "The bool is enough."
+        },
+        {
+          "id": "hoci-save-5",
+          "kind": "mc",
+          "prompt": "The look starts before the loaded door is applied. What does the hunter gain?",
+          "choices": [
+            "A glimpse through a doorway that should already be closed",
+            "A calm house",
+            "A rebuilt fear binding",
+            "A silent curve at the open end"
+          ],
+          "answer": 0,
+          "why": "Doors first, then eyes."
+        },
+        {
+          "id": "hoci-save-6",
+          "kind": "tf",
+          "prompt": "Fear delegate bindings belong in the horror save.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Begin Play binds them again."
+        },
+        {
+          "id": "hoci-save-7",
+          "kind": "mc",
+          "prompt": "The patrol direction loaded and the alert flag did not. What chase is wrong?",
+          "choices": [
+            "One that continues while the loaded flag says the route",
+            "A door that opens because the hunter faces one way",
+            "A hide lever that works because of direction",
+            "A fear pulse that uses the route as its timer"
+          ],
+          "answer": 0,
+          "why": "The flag decides chase versus route."
+        },
+        {
+          "id": "hoci-save-8",
+          "kind": "mc",
+          "prompt": "When should the night struct be written?",
+          "choices": [
+            "On a finished event",
+            "Every rendered frame while the flag decays",
+            "Inside the creak, every swing",
+            "When the crosshair moves"
+          ],
+          "answer": 0,
+          "why": "Finished moments, then load at Begin Play."
+        },
+        {
+          "id": "hoci-save-9",
+          "kind": "mc",
+          "prompt": "Begin Play after load should do which pair?",
+          "choices": [
+            "Bind listeners again, then start timers",
+            "Replay every creak, then bind",
+            "Skip the bools and start the look immediately",
+            "Write the hinge and skip the flag"
+          ],
+          "answer": 0,
+          "why": "Rebuild machinery after the values are in place."
+        },
+        {
+          "id": "hoci-save-10",
+          "kind": "mc",
+          "prompt": "Which object is a handle you must not pack?",
+          "choices": [
+            "The sense timer",
+            "The hunter's suspicion",
+            "The open bool",
+            "The life total"
+          ],
+          "answer": 0,
+          "why": "The timer is started again. It is not a value."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a horror save pack the alert flag, the door state, patrol direction, and health, but not the hinge or the shake?",
+        "whyGamePrompt": "What wakes a house you loaded as calm if the creak calls the look again on load?"
+      }
+    }
+  }
+}

@@ -72,6 +72,9 @@ const webpackConfig = {
       "@": path.resolve(__dirname, "src"),
     },
     configure: (incoming) => {
+      incoming.resolve.plugins = (incoming.resolve.plugins || []).filter(
+        (plugin) => plugin.constructor?.name !== "ModuleScopePlugin",
+      );
       incoming.watchOptions = {
         ...incoming.watchOptions,
         ignored: [

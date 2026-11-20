@@ -1,0 +1,613 @@
+{
+  "id": "tps-beginner",
+  "modules": {
+    "aim": {
+      "plainEnglish": "Third-person aim is the camera, not the use graph. The shoulder button starts a trace from the camera and sets the aiming bool. The spring arm eases in. It does not write speed and it does not call Interact.",
+      "whyGame": "A chest trace grabs the cover the camera can see past, and writing speed here makes a boom tweak change the gait.",
+      "expansions": [
+        {
+          "title": "The button",
+          "detail": "IA_Aim starts the trace."
+        },
+        {
+          "title": "The boom",
+          "detail": "It reads the bool and eases. It does not trace again."
+        },
+        {
+          "title": "Use",
+          "detail": "Doors wait for IA_Interact, not the shoulder button."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tpsc-aim-1",
+          "kind": "mc",
+          "prompt": "The player presses the shoulder button. What should that press record?",
+          "choices": [
+            "That the camera is pulling in",
+            "That a door should open",
+            "That the magazine should refill",
+            "That the companion should turn around"
+          ],
+          "answer": 0,
+          "why": "Aim is the camera."
+        },
+        {
+          "id": "tpsc-aim-2",
+          "kind": "mc",
+          "prompt": "The aim excerpt sets Aiming after a hit from the camera. Which action ran?",
+          "choices": [
+            "The shoulder button",
+            "The use control",
+            "Topping the weapon up",
+            "Pushing the move control"
+          ],
+          "answer": 0,
+          "why": "IA_Aim is the sights."
+        },
+        {
+          "id": "tpsc-aim-3",
+          "kind": "mc",
+          "prompt": "The aiming bool just became true. What should the spring arm do?",
+          "choices": [
+            "Ease the boom closer",
+            "Write movement speed",
+            "Call Interact on the crosshair",
+            "Step the companion"
+          ],
+          "answer": 0,
+          "why": "The boom reads the bool."
+        },
+        {
+          "id": "tpsc-aim-4",
+          "kind": "mc",
+          "prompt": "The aim graph also writes speed. What else changes when a designer shortens the boom?",
+          "choices": [
+            "The gait, because speed was hiding in the camera",
+            "The stack size on a pickup",
+            "The companion's return path",
+            "The save slot's field list"
+          ],
+          "answer": 0,
+          "why": "Camera tuning must not be movement tuning."
+        },
+        {
+          "id": "tpsc-aim-5",
+          "kind": "mc",
+          "prompt": "The crosshair is past a low wall and the trace starts at the chest. What does the prompt light?",
+          "choices": [
+            "The wall, not the actor the camera can see",
+            "The actor past the wall",
+            "The companion",
+            "Rounds in the gun"
+          ],
+          "answer": 0,
+          "why": "Start at the camera."
+        },
+        {
+          "id": "tpsc-aim-6",
+          "kind": "tf",
+          "prompt": "The shoulder button records aiming and does not call Interact.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Use is a different action."
+        },
+        {
+          "id": "tpsc-aim-7",
+          "kind": "mc",
+          "prompt": "Where does the third-person aim trace begin?",
+          "choices": [
+            "At the camera",
+            "At the pawn's chest",
+            "At the companion",
+            "At the last saved door"
+          ],
+          "answer": 0,
+          "why": "The crosshair lives on the camera."
+        },
+        {
+          "id": "tpsc-aim-8",
+          "kind": "mc",
+          "prompt": "The player taps aim in front of a door. What opens?",
+          "choices": [
+            "Nothing. Aim does not ask the door",
+            "The door",
+            "The inventory",
+            "The companion route"
+          ],
+          "answer": 0,
+          "why": "The door waits for use."
+        },
+        {
+          "id": "tpsc-aim-9",
+          "kind": "mc",
+          "prompt": "Which line is the third-person sights, not a use?",
+          "choices": [
+            "Aiming set inside the shoulder-button action",
+            "Interact called on the hit actor",
+            "Reserve clamped into the gun",
+            "The companion's route step"
+          ],
+          "answer": 0,
+          "why": "The bool is the camera."
+        },
+        {
+          "id": "tpsc-aim-10",
+          "kind": "mc",
+          "prompt": "The spring arm eases and also traces. What duplicate do you remove?",
+          "choices": [
+            "The boom's extra trace",
+            "The shoulder-button trace",
+            "The use action",
+            "The stick read"
+          ],
+          "answer": 0,
+          "why": "The boom reads the bool. It does not look again."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why is third-person aim the shoulder button and a camera trace, not the use graph?",
+        "whyGamePrompt": "What cover gets grabbed, and what gait changes, if that trace starts at the chest or the aim graph writes speed?"
+      }
+    },
+    "gait": {
+      "plainEnglish": "The stick writes speed. Pushed is 600. Not pushed is 200. The character movement component reads that number. The graph does not add a world offset every frame, and the spring arm does not choose walk versus sprint.",
+      "whyGame": "An offset every frame ignores the movement component, and a camera that picks the gait retunes walk whenever the boom changes.",
+      "expansions": [
+        {
+          "title": "Sprint",
+          "detail": "The true path of the stick check writes 600."
+        },
+        {
+          "title": "The slower gait",
+          "detail": "The false path writes 200."
+        },
+        {
+          "title": "Data",
+          "detail": "Those two literals can later become a row. The shape of the check stays."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tpsc-gait-1",
+          "kind": "mc",
+          "prompt": "The stick is pushed. What speed does the excerpt write?",
+          "choices": [
+            "600",
+            "The slower gait number",
+            "Whatever the boom length implies",
+            "A world offset every frame"
+          ],
+          "answer": 0,
+          "why": "The true path is the sprint literal."
+        },
+        {
+          "id": "tpsc-gait-2",
+          "kind": "mc",
+          "prompt": "Speed = 600 sits on the true path of the stick compared with zero. When does it run?",
+          "choices": [
+            "While the stick is pushed",
+            "During menus as well as play",
+            "While the shoulder button is down",
+            "While a pickup overlaps"
+          ],
+          "answer": 0,
+          "why": "The comparison is the gate."
+        },
+        {
+          "id": "tpsc-gait-3",
+          "kind": "mc",
+          "prompt": "The stick returns to center. Which number should the next write use?",
+          "choices": [
+            "200",
+            "The sprint number",
+            "The boom length",
+            "The companion step time"
+          ],
+          "answer": 0,
+          "why": "The false path is the slower gait."
+        },
+        {
+          "id": "tpsc-gait-4",
+          "kind": "mc",
+          "prompt": "The graph adds a world offset every frame instead of writing speed. What does the movement component never hear?",
+          "choices": [
+            "The gait it was built to consume",
+            "The camera location",
+            "The use press",
+            "How many items are carried"
+          ],
+          "answer": 0,
+          "why": "Write speed. Let the component move the pawn."
+        },
+        {
+          "id": "tpsc-gait-5",
+          "kind": "mc",
+          "prompt": "The spring arm chooses walk versus sprint. What retunes when the boom changes?",
+          "choices": [
+            "How fast the pawn moves",
+            "Only where the camera sits",
+            "Only the aim pull-in",
+            "Only the companion mesh"
+          ],
+          "answer": 0,
+          "why": "The boom reads the pawn. It does not drive it."
+        },
+        {
+          "id": "tpsc-gait-6",
+          "kind": "tf",
+          "prompt": "Walk versus sprint comes from the stick, and the spring arm only reads the result.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "It reads the pawn the stick already moved."
+        },
+        {
+          "id": "tpsc-gait-7",
+          "kind": "mc",
+          "prompt": "Who consumes the speed number?",
+          "choices": [
+            "The character movement component",
+            "The spring arm",
+            "The companion timer",
+            "Touching a ground item"
+          ],
+          "answer": 0,
+          "why": "Movement reads speed."
+        },
+        {
+          "id": "tpsc-gait-8",
+          "kind": "mc",
+          "prompt": "A designer wants 500 and 180 instead of 600 and 200. What can those literals become without changing the check?",
+          "choices": [
+            "A data row the graph reads",
+            "Two key codes",
+            "Two widget fonts",
+            "The companion's path points"
+          ],
+          "answer": 0,
+          "why": "The shape of the check stays."
+        },
+        {
+          "id": "tpsc-gait-9",
+          "kind": "mc",
+          "prompt": "The stick is centered and the pawn keeps sprinting. Where was 600 written?",
+          "choices": [
+            "Past the stick check, on the frame loop",
+            "Inside the stick check, which would have written 200",
+            "By the sights trace",
+            "By the pickup overlap"
+          ],
+          "answer": 0,
+          "why": "The false path is the stop-sprint."
+        },
+        {
+          "id": "tpsc-gait-10",
+          "kind": "mc",
+          "prompt": "Which line is the third-person sprint?",
+          "choices": [
+            "600 on the true path of the stick check",
+            "200 on the false path",
+            "The boom easing in",
+            "The companion flipping direction"
+          ],
+          "answer": 0,
+          "why": "Pushed is 600."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the stick write 600 or 200 for the movement component to read?",
+        "whyGamePrompt": "What retunes walk whenever the boom changes if the camera is what picks the gait?"
+      }
+    },
+    "companion": {
+      "plainEnglish": "The companion is a patrol. Begin Play starts one timer. The step walks the route and a flip swaps direction. The return path has to exist. The player's use key is not the companion's event, and the companion does not fill the player's inventory.",
+      "whyGame": "If the companion runs the player's interact graph, it steals doors. If its overlap fills the player's stack, standing near it loots the room.",
+      "expansions": [
+        {
+          "title": "The way back",
+          "detail": "Without the B path the companion never walks home."
+        },
+        {
+          "title": "Doors",
+          "detail": "IA_Interact stays on the player."
+        },
+        {
+          "title": "Loot",
+          "detail": "The player's overlap fills the stack. The companion does not."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tpsc-companion-1",
+          "kind": "mc",
+          "prompt": "Who starts the companion's route?",
+          "choices": [
+            "Begin Play, with one timer",
+            "The player's stick",
+            "The button that pulls the camera in",
+            "Touching an item on the ground"
+          ],
+          "answer": 0,
+          "why": "The companion is a patrol, not an order."
+        },
+        {
+          "id": "tpsc-companion-2",
+          "kind": "mc",
+          "prompt": "The route step flips direction. What did that decide?",
+          "choices": [
+            "Which way the companion walks next",
+            "That the player is aiming",
+            "That the gun is full",
+            "That a door should open"
+          ],
+          "answer": 0,
+          "why": "The flip is the patrol, not the player."
+        },
+        {
+          "id": "tpsc-companion-3",
+          "kind": "mc",
+          "prompt": "The return path has no points. What does the companion fail to do?",
+          "choices": [
+            "Walk back",
+            "Aim the player's camera",
+            "Reload the player's gun",
+            "Changing the player's hit points"
+          ],
+          "answer": 0,
+          "why": "The B path is the way home."
+        },
+        {
+          "id": "tpsc-companion-4",
+          "kind": "mc",
+          "prompt": "The companion runs the player's interact graph. What does it steal?",
+          "choices": [
+            "Doors the player meant to use",
+            "Only its own route points",
+            "Only the camera boom",
+            "No door at all, if interact ignored every pawn"
+          ],
+          "answer": 0,
+          "why": "Use stays on the player."
+        },
+        {
+          "id": "tpsc-companion-5",
+          "kind": "mc",
+          "prompt": "The companion's overlap fills the player's stack. What loots the room?",
+          "choices": [
+            "Standing near the companion",
+            "Pressing use on a rifle",
+            "Overlapping the rifle with the player capsule",
+            "Filling the gun from the body"
+          ],
+          "answer": 0,
+          "why": "The player's overlap is the pickup."
+        },
+        {
+          "id": "tpsc-companion-6",
+          "kind": "tf",
+          "prompt": "The companion should run the player's interact action.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "That steals doors."
+        },
+        {
+          "id": "tpsc-companion-7",
+          "kind": "mc",
+          "prompt": "Which schedule does Begin Play set for the companion?",
+          "choices": [
+            "One timer that steps the route",
+            "A step on every rendered frame",
+            "A step only while the player aims",
+            "A step when the gun reloads"
+          ],
+          "answer": 0,
+          "why": "One timer. Not the player's buttons."
+        },
+        {
+          "id": "tpsc-companion-8",
+          "kind": "mc",
+          "prompt": "The game pauses and the companion keeps sliding. Which step is running?",
+          "choices": [
+            "A per-frame move that was never paused",
+            "The one timer, which can be paused",
+            "The reload clamp",
+            "The aim trace"
+          ],
+          "answer": 0,
+          "why": "The timer can stop. A frame slide often does not."
+        },
+        {
+          "id": "tpsc-companion-9",
+          "kind": "mc",
+          "prompt": "Which line is the companion, not the player?",
+          "choices": [
+            "The route step started from Begin Play",
+            "The move control compared with rest",
+            "Aiming from the shoulder button",
+            "Transferring ammo from the body"
+          ],
+          "answer": 0,
+          "why": "The patrol is not the stick."
+        },
+        {
+          "id": "tpsc-companion-10",
+          "kind": "mc",
+          "prompt": "You save mid-route. What about the companion has to be remembered?",
+          "choices": [
+            "The next route point",
+            "The companion mesh",
+            "Which controls are bound",
+            "The boom transform"
+          ],
+          "answer": 0,
+          "why": "The point is progress. The mesh rebuilds."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why is the companion only a patrol timer that Begin Play starts once?",
+        "whyGamePrompt": "What gets stolen if the companion runs the player's interact graph, or its overlap fills the player's stack?"
+      }
+    },
+    "slot": {
+      "plainEnglish": "Begin Play loads, because the components exist. The struct holds health, the magazine, the reserve, the stack count, and aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context.",
+      "whyGame": "A frame snapshot stores a half-finished reload and a companion mid-corner. An event after the reload stores a finished gun.",
+      "expansions": [
+        {
+          "title": "The gun",
+          "detail": "Magazine and reserve travel together."
+        },
+        {
+          "title": "The stance",
+          "detail": "Save aiming only if the tight camera must return."
+        },
+        {
+          "title": "When",
+          "detail": "Write after the reload finishes. Load at Begin Play."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tpsc-slot-1",
+          "kind": "mc",
+          "prompt": "Which set belongs in the third-person slot?",
+          "choices": [
+            "Health, magazine, reserve, stack count",
+            "The boom transform and the companion mesh",
+            "The bound device map",
+            "The raw stick sample from the last frame"
+          ],
+          "answer": 0,
+          "why": "Save counts. Rebuild the machinery."
+        },
+        {
+          "id": "tpsc-slot-2",
+          "kind": "mc",
+          "prompt": "The sample assigns a stand-in value at Begin Play. What replaces it?",
+          "choices": [
+            "The struct of those counts",
+            "The current boom transform",
+            "The companion skeletal mesh",
+            "The bound key codes"
+          ],
+          "answer": 0,
+          "why": "The stand-in is the shape, not the data."
+        },
+        {
+          "id": "tpsc-slot-3",
+          "kind": "mc",
+          "prompt": "A finished struct is on disk. When does it load?",
+          "choices": [
+            "At Begin Play",
+            "On the first frame after a sprint",
+            "Inside the sights trace",
+            "When the companion flips direction"
+          ],
+          "answer": 0,
+          "why": "The components exist then."
+        },
+        {
+          "id": "tpsc-slot-4",
+          "kind": "mc",
+          "prompt": "The frame loop writes the slot during a reload. What can the next load restore?",
+          "choices": [
+            "A transfer that never finished",
+            "A reload the player completed",
+            "The rebuilt boom, correctly",
+            "A fresh mapping context"
+          ],
+          "answer": 0,
+          "why": "Write after the reload finishes."
+        },
+        {
+          "id": "tpsc-slot-5",
+          "kind": "mc",
+          "prompt": "You pack the boom transform so the camera matches. What are you storing?",
+          "choices": [
+            "A transform the spring arm rebuilds",
+            "The only copy of the magazine",
+            "How many items the slot holds",
+            "The next route point"
+          ],
+          "answer": 0,
+          "why": "The boom is rebuilt from the aim bool."
+        },
+        {
+          "id": "tpsc-slot-6",
+          "kind": "tf",
+          "prompt": "The mapping context belongs in the third-person slot.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Bindings are not match progress."
+        },
+        {
+          "id": "tpsc-slot-7",
+          "kind": "mc",
+          "prompt": "The mode needs the sights tight after load. Which extra bool do you store?",
+          "choices": [
+            "Aiming",
+            "The stick deflection",
+            "Whether the frame loop is running",
+            "The companion's mesh visibility"
+          ],
+          "answer": 0,
+          "why": "Only if the stance matters."
+        },
+        {
+          "id": "tpsc-slot-8",
+          "kind": "mc",
+          "prompt": "Magazine loaded and reserve did not. What does the next reload lie about?",
+          "choices": [
+            "How many rounds remain on the body",
+            "Where the camera sits",
+            "Which way the companion faces",
+            "Which button is bound to use"
+          ],
+          "answer": 0,
+          "why": "Both gun numbers travel together."
+        },
+        {
+          "id": "tpsc-slot-9",
+          "kind": "mc",
+          "prompt": "The companion was mid-corner and only its mesh was saved. What is missing?",
+          "choices": [
+            "The next route point",
+            "A mesh the level already spawns",
+            "The health float, which cannot be saved",
+            "The aim button binding"
+          ],
+          "answer": 0,
+          "why": "The point is the progress. The mesh is not."
+        },
+        {
+          "id": "tpsc-slot-10",
+          "kind": "mc",
+          "prompt": "Why is Begin Play the load, rather than the middle of a reload?",
+          "choices": [
+            "The components exist",
+            "Begin Play cannot read a struct",
+            "Reloads are the only legal save point",
+            "The boom must be stored first"
+          ],
+          "answer": 0,
+          "why": "Load finished counts into actors that are there."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does Begin Play load health, the magazine, reserve, the stack, and aiming, instead of a frame snapshot?",
+        "whyGamePrompt": "What half-finished reload gets stored if the slot is written from Tick?"
+      }
+    }
+  }
+}

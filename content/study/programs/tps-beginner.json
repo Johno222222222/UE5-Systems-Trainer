@@ -1,0 +1,1681 @@
+{
+  "id": "tps-beginner",
+  "sections": {
+    "camera": {
+      "plainEnglish": "The camera sits behind the shoulder. Pressing aim pulls it in and records that you are looking down the sights. That press is not the use key.",
+      "whyGame": "A trace from the feet hits the ground you are standing on. The shot has to start at the camera, where the crosshair is.",
+      "expansions": [
+        {
+          "title": "The shoulder button",
+          "detail": "The shoulder button's Triggered pin starts the aim trace."
+        },
+        {
+          "title": "Cover",
+          "detail": "Aim does not ask the cover to do anything. Use does."
+        },
+        {
+          "title": "The boom",
+          "detail": "Pulling the camera in is a camera change. It is not a speed change."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tpsb-camera-1",
+          "kind": "mc",
+          "prompt": "The player presses the shoulder button to look down the sights. What should that press record?",
+          "choices": [
+            "That the pawn is aiming",
+            "That a door should open",
+            "That the magazine should refill",
+            "That the squadmate should turn around"
+          ],
+          "answer": 0,
+          "why": "Aim records a look. It does not use an actor."
+        },
+        {
+          "id": "tpsb-camera-2",
+          "kind": "mc",
+          "prompt": "The aim excerpt assigns Aiming = true inside the aim action. What did the player just press?",
+          "choices": [
+            "The shoulder button bound to the aim action",
+            "The interact press",
+            "The reload key",
+            "The stick"
+          ],
+          "answer": 0,
+          "why": "That function is the aim action."
+        },
+        {
+          "id": "tpsb-camera-3",
+          "kind": "mc",
+          "prompt": "The shoulder button fires Triggered. What runs immediately after that pin?",
+          "choices": [
+            "A line trace that starts at the camera",
+            "Calling Interact on the hit actor",
+            "A reload of the magazine",
+            "A write of movement speed"
+          ],
+          "answer": 0,
+          "why": "The pin starts the aim trace."
+        },
+        {
+          "id": "tpsb-camera-4",
+          "kind": "mc",
+          "prompt": "You set Aiming from Tick so the sights never feel late. What keeps happening after the player releases aim?",
+          "choices": [
+            "The pawn stays marked as aiming",
+            "The magazine refills",
+            "The squadmate stops",
+            "The save slot clears"
+          ],
+          "answer": 0,
+          "why": "The action is the press and the release. Tick is neither."
+        },
+        {
+          "id": "tpsb-camera-5",
+          "kind": "mc",
+          "prompt": "The crosshair is on a window and the trace starts at the feet. What does the player shoot?",
+          "choices": [
+            "The ground, or the cover the feet are behind",
+            "The window",
+            "The squadmate",
+            "No shot at all, if a third-person camera were unable to trace"
+          ],
+          "answer": 0,
+          "why": "Start where the camera is looking."
+        },
+        {
+          "id": "tpsb-camera-6",
+          "kind": "tf",
+          "prompt": "Aiming and interacting are two different graphs.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Aim records a look. Interact asks an actor."
+        },
+        {
+          "id": "tpsb-camera-7",
+          "kind": "mc",
+          "prompt": "Which line is the aim write, not a use?",
+          "choices": [
+            "Aiming = true inside the aim action",
+            "A call to Interact on the hit actor",
+            "A clamp of reserve into the magazine",
+            "A squadmate step along the route for the squadmate"
+          ],
+          "answer": 0,
+          "why": "The bool is the sights."
+        },
+        {
+          "id": "tpsb-camera-8",
+          "kind": "mc",
+          "prompt": "A designer lengthens the spring arm. What must not change with that boom?",
+          "choices": [
+            "How fast the pawn walks",
+            "Where the camera sits",
+            "How close the aim camera pulls in",
+            "Which socket the mesh uses"
+          ],
+          "answer": 0,
+          "why": "The boom is the camera. Speed is the stick."
+        },
+        {
+          "id": "tpsb-camera-9",
+          "kind": "mc",
+          "prompt": "The player taps aim while standing in front of a door. What should open?",
+          "choices": [
+            "Nothing. Aim does not call Interact",
+            "The door",
+            "The inventory",
+            "The squadmate's route"
+          ],
+          "answer": 0,
+          "why": "Use is a different action."
+        },
+        {
+          "id": "tpsb-camera-10",
+          "kind": "mc",
+          "prompt": "Where does the aim trace begin?",
+          "choices": [
+            "At the camera",
+            "At the pawn's feet",
+            "At the squadmate",
+            "At the last saved door"
+          ],
+          "answer": 0,
+          "why": "The crosshair lives on the camera."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the aim press pull the shoulder camera in, instead of reusing the use key?",
+        "whyGamePrompt": "What does a trace from the feet hit, compared with the crosshair at the camera?"
+      }
+    },
+    "movement": {
+      "plainEnglish": "The stick is the move action. The graph compares it with zero and writes speed. The spring arm and the aim bool do not choose that speed.",
+      "whyGame": "If aiming slowed the pawn inside the camera graph, tuning the boom would retune the gait.",
+      "expansions": [
+        {
+          "title": "Idle",
+          "detail": "A stick at zero writes no speed."
+        },
+        {
+          "title": "Aiming",
+          "detail": "Looking down the sights is a camera bool, not a speed."
+        },
+        {
+          "title": "The boom",
+          "detail": "A longer spring arm does not make the pawn faster."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tpsb-movement-1",
+          "kind": "mc",
+          "prompt": "What chooses third-person speed?",
+          "choices": [
+            "The stick, compared with zero",
+            "How far the spring arm is pulled",
+            "Whether the pawn is aiming",
+            "Where the squadmate is standing"
+          ],
+          "answer": 0,
+          "why": "The move action owns speed."
+        },
+        {
+          "id": "tpsb-movement-2",
+          "kind": "mc",
+          "prompt": "The move excerpt writes Speed inside if (IA_Move > 0.f). When does that line run?",
+          "choices": [
+            "When the stick is pushed",
+            "On every frame, at 600",
+            "When the shoulder button is down",
+            "When the magazine is empty"
+          ],
+          "answer": 0,
+          "why": "The comparison is the gate."
+        },
+        {
+          "id": "tpsb-movement-3",
+          "kind": "mc",
+          "prompt": "The stick leaves zero. Which write comes next?",
+          "choices": [
+            "Speed, from the move graph",
+            "The sights bool from the camera graph",
+            "A magazine refill",
+            "A squadmate step along the route"
+          ],
+          "answer": 0,
+          "why": "The stick is the move action."
+        },
+        {
+          "id": "tpsb-movement-4",
+          "kind": "mc",
+          "prompt": "Tick forces Speed = 600 even when the stick is centered. What can the player no longer do?",
+          "choices": [
+            "Stand still",
+            "Looking down the sights",
+            "Filling the magazine",
+            "Writing the slot"
+          ],
+          "answer": 0,
+          "why": "Zero on the stick is the stop."
+        },
+        {
+          "id": "tpsb-movement-5",
+          "kind": "mc",
+          "prompt": "Looking down the sights slows the pawn inside the camera graph. What else breaks when a designer shortens the boom?",
+          "choices": [
+            "The gait, because speed was hiding in the camera",
+            "The magazine cap",
+            "The squadmate's route points",
+            "The stack size on a pickup"
+          ],
+          "answer": 0,
+          "why": "Camera tuning must not be movement tuning."
+        },
+        {
+          "id": "tpsb-movement-6",
+          "kind": "tf",
+          "prompt": "How fast the pawn walks comes from the stick, not from the aiming bool.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Speed is the stick."
+        },
+        {
+          "id": "tpsb-movement-7",
+          "kind": "mc",
+          "prompt": "Which line is the move gate?",
+          "choices": [
+            "The comparison of the stick with zero",
+            "Aiming assigned from the shoulder button",
+            "The magazine compared with its cap",
+            "The squadmate's one-second timer"
+          ],
+          "answer": 0,
+          "why": "That if is where speed is written."
+        },
+        {
+          "id": "tpsb-movement-8",
+          "kind": "mc",
+          "prompt": "A longer spring arm makes the pawn look faster on screen. What number should stay the same?",
+          "choices": [
+            "Speed",
+            "The camera distance",
+            "The aim pull-in",
+            "The socket name"
+          ],
+          "answer": 0,
+          "why": "The boom is not the gait."
+        },
+        {
+          "id": "tpsb-movement-9",
+          "kind": "mc",
+          "prompt": "The stick is centered and the pawn keeps jogging. Where was speed written?",
+          "choices": [
+            "On Tick, past the stick check",
+            "Inside the stick check, which would have written zero",
+            "By the aim trace",
+            "By the pickup overlap"
+          ],
+          "answer": 0,
+          "why": "The repair puts the assignment inside the comparison."
+        },
+        {
+          "id": "tpsb-movement-10",
+          "kind": "mc",
+          "prompt": "Why is third-person speed the same contract as any other pawn?",
+          "choices": [
+            "The stick still asks",
+            "Third person has no stick",
+            "The spring arm is the input device",
+            "The squadmate owns the player's speed"
+          ],
+          "answer": 0,
+          "why": "The view changes. The contract does not."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the stick compare against zero and write speed, while the spring arm does not?",
+        "whyGamePrompt": "What gait changes if aiming slows the pawn inside the camera graph?"
+      }
+    },
+    "interaction": {
+      "plainEnglish": "Use starts at the interact action. The trace comes from the camera, along the crosshair. A hit calls Interact on that actor. A door, a weapon on the ground, and a switch share that call.",
+      "whyGame": "A trace from the chest hits the cover the camera can see past, and the prompt lights on the wrong actor.",
+      "expansions": [
+        {
+          "title": "A door",
+          "detail": "The door implements Interact. The trace does not name the door class."
+        },
+        {
+          "title": "A weapon on the ground",
+          "detail": "The prompt can find it. Putting it in the inventory is still the overlap."
+        },
+        {
+          "title": "Cover",
+          "detail": "If the camera can see past it, the trace must start at the camera."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tpsb-interaction-1",
+          "kind": "mc",
+          "prompt": "The crosshair is on a door the camera can see past a low wall. Where does the use trace start?",
+          "choices": [
+            "At the camera",
+            "At the pawn's chest",
+            "At the squadmate",
+            "At the wall, always"
+          ],
+          "answer": 0,
+          "why": "The chest trace hits the wall."
+        },
+        {
+          "id": "tpsb-interaction-2",
+          "kind": "mc",
+          "prompt": "The use excerpt calls Calling Interact on the hit actor after a hit. What does that line do?",
+          "choices": [
+            "It runs the hit actor's own use function",
+            "It sets the aiming bool",
+            "It refills the magazine",
+            "It steps the squadmate"
+          ],
+          "answer": 0,
+          "why": "Interact is the interface."
+        },
+        {
+          "id": "tpsb-interaction-3",
+          "kind": "mc",
+          "prompt": "The trace hits a floor switch. What call runs on that switch?",
+          "choices": [
+            "Interact on that switch",
+            "Whether the pawn is aiming",
+            "A speed write",
+            "A reload"
+          ],
+          "answer": 0,
+          "why": "The true pin calls the interface."
+        },
+        {
+          "id": "tpsb-interaction-4",
+          "kind": "mc",
+          "prompt": "The trace starts at the chest and the prompt lights on the wall. What is the player actually aiming at?",
+          "choices": [
+            "Something past the wall, which the camera can see",
+            "The wall, correctly",
+            "The squadmate",
+            "The magazine"
+          ],
+          "answer": 0,
+          "why": "Match the crosshair."
+        },
+        {
+          "id": "tpsb-interaction-5",
+          "kind": "mc",
+          "prompt": "A door, a dropped weapon, and a switch all need use. What do they share?",
+          "choices": [
+            "Interact",
+            "A cast chain, one class each",
+            "The shoulder-button graph",
+            "The squadmate's one-second timer"
+          ],
+          "answer": 0,
+          "why": "One call. The actor implements it."
+        },
+        {
+          "id": "tpsb-interaction-6",
+          "kind": "tf",
+          "prompt": "Doors open from the use trace, not from the sights trace.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Aim only records the sights."
+        },
+        {
+          "id": "tpsb-interaction-7",
+          "kind": "mc",
+          "prompt": "Art adds a ladder. What must the ladder implement?",
+          "choices": [
+            "Interact",
+            "A new branch in the aim graph",
+            "A speed bonus",
+            "A magazine slot"
+          ],
+          "answer": 0,
+          "why": "The trace never lists classes."
+        },
+        {
+          "id": "tpsb-interaction-8",
+          "kind": "mc",
+          "prompt": "The press that calls Interact finds a weapon and adds it to the inventory. Which event was supposed to add it?",
+          "choices": [
+            "The pickup overlap",
+            "The press that calls Interact",
+            "The sights trace",
+            "The companion step"
+          ],
+          "answer": 0,
+          "why": "Use can highlight. Overlap adds."
+        },
+        {
+          "id": "tpsb-interaction-9",
+          "kind": "mc",
+          "prompt": "Which action starts third-person use?",
+          "choices": [
+            "The interact action",
+            "The shoulder button",
+            "The reload button",
+            "The stick"
+          ],
+          "answer": 0,
+          "why": "Use has its own action."
+        },
+        {
+          "id": "tpsb-interaction-10",
+          "kind": "mc",
+          "prompt": "The hit bool is false. What runs?",
+          "choices": [
+            "The miss path, which does not call Interact",
+            "Interact on the nearest actor anyway",
+            "A reload",
+            "Whether the pawn is aiming"
+          ],
+          "answer": 0,
+          "why": "The branch is the hit."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does third-person use trace from the camera along the crosshair before it calls Interact?",
+        "whyGamePrompt": "What actor lights up if the trace starts at the chest and hits cover the camera can see past?"
+      }
+    },
+    "weapon": {
+      "plainEnglish": "Reload is its own button. The magazine is what is in the gun, reserve is what is on the body, and the mag size is the cap. Reload runs only when the mag is not full and the body still has rounds.",
+      "whyGame": "Reloading from Tick or from the aim button fills the gun while the player is only looking, or while they are doing nothing.",
+      "expansions": [
+        {
+          "title": "The gap",
+          "detail": "Needed is the reserve clamped into the space left in the magazine."
+        },
+        {
+          "title": "An empty body",
+          "detail": "Reserve at zero means the branch does not run."
+        },
+        {
+          "title": "A full mag",
+          "detail": "A full magazine does not take more rounds from the body."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tpsb-weapon-1",
+          "kind": "mc",
+          "prompt": "Which action starts a third-person reload?",
+          "choices": [
+            "The reload button",
+            "The aim button",
+            "Every drawn frame",
+            "The stick"
+          ],
+          "answer": 0,
+          "why": "Reload is its own action."
+        },
+        {
+          "id": "tpsb-weapon-2",
+          "kind": "mc",
+          "prompt": "The excerpt clamps reserve into the gap and calls that result Needed. What is Needed?",
+          "choices": [
+            "How many rounds will move from the body into the gun",
+            "The player's health",
+            "How long the camera boom is",
+            "The squadmate's step time"
+          ],
+          "answer": 0,
+          "why": "Needed is the transfer."
+        },
+        {
+          "id": "tpsb-weapon-3",
+          "kind": "mc",
+          "prompt": "The magazine is below its cap and the body has rounds. Which write comes next?",
+          "choices": [
+            "The clamp of reserve into the gap",
+            "A sights trace",
+            "A speed write",
+            "A squadmate step along the route"
+          ],
+          "answer": 0,
+          "why": "Both sides of the branch are true, so the clamp runs."
+        },
+        {
+          "id": "tpsb-weapon-4",
+          "kind": "mc",
+          "prompt": "Tick adds Needed every frame. What happens while the player is only aiming?",
+          "choices": [
+            "The magazine keeps filling",
+            "The camera pulls in",
+            "The squadmate waits",
+            "No change at all, if the frame loop knew you were only aiming"
+          ],
+          "answer": 0,
+          "why": "Reload is a button, not a frame."
+        },
+        {
+          "id": "tpsb-weapon-5",
+          "kind": "mc",
+          "prompt": "The magazine is full and the body still has rounds. What should reload do?",
+          "choices": [
+            "Nothing. The cap blocks the transfer",
+            "Move rounds anyway and grow the magazine past its size",
+            "Set the aiming bool",
+            "Step the squadmate"
+          ],
+          "answer": 0,
+          "why": "Magazine < MagSize is required."
+        },
+        {
+          "id": "tpsb-weapon-6",
+          "kind": "tf",
+          "prompt": "The aim button should reload the third-person weapon.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Aim is the sights. Reload is its own button."
+        },
+        {
+          "id": "tpsb-weapon-7",
+          "kind": "mc",
+          "prompt": "Reserve is zero and the magazine is half empty. Which part of the branch fails?",
+          "choices": [
+            "The reserve check",
+            "The magazine-cap check",
+            "Looking through the sights",
+            "The stick comparison"
+          ],
+          "answer": 0,
+          "why": "There is nothing on the body to move."
+        },
+        {
+          "id": "tpsb-weapon-8",
+          "kind": "mc",
+          "prompt": "Which three numbers describe the gun?",
+          "choices": [
+            "Magazine, reserve, and mag size",
+            "The sights, the gait, and hit points",
+            "Stack count, route direction, and the boom length",
+            "The camera location, the chest location, and the crosshair"
+          ],
+          "answer": 0,
+          "why": "In the gun, on the body, and the cap."
+        },
+        {
+          "id": "tpsb-weapon-9",
+          "kind": "mc",
+          "prompt": "You clamp Needed and forget to subtract it from reserve. What does the next reload see?",
+          "choices": [
+            "The same rounds still on the body",
+            "An empty body",
+            "A larger mag size",
+            "A slowed pawn"
+          ],
+          "answer": 0,
+          "why": "The transfer has to leave the body."
+        },
+        {
+          "id": "tpsb-weapon-10",
+          "kind": "mc",
+          "prompt": "Which line is the reload gate?",
+          "choices": [
+            "Magazine below its cap",
+            "The stick above zero",
+            "The sights flag",
+            "The squadmate's one-second timer"
+          ],
+          "answer": 0,
+          "why": "Both have to be true."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why is reload its own button, and only when the magazine is not full and reserve remains?",
+        "whyGamePrompt": "What fills the gun while the player is only aiming if reload is wired to Tick or to the aim button?"
+      }
+    },
+    "health": {
+      "plainEnglish": "A hit is Any Damage on the server. The health write sits inside the authority check. The number 90 in the sample is a stand-in. Other players see the body from the replicated result, and they do not apply the hit again.",
+      "whyGame": "A client reaction that also writes health makes two machines disagree about which body fell.",
+      "expansions": [
+        {
+          "title": "The sample",
+          "detail": "Replace 90 with the computed result."
+        },
+        {
+          "title": "The reaction",
+          "detail": "Play the hit reaction from the notify. Do not subtract again."
+        },
+        {
+          "title": "The body",
+          "detail": "Other players can see this pawn, so the number has to match."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tpsb-health-1",
+          "kind": "mc",
+          "prompt": "Where does a third-person health write sit?",
+          "choices": [
+            "Inside HasAuthority, from Any Damage",
+            "On the client that shows the hit flash",
+            "Inside the aim graph",
+            "Inside the reload clamp"
+          ],
+          "answer": 0,
+          "why": "The server owns the body everyone can see."
+        },
+        {
+          "id": "tpsb-health-2",
+          "kind": "mc",
+          "prompt": "The excerpt assigns Health = 90.f inside the authority check. What is 90?",
+          "choices": [
+            "A sample you replace with the computed result",
+            "The only legal health value",
+            "The magazine cap",
+            "The squadmate timer"
+          ],
+          "answer": 0,
+          "why": "90 is a stand-in."
+        },
+        {
+          "id": "tpsb-health-3",
+          "kind": "mc",
+          "prompt": "The server has written the new health. What should the other machines play?",
+          "choices": [
+            "The hit reaction, from the notify",
+            "A second subtract",
+            "A reload",
+            "A camera trace"
+          ],
+          "answer": 0,
+          "why": "The notify shows the result."
+        },
+        {
+          "id": "tpsb-health-4",
+          "kind": "mc",
+          "prompt": "The client plays a hit reaction by subtracting health locally. What do two players disagree about?",
+          "choices": [
+            "Which body fell",
+            "Where the camera sits",
+            "Which button reloads",
+            "Which route the squadmate walks"
+          ],
+          "answer": 0,
+          "why": "Two writes, two bodies."
+        },
+        {
+          "id": "tpsb-health-5",
+          "kind": "mc",
+          "prompt": "The sample writes Health after an empty authority check. What is the repair?",
+          "choices": [
+            "Nest the assignment inside the check",
+            "Delete the check and write on every client",
+            "Move the write into the aim action",
+            "Store 90 in the magazine"
+          ],
+          "answer": 0,
+          "why": "The check has to wrap the write."
+        },
+        {
+          "id": "tpsb-health-6",
+          "kind": "tf",
+          "prompt": "A client hit flash should subtract health again.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The flash shows the server number."
+        },
+        {
+          "id": "tpsb-health-7",
+          "kind": "mc",
+          "prompt": "Which event is the hit?",
+          "choices": [
+            "Any Damage",
+            "The shoulder-button graph",
+            "The reload action",
+            "The pickup overlap"
+          ],
+          "answer": 0,
+          "why": "Damage is the event."
+        },
+        {
+          "id": "tpsb-health-8",
+          "kind": "mc",
+          "prompt": "Why does this health float have to replicate when a first-person one might feel private?",
+          "choices": [
+            "Other players can see this body",
+            "The spring arm requires it",
+            "The magazine is visible, so health must share its float",
+            "The squadmate timer replicates through health"
+          ],
+          "answer": 0,
+          "why": "The body is on screen for everyone."
+        },
+        {
+          "id": "tpsb-health-9",
+          "kind": "mc",
+          "prompt": "A medkit writes health on the owning client. What snaps when the server answers?",
+          "choices": [
+            "The body, back to the server number",
+            "How long the camera boom is",
+            "The reload binding",
+            "The route points"
+          ],
+          "answer": 0,
+          "why": "The client number was never authority."
+        },
+        {
+          "id": "tpsb-health-10",
+          "kind": "mc",
+          "prompt": "Which line is the health write?",
+          "choices": [
+            "The assignment nested in HasAuthority",
+            "Aiming assigned from the shoulder button",
+            "The magazine clamp",
+            "The stick comparison"
+          ],
+          "answer": 0,
+          "why": "Authority wraps health."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does Any Damage change third-person health only inside the authority check?",
+        "whyGamePrompt": "What do two machines disagree about if a client reaction also writes health?"
+      }
+    },
+    "inventory": {
+      "plainEnglish": "A pickup touches the capsule. Overlap adds it when the stack count is positive. Aiming at it and pressing use do not increment the count. The most the stack can hold lives on the item.",
+      "whyGame": "The weapon on your back is the inventory. Filling it from the aim trace means looking at a rifle picks it up.",
+      "expansions": [
+        {
+          "title": "The back",
+          "detail": "The visible weapon on the body is the slot, not a second inventory."
+        },
+        {
+          "title": "The cap",
+          "detail": "Compare against the stack size on the item before accepting more."
+        },
+        {
+          "title": "Empty",
+          "detail": "A count of zero stores zero and does not add."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tpsb-inventory-1",
+          "kind": "mc",
+          "prompt": "A rifle on the ground touches the capsule. Which event adds it?",
+          "choices": [
+            "Overlap, through AddToSlot",
+            "Looking along the camera",
+            "The interact press",
+            "The reload button"
+          ],
+          "answer": 0,
+          "why": "Touching the capsule is the pickup."
+        },
+        {
+          "id": "tpsb-inventory-2",
+          "kind": "mc",
+          "prompt": "The overlap excerpt sees StackCount > 0 and calls ProcessEvent on AddToSlot. What does that line do?",
+          "choices": [
+            "It asks the inventory to take the item",
+            "It aims the camera",
+            "It refills the magazine",
+            "It heals the pawn"
+          ],
+          "answer": 0,
+          "why": "A positive count means add."
+        },
+        {
+          "id": "tpsb-inventory-3",
+          "kind": "mc",
+          "prompt": "The count is positive. What call takes the item?",
+          "choices": [
+            "AddToSlot on the other actor",
+            "Looking down the camera",
+            "A speed write",
+            "The ally's route clock"
+          ],
+          "answer": 0,
+          "why": "The true pin adds."
+        },
+        {
+          "id": "tpsb-inventory-4",
+          "kind": "mc",
+          "prompt": "Looking at a rifle adds it to the back. What did the aim trace do that belongs to overlap?",
+          "choices": [
+            "The add",
+            "The camera pull-in",
+            "The stick read",
+            "A step along the squadmate route"
+          ],
+          "answer": 0,
+          "why": "Aim looks. Overlap picks up."
+        },
+        {
+          "id": "tpsb-inventory-5",
+          "kind": "mc",
+          "prompt": "The stack is already at the size named on the item. What should another overlap do?",
+          "choices": [
+            "Refuse the extra",
+            "Grow the stack past the asset",
+            "Reload the magazine",
+            "Marking the pawn as aiming"
+          ],
+          "answer": 0,
+          "why": "The cap is on the item."
+        },
+        {
+          "id": "tpsb-inventory-6",
+          "kind": "tf",
+          "prompt": "Pressing use on a pickup should increment its stack count.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Use is not the overlap."
+        },
+        {
+          "id": "tpsb-inventory-7",
+          "kind": "mc",
+          "prompt": "Where does the stack cap live?",
+          "choices": [
+            "On the item asset",
+            "As a literal inside the aim graph",
+            "On the spring arm",
+            "On the squadmate route"
+          ],
+          "answer": 0,
+          "why": "Beside the item's name."
+        },
+        {
+          "id": "tpsb-inventory-8",
+          "kind": "mc",
+          "prompt": "The overlap runs and the count is zero. What does the excerpt do?",
+          "choices": [
+            "It stores zero and does not add",
+            "It calls AddToSlot anyway",
+            "It reloads",
+            "It aims"
+          ],
+          "answer": 0,
+          "why": "Empty means no add."
+        },
+        {
+          "id": "tpsb-inventory-9",
+          "kind": "mc",
+          "prompt": "The weapon on the character's back is a second inventory mesh. What should it be instead?",
+          "choices": [
+            "The visible slot you already added",
+            "A private count the overlap cannot see",
+            "The magazine",
+            "The spring arm"
+          ],
+          "answer": 0,
+          "why": "One inventory, shown on the body."
+        },
+        {
+          "id": "tpsb-inventory-10",
+          "kind": "mc",
+          "prompt": "Which test is only a sample and still needs the item's stack size beside it?",
+          "choices": [
+            "StackCount > 0",
+            "The stick compared with zero",
+            "Magazine below its cap",
+            "Looking through the sights"
+          ],
+          "answer": 0,
+          "why": "Positive is not the same as under the cap."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does capsule overlap add a pickup, while aiming and pressing use do not increment the count?",
+        "whyGamePrompt": "What gets picked up by looking if the weapon on your back fills from the aim trace?"
+      }
+    },
+    "companion": {
+      "plainEnglish": "The squadmate walks a short route beside you. Begin Play starts one timer that calls the route step. The sample timer does not loop, so the next step has to be scheduled on purpose. The return path is still empty.",
+      "whyGame": "Stepping from Tick walks the squadmate through a pause, and starting a new timer inside the step piles timers until the squadmate sprints.",
+      "expansions": [
+        {
+          "title": "The way back",
+          "detail": "The B path has no points until you author them."
+        },
+        {
+          "title": "One timer",
+          "detail": "The sample uses a one-second timer that does not loop."
+        },
+        {
+          "title": "Orders",
+          "detail": "This route is not the player's stick."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tpsb-companion-1",
+          "kind": "mc",
+          "prompt": "Who starts the squadmate's route?",
+          "choices": [
+            "Begin Play, with one timer",
+            "The player's stick",
+            "The aim button",
+            "The pickup overlap"
+          ],
+          "answer": 0,
+          "why": "The route is not an order from the stick."
+        },
+        {
+          "id": "tpsb-companion-2",
+          "kind": "mc",
+          "prompt": "AdvancePatrol assigns GoingRight = true on the A path. What did that line decide?",
+          "choices": [
+            "The squadmate is on the outward leg",
+            "The player is aiming",
+            "The magazine is full",
+            "Health reached zero"
+          ],
+          "answer": 0,
+          "why": "Direction is the route."
+        },
+        {
+          "id": "tpsb-companion-3",
+          "kind": "mc",
+          "prompt": "The one-second timer finishes and the sample does not loop. What has to schedule the next step?",
+          "choices": [
+            "The finished step, on purpose",
+            "Every drawn frame",
+            "The shoulder-button graph",
+            "The reload action"
+          ],
+          "answer": 0,
+          "why": "A non-looping timer does not restart itself."
+        },
+        {
+          "id": "tpsb-companion-4",
+          "kind": "mc",
+          "prompt": "A step along the squadmate route starts a new timer every call. What does the squadmate do?",
+          "choices": [
+            "It sprints as the timers pile up",
+            "It waits for the stick",
+            "It reloads the player's gun",
+            "It writes the player's health"
+          ],
+          "answer": 0,
+          "why": "Begin Play already scheduled one."
+        },
+        {
+          "id": "tpsb-companion-5",
+          "kind": "mc",
+          "prompt": "The return path has no points. What happens at the end of the route?",
+          "choices": [
+            "The squadmate stops",
+            "The squadmate aims",
+            "The player's magazine refills",
+            "The save slot loads"
+          ],
+          "answer": 0,
+          "why": "The way back was never authored."
+        },
+        {
+          "id": "tpsb-companion-6",
+          "kind": "tf",
+          "prompt": "The player's stick should move the squadmate.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The stick moves the player. The timer moves the squadmate."
+        },
+        {
+          "id": "tpsb-companion-7",
+          "kind": "mc",
+          "prompt": "Which schedule does Begin Play actually set in the excerpt?",
+          "choices": [
+            "AdvancePatrol after one second",
+            "A step every frame",
+            "A step only while the player aims",
+            "A step when the magazine reloads"
+          ],
+          "answer": 0,
+          "why": "1 second, and the sample does not loop."
+        },
+        {
+          "id": "tpsb-companion-8",
+          "kind": "mc",
+          "prompt": "The game pauses and the squadmate keeps sliding. Which step is running?",
+          "choices": [
+            "A per-frame move",
+            "The one-second timer, which can be paused",
+            "Clamping reserve into the magazine",
+            "Looking down the camera"
+          ],
+          "answer": 0,
+          "why": "Tick does not know about the pause unless you gate it."
+        },
+        {
+          "id": "tpsb-companion-9",
+          "kind": "mc",
+          "prompt": "Which line is the squadmate, not the player?",
+          "choices": [
+            "GoingRight on the route path",
+            "The stick compared with zero",
+            "Aiming from the shoulder button",
+            "The magazine clamp"
+          ],
+          "answer": 0,
+          "why": "The route direction is the companion."
+        },
+        {
+          "id": "tpsb-companion-10",
+          "kind": "mc",
+          "prompt": "You save the game mid-route. What about the squadmate has to be remembered?",
+          "choices": [
+            "The next route point",
+            "The spring-arm mesh",
+            "The input bindings",
+            "The sights trace origin"
+          ],
+          "answer": 0,
+          "why": "The point is progress. The mesh is not."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does Begin Play start one route timer for the squadmate, with the next step scheduled from that step?",
+        "whyGamePrompt": "What piles up if each route step starts another timer, or the squadmate steps from Tick?"
+      }
+    },
+    "save": {
+      "plainEnglish": "The third-person slot stores health, the magazine, the reserve, the stack count, aiming only if the camera must stay tight, and the squadmate's next route point. It does not store the spring-arm mesh or the mapping context. Load happens at Begin Play.",
+      "whyGame": "Copying health into the slot every frame stores a half-applied hit, and saving the spring arm saves a mesh the level already has.",
+      "expansions": [
+        {
+          "title": "The camera",
+          "detail": "Save Aiming only when the mode needs the tight camera after load."
+        },
+        {
+          "title": "The gun",
+          "detail": "Magazine and reserve are both part of the gun."
+        },
+        {
+          "title": "When",
+          "detail": "Write the struct on an event. Load it at Begin Play."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tpsb-save-1",
+          "kind": "mc",
+          "prompt": "Which set belongs in the third-person slot?",
+          "choices": [
+            "Health, magazine, reserve, stack count",
+            "The spring-arm mesh and the mapping context",
+            "The raw stick value every frame",
+            "The sights trace's last hit actor"
+          ],
+          "answer": 0,
+          "why": "Save results. The mesh and the bindings rebuild."
+        },
+        {
+          "id": "tpsb-save-2",
+          "kind": "mc",
+          "prompt": "The sample assigns SlotValue = 1.f at Begin Play. What replaces that stand-in?",
+          "choices": [
+            "The third-person struct",
+            "How long the camera boom is",
+            "The sample health number",
+            "The sample speed number"
+          ],
+          "answer": 0,
+          "why": "1 is the sample shape."
+        },
+        {
+          "id": "tpsb-save-3",
+          "kind": "mc",
+          "prompt": "A finished struct is on disk. Which event loads it?",
+          "choices": [
+            "Begin Play",
+            "Every drawn frame",
+            "The graph for the sights",
+            "The reload action"
+          ],
+          "answer": 0,
+          "why": "The camera, the weapon, and the squadmate exist then."
+        },
+        {
+          "id": "tpsb-save-4",
+          "kind": "mc",
+          "prompt": "Tick copies health into the slot every frame. What can the next load restore?",
+          "choices": [
+            "A hit that never finished",
+            "A clean event the player committed",
+            "The input bindings, correctly",
+            "The spring-arm mesh, which had to be saved"
+          ],
+          "answer": 0,
+          "why": "Write on an event."
+        },
+        {
+          "id": "tpsb-save-5",
+          "kind": "mc",
+          "prompt": "You pack the spring arm so the camera matches. What are you actually storing?",
+          "choices": [
+            "A mesh the level already spawns",
+            "The only copy of the magazine",
+            "The squadmate's next point",
+            "The stack count"
+          ],
+          "answer": 0,
+          "why": "The boom is built, not saved."
+        },
+        {
+          "id": "tpsb-save-6",
+          "kind": "tf",
+          "prompt": "The input bindings belongs in the third-person save.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Bindings are not match progress."
+        },
+        {
+          "id": "tpsb-save-7",
+          "kind": "mc",
+          "prompt": "The mode needs the sights to stay tight after load. Which extra bool do you store?",
+          "choices": [
+            "Aiming",
+            "The stick deflection",
+            "The spring-arm visibility",
+            "Whether Tick is running"
+          ],
+          "answer": 0,
+          "why": "Only if the mode needs that camera."
+        },
+        {
+          "id": "tpsb-save-8",
+          "kind": "mc",
+          "prompt": "Magazine loaded and reserve did not. What does the gun show?",
+          "choices": [
+            "A full magazine and the old body count, so the next reload lies",
+            "A correct gun",
+            "An aimed camera",
+            "A sprinting squadmate. Route direction is not the rounds left on the body."
+          ],
+          "answer": 0,
+          "why": "Both numbers are the gun."
+        },
+        {
+          "id": "tpsb-save-9",
+          "kind": "mc",
+          "prompt": "When should the struct be written?",
+          "choices": [
+            "On an event such as the player saving",
+            "On each drawn frame",
+            "Inside the aim trace",
+            "When the stick returns to zero"
+          ],
+          "answer": 0,
+          "why": "Events are the moments that finished."
+        },
+        {
+          "id": "tpsb-save-10",
+          "kind": "mc",
+          "prompt": "Why is Begin Play the load, rather than the first Tick?",
+          "choices": [
+            "The camera, the weapon",
+            "Tick runs before any actor is spawned",
+            "Begin Play cannot read a struct",
+            "The input bindings is only valid on Tick"
+          ],
+          "answer": 0,
+          "why": "Load into actors that are there."
+        }
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the third-person slot store health, ammo, the stack, aim, and the squadmate's next point, but not the spring arm?",
+        "whyGamePrompt": "What half-applied hit gets stored if health is copied into the slot every frame?"
+      }
+    }
+  },
+  "repairWrongs": {
+    "tps-beginner-e2": [
+      "Setting the sights from Tick keeps the camera from popping",
+      "The interact press should be what pulls the camera in",
+      "Reload should mark the pawn as aiming"
+    ],
+    "tps-beginner-e6": [
+      "A constant 600 is smoother than reading the stick",
+      "The spring arm should scale speed",
+      "Aiming should be the gate around the speed write"
+    ],
+    "tps-beginner-e9": [
+      "Filling the magazine every frame avoids a dry click",
+      "The aim button is a natural reload",
+      "The stick should top up the gun while you move"
+    ],
+    "tps-beginner-e11": [
+      "An empty authority check is enough if the write sits just after it",
+      "Every client should write health so the flash is instant",
+      "The shoulder-button graph is a fine place for the hit"
+    ],
+    "tps-beginner-e16": [
+      "Flipping direction every frame looks smoother than a one-second step",
+      "The player's stick should schedule the squadmate",
+      "Reload should advance the route"
+    ],
+    "tps-beginner-e19": [
+      "Tick is the honest snapshot of a live health value",
+      "The sights trace should load the slot",
+      "Clamping reserve into the magazine should be the load"
+    ]
+  },
+  "exam": [
+    {
+      "id": "tpsb-exam-1",
+      "kind": "mc",
+      "prompt": "The camera graph sets Aiming from Tick. Which action should assign it?",
+      "choices": [
+        "The shoulder button",
+        "The interact press",
+        "Topping up the gun",
+        "Pushing the move stick"
+      ],
+      "answer": 0,
+      "why": "The shoulder button is the sights."
+    },
+    {
+      "id": "tpsb-exam-2",
+      "kind": "mc",
+      "prompt": "A door is under the crosshair and the player is holding aim. What should happen to the door?",
+      "choices": [
+        "Nothing, until they press use",
+        "It opens, because aim traces",
+        "It reloads the gun",
+        "It steps the squadmate"
+      ],
+      "answer": 0,
+      "why": "Aim is not use."
+    },
+    {
+      "id": "tpsb-exam-3",
+      "kind": "tf",
+      "prompt": "The sights trace should start at the camera.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "The crosshair is on the camera."
+    },
+    {
+      "id": "tpsb-exam-4",
+      "kind": "mc",
+      "prompt": "Tick forces speed to 600. Where does the excerpt put the speed write?",
+      "choices": [
+        "Inside the check that the stick is pushed",
+        "On every frame, unconditionally",
+        "Inside the aim action",
+        "Inside the reload clamp"
+      ],
+      "answer": 0,
+      "why": "The stick is the gate."
+    },
+    {
+      "id": "tpsb-exam-5",
+      "kind": "mc",
+      "prompt": "Shortening the spring arm also slows the pawn. What was stored in the wrong graph?",
+      "choices": [
+        "Speed",
+        "The magazine cap",
+        "The stack size",
+        "The route point"
+      ],
+      "answer": 0,
+      "why": "The boom must not own the gait."
+    },
+    {
+      "id": "tpsb-exam-6",
+      "kind": "tf",
+      "prompt": "A centered stick should leave third-person speed at zero.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "The comparison is the stop."
+    },
+    {
+      "id": "tpsb-exam-7",
+      "kind": "mc",
+      "prompt": "The press that calls Interact starts at the chest and the prompt sticks to a low wall. What can the camera see that the trace cannot?",
+      "choices": [
+        "The actor past that wall",
+        "Only the wall",
+        "The squadmate's timer",
+        "The input bindings"
+      ],
+      "answer": 0,
+      "why": "Start at the camera."
+    },
+    {
+      "id": "tpsb-exam-8",
+      "kind": "mc",
+      "prompt": "A new switch arrives from art. What does the use graph not need?",
+      "choices": [
+        "A cast to the switch class",
+        "The switch to implement Interact",
+        "A trace from the camera",
+        "The interact action"
+      ],
+      "answer": 0,
+      "why": "The call is the interface."
+    },
+    {
+      "id": "tpsb-exam-9",
+      "kind": "mc",
+      "prompt": "Reload adds Needed from Tick. Which action should start that graph?",
+      "choices": [
+        "The reload button",
+        "The shoulder button",
+        "Pushing the move stick",
+        "The interact action"
+      ],
+      "answer": 0,
+      "why": "Reload is its own button."
+    },
+    {
+      "id": "tpsb-exam-10",
+      "kind": "mc",
+      "prompt": "The magazine holds 20 of 30 and the body holds 4. What is Needed?",
+      "choices": [
+        "4, the rounds the body can actually give",
+        "Ten rounds, the full gap, even though the body is short",
+        "Thirty rounds, as if the gun were replaced",
+        "No transfer, if looking down the sights were the reload"
+      ],
+      "answer": 0,
+      "why": "The clamp takes the smaller of the gap and the reserve."
+    },
+    {
+      "id": "tpsb-exam-11",
+      "kind": "tf",
+      "prompt": "A full magazine should still pull rounds off the body.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "The cap blocks the transfer."
+    },
+    {
+      "id": "tpsb-exam-12",
+      "kind": "mc",
+      "prompt": "Health is written just after an empty authority check. What is the repair?",
+      "choices": [
+        "Nest the assignment inside the check",
+        "Let every client write it",
+        "Move it into the aim action",
+        "Store it in the magazine"
+      ],
+      "answer": 0,
+      "why": "The check has to wrap the write."
+    },
+    {
+      "id": "tpsb-exam-13",
+      "kind": "mc",
+      "prompt": "Two clients show different bodies falling. What was written twice?",
+      "choices": [
+        "Health",
+        "The boom's distance",
+        "The route direction",
+        "Which keys are bound"
+      ],
+      "answer": 0,
+      "why": "The reaction subtracted again."
+    },
+    {
+      "id": "tpsb-exam-14",
+      "kind": "mc",
+      "prompt": "Looking at a rifle puts it on the character's back. Which event should have added it?",
+      "choices": [
+        "The capsule overlap",
+        "The sights trace",
+        "Pressing use on the rifle",
+        "Refilling from reserve"
+      ],
+      "answer": 0,
+      "why": "Overlap is the pickup."
+    },
+    {
+      "id": "tpsb-exam-15",
+      "kind": "tf",
+      "prompt": "The stack cap belongs on the item asset.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "The overlap's positive test is only a sample."
+    },
+    {
+      "id": "tpsb-exam-16",
+      "kind": "mc",
+      "prompt": "The patrol graph flips direction from Tick. What does Begin Play schedule?",
+      "choices": [
+        "A step along the squadmate route after one second",
+        "A step every frame",
+        "A step while the player aims",
+        "A step when the gun reloads"
+      ],
+      "answer": 0,
+      "why": "One timer, not a frame flip."
+    },
+    {
+      "id": "tpsb-exam-17",
+      "kind": "mc",
+      "prompt": "The return path is empty. What does the squadmate fail to do?",
+      "choices": [
+        "Walk back",
+        "Looking down the sights",
+        "Reload the player's gun",
+        "Changing how many hit points the player has"
+      ],
+      "answer": 0,
+      "why": "The B path was never authored."
+    },
+    {
+      "id": "tpsb-exam-18",
+      "kind": "mc",
+      "prompt": "Tick copies health into the slot. What should load a finished struct?",
+      "choices": [
+        "Begin Play",
+        "The next Tick",
+        "The graph for the sights",
+        "Clamping reserve into the magazine"
+      ],
+      "answer": 0,
+      "why": "Load when the actors exist."
+    },
+    {
+      "id": "tpsb-exam-19",
+      "kind": "tf",
+      "prompt": "The spring-arm mesh belongs in the third-person slot.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "The level builds the boom."
+    },
+    {
+      "id": "tpsb-exam-20",
+      "kind": "mc",
+      "prompt": "Which extra field is optional, and only when the sights must stay tight?",
+      "choices": [
+        "Aiming",
+        "Which keys are bound",
+        "The spring-arm mesh",
+        "The raw stick sample"
+      ],
+      "answer": 0,
+      "why": "Save the bool only if the mode needs it."
+    },
+    {
+      "id": "tpsb-exam-21",
+      "kind": "mc",
+      "prompt": "Magazine, reserve, and the stack count all loaded, and the squadmate starts at the first point. What was dropped?",
+      "choices": [
+        "The next route point",
+        "Hit points, which this answer treats as unsavable",
+        "The aim button binding",
+        "The camera mesh"
+      ],
+      "answer": 0,
+      "why": "The point is the squadmate's progress."
+    },
+    {
+      "id": "tpsb-exam-22",
+      "kind": "mc",
+      "prompt": "You are pairing aim, reload, and use. Which three starts are correct?",
+      "choices": [
+        "The shoulder button, the reload button, and the use key",
+        "Tick for all three",
+        "The stick for all three",
+        "Overlap for aim, Tick for reload, and the shoulder button for use"
+      ],
+      "answer": 0,
+      "why": "Three actions."
+    },
+    {
+      "id": "tpsb-exam-23",
+      "kind": "tf",
+      "prompt": "A non-looping squadmate timer must be started again on purpose.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "The sample does not loop."
+    },
+    {
+      "id": "tpsb-exam-24",
+      "kind": "mc",
+      "prompt": "The body has rounds, the magazine is full, and the player is aiming. What may change?",
+      "choices": [
+        "The aiming bool",
+        "The magazine count",
+        "Rounds still on the body",
+        "The squadmate's route, from the aim button"
+      ],
+      "answer": 0,
+      "why": "Aim changes the camera. Reload is blocked by the cap."
+    },
+    {
+      "id": "tpsb-exam-25",
+      "kind": "mc",
+      "prompt": "A client subtracts health and a client adds a pickup. What does the host still have?",
+      "choices": [
+        "The old health and the old inventory",
+        "Both client results, already",
+        "A reloaded magazine",
+        "A sprinting squadmate"
+      ],
+      "answer": 0,
+      "why": "Neither client write was authority."
+    },
+    {
+      "id": "tpsb-exam-26",
+      "kind": "mc",
+      "prompt": "Which line is speed, which is sights, and which is the gun?",
+      "choices": [
+        "The stick check, the aim action",
+        "Three writes on Tick",
+        "The spring arm, the chest trace, and the route flip",
+        "The pickup, the input bindings, and the boom mesh"
+      ],
+      "answer": 0,
+      "why": "Three different graphs."
+    },
+    {
+      "id": "tpsb-exam-27",
+      "kind": "tf",
+      "prompt": "The press that calls Interact may add a pickup so the prompt feels instant.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Overlap adds."
+    },
+    {
+      "id": "tpsb-exam-28",
+      "kind": "mc",
+      "prompt": "Reserve loaded at 0 and the magazine loaded at 30, but the saved gun was 10 and 12. What got swapped?",
+      "choices": [
+        "The two gun numbers",
+        "Health and the stack count",
+        "Aiming and the route point",
+        "The spring arm and the mapping context"
+      ],
+      "answer": 0,
+      "why": "Magazine and reserve are a pair."
+    },
+    {
+      "id": "tpsb-exam-29",
+      "kind": "mc",
+      "prompt": "The pause menu is open. The pawn is still jogging and the squadmate is still sliding. Which two writes are on Tick?",
+      "choices": [
+        "Speed and the route step",
+        "Whether the pawn is aiming and the reload clamp",
+        "The overlap add and the health notify",
+        "The save load and the mapping context"
+      ],
+      "answer": 0,
+      "why": "Both should have been gated off the frame."
+    },
+    {
+      "id": "tpsb-exam-30",
+      "kind": "mc",
+      "prompt": "A hit, a reload, and a pickup all happen, then the player saves. What must the slot be able to restore?",
+      "choices": [
+        "Health, the magazine, the reserve, and the stack count",
+        "Only the spring-arm mesh",
+        "Only the mapping context",
+        "Only the last aim-trace actor"
+      ],
+      "answer": 0,
+      "why": "Those four changed."
+    },
+    {
+      "id": "tpsb-exam-31",
+      "kind": "tf",
+      "prompt": "Other players can see this pawn, so health is not a private client number.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "The body is on their screen."
+    },
+    {
+      "id": "tpsb-exam-32",
+      "kind": "mc",
+      "prompt": "The squadmate timer is one second and does not loop. The step starts another timer anyway. What piles up?",
+      "choices": [
+        "Timers, and the squadmate sprints",
+        "Spare magazines",
+        "Spring arms",
+        "Mapping contexts"
+      ],
+      "answer": 0,
+      "why": "Schedule the next step once."
+    },
+    {
+      "id": "tpsb-exam-33",
+      "kind": "mc",
+      "prompt": "Which pair is the camera versus the gait?",
+      "choices": [
+        "Whether the pawn is aiming versus the stick",
+        "The magazine versus the reserve",
+        "Overlap versus Interact",
+        "The route point versus the stack count"
+      ],
+      "answer": 0,
+      "why": "Sights and speed are different inputs."
+    },
+    {
+      "id": "tpsb-exam-34",
+      "kind": "mc",
+      "prompt": "You load and the gun, the body, and the squadmate are wrong, while the camera boom is perfect. What was in the slot?",
+      "choices": [
+        "The spring-arm mesh, and not the gameplay numbers",
+        "Hit points, the gun, the stack, and the route point",
+        "Only the aiming bool, correctly",
+        "A finished struct written on save"
+      ],
+      "answer": 0,
+      "why": "The mesh was the wrong thing to pack."
+    }
+  ]
+}

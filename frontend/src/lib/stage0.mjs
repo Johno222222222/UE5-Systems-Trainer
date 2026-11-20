@@ -141,8 +141,9 @@ export function compileHeadline(patternIssues, ai) {
   return { text: count, clean: false, errors, warnings };
 }
 
-export function feedbackUrl({ repo = GITHUB_REPO, version = "0.0.0", category = "Bug" } = {}) {
+export function feedbackUrl({ repo = GITHUB_REPO, version = "0.0.0", category = "Bug", os = "" } = {}) {
   const title = `[${category}] `;
-  const body = `App version: ${version}\nCategory: ${category}\n\nWhat happened:\n\nWhat you expected:\n\n`;
-  return `https://github.com/${repo}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+  const body = `App version: ${version}\nOS: ${os || "unknown"}\nCategory: ${category}\n\nWhat happened:\n\nWhat you expected:\n\n`;
+  const template = category === "Bug" ? "&template=bug_report.yml" : "";
+  return `https://github.com/${repo}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}${template}`;
 }
