@@ -104,14 +104,16 @@ function tasksFor(section, authored) {
     {
       id: `${section.id}-plain`,
       kind: "text",
-      prompt: `In your own words, explain why ${title} should be built the way this lesson shows.`,
+      prompt: authored.assignment?.plainPrompt
+        || `In your own words, explain why ${title} should be built the way this lesson shows.`,
       accept: [],
       model: authored.plainEnglish,
     },
     {
       id: `${section.id}-why-game`,
       kind: "text",
-      prompt: `Name one thing that would go wrong in a match if ${title} were ignored.`,
+      prompt: authored.assignment?.whyGamePrompt
+        || `Name one thing that would go wrong in a match if ${title} were ignored.`,
       accept: [],
       model: authored.whyGame,
     },
@@ -141,6 +143,9 @@ function annotateSection(section, authored, bank, nodes) {
   }));
   section.blanks = blanksFor(section);
   section.tasks = tasksFor(section, authored);
+  const graphDoc = loadGraph(section.graph);
+  const blankKeys = (section.blanks.nodes || []).map((node) => node.key).filter(Boolean);
+  section.blankImage = graphDoc ? renderGraph(graphDoc, { blankKeys }) : "";
   const spokeSource = (section.depends && section.depends.length)
     ? section.depends
     : (section.reading || []).map((block) => (typeof block === "string" ? block : block.body)).filter(Boolean).slice(0, 4);

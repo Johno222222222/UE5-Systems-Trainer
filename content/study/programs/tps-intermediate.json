@@ -147,7 +147,11 @@
           "answer": 0,
           "why": "The repair names IA_Aim."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does aim still start at the shoulder button and the camera, while motion matching only reads speed?",
+        "whyGamePrompt": "What disagrees if the animation graph traces again about what the crosshair hit?"
+      }
     },
     "movement": {
       "plainEnglish": "A pushed stick writes a sprint speed of 600. A stick that is not pushed writes 200. Motion matching builds a trajectory from that number. The aiming bool may pick an aim set. It is not a second speed.",
@@ -295,7 +299,11 @@
           "answer": 0,
           "why": "That is the repair."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a pushed stick write 600 and a resting stick write 200 for the motion-matching trajectory?",
+        "whyGamePrompt": "What flickers if the camera graph also writes speed in the same frame?"
+      }
     },
     "aoi": {
       "plainEnglish": "A third-person mesh and its animation are expensive. Twice a second the authority traces and sets whether this pawn is relevant. Machines that are not relevant do not receive it.",
@@ -443,7 +451,11 @@
           "answer": 0,
           "why": "The excerpt gates it."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the authority set third-person relevance twice a second instead of every frame?",
+        "whyGamePrompt": "What pawns hide, or what budget blows up, if a client or Tick writes that relevance bool?"
+      }
     },
     "ballistics": {
       "plainEnglish": "Fire is its own button. A hit adds a small step of heat. Wear is the other float on the same weapon. The muzzle flash on the third-person mesh is local. It is not a replicated projectile. A miss adds no heat.",
@@ -591,7 +603,11 @@
           "answer": 0,
           "why": "0.05 is heat."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the fire button add a step of heat on a hit, while the third-person muzzle flash stays local?",
+        "whyGamePrompt": "What wears out if heat climbs while the player is only aiming?"
+      }
     },
     "limbs": {
       "plainEnglish": "Other players see the limp, so the limb is one server number. Any Damage starts the write, inside the authority check. A bruise stops at 10 percent of that limb's max. Crossing zero is the down. The number 90 in the sample is a stand-in.",
@@ -739,7 +755,11 @@
           "answer": 0,
           "why": "That is the repair."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why is the third-person limp one server number that a normal hit cannot drop below ten percent?",
+        "whyGamePrompt": "Who gets injured with nobody shooting if Tick writes the limb, and what snaps if a client subtracts early?"
+      }
     },
     "gunsmith": {
       "plainEnglish": "The body shows the weapon other players see, so the equipped id has to match. There are ten slots. A number key or the radial menu selects one. The server writes that id. Everyone builds the mesh from the notify.",
@@ -887,7 +907,11 @@
           "answer": 0,
           "why": "That is the selection."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why must the equipped id on the body other players see be the slot the server wrote?",
+        "whyGamePrompt": "What weapon pops on a proxy if that write skips the authority check?"
+      }
     },
     "vehicle": {
       "plainEnglish": "A vehicle is a different component. The throttle axis is its input, written on the authority. The chaos vehicle reads that axis. It does not read the on-foot speeds of 600 or 200.",
@@ -1035,7 +1059,11 @@
           "answer": 0,
           "why": "The axis is not the gait."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why is throttle the vehicle's own axis on the authority, instead of the on-foot sprint speed?",
+        "whyGamePrompt": "What launch happens if walk speed is copied into the car's throttle?"
+      }
     },
     "save": {
       "plainEnglish": "The kit save stores limb floats, heat, wear, the magazine, the reserve, the equipped id, and vehicle fuel if there is a car. It does not store the motion-matching pose, the boom transform, or relevance. Load is Begin Play. Do not snapshot throttle in the middle of a gear change.",
@@ -1183,7 +1211,11 @@
           "answer": 0,
           "why": "Load a finished struct into actors that are there."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the kit save store limbs, heat, wear, ammo, the equipped id, and fuel, but not the motion-matching pose?",
+        "whyGamePrompt": "What fights the animator if a pose or a mid-gear throttle is stored as a finished fact?"
+      }
     }
   },
   "repairWrongs": {

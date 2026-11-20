@@ -143,7 +143,11 @@
           "answer": 0,
           "why": "Use is the player's graph. Sense is the hunter's."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the hunter look five times a second, and why does a bottle reuse that same look?",
+        "whyGamePrompt": "What gets expensive, and which flag splits, if every idle hunter traces every frame?"
+      }
     },
     "interaction": {
       "plainEnglish": "The player presses use and calls Interact on whatever the look hit. The hunter's Sense trace is not this graph and must not be pasted into it.",
@@ -287,7 +291,11 @@
           "answer": 0,
           "why": "A miss is not a sighting."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why must the use press call Interact without pasting the hunter's Sense trace into it?",
+        "whyGamePrompt": "What aggros the hunter if opening a fuse box also sets Alert?"
+      }
     },
     "stalk": {
       "plainEnglish": "The hunter walks a route on a one-second timer. Alert from Sense is what pulls them off that route. The route itself is not stepped every frame.",
@@ -431,7 +439,11 @@
           "answer": 1,
           "why": "The one-second timer is the step."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the hunter walk the route on a one-second timer until Sense sets Alert?",
+        "whyGamePrompt": "What does the hunter do if the route steps from Tick, or if a clear sighting never becomes a chase?"
+      }
     },
     "door": {
       "plainEnglish": "Someone enters the volume, a timeline swings the door, and FlipFlop stores whether it is open. The creak is the sound of that swing.",
@@ -575,7 +587,11 @@
           "answer": 1,
           "why": "The creak follows the timeline."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a timeline swing the door while FlipFlop stores whether it is open?",
+        "whyGamePrompt": "What never finishes, and what never lines up with the creak, if the door yaws one degree per Tick?"
+      }
     },
     "health": {
       "plainEnglish": "This lesson is local health. Damage subtracts, a clamp keeps the number between zero and the max, and a branch notices zero. It is not the replicated authority lesson.",
@@ -719,7 +735,11 @@
           "answer": 1,
           "why": "Death is local health. Alert is Sense."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why is this health local: damage subtracts, a clamp holds the range, and a branch notices zero?",
+        "whyGamePrompt": "What death check never fires if a big hit is allowed to go negative?"
+      }
     },
     "save": {
       "plainEnglish": "Begin Play restores Alert, Health, and whether the door is open, together. The house does not write that snapshot from Tick.",
@@ -863,7 +883,11 @@
           "answer": 1,
           "why": "It applies Alert. It does not resimulate."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does Begin Play restore Alert, Health, and the door together?",
+        "whyGamePrompt": "What continuity breaks if those three values are saved from different moments?"
+      }
     }
   },
   "repairWrongs": {

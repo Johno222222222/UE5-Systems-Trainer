@@ -147,7 +147,11 @@
           "answer": 0,
           "why": "The push is the layer."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the base context hold move, look, aim, and interact, while the left trigger pushes a modifier layer?",
+        "whyGamePrompt": "What fires on one press if both contexts stay pushed, and what rebind breaks if the graph reads the key code?"
+      }
     },
     "limb": {
       "plainEnglish": "A limb is a replicated float with a floor. Damage starts the write, the authority gates it, and a normal hit cannot drop the limb below ten percent of its max. A limb that maxes at 80 floors at 8. The notify plays the limp and does not subtract again.",
@@ -295,7 +299,11 @@
           "answer": 0,
           "why": "The floor holds a bruise. Zero is down."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why can a normal hit not drop a replicated limb below ten percent, and only when the authority writes it?",
+        "whyGamePrompt": "What snaps when the server number arrives, and what injures the pawn twice, if the client subtracts early and the notify subtracts again?"
+      }
     },
     "interest": {
       "plainEnglish": "Relevant answers whether a client receives the actor. The authority traces twice a second and sets that bool. A third-person camera can stay local even when the pawn is relevant. Visible, on a strategy map, is a different question.",
@@ -443,7 +451,11 @@
           "answer": 0,
           "why": "CheckAOI owns delivery."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the authority set Relevant twice a second, while a third-person camera is not interest?",
+        "whyGamePrompt": "What pawns get pulled back, and what local boom gets replicated, if a client sets Relevant from the camera?"
+      }
     },
     "throttle": {
       "plainEnglish": "A car is a different component. Its axis is throttle, written on the authority. Copying the on-foot sprint of 600 launches the car at a person's pace number. The shoulder camera turns off in the seat. It does not keep aiming, and it does not write throttle.",
@@ -591,7 +603,11 @@
           "answer": 0,
           "why": "The axis is not the gait."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why is a car's throttle its own authority axis instead of the on-foot sprint of 600?",
+        "whyGamePrompt": "What bone stream wastes the match if each wheel transform is replicated instead of rebuilt from throttle and fuel?"
+      }
     }
   }
 }

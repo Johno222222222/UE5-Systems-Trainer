@@ -143,7 +143,11 @@
           "answer": 0,
           "why": "Releasing the hold pops the layer."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does holding aim swap a second input layer instead of reading raw keys on Tick?",
+        "whyGamePrompt": "What breaks after a paddle rebind if that layer is a Tick reading key codes?"
+      }
     },
     "gasp": {
       "plainEnglish": "Motion matching plays the run or the walk by reading Speed. This graph's only job is to write Speed when the stick changes. It does not sample animation curves.",
@@ -287,7 +291,11 @@
           "answer": 0,
           "why": "Motion matching did not replace that function."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why may this graph write Speed only when the stick changes?",
+        "whyGamePrompt": "What fight starts if the anim graph and Tick both write Speed?"
+      }
     },
     "aoi": {
       "plainEnglish": "About twice a second the server traces and stores whether this actor is still relevant. Clients do not set that bit, and fog's Visible flag is a different fact.",
@@ -431,7 +439,11 @@
           "answer": 1,
           "why": "The server decides who still matters."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the server trace about twice a second to store relevance?",
+        "whyGamePrompt": "What keeps replicating if Relevant is forced true from Tick for a distant rifle?"
+      }
     },
     "ballistics": {
       "plainEnglish": "One press of fire traces once. A hit adds a small step of heat. Aiming, by itself, does not warm the barrel, and wear can read that heat later.",
@@ -575,7 +587,11 @@
           "answer": 1,
           "why": "Fire is a press."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does one fire press trace once and add heat, while aiming alone stays cold?",
+        "whyGamePrompt": "What cooks the barrel if heat climbs from Tick during a standoff?"
+      }
     },
     "limbs": {
       "plainEnglish": "A normal hit may hurt a limb, but the authority will not take that limb below ten percent of its max. The server writes the float. OnRep plays the limp and does not subtract again.",
@@ -719,7 +735,11 @@
           "answer": 1,
           "why": "They can play a guess only if they do not own the float."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why will the authority not take a limb below ten percent of its max on a normal hit?",
+        "whyGamePrompt": "What death state fails if one unlucky hit is allowed to delete the limb?"
+      }
     },
     "inventory": {
       "plainEnglish": "Overlap asks AddToSlot through the interface. The slot owns the count. A use trace that also increments the stack will fill the bag by looking.",
@@ -863,7 +883,11 @@
           "answer": 1,
           "why": "One ask, many slot ids."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does overlap call AddToSlot while a use trace must not also increment the stack?",
+        "whyGamePrompt": "What happens to magazines and limbs if every new item type grows its own overlap function?"
+      }
     },
     "gunsmith": {
       "plainEnglish": "Ten weapon definitions live in data. Equipping writes EquippedId on the authority. Everyone else builds the third-person mesh from that id.",
@@ -1007,7 +1031,11 @@
           "answer": 0,
           "why": "The function is the action."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why do ten weapon definitions live in data while equip only replicates EquippedId?",
+        "whyGamePrompt": "What pops on other machines if a client sets EquippedId to a weapon the server never granted?"
+      }
     },
     "save": {
       "plainEnglish": "Begin Play loads one struct: the kit you actually saved. Tick does not write that struct, and loading does not replay every shot that produced the numbers.",
@@ -1151,7 +1179,11 @@
           "answer": 1,
           "why": "Tick does not know that an event finished."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does Begin Play load the saved kit instead of Tick writing that struct?",
+        "whyGamePrompt": "What half-finished numbers get stored if Tick saves heat mid-climb and a limb mid-bleed?"
+      }
     }
   },
   "repairWrongs": {

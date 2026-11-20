@@ -9,7 +9,7 @@ const { buildTracks } = require("../tracks");
 const { loadPacks } = require("../packs");
 const { enrichCourse } = require("../lessonStudy");
 const { nodeWhy } = require("../shared/lineExplain");
-const { visibleCppLines, visibleGraphNodes } = require("../shared/assignmentView");
+const { visibleCppLines } = require("../shared/assignmentView");
 const { startServer } = require("../server");
 
 function sentences(text) {
@@ -66,25 +66,67 @@ test("assignment prompts stay short and do not paste the lesson", () => {
   }
 });
 
-test("blanked assignments keep the surrounding code and graph nodes", () => {
+test("every lesson authors its own prompts, and Input does not grow a Begin Play note", () => {
+  const study = path.join(__dirname, "..", "..", "content", "study");
+  const texts = new Map();
+  let lessons = 0;
+  for (const dir of ["programs", "courses"]) {
+    for (const name of fs.readdirSync(path.join(study, dir)).filter((item) => item.endsWith(".json"))) {
+      const data = JSON.parse(fs.readFileSync(path.join(study, dir, name), "utf8"));
+      const bucket = data.sections || data.modules;
+      for (const [id, section] of Object.entries(bucket)) {
+        lessons += 1;
+        const assignment = section.assignment || {};
+        assert.ok(assignment.plainPrompt && assignment.whyGamePrompt, `${name} ${id}`);
+        for (const text of [assignment.plainPrompt, assignment.whyGamePrompt]) {
+          assert.ok(text.length <= 200, `${name} ${id}`);
+          assert.doesNotMatch(text, /should be built the way this lesson shows/);
+          assert.doesNotMatch(text, /if this lesson were ignored/);
+          assert.ok(!texts.has(text), `${text} shared`);
+          texts.set(text, `${name}:${id}`);
+        }
+      }
+    }
+  }
+  assert.equal(lessons, 113);
+  const input = buildTracks().find((track) => track.id === "fps-beginner").sections.find((section) => section.id === "input");
+  const plain = input.tasks.find((task) => task.kind === "text" && task.id.endsWith("-plain"));
+  assert.equal(plain.prompt, "Why does the look start from the use key instead of Tick?");
+  const shown = [input.whyLayman, ...input.nodeNotes.map((node) => `${node.label}\n${node.layman}`)].join("\n");
+  assert.doesNotMatch(shown, /Begin Play/);
+  assert.doesNotMatch(shown, /does not start servers/);
+  assert.ok(input.nodeNotes.every((node) => node.label !== "Begin Play"));
+});
+
+test("blanked assignments keep indentation, wires, and the other nodes", () => {
+  const indented = visibleCppLines(
+    [{ line: 4, text: "    Health -= 1.f;" }],
+    { cpp: [{ line: 4, text: "Health -= 1.f;" }] },
+    false,
+  );
+  assert.equal(indented[0].text, "    ________");
   const section = buildTracks().find((track) => track.id === "fps-beginner").sections[0];
   const hidden = visibleCppLines(section.lineNotes, section.blanks, false);
   const shown = visibleCppLines(section.lineNotes, section.blanks, true);
   assert.ok(hidden.length > section.blanks.cpp.length);
-  assert.equal(hidden.filter((row) => row.text === "________").length, 3);
-  assert.ok(hidden.some((row) => row.text !== "________" && row.text.includes(" ")));
-  assert.ok(shown.every((row) => row.text !== "________"));
+  assert.equal(hidden.filter((row) => row.blank).length, 3);
+  for (const row of hidden.filter((item) => item.blank)) {
+    const original = section.lineNotes.find((item) => item.line === row.line).text;
+    const indent = (String(original).match(/^[ \t]*/) || [""])[0];
+    assert.equal(row.text, `${indent}________`);
+  }
+  assert.ok(hidden.some((row) => !row.blank && row.text.includes(" ")));
   assert.ok(shown.some((row) => section.blanks.cpp.some((blank) => blank.text === row.text.trim())));
-  const graph = visibleGraphNodes(section.nodeNotes, section.blanks, false);
-  assert.ok(graph.filter((node) => node.label === "Blank node").length >= 2);
-  assert.ok(graph.some((node) => node.label !== "Blank node"));
-  const revealed = visibleGraphNodes(section.nodeNotes, section.blanks, true);
-  assert.ok(revealed.every((node) => node.label !== "Blank node"));
-  assert.ok(revealed.some((node) => node.label === "Line Trace" || node.label === "Branch" || node.label === "Interact"));
+  assert.match(section.blankImage, /<path /);
+  assert.match(section.blankImage, /stroke-dasharray="6 4"/);
+  assert.match(section.blankImage, /Blank node/);
+  assert.ok(["Line Trace", "Branch", "Interact", "IA_Interact", "Print"].some((label) => section.blankImage.includes(label)));
+  const dashed = (section.blankImage.match(/data-blank="yes"/g) || []).length;
+  assert.ok(dashed >= 2 && dashed <= 3);
   const studio = fs.readFileSync(path.join(__dirname, "..", "..", "frontend", "src", "shell", "LessonStudio.jsx"), "utf8");
   assert.match(studio, /PRACTICE ASSIGNMENTS/);
   assert.match(studio, /visibleCppLines/);
-  assert.match(studio, /visibleGraphNodes/);
+  assert.match(studio, /blankImage/);
   assert.match(studio, /data-testid="lesson-save"/);
 });
 

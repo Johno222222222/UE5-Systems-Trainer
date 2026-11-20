@@ -147,7 +147,11 @@
           "answer": 0,
           "why": "The repair branches on Selected instead."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a formation live on the squad, while the right-click still hits only selected units?",
+        "whyGamePrompt": "What input gets stomped if every member writes an offset every frame?"
+      }
     },
     "economy": {
       "plainEnglish": "Supplies pay for buildings and units. Shells are a different budget for the guns. A barrage must not bankrupt the base, and a barracks must not eat ammunition.",
@@ -295,7 +299,11 @@
           "answer": 0,
           "why": "Those are the two bugs in that graph."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why are building supplies and shell ammunition two budgets instead of one float?",
+        "whyGamePrompt": "What spends fight, and whose total diverges, if both budgets share a float and a client subtracts?"
+      }
     },
     "fog": {
       "plainEnglish": "Fog is still a vision pass on a quarter-second timer. A hit marks the cell visible. In a networked match only the authority may write that bit, or a client can see the enemy base.",
@@ -443,7 +451,11 @@
           "answer": 0,
           "why": "The timer and the hit are the pass."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why may only the authority write the visible bit on a networked fog pass?",
+        "whyGamePrompt": "What actually replicates if a spectator's widget is treated as the fog?"
+      }
     },
     "scoring": {
       "plainEnglish": "The server adds the medal. A kill, a capture, and a fire mission that hits a marked target can be different rows. A miss, a reveal, and a supply spend do not award. The board only displays the server number.",
@@ -591,7 +603,11 @@
           "answer": 0,
           "why": "The board catches up from Score."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why can a kill, a capture, and a marked fire mission be different medal rows, while a miss is not?",
+        "whyGamePrompt": "What gets granted twice if the notify adds another 10 after the server already awarded the medal?"
+      }
     },
     "aoi": {
       "plainEnglish": "A large map cannot simulate every unit on every machine. CheckAOI runs twice a second on the authority, traces, and sets Relevant from the hit. That bool is who receives the actor. Fog is still who may see it.",
@@ -739,7 +755,11 @@
           "answer": 0,
           "why": "0.5 seconds is the relevance pass."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does CheckAOI set Relevant from an authority trace twice a second on a large map?",
+        "whyGamePrompt": "What units vanish from the simulating machine if Visible is copied into Relevant?"
+      }
     },
     "vehicles": {
       "plainEnglish": "A transport is a unit the order system can command and a vehicle a driver can throttle. The authority copies the throttle axis. The order tells the AI where to go. The order does not write the axis.",
@@ -887,7 +907,11 @@
           "answer": 0,
           "why": "Command it, and let the driver move it."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why can an order tell a transport where to go while only the authority copies throttle?",
+        "whyGamePrompt": "What pace does the truck get if a formation click writes throttle from walking speed?"
+      }
     },
     "artillery": {
       "plainEnglish": "A fire mission is an order the gun implements. The authority trace is the impact, and it subtracts one shell. Without that budget a click streams impacts. The mission does not lift fog, and it does not spend supplies.",
@@ -1035,7 +1059,11 @@
           "answer": 0,
           "why": "That is the repair."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why is a fire mission an order whose authority trace subtracts one shell?",
+        "whyGamePrompt": "What streams, and what fog lifts, if shells are spent from Tick or the impact paints the cell visible?"
+      }
     },
     "save": {
       "plainEnglish": "The battle save stores supplies, score, shells, fuel, formation ids, and orders still running. It does not store vision or relevance. Those passes run again after load. Begin Play must not spend, award, or fire.",
@@ -1183,7 +1211,11 @@
           "answer": 0,
           "why": "In-flight orders are battle state."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the battle save keep supplies, score, shells, fuel, formations, and running orders, but not vision?",
+        "whyGamePrompt": "What applies a second time if load calls Spend, AwardMedal, or FireMission again?"
+      }
     }
   },
   "repairWrongs": {

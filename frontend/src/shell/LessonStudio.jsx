@@ -5,7 +5,7 @@ import { presentQuiz } from "../lib/quizShuffle.js";
 import { api, errorText } from "../lib/api";
 import assignmentView from "../../../desktop/shared/assignmentView.js";
 
-const { visibleCppLines, visibleGraphNodes } = assignmentView;
+const { visibleCppLines } = assignmentView;
 
 function Figure({ svg, testId }) {
   if (!svg) return null;
@@ -85,14 +85,13 @@ function CppLines({ notes, blanks, revealed }) {
   );
 }
 
-function TaskList({ tasks, blanks, notes, nodes, checked, onChecked }) {
+function TaskList({ tasks, blanks, notes, checked, onChecked, image, blankImage }) {
   const [revealed, setRevealed] = useState({});
   return (
     <div className="mt-4" data-testid="lesson-tasks">
       {(tasks || []).map((task) => {
         const open = !!revealed[task.id];
         const lines = visibleCppLines(notes, blanks, open);
-        const graph = visibleGraphNodes(nodes, blanks, open);
         return (
           <div key={task.id} className="mt-3 panel p-3" data-testid={`lesson-task-${task.kind}`}>
             <div className="text-[13px]"><GlossaryText text={task.prompt} /></div>
@@ -102,12 +101,8 @@ function TaskList({ tasks, blanks, notes, nodes, checked, onChecked }) {
               </pre>
             )}
             {task.kind === "graph-blank" && (
-              <div className="lesson-blank-graph" data-testid="graph-blanks">
-                {graph.map((node) => (
-                  <div key={node.key || node.label} className={`lesson-blank-node${node.label === "Blank node" ? " is-blank" : ""}`} data-testid={`graph-node-${node.key || node.label}`}>
-                    {node.label}
-                  </div>
-                ))}
+              <div className="mt-2" data-testid="graph-blanks">
+                <Figure svg={open ? image : blankImage} testId={open ? "graph-blanks-revealed" : "graph-blanks-svg"} />
               </div>
             )}
             <label className="mt-2 flex items-center gap-2 text-[12px]">
@@ -272,7 +267,15 @@ export default function LessonStudio({
             )}
             <CppLines notes={notes} blanks={[]} revealed />
             <h2 className="mt-4 font-display uppercase tracking-wider text-[18px]" data-testid="practice-assignments">PRACTICE ASSIGNMENTS</h2>
-            <TaskList tasks={section.tasks} blanks={section.blanks} notes={notes} nodes={section.nodeNotes} checked={checked} onChecked={setChecked} />
+            <TaskList
+              tasks={section.tasks}
+              blanks={section.blanks}
+              notes={notes}
+              checked={checked}
+              onChecked={setChecked}
+              image={section.image}
+              blankImage={section.blankImage}
+            />
             <button type="button" className="ue-btn ue-btn-primary mt-4" data-testid="next-quiz" onClick={openQuiz}>NEXT: QUIZ</button>
             <SaveBar onSave={saveHere} note={saveNote} />
           </div>

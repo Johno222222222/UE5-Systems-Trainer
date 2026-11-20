@@ -178,7 +178,11 @@
           "review_prompt": "What does the player on a remote machine see if the client subtracted and the server did not?"
         }
       ],
-      "graph": "health"
+      "graph": "health",
+      "assignment": {
+        "plainPrompt": "Why does the authority write shared numbers while clients only ask?",
+        "whyGamePrompt": "What match result are you trusting if the client's number is accepted as the real one?"
+      }
     },
     "property": {
       "plainEnglish": "Replicate the number.",
@@ -357,7 +361,11 @@
           "review_prompt": "What breaks if the widget is the replicated object and the health float is not?"
         }
       ],
-      "graph": "health"
+      "graph": "health",
+      "assignment": {
+        "plainPrompt": "Why do you replicate the number that selects the reaction, rather than the reaction itself?",
+        "whyGamePrompt": "What fails to play on the other machines if only a local effect is replicated?"
+      }
     },
     "onrep": {
       "plainEnglish": "OnRep is the arrival.",
@@ -536,7 +544,11 @@
           "review_prompt": "What does a remote player see if OnRep subtracts and the next replication arrives?"
         }
       ],
-      "graph": "health"
+      "graph": "health",
+      "assignment": {
+        "plainPrompt": "Why is OnRep the moment the number arrives, and not the place that decides the rule?",
+        "whyGamePrompt": "What plays an extra time if OnRep subtracts health again instead of only playing the hit?"
+      }
     },
     "rpc": {
       "plainEnglish": "Server RPC asks. The server decides.",
@@ -715,7 +727,11 @@
           "review_prompt": "What does the victim see if every client applied the shooter's RPC argument instead of the server's result?"
         }
       ],
-      "graph": "health"
+      "graph": "health",
+      "assignment": {
+        "plainPrompt": "Why does a server RPC ask the server to decide, instead of the client applying the result?",
+        "whyGamePrompt": "What cheat lands if the server trusts the number packed inside the client's RPC?"
+      }
     }
   }
 }

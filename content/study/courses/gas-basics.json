@@ -178,7 +178,11 @@
           "review_prompt": "A client predicts the ability started. Who still has to accept the cost?"
         }
       ],
-      "graph": "gas-effect"
+      "graph": "gas-effect",
+      "assignment": {
+        "plainPrompt": "Why does the ability system component own activate, cost, and cooldown?",
+        "whyGamePrompt": "What splits if cost and cooldown live on a second component the ability never asks?"
+      }
     },
     "attributes": {
       "plainEnglish": "One number, on the attribute set.",
@@ -357,7 +361,11 @@
           "review_prompt": "What does the player notice when only the attribute changes and the HUD still reads the old float?"
         }
       ],
-      "graph": "gas-effect"
+      "graph": "gas-effect",
+      "assignment": {
+        "plainPrompt": "Why does health live as one number on the attribute set?",
+        "whyGamePrompt": "What disagrees in a match if gameplay also keeps a second health float beside that attribute?"
+      }
     },
     "activate": {
       "plainEnglish": "Activate by tag.",
@@ -536,7 +544,11 @@
           "review_prompt": "What does the player see if the tag is misspelled and nothing is granted under it?"
         }
       ],
-      "graph": "gas-effect"
+      "graph": "gas-effect",
+      "assignment": {
+        "plainPrompt": "Why do you activate an ability by tag instead of naming the class at the call site?",
+        "whyGamePrompt": "What cannot be found if the tag is not the handle the ability system searches?"
+      }
     },
     "effects": {
       "plainEnglish": "The effect is the cost and the cooldown.",
@@ -715,7 +727,11 @@
           "review_prompt": "What does the player notice if the cost effect is missing and only the montage plays?"
         }
       ],
-      "graph": "gas-effect"
+      "graph": "gas-effect",
+      "assignment": {
+        "plainPrompt": "Why do the cost and the cooldown live in the gameplay effect?",
+        "whyGamePrompt": "What gets paid twice if the ability and the effect each subtract the cost?"
+      }
     }
   }
 }

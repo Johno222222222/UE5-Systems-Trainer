@@ -143,7 +143,11 @@
           "answer": 1,
           "why": "The false pin is a miss. It stops."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the look start from the use key instead of Tick?",
+        "whyGamePrompt": "What happens to a door or a floor weapon if every idle pawn traces on Tick?"
+      }
     },
     "movement": {
       "plainEnglish": "Push the stick and the pawn stores a sprint speed. Release it and the pawn stores a walk speed. The character movement component reads that number. The graph does not shove the actor along the world axis every frame.",
@@ -287,7 +291,11 @@
           "answer": 1,
           "why": "Character movement reads Speed. The graph does not shove the actor."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the stick write sprint or walk speed instead of Tick overwriting Speed?",
+        "whyGamePrompt": "What breaks in the animation if Tick stomps a stance that just set a different speed?"
+      }
     },
     "interaction": {
       "plainEnglish": "The use trace finds an actor and calls Interact. The door, the switch, and the dropped gun each implement that one call. You do not cast to their Blueprints.",
@@ -431,7 +439,11 @@
           "answer": 1,
           "why": "The mapping context owns the binding."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the use trace call Interact instead of casting to each usable actor?",
+        "whyGamePrompt": "What fails when a new usable prop ships and the cast list was never edited?"
+      }
     },
     "weapon": {
       "plainEnglish": "Reload asks two questions: is there room in the magazine, and is there ammo in reserve? Only then does Needed move rounds from reserve into the mag. Both checks happen on the reload key, not on Tick.",
@@ -575,7 +587,11 @@
           "answer": 0,
           "why": "The function is the reload action."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does reload ask about magazine room and reserve before it moves rounds?",
+        "whyGamePrompt": "What fills the gun at the wrong time if Needed is added from Tick?"
+      }
     },
     "health": {
       "plainEnglish": "When this pawn takes damage, only the authority changes Health. Everyone else hears the new number and plays a reaction. They do not subtract again.",
@@ -719,7 +735,11 @@
           "answer": 1,
           "why": "Replication copies the authority's value. It does not elect a writer."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why may only the authority change Health when this pawn takes damage?",
+        "whyGamePrompt": "What do the listen server and the client disagree about if a client writes Health?"
+      }
     },
     "inventory": {
       "plainEnglish": "Walking into a pickup asks the slot to take it. The slot owns the count. The use trace that opens doors does not also increment the stack.",
@@ -863,7 +883,11 @@
           "answer": 1,
           "why": "Clear after the slot accepts, or a refused pickup vanishes."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does overlap, not the use trace, add a pickup to the slot?",
+        "whyGamePrompt": "What fills the bag if the look trace increments the stack while you stare at a crate?"
+      }
     },
     "gunsmith": {
       "plainEnglish": "Equip writes one id, on the authority. Other machines build the visible gun from that id. The meshes themselves are not the replicated payload.",
@@ -1007,7 +1031,11 @@
           "answer": 0,
           "why": "The function is the equip action."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does equip replicate one id instead of every mesh and attachment?",
+        "whyGamePrompt": "What do proxies show if a client writes EquippedId outside HasAuthority?"
+      }
     },
     "save": {
       "plainEnglish": "Something that finished — a checkpoint, a menu save — packs one struct. Begin Play reads that struct back. Tick never writes the slot, because a value mid-change is not a save.",
@@ -1151,7 +1179,11 @@
           "answer": 1,
           "why": "That line never waits for a finished event."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a finished checkpoint pack the struct, while Tick never writes the slot?",
+        "whyGamePrompt": "What half-updated pawn gets stored if SlotValue is written from Health every frame?"
+      }
     }
   },
   "repairWrongs": {

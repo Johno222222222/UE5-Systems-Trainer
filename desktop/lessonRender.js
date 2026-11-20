@@ -102,7 +102,7 @@ function fitLines(text, maxChars, maxLines) {
   return kept;
 }
 
-function renderGraph(doc, { broken = false, why = "" } = {}) {
+function renderGraph(doc, { broken = false, why = "", blankKeys = [] } = {}) {
   const graph = doc?.graph || doc;
   const nodes = graph?.nodes || [];
   if (!nodes.length) return "";
@@ -124,13 +124,20 @@ function renderGraph(doc, { broken = false, why = "" } = {}) {
     const b = at(to);
     return `<path d="M ${a.x + 150} ${a.y + 28} C ${a.x + 190} ${a.y + 28}, ${b.x - 40} ${b.y + 28}, ${b.x} ${b.y + 28}" fill="none" stroke="#ff7a1a" stroke-width="2"/>`;
   }).join("");
+  const blankSet = new Set(blankKeys || []);
   const boxes = nodes.map((node) => {
     const p = at(node);
     const full = nodeLabel(node);
-    const label = full.length <= 22 ? full : shortSpoke(full).replace(/…$/, "").slice(0, 22).replace(/\s+\S*$/, "") || full.slice(0, 22);
-    return `<rect x="${p.x}" y="${p.y}" width="150" height="52" rx="6" fill="#121826" stroke="#0099ff"/>
-      <title>${esc(full)}</title>
-      <text x="${p.x + 75}" y="${p.y + 30}" fill="#e8eef8" font-size="11" text-anchor="middle" font-family="sans-serif">${esc(label)}</text>`;
+    const blank = blankSet.has(node.key) || blankSet.has(node.id);
+    const label = blank
+      ? "Blank node"
+      : (full.length <= 22 ? full : shortSpoke(full).replace(/…$/, "").slice(0, 22).replace(/\s+\S*$/, "") || full.slice(0, 22));
+    const stroke = blank ? "#9aa4b2" : "#0099ff";
+    const fill = blank ? "#0c1018" : "#121826";
+    const dash = blank ? ` stroke-dasharray="6 4"` : "";
+    return `<rect x="${p.x}" y="${p.y}" width="150" height="52" rx="6" fill="${fill}" stroke="${stroke}"${dash} data-node="${esc(node.key || node.id || "")}" data-blank="${blank ? "yes" : "no"}"/>
+      <title>${esc(blank ? "Blank node" : full)}</title>
+      <text x="${p.x + 75}" y="${p.y + 30}" fill="${blank ? "#9aa4b2" : "#e8eef8"}" font-size="11" text-anchor="middle" font-family="sans-serif">${esc(label)}</text>`;
   }).join("");
   const scenario = String(why || "").replace(/\s+/g, " ").trim();
   let extra = "";

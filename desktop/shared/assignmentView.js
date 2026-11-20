@@ -5,11 +5,16 @@
 
 function visibleCppLines(notes, blanks, revealed) {
   const hidden = new Set((blanks?.cpp || []).map((row) => row.line));
-  return (notes || []).map((row) => ({
-    line: row.line,
-    text: !revealed && hidden.has(row.line) ? "________" : row.text,
-    blank: hidden.has(row.line),
-  }));
+  return (notes || []).map((row) => {
+    const raw = String(row.text ?? "");
+    const indent = (raw.match(/^[ \t]*/) || [""])[0];
+    const blank = hidden.has(row.line);
+    return {
+      line: row.line,
+      text: !revealed && blank ? `${indent}________` : raw,
+      blank,
+    };
+  });
 }
 
 function visibleGraphNodes(nodes, blanks, revealed) {

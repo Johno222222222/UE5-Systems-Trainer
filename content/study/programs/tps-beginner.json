@@ -147,7 +147,11 @@
           "answer": 0,
           "why": "The crosshair lives on the camera."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the aim press pull the shoulder camera in, instead of reusing the use key?",
+        "whyGamePrompt": "What does a trace from the feet hit, compared with the crosshair at the camera?"
+      }
     },
     "movement": {
       "plainEnglish": "The stick is the move action. The graph compares it with zero and writes speed. The spring arm and the aim bool do not choose that speed.",
@@ -295,7 +299,11 @@
           "answer": 0,
           "why": "The view changes. The contract does not."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the stick compare against zero and write speed, while the spring arm does not?",
+        "whyGamePrompt": "What gait changes if aiming slows the pawn inside the camera graph?"
+      }
     },
     "interaction": {
       "plainEnglish": "Use starts at the interact action. The trace comes from the camera, along the crosshair. A hit calls Interact on that actor. A door, a weapon on the ground, and a switch share that call.",
@@ -443,7 +451,11 @@
           "answer": 0,
           "why": "The branch is the hit."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does third-person use trace from the camera along the crosshair before it calls Interact?",
+        "whyGamePrompt": "What actor lights up if the trace starts at the chest and hits cover the camera can see past?"
+      }
     },
     "weapon": {
       "plainEnglish": "Reload is its own button. The magazine is what is in the gun, reserve is what is on the body, and the mag size is the cap. Reload runs only when the mag is not full and the body still has rounds.",
@@ -591,7 +603,11 @@
           "answer": 0,
           "why": "Both have to be true."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why is reload its own button, and only when the magazine is not full and reserve remains?",
+        "whyGamePrompt": "What fills the gun while the player is only aiming if reload is wired to Tick or to the aim button?"
+      }
     },
     "health": {
       "plainEnglish": "A hit is Any Damage on the server. The health write sits inside the authority check. The number 90 in the sample is a stand-in. Other players see the body from the replicated result, and they do not apply the hit again.",
@@ -739,7 +755,11 @@
           "answer": 0,
           "why": "Authority wraps health."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does Any Damage change third-person health only inside the authority check?",
+        "whyGamePrompt": "What do two machines disagree about if a client reaction also writes health?"
+      }
     },
     "inventory": {
       "plainEnglish": "A pickup touches the capsule. Overlap adds it when the stack count is positive. Aiming at it and pressing use do not increment the count. The most the stack can hold lives on the item.",
@@ -887,7 +907,11 @@
           "answer": 0,
           "why": "Positive is not the same as under the cap."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does capsule overlap add a pickup, while aiming and pressing use do not increment the count?",
+        "whyGamePrompt": "What gets picked up by looking if the weapon on your back fills from the aim trace?"
+      }
     },
     "companion": {
       "plainEnglish": "The squadmate walks a short route beside you. Begin Play starts one timer that calls the route step. The sample timer does not loop, so the next step has to be scheduled on purpose. The return path is still empty.",
@@ -1035,7 +1059,11 @@
           "answer": 0,
           "why": "The point is progress. The mesh is not."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does Begin Play start one route timer for the squadmate, with the next step scheduled from that step?",
+        "whyGamePrompt": "What piles up if each route step starts another timer, or the squadmate steps from Tick?"
+      }
     },
     "save": {
       "plainEnglish": "The third-person slot stores health, the magazine, the reserve, the stack count, aiming only if the camera must stay tight, and the squadmate's next route point. It does not store the spring-arm mesh or the mapping context. Load happens at Begin Play.",
@@ -1183,7 +1211,11 @@
           "answer": 0,
           "why": "Load into actors that are there."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the third-person slot store health, ammo, the stack, aim, and the squadmate's next point, but not the spring arm?",
+        "whyGamePrompt": "What half-applied hit gets stored if health is copied into the slot every frame?"
+      }
     }
   },
   "repairWrongs": {

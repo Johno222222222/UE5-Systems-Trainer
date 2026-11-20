@@ -178,7 +178,11 @@
           "review_prompt": "What does the player notice if two weapons share a row by mistake?"
         }
       ],
-      "graph": "inventory-slot"
+      "graph": "inventory-slot",
+      "assignment": {
+        "plainPrompt": "Why is a data table a list of rows a designer can edit without a code change?",
+        "whyGamePrompt": "What ships late if every balance tweak has to be a code change?"
+      }
     },
     "row": {
       "plainEnglish": "The row struct is the shape.",
@@ -357,7 +361,11 @@
           "review_prompt": "What does a designer break by renaming a field without updating the code that reads it?"
         }
       ],
-      "graph": "inventory-slot"
+      "graph": "inventory-slot",
+      "assignment": {
+        "plainPrompt": "Why is the row struct the shape of one table row?",
+        "whyGamePrompt": "What fails to load if two tables share a struct that matches neither row?"
+      }
     },
     "asset": {
       "plainEnglish": "One asset, one item.",
@@ -536,7 +544,11 @@
           "review_prompt": "What does the player see if a pickup's asset pointer is empty?"
         }
       ],
-      "graph": "pickup"
+      "graph": "pickup",
+      "assignment": {
+        "plainPrompt": "Why does one data asset describe one item, with the actor pointing at that asset?",
+        "whyGamePrompt": "What item do you spawn if the actor never points at an asset and a literal fills the gap?"
+      }
     },
     "reader": {
       "plainEnglish": "The component reads. The widget draws.",
@@ -715,7 +727,11 @@
           "review_prompt": "What does the player notice when the widget decides magazine size and the component reloads from the row?"
         }
       ],
-      "graph": "tactical-ammo"
+      "graph": "tactical-ammo",
+      "assignment": {
+        "plainPrompt": "Why does the component read the row, while the widget only draws?",
+        "whyGamePrompt": "What number drifts if the widget reads the table itself and the component reads it again?"
+      }
     }
   }
 }

@@ -147,7 +147,11 @@
           "answer": 0,
           "why": "Ignore the player who is looking."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why is the tactical look a short timer from the camera, about five meters, that ignores the owner?",
+        "whyGamePrompt": "What keeps tracing while you stand still, and what prompt sticks to your capsule, if it is a frame loop that includes the owner?"
+      }
     },
     "carry": {
       "plainEnglish": "The item data owns the stack size. The component decides whether another one fits. The widget only draws the slots that decision already made. The authority is who may add.",
@@ -295,7 +299,11 @@
           "answer": 0,
           "why": "Draw what was decided. Do not decide."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the item data own the stack size, while the component decides whether another one fits?",
+        "whyGamePrompt": "What drifts from the next item, and what desyncs the other machines, if the click hardcodes 99 or the add is only local?"
+      }
     },
     "wear": {
       "plainEnglish": "Wear is a number. Replicate that number. When it arrives, OnRep plays the scuff. Leave the mesh where it is. The mesh is already on the weapon.",
@@ -443,7 +451,11 @@
           "answer": 0,
           "why": "Present the value. Do not change it again."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why do you replicate the wear number and play the scuff from OnRep, leaving the mesh on the weapon?",
+        "whyGamePrompt": "What pointer gets shared with every client if the mesh is replicated instead of the wear value?"
+      }
     },
     "connect": {
       "plainEnglish": "Input asks. It calls try-interact, and the interaction component decides. Health and inventory change on the authority. The prompt listens for focus changing. It does not poll.",
@@ -591,7 +603,11 @@
           "answer": 0,
           "why": "That is how the four systems connect."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does input call try-interact and let the interaction component decide, with health and inventory changing only on the authority?",
+        "whyGamePrompt": "What component disappears, and what prompt stays awake, if input traces by itself or the prompt polls every frame?"
+      }
     }
   }
 }

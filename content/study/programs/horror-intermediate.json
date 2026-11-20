@@ -147,7 +147,11 @@
           "answer": 0,
           "why": "Decay is the miss path of the same event."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does one look serve both a quiet glimpse and a sudden noise?",
+        "whyGamePrompt": "What does the hunter ignore if sound sets a flag the stalk never reads?"
+      }
     },
     "interaction": {
       "plainEnglish": "A fuse, a door, and a hide lever answer the same Interact call. The press traces a short way from the camera and calls that function on whatever it hits.",
@@ -295,7 +299,11 @@
           "answer": 0,
           "why": "Interact is the press. Sense is the look."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why do a fuse, a door, and a hide lever share one Interact call from a short camera trace?",
+        "whyGamePrompt": "What never works when art adds a switch and the trace still casts to the old props?"
+      }
     },
     "stalk": {
       "plainEnglish": "The hunter walks a route on a one-second timer. When the alert flag is set, it leaves that route for a chase. When the flag fades, it goes back to the route.",
@@ -443,7 +451,11 @@
           "answer": 0,
           "why": "Save the flag. Let the chase event read it after load."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the one-second route step yield to a chase only while the alert flag is set?",
+        "whyGamePrompt": "What keeps running through a pause if the chase is driven from Tick?"
+      }
     },
     "door": {
       "plainEnglish": "The door swings on a timeline. Overlap starts the play. A flip-flop writes whether it is open. The creak plays with the swing and calls Sense.",
@@ -591,7 +603,11 @@
           "answer": 0,
           "why": "Replay the swing and you replay the sound."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does overlap play the timeline, a flip-flop record open, and the creak call Sense?",
+        "whyGamePrompt": "What never starts if the hinge yaws every frame and no finished event fires?"
+      }
     },
     "limbs": {
       "plainEnglish": "A bite is applied on the server. The write sits inside the authority check, and the result is clamped. Other machines hear the change and play the limp. They do not subtract again.",
@@ -739,7 +755,11 @@
           "answer": 0,
           "why": "Authority is what the second machine adds."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why is a co-op bite applied on the server, inside the authority check, and then clamped?",
+        "whyGamePrompt": "What snaps back, and what injures the pawn twice, if the client writes the limb and OnRep subtracts again?"
+      }
     },
     "inventory": {
       "plainEnglish": "Keys and fuel cans use one slot path. Overlap adds the item when the stack count is positive. The most that stack can hold lives on the item, next to its name.",
@@ -887,7 +907,11 @@
           "answer": 0,
           "why": "The cast list is why both should call AddToSlot."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why do keys and fuel share one slot path whose maximum lives on the item?",
+        "whyGamePrompt": "What job did the use trace steal if highlighting a key fills the fuel can?"
+      }
     },
     "fear": {
       "plainEnglish": "Fear is an effect. Begin Play binds the listeners and starts a one-second timer. That timer calls ApplyEffect, which broadcasts. The camera and the UI listen. They do not poll the alert flag.",
@@ -1035,7 +1059,11 @@
           "answer": 0,
           "why": "Fear is what a sustained alert can apply."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does Begin Play start one timer that calls ApplyEffect, instead of shaking the camera from Tick?",
+        "whyGamePrompt": "What keeps shaking after the flag fades if the camera shake lives on Tick?"
+      }
     },
     "save": {
       "plainEnglish": "The night save stores the alert flag, the limb, whether the door is open, the patrol direction, the stack count, and the fear float if the pulse should resume. It does not store curves, bindings, or meshes.",
@@ -1183,7 +1211,11 @@
           "answer": 0,
           "why": "The bool is enough. The curve is rebuilt."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the night save store alert, the limb, the door, patrol, the stack, and fear as values?",
+        "whyGamePrompt": "What wakes the house if loading plays the door from the start and the creak calls Sense?"
+      }
     }
   },
   "repairWrongs": {

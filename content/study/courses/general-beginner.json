@@ -147,7 +147,11 @@
           "answer": 0,
           "why": "Use is a press. The other two are timers."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why is a look a question you ask on a button or a short timer, instead of every frame?",
+        "whyGamePrompt": "What falls over, and what keeps asking through a pause, if every pawn queries every frame?"
+      }
     },
     "interface": {
       "plainEnglish": "One function name beats a cast list. Doors and switches answer Interact. A tank and a squad answer ReceiveOrder. A key and a fuel can answer AddToSlot. The graph looks the function up once.",
@@ -295,7 +299,11 @@
           "answer": 0,
           "why": "One lookup."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why do doors, orders, and pickups share one function name instead of a cast list?",
+        "whyGamePrompt": "What waits on a programmer when art adds a prop and the cast list is the only path?"
+      }
     },
     "authority": {
       "plainEnglish": "A shared number has one writer. Health, a limb, supplies, score, shells, the equipped id, and relevance are all that kind of number. The write sits inside the authority check. A client that writes early will snap when the server answers.",
@@ -443,7 +451,11 @@
           "answer": 0,
           "why": "The host grants points."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a shared number such as health, supplies, or the equipped id have exactly one writer?",
+        "whyGamePrompt": "What do two machines disagree about if health and the equipped weapon each gain a second writer?"
+      }
     },
     "data": {
       "plainEnglish": "A literal in a graph is a designer number pretending to be code. A building's cost and a medal's points belong on rows. A key stacks to one and a fuel can stacks higher, and that cap lives on the item.",
@@ -591,7 +603,11 @@
           "answer": 0,
           "why": "Move 10. Keep the clamp's shape."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why do a building's cost and a medal's points belong on rows instead of literals in the graph?",
+        "whyGamePrompt": "What ends up the same price if the literal 25 is shared by a barracks and a turret?"
+      }
     }
   }
 }

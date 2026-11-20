@@ -147,7 +147,11 @@
           "answer": 0,
           "why": "The early number was never authority."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the server write the number, while OnRep only plays the limp, the flash, or the board refresh?",
+        "whyGamePrompt": "What points does the host never give if the medal board adds again inside the notify?"
+      }
     },
     "interest": {
       "plainEnglish": "Relevant means a machine receives the actor. Visible means a team may see the cell. One is a half-second trace on the authority. The other is a quarter-second vision pass. Collapsing them hides units the host still has to simulate.",
@@ -295,7 +299,11 @@
           "answer": 0,
           "why": "CheckAOI owns Relevant."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why is Relevant about receiving an actor, while Visible is about a team seeing a cell?",
+        "whyGamePrompt": "What freezes and then teleports if an order is skipped because the enemy cannot see the unit?"
+      }
     },
     "input-layer": {
       "plainEnglish": "Enhanced Input turns a device into an action before the graph runs. The base context holds move, look, fire, and interact. Holding the left trigger pushes a second context, so the same face button can reload in one layer and open a radial slot in the other.",
@@ -443,7 +451,11 @@
           "answer": 0,
           "why": "The push is the layer."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does holding the trigger push a second mapping context instead of the graph reading the key?",
+        "whyGamePrompt": "What rebind breaks, and which two actions fire together, if the graph reads the raw key?"
+      }
     },
     "effects": {
       "plainEnglish": "A timeline, a dispatcher, and a timer are how work finishes. A door plays a curve and flips open or closed. The creak calls the hunter look. Fear broadcasts on its own one-second timer. A frame yaw never finishes, so the creak has no end.",
@@ -591,7 +603,11 @@
           "answer": 0,
           "why": "The curve swings. The timer pulses."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a door finish on a timeline, and fear broadcast from a timer, instead of work on every frame?",
+        "whyGamePrompt": "What panic starts, and what cue never arrives, if fear broadcasts from the creak or the hinge only yaws?"
+      }
     },
     "saves": {
       "plainEnglish": "A save packs numbers the authority already wrote and ids that pick project data. It does not pack poses, boom transforms, wheel bones, delegate bindings, or timer handles. Load at Begin Play, then start timers. Replaying a door from the start creaks the house awake.",
@@ -739,7 +755,11 @@
           "answer": 0,
           "why": "Both gun numbers travel together."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a save pack authority numbers and ids, and not poses, booms, wheel bones, or bindings?",
+        "whyGamePrompt": "What finished work happens again if a mid-reload snapshot or a replayed creak is loaded?"
+      }
     }
   }
 }

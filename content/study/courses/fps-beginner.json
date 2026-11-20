@@ -147,7 +147,11 @@
           "answer": 0,
           "why": "The player asked."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a first-person look start when the player presses use or fire, not on the frame?",
+        "whyGamePrompt": "What query runs while the player stands still, and what breaks on rebind, if the graph reads the key code?"
+      }
     },
     "magazine": {
       "plainEnglish": "Reload is its own button. The magazine is in the gun, reserve is on the body, and mag size is the cap. Both checks have to pass before the clamp moves rounds into the gap.",
@@ -295,7 +299,11 @@
           "answer": 0,
           "why": "The clamp takes the smaller of the gap and the reserve."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why is reload its own button, and only after both the magazine and the reserve have room to move?",
+        "whyGamePrompt": "What fills the gun while the player is only looking if reload runs from the frame loop?"
+      }
     },
     "pickup": {
       "plainEnglish": "Overlap is the pickup. If the stack still has room, the true pin calls AddToSlot, so a rifle and a medkit share one call. The trace that highlights a door does not increment a stack.",
@@ -443,7 +451,11 @@
           "answer": 0,
           "why": "Highlight and pickup are different events."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why is overlap the pickup, with one AddToSlot call shared by a rifle and a medkit?",
+        "whyGamePrompt": "What stays on the floor forever, and what is collected by looking, if you cast to one class or add items from the use trace?"
+      }
     },
     "authority": {
       "plainEnglish": "Damage is an event. The server writes health inside the authority check. Other machines learn the float from OnRep and play the hit. They do not subtract again. The widget reads the float. It is not what you replicate.",
@@ -591,7 +603,11 @@
           "answer": 0,
           "why": "Event, write, present."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does damage write health on the server, while other machines only play the hit from OnRep?",
+        "whyGamePrompt": "What bites twice, and what heavy payload ships, if the notify subtracts again or the widget itself is replicated?"
+      }
     }
   }
 }

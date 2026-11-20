@@ -147,7 +147,11 @@
           "answer": 0,
           "why": "No selected unit means no receiver."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a right-click order reach only the unit you already selected?",
+        "whyGamePrompt": "What moves if the map searches for the cursor every frame instead of using that selection?"
+      }
     },
     "economy": {
       "plainEnglish": "Supplies are a stock you spend on purpose. A build order calls a spend event. The server subtracts the cost. The cost itself lives in a data row, not as a typed 25 in the graph.",
@@ -295,7 +299,11 @@
           "answer": 0,
           "why": "Spend happens when a build asks."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a build order spend supplies from a data row, and only on the server?",
+        "whyGamePrompt": "What total do the other machines still show if a client subtracts a private stock?"
+      }
     },
     "fog": {
       "plainEnglish": "Fog is what this team can see. A short timer calls Reveal. A hit marks that cell visible. A wall blocks the look. Orders do not paint the map.",
@@ -443,7 +451,11 @@
           "answer": 0,
           "why": "Recompute vision after load. Do not restore the bit."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a short timer's Reveal mark a cell visible, while orders do not paint the map?",
+        "whyGamePrompt": "What cheat appears if a client is allowed to set Visible?"
+      }
     },
     "patrol": {
       "plainEnglish": "A neutral camp walks a route nobody ordered. Begin Play starts that walk on a one-second timer. Fog decides whether you draw the camp. The camp does not light the map by walking.",
@@ -591,7 +603,11 @@
           "answer": 0,
           "why": "Begin Play already started the timer."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does Begin Play start a neutral camp's route on a one-second timer?",
+        "whyGamePrompt": "What keeps walking through a pause if the camp moves from Tick?"
+      }
     },
     "scoring": {
       "plainEnglish": "A medal is a result the server records. A kill or an objective calls AwardMedal. The point value lives on the medal's data, not as a typed 10.",
@@ -739,7 +755,11 @@
           "answer": 0,
           "why": "The asset names the medal."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the server record a medal whose points live on the medal's data?",
+        "whyGamePrompt": "What board inflates if a client awards its own medal?"
+      }
     },
     "save": {
       "plainEnglish": "The match save stores supplies, score, each camp's direction, and orders that are still running. It does not store fog. After load, the reveal timer looks again.",
@@ -887,7 +907,11 @@
           "answer": 0,
           "why": "That assignment is the stand-in."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the match save store supplies, score, camp direction, and running orders, but not fog?",
+        "whyGamePrompt": "What camp do you still draw if a saved visibility bit outlives the unit that walked away?"
+      }
     }
   },
   "repairWrongs": {

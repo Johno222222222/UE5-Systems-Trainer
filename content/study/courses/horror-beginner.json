@@ -147,7 +147,11 @@
           "answer": 0,
           "why": "One timer. Sense does not start another."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does Begin Play start one timer so the hunter looks every fifth of a second, with a closed door blocking the look?",
+        "whyGamePrompt": "What sees through a pause, and which flag goes unread, if the look is every frame or sound has its own brain?"
+      }
     },
     "use": {
       "plainEnglish": "Use traces from the camera and calls Interact on a hit. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. A miss logs and stops. It does not raise the alert flag and it does not yaw a door.",
@@ -295,7 +299,11 @@
           "answer": 0,
           "why": "The trace never lists classes."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does use trace from the camera and call Interact, while the hunter does not run this graph?",
+        "whyGamePrompt": "What turns valves, and what alerts an empty room, if the hunter runs use or use writes the alert flag?"
+      }
     },
     "door": {
       "plainEnglish": "A door builds a timeline, keys a curve from closed to open, and plays it from the start. A flip writes whether it is open. The first use opens. The next closes. The creak calls Sense. Yawing the hinge every frame never finishes, so the creak has no end.",
@@ -443,7 +451,11 @@
           "answer": 0,
           "why": "The curve swings. Sense looks."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a door play a curve from closed to open and record the result with a flip?",
+        "whyGamePrompt": "What audio cue never reaches the hunter, and who gets hurt, if there is no finished event or the creak subtracts health?"
+      }
     },
     "sight": {
       "plainEnglish": "Seeing the player sets the alert flag. It does not subtract health. An attack calls damage, and that graph clamps. This lesson is single player, so a replication notify can be absent until a second machine exists.",
@@ -591,7 +603,11 @@
           "answer": 0,
           "why": "The clamp is what makes zero reachable."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does seeing the player set the alert flag without subtracting health?",
+        "whyGamePrompt": "What kills the player for being seen if Sense subtracts on every glimpse and skips the clamp?"
+      }
     }
   }
 }

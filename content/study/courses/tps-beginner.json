@@ -147,7 +147,11 @@
           "answer": 0,
           "why": "The boom reads the bool. It does not look again."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why is third-person aim the shoulder button and a camera trace, not the use graph?",
+        "whyGamePrompt": "What cover gets grabbed, and what gait changes, if that trace starts at the chest or the aim graph writes speed?"
+      }
     },
     "gait": {
       "plainEnglish": "The stick writes speed. Pushed is 600. Not pushed is 200. The character movement component reads that number. The graph does not add a world offset every frame, and the spring arm does not choose walk versus sprint.",
@@ -295,7 +299,11 @@
           "answer": 0,
           "why": "Pushed is 600."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does the stick write 600 or 200 for the movement component to read?",
+        "whyGamePrompt": "What retunes walk whenever the boom changes if the camera is what picks the gait?"
+      }
     },
     "companion": {
       "plainEnglish": "The companion is a patrol. Begin Play starts one timer. The step walks the route and a flip swaps direction. The return path has to exist. The player's use key is not the companion's event, and the companion does not fill the player's inventory.",
@@ -443,7 +451,11 @@
           "answer": 0,
           "why": "The point is progress. The mesh rebuilds."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why is the companion only a patrol timer that Begin Play starts once?",
+        "whyGamePrompt": "What gets stolen if the companion runs the player's interact graph, or its overlap fills the player's stack?"
+      }
     },
     "slot": {
       "plainEnglish": "Begin Play loads, because the components exist. The struct holds health, the magazine, the reserve, the stack count, and aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context.",
@@ -591,7 +603,11 @@
           "answer": 0,
           "why": "Load finished counts into actors that are there."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does Begin Play load health, the magazine, reserve, the stack, and aiming, instead of a frame snapshot?",
+        "whyGamePrompt": "What half-finished reload gets stored if the slot is written from Tick?"
+      }
     }
   }
 }

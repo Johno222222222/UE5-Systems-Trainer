@@ -147,7 +147,11 @@
           "answer": 0,
           "why": "The press is the player's. The look is the hunter's."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does co-op keep one authority look, with the alert flag replicated and a loud sound calling that same event?",
+        "whyGamePrompt": "What two hunters appear, and what alerts the house, if each machine looks on its own or local use sets the flag?"
+      }
     },
     "hide": {
       "plainEnglish": "A hide lever implements Interact. It does not get its own graph and it does not get a frame loop. The player's trace starts at the camera. The hunter does not run this call, and the hunter's overlap is not how you hide.",
@@ -295,7 +299,11 @@
           "answer": 0,
           "why": "The trace never lists classes."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why is a hide lever just an Interact prop, with the player's trace starting at the camera?",
+        "whyGamePrompt": "What gets traced forever if the lever runs on Tick, or the trace starts at the actor location?"
+      }
     },
     "fear": {
       "plainEnglish": "Fear binds a dispatcher and broadcasts it from ApplyEffect once a second. Begin Play starts that timer once. The look only writes the alert flag. A creak calls the look. It does not broadcast fear, or every cupboard terrifies the player.",
@@ -443,7 +451,11 @@
           "answer": 0,
           "why": "The broadcast is fear."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does fear broadcast from ApplyEffect once a second, while the look only writes the alert flag?",
+        "whyGamePrompt": "What shakes on glimpses the design meant to forgive if the broadcast sits inside the look?"
+      }
     },
     "quiet-save": {
       "plainEnglish": "A horror save packs the alert flag, whether the door is open, the patrol direction, and health. It does not pack the hinge transform, the fear bindings, or the timer handle. Begin Play binds listeners again and starts timers after the bools are applied. Playing a door from the start on load creaks the hunter awake.",
@@ -591,7 +603,11 @@
           "answer": 0,
           "why": "The timer is started again. It is not a value."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a horror save pack the alert flag, the door state, patrol direction, and health, but not the hinge or the shake?",
+        "whyGamePrompt": "What wakes a house you loaded as calm if the creak calls the look again on load?"
+      }
     }
   }
 }

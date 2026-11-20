@@ -147,7 +147,11 @@
           "answer": 0,
           "why": "Selected decides who hears the click."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why is a right-click an order for the unit that is already selected, not a search of every unit?",
+        "whyGamePrompt": "What list grows with every new chassis, and what army walks, if the click ignores selection?"
+      }
     },
     "stock": {
       "plainEnglish": "Spend is the build, not a frame drain. Only the authority changes supplies. The sample subtracts 25, and that number belongs on a row named by the building. A barracks and a turret do not cost the same. Income can be a slow timer that spends a negative cost.",
@@ -295,7 +299,11 @@
           "answer": 0,
           "why": "Spend happens when a build asks."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why is a build a spend on the authority, with the cost on a row instead of a typed 25?",
+        "whyGamePrompt": "What two buildings cost the same, and whose stock is private, if they share that literal and a client subtracts?"
+      }
     },
     "fog": {
       "plainEnglish": "Begin Play starts the vision timer. Reveal runs four times a second. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact, not a spectator widget, and it is not Relevant.",
@@ -443,7 +451,11 @@
           "answer": 0,
           "why": "Reveal paints cells."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does Begin Play start a vision timer that reveals four times a second, with only the authority writing Visible?",
+        "whyGamePrompt": "What map can a client cheat, and what unseen ground appears, if the client sets the bit or an order paints cells?"
+      }
     },
     "medal": {
       "plainEnglish": "A kill or a capture calls AwardMedal on the server. The sample adds 10, and that number belongs on a medal row because a kill and a capture do not score the same. The board reads Score. Its notify refreshes. Revealing a cell does not add points, and neither does driving.",
@@ -591,7 +603,11 @@
           "answer": 0,
           "why": "The host number is the board."
         }
-      ]
+      ],
+      "assignment": {
+        "plainPrompt": "Why does a kill or a capture call AwardMedal on the server, with the points living on a medal row?",
+        "whyGamePrompt": "What award doubles, and what pays the player for looking, if the notify adds again or a fog cell scores points?"
+      }
     }
   }
 }
