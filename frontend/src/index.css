@@ -293,12 +293,12 @@ html, body, #root {
 .node-note { margin: 0 8px 8px; color: var(--text-secondary); font-size: 10.5px; line-height: 1.35; }
 .graph-wire.is-pulse { stroke-dasharray: 8 6; animation: wirepulse 0.7s linear infinite; }
 @keyframes wirepulse { to { stroke-dashoffset: -28; } }
-.graph-watch, .graph-blueprint { position: absolute; right: 12px; bottom: 12px; z-index: 20; width: 260px; max-height: 240px; overflow: auto; padding: 8px; }
-.graph-blueprint { bottom: 12px; width: 320px; max-height: 280px; }
+.graph-watch { position: absolute; right: 12px; bottom: 12px; z-index: 24; width: 260px; max-height: 240px; overflow: auto; padding: 8px; }
+.graph-blueprint { position: absolute; left: 12px; top: 9.5rem; z-index: 24; width: min(520px, calc(100% - 300px)); max-height: min(420px, 55vh); overflow: auto; padding: 10px; }
 .graph-watch-note { margin: 6px 0; font-size: 11px; line-height: 1.35; color: var(--text-secondary); }
 .graph-watch-list { list-style: none; margin: 0; padding: 0; font-family: "JetBrains Mono", monospace; font-size: 11px; }
-.graph-watch-list li { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0; }
-.graph-blueprint-text { width: 100%; min-height: 90px; margin-top: 6px; font-family: "JetBrains Mono", monospace; font-size: 10px; background: #0c1018; color: var(--text-secondary); border: 1px solid var(--border); }
+.graph-watch-list li { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0; overflow-wrap: anywhere; }
+.graph-blueprint-text { width: 100%; min-height: 160px; max-height: 280px; margin-top: 8px; font-family: "JetBrains Mono", monospace; font-size: 13px; line-height: 1.45; background: #0c1018; color: var(--text-primary); border: 1px solid var(--border); overflow: auto; resize: vertical; white-space: pre; }
 .node-warn { margin: 0 8px 8px; color: #f0a8a8; font-size: 10.5px; line-height: 1.35; }
 .graph-library {
   width: 196px;
@@ -381,7 +381,7 @@ html, body, #root {
 .graph-box { fill: rgba(255, 107, 0, 0.12); stroke: var(--unreal-orange); stroke-width: 1; }
 .graph-minimap {
   position: absolute;
-  right: 12px;
+  left: 12px;
   bottom: 12px;
   width: 168px;
   height: 104px;

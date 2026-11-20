@@ -87,8 +87,10 @@ export default function ProjectsPanel({ refreshKey, currentId, onOpen, onDeleted
         </div>
         <input ref={fileRef} type="file" accept=".json,application/json" className="hidden" onChange={importFile} data-testid="import-project-input" />
       </div>
+      <div className="mb-2" data-testid="stack-controls" id="stack-controls">
+        <div className="eyebrow mb-1">Stack systems</div>
       {items.length >= 2 && (
-        <div className="flex flex-wrap gap-1.5 mb-2">
+        <div className="flex flex-wrap gap-1.5">
           <button className="ue-btn flex-1 min-w-[8rem] justify-center whitespace-normal text-center !border-[var(--accent-purple)] !text-[var(--accent-purple)]" onClick={stack} disabled={busy || sel.length < 2 || sel.length > 4} title="Build one plugin on this computer. Does not call the model or use the network." data-testid="stack-systems-button">
             <Combine size={13} /> {sel.length < 2 ? "Tick 2+ to stack" : sel.length > 4 ? "Stack up to 4" : `Stack ${sel.length}`}
           </button>
@@ -100,6 +102,10 @@ export default function ProjectsPanel({ refreshKey, currentId, onOpen, onDeleted
           </button>
         </div>
       )}
+      {items.length < 2 && (
+        <p className="text-[11px] font-mono text-[var(--text-muted)]">Save at least two systems, tick them here, then stack.</p>
+      )}
+      </div>
       {items.length === 0 && (
         <div className="text-[11px] font-mono text-[var(--text-muted)] p-2" data-testid="projects-empty">
           No projects yet. Synthesize a system and press Save.
