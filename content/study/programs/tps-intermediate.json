@@ -87,12 +87,12 @@
         {
           "id": "tpsi-camera-6",
           "kind": "tf",
-          "prompt": "Motion matching should fire its own trace to decide if the camera is tight.",
+          "prompt": "Motion matching reads the aiming bool and should not fire its own trace.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "It reads the bool."
         },
         {
@@ -235,12 +235,12 @@
         {
           "id": "tpsi-movement-6",
           "kind": "tf",
-          "prompt": "The aiming bool should be a second speed write.",
+          "prompt": "The aiming bool may pick an aim set, and it should not be a second speed write.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "It selects an aim set."
         },
         {
@@ -383,12 +383,12 @@
         {
           "id": "tpsi-aoi-6",
           "kind": "tf",
-          "prompt": "Clients that are not relevant should still receive the full third-person pawn.",
+          "prompt": "A client that is not relevant should not receive the full third-person pawn.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "Dropping them is the point."
         },
         {
@@ -531,12 +531,12 @@
         {
           "id": "tpsi-ballistics-6",
           "kind": "tf",
-          "prompt": "A missed third-person shot should add heat.",
+          "prompt": "A missed third-person shot should add no heat.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "The sample adds heat on a hit."
         },
         {
@@ -734,7 +734,7 @@
             "The assignment nested in the authority check, from Any Damage",
             "A frame drain",
             "The heat step",
-            "The throttle copy"
+            "The throttle copy. A car axis does not record a bruise."
           ],
           "answer": 0,
           "why": "That is the repair."
@@ -882,7 +882,7 @@
             "EquippedId assigned from the equip action, inside the authority check",
             "Heat increased on a hit",
             "Speed set to 600",
-            "Throttle copied from speed"
+            "Throttle copied from speed. The car's axis is not which of the ten slots is equipped."
           ],
           "answer": 0,
           "why": "That is the selection."
@@ -1471,7 +1471,7 @@
       "kind": "mc",
       "prompt": "Which three does the kit save leave out?",
       "choices": [
-        "The motion pose, the boom transform, and relevance",
+        "The motion pose, the boom transform",
         "Barrel warmth, wear, and the selected slot",
         "The gun's two ammo numbers and the limbs",
         "Fuel in a mode that has a car"

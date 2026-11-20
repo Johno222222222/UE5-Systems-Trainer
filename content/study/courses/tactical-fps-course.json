@@ -87,12 +87,12 @@
         {
           "id": "tac-look-6",
           "kind": "tf",
-          "prompt": "The look trace should be allowed to hit the player holding the camera.",
+          "prompt": "The foundation look trace should ignore the player who is holding the camera.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "The owner is ignored."
         },
         {
@@ -235,12 +235,12 @@
         {
           "id": "tac-carry-6",
           "kind": "tf",
-          "prompt": "Any client may add an item locally and keep that as the stock.",
+          "prompt": "An inventory add counts only when the authority accepts it.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "The authority adds."
         },
         {

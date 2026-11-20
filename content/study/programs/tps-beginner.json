@@ -87,12 +87,12 @@
         {
           "id": "tpsb-camera-6",
           "kind": "tf",
-          "prompt": "Aiming and interacting are the same graph.",
+          "prompt": "Aiming and interacting are two different graphs.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "Aim records a look. Interact asks an actor."
         },
         {
@@ -235,12 +235,12 @@
         {
           "id": "tpsb-movement-6",
           "kind": "tf",
-          "prompt": "Whether the pawn is aiming should choose how fast the pawn walks.",
+          "prompt": "How fast the pawn walks comes from the stick, not from the aiming bool.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "Speed is the stick."
         },
         {
@@ -287,7 +287,7 @@
           "kind": "mc",
           "prompt": "Why is third-person speed the same contract as any other pawn?",
           "choices": [
-            "The stick still asks, and the camera only shows the result",
+            "The stick still asks",
             "Third person has no stick",
             "The spring arm is the input device",
             "The squadmate owns the player's speed"
@@ -383,12 +383,12 @@
         {
           "id": "tpsb-interaction-6",
           "kind": "tf",
-          "prompt": "The sights trace should be what opens doors.",
+          "prompt": "Doors open from the use trace, not from the sights trace.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "Aim only records the sights."
         },
         {
@@ -583,7 +583,7 @@
           "kind": "mc",
           "prompt": "Which line is the reload gate?",
           "choices": [
-            "Magazine below its cap, and reserve still above zero",
+            "Magazine below its cap",
             "The stick above zero",
             "The sights flag",
             "The squadmate's one-second timer"
@@ -988,7 +988,7 @@
           "kind": "mc",
           "prompt": "Which schedule does Begin Play actually set in the excerpt?",
           "choices": [
-            "AdvancePatrol after one second, not looping",
+            "AdvancePatrol after one second",
             "A step every frame",
             "A step only while the player aims",
             "A step when the magazine reloads"
@@ -1060,7 +1060,7 @@
           "kind": "mc",
           "prompt": "Which set belongs in the third-person slot?",
           "choices": [
-            "Health, magazine, reserve, stack count, and the squadmate's next point",
+            "Health, magazine, reserve, stack count",
             "The spring-arm mesh and the mapping context",
             "The raw stick value every frame",
             "The sights trace's last hit actor"
@@ -1152,7 +1152,7 @@
             "A full magazine and the old body count, so the next reload lies",
             "A correct gun",
             "An aimed camera",
-            "A sprinting squadmate"
+            "A sprinting squadmate. Route direction is not the rounds left on the body."
           ],
           "answer": 0,
           "why": "Both numbers are the gun."
@@ -1175,7 +1175,7 @@
           "kind": "mc",
           "prompt": "Why is Begin Play the load, rather than the first Tick?",
           "choices": [
-            "The camera, the weapon, and the squadmate already exist",
+            "The camera, the weapon",
             "Tick runs before any actor is spawned",
             "Begin Play cannot read a struct",
             "The input bindings is only valid on Tick"
@@ -1537,7 +1537,7 @@
       "kind": "mc",
       "prompt": "Which line is speed, which is sights, and which is the gun?",
       "choices": [
-        "The stick check, the aim action, and the magazine clamp",
+        "The stick check, the aim action",
         "Three writes on Tick",
         "The spring arm, the chest trace, and the route flip",
         "The pickup, the input bindings, and the boom mesh"

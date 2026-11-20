@@ -87,12 +87,12 @@
         {
           "id": "stgm-march-6",
           "kind": "tf",
-          "prompt": "A unit the enemy cannot see should stop taking orders.",
+          "prompt": "A unit the enemy cannot see should keep executing its order on the host.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "The host keeps the order."
         },
         {
@@ -100,7 +100,7 @@
           "kind": "mc",
           "prompt": "Which pair can both be true?",
           "choices": [
-            "Relevant to the host, and not visible to the enemy",
+            "Relevant to the host",
             "Not relevant, and still marching on the host",
             "Visible to the enemy, and culled from the host",
             "Hearing this click without being selected"
@@ -235,12 +235,12 @@
         {
           "id": "stgm-barrage-6",
           "kind": "tf",
-          "prompt": "A fire mission should set Visible on the impact cell.",
+          "prompt": "A fire mission spends a shell and leaves the impact cell's visibility to the spotter.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "A spotter reveals. A gun fires."
         },
         {

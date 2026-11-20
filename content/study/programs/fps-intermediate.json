@@ -5,9 +5,18 @@
       "plainEnglish": "Hold the aim button and a second input layer swaps what the other buttons mean. The use graph still starts when its action fires. The layer never puts a trace on Tick.",
       "whyGame": "Players expect the same Interact event after they rebind a paddle. If the layer is implemented as a Tick that reads raw keys, every new pad layout becomes a code change.",
       "expansions": [
-        { "title": "Radial menu", "detail": "While the layer is held, a face button can open a radial. Releasing the layer returns that button to fire." },
-        { "title": "Ping", "detail": "Ping can be a third action on the same layer. It does not replace the use trace." },
-        { "title": "Hold versus tap", "detail": "A tap can stay on the base context. Only the hold pushes the L2 layer." }
+        {
+          "title": "Radial menu",
+          "detail": "While the layer is held, a face button can open a radial. Releasing the layer returns that button to fire."
+        },
+        {
+          "title": "Ping",
+          "detail": "Ping can be a third action on the same layer. It does not replace the use trace."
+        },
+        {
+          "title": "Hold versus tap",
+          "detail": "A tap can stay on the base context. Only the hold pushes the L2 layer."
+        }
       ],
       "quiz": [
         {
@@ -43,7 +52,7 @@
           "choices": [
             "A widget spawn, which is the menu's job rather than the look's job",
             "Branch on the hit bool",
-            "The interface call on a hit",
+            "The interface call on a hit. That call is use, not the modifier layer.",
             "The miss log"
           ],
           "answer": 0,
@@ -67,7 +76,7 @@
           "kind": "mc",
           "prompt": "A player taps the button instead of holding it. The base context still has fire. What should happen?",
           "choices": [
-            "Fire runs. The L2 layer never pushed, so use and the radial stay put",
+            "Fire runs. The L2 layer never pushed",
             "The use trace runs because any press is use",
             "Relevant flips",
             "The magazine clamps to zero"
@@ -82,7 +91,7 @@
           "choices": [
             "On the possessed pawn or the player controller, for the hold",
             "On every weapon mesh",
-            "Inside OnRep of EquippedId",
+            "Inside OnRep of EquippedId. The notify shows the equipped weapon. It does not open the radial layer.",
             "On the data table row"
           ],
           "answer": 0,
@@ -92,16 +101,22 @@
           "id": "fpsi-l2-7",
           "kind": "tf",
           "prompt": "True or false: an input layer may remap a button without moving the use trace onto Tick.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 0,
           "why": "Remap the action. Keep the event."
         },
         {
           "id": "fpsi-l2-8",
           "kind": "tf",
-          "prompt": "True or false: the radial menu should be drawn by the line trace's true pin.",
-          "choices": ["True", "False"],
-          "answer": 1,
+          "prompt": "The radial menu is opened by the modifier-layer action, not by the line trace.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
           "why": "The true pin calls Interact. The menu is its own action."
         },
         {
@@ -120,9 +135,12 @@
         {
           "id": "fpsi-l2-10",
           "kind": "tf",
-          "prompt": "True or false: releasing the aim hold should leave the L2 actions active until respawn.",
-          "choices": ["True", "False"],
-          "answer": 1,
+          "prompt": "Releasing the aim hold should pop the L2 mapping context.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
           "why": "Releasing the hold pops the layer."
         }
       ]
@@ -131,9 +149,18 @@
       "plainEnglish": "Motion matching plays the run or the walk by reading Speed. This graph's only job is to write Speed when the stick changes. It does not sample animation curves.",
       "whyGame": "If the anim graph also writes Speed, the stick and the pose fight. If Tick writes 600 whenever the menu is open, motion matching plays a sprint during a buy phase.",
       "expansions": [
-        { "title": "Strafe", "detail": "A sideways pose can read the same Speed plus an axis sign. It should not add a second writer." },
-        { "title": "Stop", "detail": "Releasing the stick writes the walk or zero. The stop pose is chosen from that number." },
-        { "title": "Crouch blend", "detail": "Crouch can be another float the matcher reads. The move action still owns Speed." }
+        {
+          "title": "Strafe",
+          "detail": "A sideways pose can read the same Speed plus an axis sign. It should not add a second writer."
+        },
+        {
+          "title": "Stop",
+          "detail": "Releasing the stick writes the walk or zero. The stop pose is chosen from that number."
+        },
+        {
+          "title": "Crouch blend",
+          "detail": "Crouch can be another float the matcher reads. The move action still owns Speed."
+        }
       ],
       "quiz": [
         {
@@ -218,16 +245,22 @@
           "id": "fpsi-gasp-7",
           "kind": "tf",
           "prompt": "True or false: motion matching should read Speed rather than write it.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 0,
           "why": "The stick owns the write."
         },
         {
           "id": "fpsi-gasp-8",
           "kind": "tf",
-          "prompt": "True or false: the move graph should sample the current pose to decide Speed.",
-          "choices": ["True", "False"],
-          "answer": 1,
+          "prompt": "Speed is written by the move graph, and the pose is chosen from that speed.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
           "why": "That inverts reader and writer."
         },
         {
@@ -247,7 +280,10 @@
           "id": "fpsi-gasp-10",
           "kind": "tf",
           "prompt": "True or false: Graph_IA_Move is still the function that chooses 600 or 200.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 0,
           "why": "Motion matching did not replace that function."
         }
@@ -257,9 +293,18 @@
       "plainEnglish": "About twice a second the server traces and stores whether this actor is still relevant. Clients do not set that bit, and fog's Visible flag is a different fact.",
       "whyGame": "Forcing Relevant true from Tick keeps every distant rifle replicating. Copying Visible into Relevant hides people who are in fog but still close enough to matter, or the reverse.",
       "expansions": [
-        { "title": "Squad exception", "detail": "Squadmates can stay relevant without a hit. That exception is still decided on the server timer, not on Tick." },
-        { "title": "Vehicle", "detail": "A vehicle can use a larger radius on the same CheckAOI pass." },
-        { "title": "Dormancy", "detail": "A failed interest check can allow dormancy. The fog bit must not be the switch." }
+        {
+          "title": "Squad exception",
+          "detail": "Squadmates can stay relevant without a hit. That exception is still decided on the server timer, not on Tick."
+        },
+        {
+          "title": "Vehicle",
+          "detail": "A vehicle can use a larger radius on the same CheckAOI pass."
+        },
+        {
+          "title": "Dormancy",
+          "detail": "A failed interest check can allow dormancy. The fog bit must not be the switch."
+        }
       ],
       "quiz": [
         {
@@ -344,16 +389,22 @@
           "id": "fpsi-aoi-7",
           "kind": "tf",
           "prompt": "True or false: CheckAOI should run from a timer rather than from Tick.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 0,
           "why": "Half a second is the lesson's clock."
         },
         {
           "id": "fpsi-aoi-8",
           "kind": "tf",
-          "prompt": "True or false: Visible and Relevant are two names for one replicated bool.",
-          "choices": ["True", "False"],
-          "answer": 1,
+          "prompt": "Visible says who may see a cell, and Relevant says who receives the actor.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
           "why": "Sight and network interest differ."
         },
         {
@@ -373,7 +424,10 @@
           "id": "fpsi-aoi-10",
           "kind": "tf",
           "prompt": "True or false: a client may set Relevant so their kill still replicates.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "The server decides who still matters."
         }
@@ -383,9 +437,18 @@
       "plainEnglish": "One press of fire traces once. A hit adds a small step of heat. Aiming, by itself, does not warm the barrel, and wear can read that heat later.",
       "whyGame": "Adding 0.05 heat from Tick while the player merely aims cooks the gun in a standoff. Tracing again from the anim blueprint rediscovers a target the fire event already named.",
       "expansions": [
-        { "title": "Wear", "detail": "Wear can accumulate from Heat on the same hit. It should not have its own Tick." },
-        { "title": "Spread", "detail": "Spread can read Heat to widen the next trace. The trace still starts at IA_Fire." },
-        { "title": "Cooling", "detail": "Cooling is a timer after the last shot, not a per-frame subtract while aiming." }
+        {
+          "title": "Wear",
+          "detail": "Wear can accumulate from Heat on the same hit. It should not have its own Tick."
+        },
+        {
+          "title": "Spread",
+          "detail": "Spread can read Heat to widen the next trace. The trace still starts at IA_Fire."
+        },
+        {
+          "title": "Cooling",
+          "detail": "Cooling is a timer after the last shot, not a per-frame subtract while aiming."
+        }
       ],
       "quiz": [
         {
@@ -470,7 +533,10 @@
           "id": "fpsi-ball-7",
           "kind": "tf",
           "prompt": "True or false: IA_Fire is the start of the ballistics trace.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 0,
           "why": "The function is the fire action."
         },
@@ -478,7 +544,10 @@
           "id": "fpsi-ball-8",
           "kind": "tf",
           "prompt": "True or false: aiming alone should add the same 0.05 heat as a hit.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "Aim is a different action."
         },
@@ -499,7 +568,10 @@
           "id": "fpsi-ball-10",
           "kind": "tf",
           "prompt": "True or false: Graph_IA_Fire should run from Tick so heat stays smooth.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "Fire is a press."
         }
@@ -509,9 +581,18 @@
       "plainEnglish": "A normal hit may hurt a limb, but the authority will not take that limb below ten percent of its max. The server writes the float. OnRep plays the limp and does not subtract again.",
       "whyGame": "Without the floor, one unlucky hit deletes the limb and the death state never matches the design. A client that writes the limb desyncs the limp from the server.",
       "expansions": [
-        { "title": "Bleed", "detail": "Bleed can be a timer after the limb is wounded. It still starts from the authority's number." },
-        { "title": "Splint", "detail": "A splint item can raise the limb through the same authority write, not through the widget." },
-        { "title": "Downed arm", "detail": "Below the floor you need a special hit, not a second Tick." }
+        {
+          "title": "Bleed",
+          "detail": "Bleed can be a timer after the limb is wounded. It still starts from the authority's number."
+        },
+        {
+          "title": "Splint",
+          "detail": "A splint item can raise the limb through the same authority write, not through the widget."
+        },
+        {
+          "title": "Downed arm",
+          "detail": "Below the floor you need a special hit, not a second Tick."
+        }
       ],
       "quiz": [
         {
@@ -596,7 +677,10 @@
           "id": "fpsi-limb-7",
           "kind": "tf",
           "prompt": "True or false: a normal limb hit is floored by the authority, not by OnRep.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 0,
           "why": "OnRep plays the result."
         },
@@ -604,7 +688,10 @@
           "id": "fpsi-limb-8",
           "kind": "tf",
           "prompt": "True or false: OnRep should clamp the limb again in case the server forgot.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "A second clamp hides a server bug and can still double-apply."
         },
@@ -625,7 +712,10 @@
           "id": "fpsi-limb-10",
           "kind": "tf",
           "prompt": "True or false: proxies may lower a limb so the limp starts before the server replies.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "They can play a guess only if they do not own the float."
         }
@@ -635,9 +725,18 @@
       "plainEnglish": "Overlap asks AddToSlot through the interface. The slot owns the count. A use trace that also increments the stack will fill the bag by looking.",
       "whyGame": "Intermediate kits add more item types. If each type gets its own overlap function that also knows about magazines and limbs, every new item edits three systems.",
       "expansions": [
-        { "title": "Armor plate", "detail": "A plate can be another slot id. Overlap still only asks." },
-        { "title": "Drop", "detail": "Drop decrements the slot on the authority and spawns a pickup. It is not a trace." },
-        { "title": "Stack cap", "detail": "The cap can live on the item row. The overlap does not hard-code it." }
+        {
+          "title": "Armor plate",
+          "detail": "A plate can be another slot id. Overlap still only asks."
+        },
+        {
+          "title": "Drop",
+          "detail": "Drop decrements the slot on the authority and spawns a pickup. It is not a trace."
+        },
+        {
+          "title": "Stack cap",
+          "detail": "The cap can live on the item row. The overlap does not hard-code it."
+        }
       ],
       "quiz": [
         {
@@ -722,7 +821,10 @@
           "id": "fpsi-inv-7",
           "kind": "tf",
           "prompt": "True or false: the inventory overlap should call AddToSlot rather than edit the count inline.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 0,
           "why": "The slot owns the number."
         },
@@ -730,7 +832,10 @@
           "id": "fpsi-inv-8",
           "kind": "tf",
           "prompt": "True or false: a use-trace hit is a successful pickup in this lesson.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "Use is Interact. Pickup is overlap."
         },
@@ -751,7 +856,10 @@
           "id": "fpsi-inv-10",
           "kind": "tf",
           "prompt": "True or false: each item type needs its own overlap graph.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "One ask, many slot ids."
         }
@@ -761,9 +869,18 @@
       "plainEnglish": "Ten weapon definitions live in data. Equipping writes EquippedId on the authority. Everyone else builds the third-person mesh from that id.",
       "whyGame": "A client that sets EquippedId directly pops weapons the server never granted. Replicating ten meshes every equip wastes bandwidth the id would have saved.",
       "expansions": [
-        { "title": "Locked slot", "detail": "The authority rejects an id the inventory does not contain." },
-        { "title": "Charm", "detail": "A charm can be another id on the same row, still not a replicated mesh." },
-        { "title": "Inspect", "detail": "Inspect is a montage local to the owner. It does not change EquippedId." }
+        {
+          "title": "Locked slot",
+          "detail": "The authority rejects an id the inventory does not contain."
+        },
+        {
+          "title": "Charm",
+          "detail": "A charm can be another id on the same row, still not a replicated mesh."
+        },
+        {
+          "title": "Inspect",
+          "detail": "Inspect is a montage local to the owner. It does not change EquippedId."
+        }
       ],
       "quiz": [
         {
@@ -848,7 +965,10 @@
           "id": "fpsi-gsm-7",
           "kind": "tf",
           "prompt": "True or false: EquippedId is the replicated fact for a ten-slot gunsmith.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 0,
           "why": "The slots stay in data."
         },
@@ -856,7 +976,10 @@
           "id": "fpsi-gsm-8",
           "kind": "tf",
           "prompt": "True or false: each of the ten meshes should replicate on every equip.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "That is the cost the id avoids."
         },
@@ -877,7 +1000,10 @@
           "id": "fpsi-gsm-10",
           "kind": "tf",
           "prompt": "True or false: Graph_IA_Equip is the equip request in this lesson.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 0,
           "why": "The function is the action."
         }
@@ -887,9 +1013,18 @@
       "plainEnglish": "Begin Play loads one struct: the kit you actually saved. Tick does not write that struct, and loading does not replay every shot that produced the numbers.",
       "whyGame": "A Tick save catches heat mid-climb and a limb mid-bleed. A constructor load runs before the component can apply EquippedId, Health, and ammo.",
       "expansions": [
-        { "title": "Checkpoint", "detail": "The volume calls the same struct write as the menu." },
-        { "title": "Continue", "detail": "Continue is that Begin Play load." },
-        { "title": "Wipe", "detail": "Wipe deletes the slot object. It does not Tick the fields to zero." }
+        {
+          "title": "Checkpoint",
+          "detail": "The volume calls the same struct write as the menu."
+        },
+        {
+          "title": "Continue",
+          "detail": "Continue is that Begin Play load."
+        },
+        {
+          "title": "Wipe",
+          "detail": "Wipe deletes the slot object. It does not Tick the fields to zero."
+        }
       ],
       "quiz": [
         {
@@ -897,7 +1032,7 @@
           "kind": "mc",
           "prompt": "Begin Play loads one struct. Which fields belong in it for this kit?",
           "choices": [
-            "Health or limbs, heat, ammo, and the equipped id",
+            "Health or limbs, heat, ammo",
             "The current bone poses",
             "The L2 button hardware id",
             "Whether Tick ran last frame"
@@ -936,7 +1071,7 @@
           "kind": "mc",
           "prompt": "Tick writes the slot from the live limb. Why is that a bad checkpoint?",
           "choices": [
-            "The limb may still be bleeding, so the snapshot is unfinished",
+            "The limb may still be bleeding",
             "Tick cannot write floats",
             "Begin Play will ignore structs",
             "Heat cannot be saved any other way"
@@ -974,7 +1109,10 @@
           "id": "fpsi-save-7",
           "kind": "tf",
           "prompt": "True or false: this lesson's load runs from Begin Play, not from Tick.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 0,
           "why": "Begin Play applies the slot."
         },
@@ -982,7 +1120,10 @@
           "id": "fpsi-save-8",
           "kind": "tf",
           "prompt": "True or false: the saved pose of the motion-matching graph belongs in the same struct as the equipped id.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "The pose is derived. The id is a fact."
         },
@@ -1003,7 +1144,10 @@
           "id": "fpsi-save-10",
           "kind": "tf",
           "prompt": "True or false: SlotValue written from Tick is a finished checkpoint.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "Tick does not know that an event finished."
         }
@@ -1083,7 +1227,10 @@
       "id": "fpsi-exam-3",
       "kind": "tf",
       "prompt": "True or false: Visible can stand in for Relevant when culling rifles.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 1,
       "why": "A nearby unseen player still matters."
     },
@@ -1117,7 +1264,10 @@
       "id": "fpsi-exam-6",
       "kind": "tf",
       "prompt": "True or false: ten gunsmith meshes should replicate instead of EquippedId.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 1,
       "why": "The id is the replicated fact."
     },
@@ -1151,7 +1301,10 @@
       "id": "fpsi-exam-9",
       "kind": "tf",
       "prompt": "True or false: the pose graph may write Speed if the stick also writes it.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 1,
       "why": "Two writers fight."
     },
@@ -1185,7 +1338,10 @@
       "id": "fpsi-exam-12",
       "kind": "tf",
       "prompt": "True or false: a hit from IA_Fire may add 0.05 heat.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 0,
       "why": "That is the heat step."
     },
@@ -1219,7 +1375,10 @@
       "id": "fpsi-exam-15",
       "kind": "tf",
       "prompt": "True or false: a client may equip any id and the server should copy it.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 1,
       "why": "The authority checks ownership."
     },
@@ -1253,7 +1412,10 @@
       "id": "fpsi-exam-18",
       "kind": "tf",
       "prompt": "True or false: CheckAOI's timer is about half a second.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 0,
       "why": "0.5 seconds is the lesson clock."
     },
@@ -1287,7 +1449,10 @@
       "id": "fpsi-exam-21",
       "kind": "tf",
       "prompt": "True or false: the overlap graph should inline every item's rules.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 1,
       "why": "AddToSlot keeps the rules with the slot."
     },
@@ -1321,7 +1486,10 @@
       "id": "fpsi-exam-24",
       "kind": "tf",
       "prompt": "True or false: loading the kit in the constructor is early enough for EquippedId.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 1,
       "why": "Begin Play is the load."
     },
@@ -1355,7 +1523,10 @@
       "id": "fpsi-exam-27",
       "kind": "tf",
       "prompt": "True or false: a miss still adds heat in the ballistics excerpt.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 1,
       "why": "The branch requires a hit."
     },
@@ -1389,7 +1560,10 @@
       "id": "fpsi-exam-30",
       "kind": "tf",
       "prompt": "True or false: the radial menu belongs on the use trace's true pin.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 1,
       "why": "The true pin calls Interact."
     },
@@ -1411,7 +1585,7 @@
       "kind": "mc",
       "prompt": "Which schedule matches Sense's idea if you were borrowing it for cooling the barrel?",
       "choices": [
-        "A timer after the last shot, not a frame loop",
+        "A timer after the last shot",
         "Tick while the aim layer is held",
         "OnRep of EquippedId",
         "The constructor"

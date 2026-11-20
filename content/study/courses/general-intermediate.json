@@ -172,7 +172,7 @@
           "kind": "mc",
           "prompt": "A strategy unit is invisible to the enemy and still taking orders on the host. Which two answers are both true?",
           "choices": [
-            "The host finds it relevant, and the enemy team finds it not visible",
+            "The host finds it relevant",
             "Both bools are false, so the order is skipped",
             "Both bools are true, so the enemy sees the order",
             "Visible is true and Relevant is false, so the host deletes it"
@@ -346,7 +346,7 @@
           "kind": "mc",
           "prompt": "A player rebinds reload from a keyboard key to a pad button. What stays the same in the graph?",
           "choices": [
-            "IA_Reload still fires, because the context owns the device",
+            "IA_Reload still fires",
             "The graph must compare the new key code",
             "The radial layer has to be deleted",
             "HasAuthority has to list the button"
@@ -423,7 +423,7 @@
           "prompt": "You put the radial binding on the base layer beside reload. What can one press no longer do?",
           "choices": [
             "Mean reload until the trigger is held, and a slot after that",
-            "Reach the authority check",
+            "Reach the authority check. The layer is about which action fires, not who owns the number.",
             "Start a line trace",
             "Read a data row"
           ],
@@ -616,7 +616,7 @@
           "kind": "mc",
           "prompt": "Which set belongs in a cross-genre save?",
           "choices": [
-            "Health, magazine, reserve, equipped id, supplies, score, and the open bool",
+            "Health, magazine, reserve, equipped id, supplies, score",
             "The motion pose, the boom transform, and the wheel bones",
             "Delegate bindings and timer handles",
             "The raw key code for reload"

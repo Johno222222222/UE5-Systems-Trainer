@@ -5,9 +5,18 @@
       "plainEnglish": "Press the use key and the game looks once, along your aim. The look is a question you asked. It is not something the pawn keeps asking while you stand still.",
       "whyGame": "A first-person door, a light switch, and a weapon on the floor all wait for that one press. If the trace moves onto Tick, every idle player spends a physics query and the stored hit is already stale when the key finally goes down.",
       "expansions": [
-        { "title": "A door", "detail": "The door implements Interact. The true pin of the use trace calls it, and the door swings if it is unlocked." },
-        { "title": "A switch", "detail": "The switch is the same interface. The hit flips a bool. It does not need its own trace." },
-        { "title": "A floor weapon", "detail": "The press can find the weapon, but adding it to the inventory is a different graph. The look only reports the hit." }
+        {
+          "title": "A door",
+          "detail": "The door implements Interact. The true pin of the use trace calls it, and the door swings if it is unlocked."
+        },
+        {
+          "title": "A switch",
+          "detail": "The switch is the same interface. The hit flips a bool. It does not need its own trace."
+        },
+        {
+          "title": "A floor weapon",
+          "detail": "The press can find the weapon, but adding it to the inventory is a different graph. The look only reports the hit."
+        }
       ],
       "quiz": [
         {
@@ -54,7 +63,7 @@
           "kind": "mc",
           "prompt": "You move the interact trace onto Tick so the use prompt never feels late. What goes wrong?",
           "choices": [
-            "Every idle pawn pays for a query, and the stored hit is stale by the time of the press",
+            "Every idle pawn pays for a query",
             "The mapping context stops accepting the keyboard",
             "IA_Interact can no longer be rebound to a gamepad",
             "Doors lose their mesh"
@@ -67,7 +76,7 @@
           "kind": "mc",
           "prompt": "A player rebinds use from F to a gamepad face button. What stays the same in the graph?",
           "choices": [
-            "IA_Interact still fires Triggered, because the mapping context owns the key",
+            "IA_Interact still fires Triggered",
             "The trace must be rewritten to mention the new key code",
             "Branch has to compare the raw key instead of the hit",
             "Begin Play must register the button on the door actor"
@@ -91,16 +100,22 @@
         {
           "id": "fpsb-input-7",
           "kind": "tf",
-          "prompt": "True or false: the interact trace should run from Tick so the prompt stays fresh.",
-          "choices": ["True", "False"],
-          "answer": 1,
+          "prompt": "The interact trace should run when the use action fires, not from Tick.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
           "why": "The trace runs from the action."
         },
         {
           "id": "fpsb-input-8",
           "kind": "tf",
           "prompt": "True or false: one mapping context can bind the same use action to a key and a pad.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 0,
           "why": "That is what a mapping context is for."
         },
@@ -121,7 +136,10 @@
           "id": "fpsb-input-10",
           "kind": "tf",
           "prompt": "True or false: a miss on the use trace should still open the door in front of the camera.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "The false pin is a miss. It stops."
         }
@@ -131,9 +149,18 @@
       "plainEnglish": "Push the stick and the pawn stores a sprint speed. Release it and the pawn stores a walk speed. The character movement component reads that number. The graph does not shove the actor along the world axis every frame.",
       "whyGame": "If Speed is written from Tick, a stance or an ability that just set a different speed gets stomped before the animation can show it. The camera and the weapon read this pawn. They do not own Speed.",
       "expansions": [
-        { "title": "Crouch", "detail": "Crouch can write a third speed from its own action. It should not share the Tick that this graph refuses to use." },
-        { "title": "Aim slowdown", "detail": "While aiming, a later lesson can scale Speed. The move graph still only writes when the axis changes." },
-        { "title": "Data speeds", "detail": "600 and 200 are sample literals. A data row can replace them without moving the write onto Tick." }
+        {
+          "title": "Crouch",
+          "detail": "Crouch can write a third speed from its own action. It should not share the Tick that this graph refuses to use."
+        },
+        {
+          "title": "Aim slowdown",
+          "detail": "While aiming, a later lesson can scale Speed. The move graph still only writes when the axis changes."
+        },
+        {
+          "title": "Data speeds",
+          "detail": "600 and 200 are sample literals. A data row can replace them without moving the write onto Tick."
+        }
       ],
       "quiz": [
         {
@@ -218,7 +245,10 @@
           "id": "fpsb-move-7",
           "kind": "tf",
           "prompt": "True or false: Speed is written when the move axis changes, not from Tick.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 0,
           "why": "The axis is the event."
         },
@@ -226,7 +256,10 @@
           "id": "fpsb-move-8",
           "kind": "tf",
           "prompt": "True or false: the false path of the move branch should leave Speed at the sprint value.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "The false path writes the walk literal."
         },
@@ -247,7 +280,10 @@
           "id": "fpsb-move-10",
           "kind": "tf",
           "prompt": "True or false: adding a world offset on Tick is how this lesson moves the pawn.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "Character movement reads Speed. The graph does not shove the actor."
         }
@@ -257,9 +293,18 @@
       "plainEnglish": "The use trace finds an actor and calls Interact. The door, the switch, and the dropped gun each implement that one call. You do not cast to their Blueprints.",
       "whyGame": "A cast list grows every time a new usable actor ships. An interface stays one call. The hunter's Sense trace, if you are thinking of horror, is a different graph and must not be pasted here.",
       "expansions": [
-        { "title": "Locked door", "detail": "Interact can check a key and refuse. The refusal stays inside the door, not in a new trace." },
-        { "title": "Button", "detail": "A button is another Interact. It flips its own state." },
-        { "title": "Note pickup", "detail": "A readable note can answer Interact by opening text. The trace still only reports the hit." }
+        {
+          "title": "Locked door",
+          "detail": "Interact can check a key and refuse. The refusal stays inside the door, not in a new trace."
+        },
+        {
+          "title": "Button",
+          "detail": "A button is another Interact. It flips its own state."
+        },
+        {
+          "title": "Note pickup",
+          "detail": "A readable note can answer Interact by opening text. The trace still only reports the hit."
+        }
       ],
       "quiz": [
         {
@@ -344,7 +389,10 @@
           "id": "fpsb-inter-7",
           "kind": "tf",
           "prompt": "True or false: one Interact call can serve a door, a switch, and a dropped weapon.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 0,
           "why": "That is the point of the interface."
         },
@@ -352,7 +400,10 @@
           "id": "fpsb-inter-8",
           "kind": "tf",
           "prompt": "True or false: the false pin of the use branch should call Interact anyway.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "False means miss."
         },
@@ -373,7 +424,10 @@
           "id": "fpsb-inter-10",
           "kind": "tf",
           "prompt": "True or false: the use graph should read the raw key code so rebinding needs a code change.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "The mapping context owns the binding."
         }
@@ -383,9 +437,18 @@
       "plainEnglish": "Reload asks two questions: is there room in the magazine, and is there ammo in reserve? Only then does Needed move rounds from reserve into the mag. Both checks happen on the reload key, not on Tick.",
       "whyGame": "Adding Needed inside Tick fills the gun while the player is sprinting or looking at a menu. Skipping the clamp loads more rounds than the magazine can hold, or more than the player is carrying.",
       "expansions": [
-        { "title": "Empty reload", "detail": "If reserve is zero the false pin logs and stops. It does not play a successful reload." },
-        { "title": "Chamber", "detail": "A later lesson can add a chambered round as another number. It still should not tick the magazine." },
-        { "title": "Shell type", "detail": "Buckshot versus slug can be a data row the reload reads. The checks stay on IA_Reload." }
+        {
+          "title": "Empty reload",
+          "detail": "If reserve is zero the false pin logs and stops. It does not play a successful reload."
+        },
+        {
+          "title": "Chamber",
+          "detail": "A later lesson can add a chambered round as another number. It still should not tick the magazine."
+        },
+        {
+          "title": "Shell type",
+          "detail": "Buckshot versus slug can be a data row the reload reads. The checks stay on IA_Reload."
+        }
       ],
       "quiz": [
         {
@@ -393,7 +456,7 @@
           "kind": "mc",
           "prompt": "Both checks pass before a round moves. What are the two checks?",
           "choices": [
-            "Magazine is below MagSize, and Reserve is above zero",
+            "Magazine is below MagSize",
             "Speed is 600, and the trace hit a pawn",
             "Health is full, and the save slot is loaded",
             "The pawn has no authority, and Tick has run"
@@ -470,7 +533,10 @@
           "id": "fpsb-weap-7",
           "kind": "tf",
           "prompt": "True or false: Set Magazine should run only after Needed has been clamped.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 0,
           "why": "The clamp is the size of the move."
         },
@@ -478,7 +544,10 @@
           "id": "fpsb-weap-8",
           "kind": "tf",
           "prompt": "True or false: Reserve should increase by Needed when the magazine is filled.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "Reserve loses the rounds the mag gained."
         },
@@ -499,7 +568,10 @@
           "id": "fpsb-weap-10",
           "kind": "tf",
           "prompt": "True or false: Graph_IA_Reload runs because the player asked to reload.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 0,
           "why": "The function is the reload action."
         }
@@ -509,9 +581,18 @@
       "plainEnglish": "When this pawn takes damage, only the authority changes Health. Everyone else hears the new number and plays a reaction. They do not subtract again.",
       "whyGame": "If a client writes Health, the listen server and that client disagree about who is dead. If OnRep subtracts too, the proxy applies the hit twice and then snaps back when the real value arrives.",
       "expansions": [
-        { "title": "Armor", "detail": "Armor can be a second authority-owned number that damage spends first. Clients still only play the hit." },
-        { "title": "Regen", "detail": "Regen is a timer after the last hit, not a Tick that adds health every frame." },
-        { "title": "Downed", "detail": "At zero the authority can set a downed state. OnRep plays the fall. It does not decide the state." }
+        {
+          "title": "Armor",
+          "detail": "Armor can be a second authority-owned number that damage spends first. Clients still only play the hit."
+        },
+        {
+          "title": "Regen",
+          "detail": "Regen is a timer after the last hit, not a Tick that adds health every frame."
+        },
+        {
+          "title": "Downed",
+          "detail": "At zero the authority can set a downed state. OnRep plays the fall. It does not decide the state."
+        }
       ],
       "quiz": [
         {
@@ -571,7 +652,7 @@
           "kind": "mc",
           "prompt": "Tick subtracts a point of health so damage feels continuous. What rule did that break?",
           "choices": [
-            "Health changes when damage happens, not every frame",
+            "Health changes when damage happens",
             "Speed must be zero before health can change",
             "Only OnRep may write Health",
             "Magazine and Health must stay equal"
@@ -596,7 +677,10 @@
           "id": "fpsb-hp-7",
           "kind": "tf",
           "prompt": "True or false: clients may ask to be damaged, but they do not write Health.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 0,
           "why": "Ask with an RPC. The authority writes."
         },
@@ -604,7 +688,10 @@
           "id": "fpsb-hp-8",
           "kind": "tf",
           "prompt": "True or false: OnRep_Health should subtract Amount a second time.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "That applies the hit twice."
         },
@@ -625,7 +712,10 @@
           "id": "fpsb-hp-10",
           "kind": "tf",
           "prompt": "True or false: making Health replicated lets every machine assign it.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "Replication copies the authority's value. It does not elect a writer."
         }
@@ -635,9 +725,18 @@
       "plainEnglish": "Walking into a pickup asks the slot to take it. The slot owns the count. The use trace that opens doors does not also increment the stack.",
       "whyGame": "If the look trace adds items, staring at a crate fills your inventory. If the overlap forgets to clear the local count, the same volume adds the item again.",
       "expansions": [
-        { "title": "Ammo box", "detail": "The box overlaps, calls AddToSlot, and the slot adds reserve. The use key is not required." },
-        { "title": "Key", "detail": "A key is another slot id. The door's Interact later checks that slot. The overlap still only asks." },
-        { "title": "Full stack", "detail": "If the slot refuses a full stack, the pickup stays in the world. The count is not cleared." }
+        {
+          "title": "Ammo box",
+          "detail": "The box overlaps, calls AddToSlot, and the slot adds reserve. The use key is not required."
+        },
+        {
+          "title": "Key",
+          "detail": "A key is another slot id. The door's Interact later checks that slot. The overlap still only asks."
+        },
+        {
+          "title": "Full stack",
+          "detail": "If the slot refuses a full stack, the pickup stays in the world. The count is not cleared."
+        }
       ],
       "quiz": [
         {
@@ -722,7 +821,10 @@
           "id": "fpsb-inv-7",
           "kind": "tf",
           "prompt": "True or false: overlap should call AddToSlot only when the stack count is positive.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 0,
           "why": "Zero means there is nothing to give."
         },
@@ -730,7 +832,10 @@
           "id": "fpsb-inv-8",
           "kind": "tf",
           "prompt": "True or false: the use-key trace is what increments the inventory stack.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "Use calls Interact. Overlap asks the slot."
         },
@@ -751,7 +856,10 @@
           "id": "fpsb-inv-10",
           "kind": "tf",
           "prompt": "True or false: clearing StackCount before AddToSlot succeeds is the safe order.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "Clear after the slot accepts, or a refused pickup vanishes."
         }
@@ -761,9 +869,18 @@
       "plainEnglish": "Equip writes one id, on the authority. Other machines build the visible gun from that id. The meshes themselves are not the replicated payload.",
       "whyGame": "Replicating every mesh and attachment is heavy, and a client that writes EquippedId outside HasAuthority makes proxies pop the wrong weapon.",
       "expansions": [
-        { "title": "Ten slots", "detail": "The ten weapons can live in a data asset. Only the equipped id has to replicate." },
-        { "title": "Skin", "detail": "A skin id can be a second replicated integer. It is still not the mesh pointer." },
-        { "title": "Drop", "detail": "Drop can clear the id on the authority. The pickup that appears is a different actor." }
+        {
+          "title": "Ten slots",
+          "detail": "The ten weapons can live in a data asset. Only the equipped id has to replicate."
+        },
+        {
+          "title": "Skin",
+          "detail": "A skin id can be a second replicated integer. It is still not the mesh pointer."
+        },
+        {
+          "title": "Drop",
+          "detail": "Drop can clear the id on the authority. The pickup that appears is a different actor."
+        }
       ],
       "quiz": [
         {
@@ -812,7 +929,7 @@
           "choices": [
             "The equipped id, which each client turns into meshes locally",
             "The player's ping",
-            "The door's IsOpen bool",
+            "The door's IsOpen bool. A door flag does not say whether the magazine can take more rounds.",
             "The stick axis"
           ],
           "answer": 0,
@@ -848,7 +965,10 @@
           "id": "fpsb-gun-7",
           "kind": "tf",
           "prompt": "True or false: EquippedId is written on the authority from the equip action.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 0,
           "why": "That is the graph."
         },
@@ -856,7 +976,10 @@
           "id": "fpsb-gun-8",
           "kind": "tf",
           "prompt": "True or false: each equipped attachment mesh should be its own replicated object.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "The id selects local assets."
         },
@@ -877,7 +1000,10 @@
           "id": "fpsb-gun-10",
           "kind": "tf",
           "prompt": "True or false: Graph_IA_Equip runs when the player picks a weapon slot.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 0,
           "why": "The function is the equip action."
         }
@@ -887,9 +1013,18 @@
       "plainEnglish": "Something that finished — a checkpoint, a menu save — packs one struct. Begin Play reads that struct back. Tick never writes the slot, because a value mid-change is not a save.",
       "whyGame": "Writing SlotValue from Health every frame stores a half-updated pawn and fights the next real event. Loading in the constructor is too early: the pawn and its components are not ready.",
       "expansions": [
-        { "title": "Checkpoint volume", "detail": "The volume calls the same save the menu uses. It does not invent a second struct." },
-        { "title": "Continue", "detail": "Continue is Begin Play reading the slot and applying health, ammo, and the equipped id." },
-        { "title": "Second slot", "detail": "Another slot is another save object, not a Tick that alternates two floats." }
+        {
+          "title": "Checkpoint volume",
+          "detail": "The volume calls the same save the menu uses. It does not invent a second struct."
+        },
+        {
+          "title": "Continue",
+          "detail": "Continue is Begin Play reading the slot and applying health, ammo, and the equipped id."
+        },
+        {
+          "title": "Second slot",
+          "detail": "Another slot is another save object, not a Tick that alternates two floats."
+        }
       ],
       "quiz": [
         {
@@ -937,7 +1072,7 @@
           "prompt": "Tick assigns SlotValue from Health every frame. What bad save does that produce?",
           "choices": [
             "A snapshot taken in the middle of a change, including while the pawn is still falling",
-            "A perfect checkpoint only when the player asks",
+            "A perfect checkpoint only when the player asks. Tick would store the half-finished moment instead.",
             "No file, because Tick cannot assign floats",
             "A reload of the magazine"
           ],
@@ -965,7 +1100,7 @@
             "The pawn and its components exist by Begin Play. They do not, reliably, in the constructor",
             "Constructors cannot call functions",
             "Begin Play runs only on clients",
-            "The constructor already traced the world"
+            "The constructor already traced the world. Actors and their components are not ready that early."
           ],
           "answer": 0,
           "why": "You apply the slot onto objects that are already there."
@@ -974,7 +1109,10 @@
           "id": "fpsb-save-7",
           "kind": "tf",
           "prompt": "True or false: the save struct should be written when a save event finishes, not from Tick.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 0,
           "why": "Tick catches values mid-change."
         },
@@ -982,7 +1120,10 @@
           "id": "fpsb-save-8",
           "kind": "tf",
           "prompt": "True or false: Begin Play should replay every shot that led to the saved magazine count.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "Load applies the result. It does not resimulate the match."
         },
@@ -1003,7 +1144,10 @@
           "id": "fpsb-save-10",
           "kind": "tf",
           "prompt": "True or false: SlotValue = Health inside Tick is a valid checkpoint.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "That line never waits for a finished event."
         }
@@ -1073,7 +1217,10 @@
       "id": "fpsb-exam-3",
       "kind": "tf",
       "prompt": "True or false: a client may write Health if it also plays the hit flash.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 1,
       "why": "The flash is local. The float is the authority's."
     },
@@ -1082,7 +1229,7 @@
       "kind": "mc",
       "prompt": "EquippedId replicates, then the remote pawn builds a gun. Where did the meshes come from?",
       "choices": [
-        "A local lookup from that id, not from a replicated mesh pointer",
+        "A local lookup from that id",
         "The server streamed the skeletal mesh in the same property",
         "The interact trace",
         "The walk speed literal"
@@ -1107,7 +1254,10 @@
       "id": "fpsb-exam-6",
       "kind": "tf",
       "prompt": "True or false: IA_Interact's Triggered pin is what should reach the use trace.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 0,
       "why": "Triggered is the press."
     },
@@ -1141,7 +1291,10 @@
       "id": "fpsb-exam-9",
       "kind": "tf",
       "prompt": "True or false: letting go of the move stick should keep the sprint speed until you shoot.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 1,
       "why": "The false path writes the walk literal."
     },
@@ -1175,7 +1328,10 @@
       "id": "fpsb-exam-12",
       "kind": "tf",
       "prompt": "True or false: mapping contexts let one use action serve a keyboard and a gamepad.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 0,
       "why": "The graph never sees the device."
     },
@@ -1209,7 +1365,10 @@
       "id": "fpsb-exam-15",
       "kind": "tf",
       "prompt": "True or false: the save struct should be filled from Tick so it is never out of date.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 1,
       "why": "Tick stores mid-change values."
     },
@@ -1243,7 +1402,10 @@
       "id": "fpsb-exam-18",
       "kind": "tf",
       "prompt": "True or false: a miss on the use trace should call Interact on the pawn itself.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 1,
       "why": "A miss stops."
     },
@@ -1277,7 +1439,10 @@
       "id": "fpsb-exam-21",
       "kind": "tf",
       "prompt": "True or false: Begin Play is when this kit applies a save, not when it traces for use.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 0,
       "why": "Use waits for the press. Load waits for Begin Play."
     },
@@ -1311,7 +1476,10 @@
       "id": "fpsb-exam-24",
       "kind": "tf",
       "prompt": "True or false: casting to every usable Blueprint is cheaper than one interface call.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 1,
       "why": "The cast list grows. The call does not."
     },
@@ -1345,7 +1513,10 @@
       "id": "fpsb-exam-27",
       "kind": "tf",
       "prompt": "True or false: the move graph should line-trace to decide sprint versus walk.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 1,
       "why": "The axis comparison decides."
     },
@@ -1367,7 +1538,7 @@
       "kind": "mc",
       "prompt": "The false pin of the use branch logs a miss. A designer wires Interact there too. What opens?",
       "choices": [
-        "Nothing that was hit, and possibly the wrong actor if a stale pointer remains",
+        "Nothing that was hit",
         "Only the actor under the crosshair",
         "Every door in the level, correctly",
         "The magazine"
@@ -1379,7 +1550,10 @@
       "id": "fpsb-exam-30",
       "kind": "tf",
       "prompt": "True or false: Graph_IA_Move writes Speed.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 0,
       "why": "That function is the move action."
     },
@@ -1390,7 +1564,7 @@
       "choices": [
         "To stop the transfer when the mag is full or the reserve is empty",
         "To open doors",
-        "To replicate EquippedId",
+        "To replicate EquippedId. The id is the fact, but this question is about when the struct is written.",
         "To load the save"
       ],
       "answer": 0,
@@ -1413,7 +1587,10 @@
       "id": "fpsb-exam-33",
       "kind": "tf",
       "prompt": "True or false: overlap with a positive stack count is the pickup ask in this kit.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 0,
       "why": "The slot waits for that ask."
     },

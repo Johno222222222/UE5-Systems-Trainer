@@ -87,12 +87,12 @@
         {
           "id": "stgc-orders-6",
           "kind": "tf",
-          "prompt": "An order click should move every unit on the map.",
+          "prompt": "An order click should move only the units that are already selected.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "Unselected units do not hear it."
         },
         {
@@ -235,12 +235,12 @@
         {
           "id": "stgc-stock-6",
           "kind": "tf",
-          "prompt": "A barracks and a turret should share one typed cost.",
+          "prompt": "A barracks and a turret should read different costs from their own rows.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "Each row names its own cost."
         },
         {

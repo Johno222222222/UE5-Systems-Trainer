@@ -87,12 +87,12 @@
         {
           "id": "fpsc-press-6",
           "kind": "tf",
-          "prompt": "The interact graph should read the raw key code.",
+          "prompt": "The mapping context owns the key or pad binding, so the interact graph never reads a raw key code.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "The mapping context owns the device."
         },
         {
@@ -235,12 +235,12 @@
         {
           "id": "fpsc-magazine-6",
           "kind": "tf",
-          "prompt": "Fire should also reload the magazine when it is empty.",
+          "prompt": "Fire starts the shot, and a separate reload action is what moves rounds into the magazine.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "Fire traces. Reload transfers."
         },
         {

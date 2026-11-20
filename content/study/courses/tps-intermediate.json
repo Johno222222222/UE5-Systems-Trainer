@@ -87,12 +87,12 @@
         {
           "id": "tpci-layer-6",
           "kind": "tf",
-          "prompt": "The reload graph should read the face-button's key code.",
+          "prompt": "The reload graph receives the resolved action and does not compare a face-button key code.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "The action arrives already resolved."
         },
         {
@@ -235,12 +235,12 @@
         {
           "id": "tpci-limb-6",
           "kind": "tf",
-          "prompt": "A bruise may drop a limb of max 80 to zero.",
+          "prompt": "A bruise on a limb whose max is 80 stops at 8 rather than emptying it.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "The floor is 8."
         },
         {

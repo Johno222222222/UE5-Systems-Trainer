@@ -87,12 +87,12 @@
         {
           "id": "hoci-sense-6",
           "kind": "tf",
-          "prompt": "Every co-op client should run its own hunter trace.",
+          "prompt": "In co-op, the hunter's owner is the machine that should run the look.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "The authority traces."
         },
         {
@@ -235,12 +235,12 @@
         {
           "id": "hoci-hide-6",
           "kind": "tf",
-          "prompt": "A hide lever needs its own event graph.",
+          "prompt": "A hide lever is a prop that answers Interact, the same way a fuse does.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "It implements Interact."
         },
         {

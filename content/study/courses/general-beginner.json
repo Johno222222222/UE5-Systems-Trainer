@@ -5,9 +5,18 @@
       "plainEnglish": "A look is a question you ask on purpose. A rifle asks when you fire or aim. Third-person use asks from the interact button. A hunter asks on a short timer, and a loud sound calls that same look. A strategy team asks a few times a second. None of those ask from the frame loop.",
       "whyGame": "A query every frame, for every pawn, is how a listen server falls over, and it keeps asking through a pause.",
       "expansions": [
-        { "title": "A rifle", "detail": "The shot or the aim starts the trace at the camera." },
-        { "title": "A hunter", "detail": "The timer is the glimpse. A bottle calls the same event." },
-        { "title": "A team", "detail": "Reveal writes what the team can see. A walking camp does not." }
+        {
+          "title": "A rifle",
+          "detail": "The shot or the aim starts the trace at the camera."
+        },
+        {
+          "title": "A hunter",
+          "detail": "The timer is the glimpse. A bottle calls the same event."
+        },
+        {
+          "title": "A team",
+          "detail": "Reveal writes what the team can see. A walking camp does not."
+        }
       ],
       "quiz": [
         {
@@ -78,9 +87,12 @@
         {
           "id": "genb-look-6",
           "kind": "tf",
-          "prompt": "A strategy camp should mark its cell visible just by walking.",
-          "choices": ["True", "False"],
-          "answer": 1,
+          "prompt": "A strategy camp stays unseen until the vision pass marks that cell.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
           "why": "Reveal writes vision. Walking does not."
         },
         {
@@ -114,7 +126,7 @@
           "kind": "mc",
           "prompt": "A horror hunter and a strategy team both 'look'. What is different?",
           "choices": [
-            "The hunter writes an alert flag, and the team writes a vision bit",
+            "The hunter writes an alert flag",
             "No difference, if both wrote the same float",
             "The team looks from the player's fire button",
             "The hunter looks only when the player presses use"
@@ -141,9 +153,18 @@
       "plainEnglish": "One function name beats a cast list. Doors and switches answer Interact. A tank and a squad answer ReceiveOrder. A key and a fuel can answer AddToSlot. The graph looks the function up once.",
       "whyGame": "A new prop from art does nothing until someone edits the cast list, which is how content waits on a programmer.",
       "expansions": [
-        { "title": "A door", "detail": "It implements Interact. The trace does not name the door class." },
-        { "title": "A squad", "detail": "It implements ReceiveOrder. The click does not name the squad class." },
-        { "title": "A key", "detail": "It implements the slot add. The overlap does not cast to the key." }
+        {
+          "title": "A door",
+          "detail": "It implements Interact. The trace does not name the door class."
+        },
+        {
+          "title": "A squad",
+          "detail": "It implements ReceiveOrder. The click does not name the squad class."
+        },
+        {
+          "title": "A key",
+          "detail": "It implements the slot add. The overlap does not cast to the key."
+        }
       ],
       "quiz": [
         {
@@ -214,9 +235,12 @@
         {
           "id": "genb-interface-6",
           "kind": "tf",
-          "prompt": "A key and a fuel can should each cast to their own class inside the overlap.",
-          "choices": ["True", "False"],
-          "answer": 1,
+          "prompt": "A key and a fuel can can enter inventory through the same slot call.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
           "why": "Both answer the slot add."
         },
         {
@@ -277,9 +301,18 @@
       "plainEnglish": "A shared number has one writer. Health, a limb, supplies, score, shells, the equipped id, and relevance are all that kind of number. The write sits inside the authority check. A client that writes early will snap when the server answers.",
       "whyGame": "Two writers make two machines disagree about a body, a stock, or which weapon is in the hands.",
       "expansions": [
-        { "title": "Health", "detail": "The sample 90 is a stand-in inside the check, not a client write." },
-        { "title": "The equipped id", "detail": "Proxies build the mesh from the server id." },
-        { "title": "A limb", "detail": "A bruise stops at 10 percent. The server applies it." }
+        {
+          "title": "Health",
+          "detail": "The sample 90 is a stand-in inside the check, not a client write."
+        },
+        {
+          "title": "The equipped id",
+          "detail": "Proxies build the mesh from the server id."
+        },
+        {
+          "title": "A limb",
+          "detail": "A bruise stops at 10 percent. The server applies it."
+        }
       ],
       "quiz": [
         {
@@ -351,7 +384,10 @@
           "id": "genb-authority-6",
           "kind": "tf",
           "prompt": "A client may write Relevant so its own pawn stays smooth.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "The authority traces."
         },
@@ -413,9 +449,18 @@
       "plainEnglish": "A literal in a graph is a designer number pretending to be code. A building's cost and a medal's points belong on rows. A key stacks to one and a fuel can stacks higher, and that cap lives on the item.",
       "whyGame": "Sharing the literal 25 makes a barracks and a turret cost the same, and sharing 10 makes every medal worth the same.",
       "expansions": [
-        { "title": "A barracks", "detail": "Its row names the cost. The spend reads the row." },
-        { "title": "A medal", "detail": "A kill and a capture do not have to be worth 10." },
-        { "title": "A fuel can", "detail": "The stack cap sits on the item, beside the name." }
+        {
+          "title": "A barracks",
+          "detail": "Its row names the cost. The spend reads the row."
+        },
+        {
+          "title": "A medal",
+          "detail": "A kill and a capture do not have to be worth 10."
+        },
+        {
+          "title": "A fuel can",
+          "detail": "The stack cap sits on the item, beside the name."
+        }
       ],
       "quiz": [
         {
@@ -487,7 +532,10 @@
           "id": "genb-data-6",
           "kind": "tf",
           "prompt": "MagSize in the reload clamp is the same kind of mistake as a typed building cost.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "The clamp's cap is the right shape. 25 and 10 are the literals to move."
         },

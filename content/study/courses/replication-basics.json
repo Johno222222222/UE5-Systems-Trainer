@@ -24,7 +24,7 @@
           "kind": "mc",
           "prompt": "Who writes replicated health?",
           "choices": [
-            "The machine with authority. A client can ask, and must not apply the number itself.",
+            "The machine with authority. A client can ask",
             "Each machine, so the hit marker appears before the server is asked.",
             "The bar text, edited in place.",
             "The notify, which would subtract again when the value arrives."
@@ -39,7 +39,7 @@
           "prompt": "A client subtracts health locally and also sends the new value to the server. What can the server do?",
           "choices": [
             "Reject it. The server decides the damage. The client's number is a request at most.",
-            "Accept it, because the client saw the hit first.",
+            "Accept it, because the client saw the hit first. Seeing a hit is not the same as owning the health value.",
             "Average it with the other clients' guesses.",
             "Ignore combat until the next map load."
           ],
@@ -62,12 +62,12 @@
         {
           "id": "rep-auth-4",
           "kind": "tf",
-          "prompt": "True or false: A client may write replicated health so the shooter sees the result a frame sooner, and the server will adopt that write.",
+          "prompt": "Replicated health is written by the authority, and a client prediction does not become the official value.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "The server does not adopt the client's write.",
           "review_prompt": "True or false: A client may write replicated health so the shooter sees the result a frame sooner, and the server will adopt that write."
         },
@@ -203,7 +203,7 @@
           "kind": "mc",
           "prompt": "What should replicate for a health bar?",
           "choices": [
-            "The health property. Not the mesh, and not the widget.",
+            "The health property. Not the mesh",
             "The skeletal mesh, so every bone pose is the health.",
             "The widget object itself.",
             "The player's mouse position."
@@ -347,7 +347,7 @@
           "kind": "mc",
           "prompt": "What breaks if the widget is the replicated object and the health float is not?",
           "choices": [
-            "Clients share a UI object they cannot sensibly share, and they still do not know the health.",
+            "Clients share a UI object they cannot sensibly share",
             "No float, if bars replicated more cheaply than numbers.",
             "Movement stops.",
             "Input tags all activate."
@@ -474,7 +474,7 @@
           "kind": "mc",
           "prompt": "The server is the machine that wrote health. Does its OnRep need to subtract?",
           "choices": [
-            "No. The server already wrote the value. OnRep is for the others, and it still must not subtract.",
+            "No. The server already wrote the value. OnRep is for the others",
             "A second subtract, or the server number would be only half applied.",
             "Only if Tick did not run that frame.",
             "Only for the host's HUD font."
@@ -528,7 +528,7 @@
           "choices": [
             "A correction. The bar jumps because the local subtract and the server value disagreed.",
             "A perfectly smooth death.",
-            "No second subtract, if notify math were discarded.",
+            "No second subtract, if notify math were discarded. The notify is exactly where a second subtract would double the hit.",
             "The server adopts the remote subtract."
           ],
           "answer": 0,
@@ -627,7 +627,7 @@
           "kind": "mc",
           "prompt": "A client RPC is used to tell the shooter to play a hit confirm. Who runs that function?",
           "choices": [
-            "That one client. Not the server's rules, and not the other players.",
+            "That one client. Not the server's rules",
             "The server, despite the name.",
             "Every machine, because RPC means replicated.",
             "The projectile actor on the server only."
@@ -705,7 +705,7 @@
           "kind": "mc",
           "prompt": "What does the victim see if every client applied the shooter's RPC argument instead of the server's result?",
           "choices": [
-            "Different health on different machines, and a kill that only some of them agree happened.",
+            "Different health on different machines",
             "One shared health, because clients average their RPCs.",
             "No shots, because multicast blocks weapons.",
             "The server pauses."

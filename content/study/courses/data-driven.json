@@ -62,12 +62,12 @@
         {
           "id": "data-table-4",
           "kind": "tf",
-          "prompt": "True or false: Adding a weapon should require a programmer to edit the reload function's literals.",
+          "prompt": "A weapon's magazine size can change in the data row without a programmer editing the reload function.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "The literals are what the table replaces.",
           "review_prompt": "True or false: Adding a weapon should require a programmer to edit the reload function's literals."
         },
@@ -93,7 +93,7 @@
             "The rule: clamp Needed to the empty space and to the reserve. The numbers come from the row.",
             "A copy of the function per row.",
             "The mesh, compiled into the function.",
-            "A frame loop that scans the table for a row."
+            "A frame loop that scans the table for a row. The reload should read the row when the player asks."
           ],
           "answer": 0,
           "why": "One function, many rows.",
@@ -169,7 +169,7 @@
           "prompt": "What does the player notice if two weapons share a row by mistake?",
           "choices": [
             "They share magazine size, damage, or whatever else that row held, even though the meshes differ.",
-            "No row, if rows were only comments.",
+            "No row, if rows were only comments. Designers would be stuck editing C++ for every new gun.",
             "The game will not cook.",
             "Input unbinds the fire button."
           ],
@@ -347,7 +347,7 @@
           "kind": "mc",
           "prompt": "What does a designer break by renaming a field without updating the code that reads it?",
           "choices": [
-            "The lookup still returns a row, and the code reads a field that is no longer the magazine.",
+            "The lookup still returns a row",
             "No names, if field names were comments.",
             "The input action rebinds.",
             "Authority flips to the client."
@@ -384,7 +384,7 @@
           "choices": [
             "One item definition: an id, a mesh reference, and the rules. The pickup actor points at it.",
             "A ticking actor that is the item.",
-            "A replicated widget for that item.",
+            "A replicated widget for that item. The bar would then own the mesh and the rules.",
             "The player's entire save game."
           ],
           "answer": 0,
@@ -449,7 +449,7 @@
           "prompt": "What replicates when another player sees you holding the item?",
           "choices": [
             "An id they can use to find the same asset. Not the asset object over the network as the inventory.",
-            "The data asset pointer, replicated as a live editor object.",
+            "The data asset pointer, replicated as a live editor object. Clients need the values, not the editor asset.",
             "The designer's uncommitted file.",
             "The widget that edited the asset."
           ],
@@ -527,7 +527,7 @@
           "prompt": "What does the player see if a pickup's asset pointer is empty?",
           "choices": [
             "No mesh and no heal amount, unless the actor invented defaults the designer did not choose.",
-            "A random other item, because empty means the first asset.",
+            "A random other item, because empty means the first asset. An empty reference is a miss, not a wildcard.",
             "The whole inventory UI, replicated.",
             "Authority moves to that client."
           ],
@@ -578,7 +578,7 @@
             "The HUD, if it kept its own number instead of reading the component that read the row.",
             "The row, because UI is the source of truth.",
             "The input action.",
-            "The notify, which would copy the bar into the row."
+            "The notify, which would copy the bar into the row. The bar is a view of the row, not the row's source."
           ],
           "answer": 0,
           "why": "The component that read the row owns the number.",
@@ -629,7 +629,7 @@
           "choices": [
             "Ask the component that already read it, or read the same row and not keep a secret cache as authority.",
             "Tick until the two caches match.",
-            "Replicate both caches and let clients vote.",
+            "Replicate both caches and let clients vote. Two memories of one row will disagree the moment either side reloads.",
             "Store the cache on the widget."
           ],
           "answer": 0,
@@ -656,7 +656,7 @@
             "The component, with the numbers it read. Not the widget, and not the data asset's imaginary Tick.",
             "The bar, inside its paint.",
             "The row struct, which is an actor.",
-            "The local machine, before the server has the row."
+            "The local machine, before the server has the row. That copy becomes a second authority."
           ],
           "answer": 0,
           "why": "The component owns the rule.",

@@ -50,7 +50,7 @@
           "kind": "mc",
           "prompt": "A closed door stands between the hunter and the player. What does the visibility trace do?",
           "choices": [
-            "It stops on the door, so the hit write does not run",
+            "It stops on the door",
             "It continues through the door",
             "It sets the alert flag anyway",
             "It swings the door"
@@ -87,12 +87,12 @@
         {
           "id": "horc-sense-6",
           "kind": "tf",
-          "prompt": "A missed horror trace should leave the alert flag unchanged forever.",
+          "prompt": "A missed horror trace should let the alert flag decay.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "A miss should decay, or the hunter never forgives."
         },
         {
@@ -235,12 +235,12 @@
         {
           "id": "horc-use-6",
           "kind": "tf",
-          "prompt": "A missed use trace should raise the hunter's alert flag.",
+          "prompt": "A missed use trace should log and leave the hunter's alert flag alone.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "The miss logs and stops."
         },
         {

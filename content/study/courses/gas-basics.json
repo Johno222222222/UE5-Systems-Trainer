@@ -38,7 +38,7 @@
           "kind": "mc",
           "prompt": "A designer puts the cooldown test on the character Tick so it never misses a frame. What breaks?",
           "choices": [
-            "The character is doing the ability system's job, and the check runs while no ability was asked for.",
+            "The character is doing the ability system's job",
             "No separate clock, if a cooldown could only live on the frame loop.",
             "The ability system refuses to start if Tick is also checking.",
             "OnRep of health starts the ability instead."
@@ -62,12 +62,12 @@
         {
           "id": "gas-asc-4",
           "kind": "tf",
-          "prompt": "True or false: Each new character class should copy the cost check into its own Tick.",
+          "prompt": "Cost and cooldown stay on the ability system, not copied into each character's Tick.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "The component already owns that check.",
           "review_prompt": "True or false: Each new character class should copy the cost check into its own Tick."
         },
@@ -654,7 +654,7 @@
           "prompt": "The HUD wants the remaining cooldown. What should it read?",
           "choices": [
             "The effect or the attribute the system already exposes. It should not keep its own timer as the source of truth.",
-            "A timer it starts itself when it sees the button, ignoring the server.",
+            "A timer it starts itself when it sees the button, ignoring the server. The widget would then own cooldown.",
             "Tick's frame count.",
             "The mesh material parameter, as the only stored duration."
           ],
@@ -705,7 +705,7 @@
           "kind": "mc",
           "prompt": "What does the player notice if the cost effect is missing and only the montage plays?",
           "choices": [
-            "The ability looks like it ran, and the resource did not move.",
+            "The ability looks like it ran",
             "The montage refuses to play.",
             "Health replicates as the montage length.",
             "Input unbinds."

@@ -87,12 +87,12 @@
         {
           "id": "tpsc-aim-6",
           "kind": "tf",
-          "prompt": "The shoulder button should call Interact.",
+          "prompt": "The shoulder button records aiming and does not call Interact.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "Use is a different action."
         },
         {
@@ -235,12 +235,12 @@
         {
           "id": "tpsc-gait-6",
           "kind": "tf",
-          "prompt": "The spring arm should choose walk versus sprint.",
+          "prompt": "Walk versus sprint comes from the stick, and the spring arm only reads the result.",
           "choices": [
             "True",
             "False"
           ],
-          "answer": 1,
+          "answer": 0,
           "why": "It reads the pawn the stick already moved."
         },
         {
@@ -468,7 +468,7 @@
           "kind": "mc",
           "prompt": "Which set belongs in the third-person slot?",
           "choices": [
-            "Health, magazine, reserve, stack count, and aiming if the stance matters",
+            "Health, magazine, reserve, stack count",
             "The boom transform and the companion mesh",
             "The bound device map",
             "The raw stick sample from the last frame"
@@ -583,7 +583,7 @@
           "kind": "mc",
           "prompt": "Why is Begin Play the load, rather than the middle of a reload?",
           "choices": [
-            "The components exist, and a reload in progress is not finished",
+            "The components exist",
             "Begin Play cannot read a struct",
             "Reloads are the only legal save point",
             "The boom must be stored first"

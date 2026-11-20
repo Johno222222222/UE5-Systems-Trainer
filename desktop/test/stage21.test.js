@@ -71,6 +71,93 @@ test("opened quizzes do not leave the correct answer on one position", () => {
   assert.ok(spread.share < 0.4, `correct answers clustered at ${spread.share}`);
 });
 
+function trueCount(questions) {
+  let trues = 0;
+  let total = 0;
+  for (const question of questions) {
+    if (!isTf(question)) continue;
+    total += 1;
+    if (String(question.choices[question.answer]).trim().toLowerCase() === "true") trues += 1;
+  }
+  return { trues, total, share: total ? trues / total : 0 };
+}
+
+test("true and false stay between 40 and 60 percent", () => {
+  const { questions } = collect();
+  const overall = trueCount(questions);
+  assert.ok(overall.share >= 0.4 && overall.share <= 0.6, `overall true share ${overall.share}`);
+  const root = path.join(__dirname, "..", "..", "content", "study");
+  function walk(dir) {
+    for (const name of fs.readdirSync(dir)) {
+      const full = path.join(dir, name);
+      if (fs.statSync(full).isDirectory()) {
+        walk(full);
+        continue;
+      }
+      if (!name.endsWith(".json")) continue;
+      const bank = JSON.parse(fs.readFileSync(full, "utf8"));
+      const stored = [];
+      for (const section of Object.values(bank.sections || {})) stored.push(...(section.quiz || []));
+      stored.push(...(bank.exam || []));
+      for (const mod of Object.values(bank.modules || {})) stored.push(...(mod.quiz || []));
+      const fileShare = trueCount(stored);
+      if (fileShare.total < 8) continue;
+      assert.ok(fileShare.share >= 0.4 && fileShare.share <= 0.6, `${path.relative(root, full)} true share ${fileShare.share}`);
+    }
+  }
+  walk(root);
+});
+
+test("each study bank is shuffled through the quiz path", () => {
+  const studio = fs.readFileSync(path.join(__dirname, "..", "..", "frontend", "src", "shell", "LessonStudio.jsx"), "utf8");
+  const programs = fs.readFileSync(path.join(__dirname, "..", "..", "frontend", "src", "shell", "Programs.jsx"), "utf8");
+  const courses = fs.readFileSync(path.join(__dirname, "..", "..", "frontend", "src", "shell", "Courses.jsx"), "utf8");
+  const learn = fs.readFileSync(path.join(__dirname, "..", "..", "frontend", "src", "shell", "Learn.jsx"), "utf8");
+  assert.match(studio, /presentQuiz\(source, seed\)/);
+  assert.match(studio, /examMode \? \(examQuestions/);
+  assert.match(programs, /LessonStudio/);
+  assert.match(programs, /examQuestions=\{track\.exam\?\.questions/);
+  assert.match(courses, /LessonStudio/);
+  assert.match(learn, /presentQuiz\(learnQuestions/);
+  const banks = [];
+  const { tracks } = collect();
+  for (const track of tracks) {
+    for (const section of track.sections) banks.push([`${track.id} ${section.id}`, section.quiz]);
+    banks.push([`${track.id} exam`, track.exam.questions]);
+  }
+  for (const course of loadPacks().courses) {
+    const enriched = enrichCourse(course);
+    for (const section of enriched.sections) banks.push([`${course.id} ${section.id}`, section.quiz]);
+  }
+  assert.ok(banks.length >= 60);
+  for (const [name, questions] of banks) {
+    const indexes = [];
+    for (const seed of [1, 2, 3, 8, 21, 99]) {
+      for (const shown of presentQuiz(questions, seed)) {
+        if ((shown.choices || []).length < 2) continue;
+        indexes.push(Number(shown.answer));
+      }
+    }
+    assert.ok(new Set(indexes).size >= 2, `${name} correct answer did not move`);
+    assert.ok(indexes.some((index) => index !== 0), `${name} stayed on the first choice`);
+  }
+});
+
+test("the keyed choice is the longest in at most 45 percent of questions", () => {
+  const { questions } = collect();
+  let multiple = 0;
+  let longest = 0;
+  for (const question of questions) {
+    if (isTf(question) || (question.choices || []).length < 3) continue;
+    multiple += 1;
+    const lengths = question.choices.map((choice) => String(choice).trim().length);
+    const longestOther = Math.max(...lengths.filter((_, index) => index !== question.answer));
+    if (lengths[question.answer] > longestOther) longest += 1;
+  }
+  const share = longest / multiple;
+  assert.ok(share <= 0.45, `longest correct share ${share}`);
+});
+
 test("authored banks are specific and every lesson meets its count", () => {
   const { tracks, questions } = collect();
   assert.deepEqual(problemsForTracks(tracks), []);

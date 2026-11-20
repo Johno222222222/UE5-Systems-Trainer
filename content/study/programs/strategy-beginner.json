@@ -5,9 +5,18 @@
       "plainEnglish": "You select a unit, then you right-click an order. Only the selected unit hears it. A tank and a rifle squad implement the same receive function.",
       "whyGame": "Searching the whole map for the cursor every frame repeats a question the selection already answered, and it moves units you never clicked.",
       "expansions": [
-        { "title": "A tank", "detail": "The tank implements ReceiveOrder. The click does not name the tank class." },
-        { "title": "A squad", "detail": "The rifle squad uses that same function and decides what a move means for infantry." },
-        { "title": "The rest of the army", "detail": "Unselected units ignore the click." }
+        {
+          "title": "A tank",
+          "detail": "The tank implements ReceiveOrder. The click does not name the tank class."
+        },
+        {
+          "title": "A squad",
+          "detail": "The rifle squad uses that same function and decides what a move means for infantry."
+        },
+        {
+          "title": "The rest of the army",
+          "detail": "Unselected units ignore the click."
+        }
       ],
       "quiz": [
         {
@@ -54,7 +63,7 @@
           "kind": "mc",
           "prompt": "You move the cursor search onto Tick so orders feel instant. What starts walking that nobody selected?",
           "choices": [
-            "Every idle frame repeats a query, and units you never selected start walking",
+            "Every idle frame repeats a query",
             "The mapping context forgets the right-click binding",
             "Supplies stop replicating",
             "Medals can no longer be named in data"
@@ -78,9 +87,12 @@
         {
           "id": "stgb-orders-6",
           "kind": "tf",
-          "prompt": "An order click should move every unit on the map.",
-          "choices": ["True", "False"],
-          "answer": 1,
+          "prompt": "An order click moves only the selected units.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
           "why": "Unselected units do not hear the click."
         },
         {
@@ -141,9 +153,18 @@
       "plainEnglish": "Supplies are a stock you spend on purpose. A build order calls a spend event. The server subtracts the cost. The cost itself lives in a data row, not as a typed 25 in the graph.",
       "whyGame": "A client that subtracts on its own spends a private stock, and the other machines still show the old total.",
       "expansions": [
-        { "title": "A barracks", "detail": "The barracks row names its cost. The graph reads the row." },
-        { "title": "A turret", "detail": "The turret has a different cost in data. It does not need a second subtract literal." },
-        { "title": "A broke player", "detail": "If the stock cannot cover the row, the spend does not happen." }
+        {
+          "title": "A barracks",
+          "detail": "The barracks row names its cost. The graph reads the row."
+        },
+        {
+          "title": "A turret",
+          "detail": "The turret has a different cost in data. It does not need a second subtract literal."
+        },
+        {
+          "title": "A broke player",
+          "detail": "If the stock cannot cover the row, the spend does not happen."
+        }
       ],
       "quiz": [
         {
@@ -214,9 +235,12 @@
         {
           "id": "stgb-economy-6",
           "kind": "tf",
-          "prompt": "A client may subtract supplies locally so the stock feels instant.",
-          "choices": ["True", "False"],
-          "answer": 1,
+          "prompt": "Only the authority may subtract supplies.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
           "why": "The private subtract will not match the host."
         },
         {
@@ -277,9 +301,18 @@
       "plainEnglish": "Fog is what this team can see. A short timer calls Reveal. A hit marks that cell visible. A wall blocks the look. Orders do not paint the map.",
       "whyGame": "Letting a client set Visible cheats the map, and saving the bool shows camps that have already walked away.",
       "expansions": [
-        { "title": "A wall", "detail": "The trace stops. The cell beyond stays hidden." },
-        { "title": "A spectator", "detail": "Visibility is a team fact, not a widget each spectator owns." },
-        { "title": "After load", "detail": "The timer recomputes vision from positions. Do not restore the old bits." }
+        {
+          "title": "A wall",
+          "detail": "The trace stops. The cell beyond stays hidden."
+        },
+        {
+          "title": "A spectator",
+          "detail": "Visibility is a team fact, not a widget each spectator owns."
+        },
+        {
+          "title": "After load",
+          "detail": "The timer recomputes vision from positions. Do not restore the old bits."
+        }
       ],
       "quiz": [
         {
@@ -328,7 +361,7 @@
           "choices": [
             "Commanding a unit lights map the team has not actually seen",
             "Supplies double",
-            "The camp path reverses",
+            "The camp path reverses. A reveal does not turn the patrol around.",
             "Medals stop awarding"
           ],
           "answer": 0,
@@ -350,9 +383,12 @@
         {
           "id": "stgb-fog-6",
           "kind": "tf",
-          "prompt": "A client may set Visible true to update its own map.",
-          "choices": ["True", "False"],
-          "answer": 1,
+          "prompt": "Visible is a team fact, so a client may not paint its own map.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
           "why": "That is a cheat. Gate the write."
         },
         {
@@ -413,9 +449,18 @@
       "plainEnglish": "A neutral camp walks a route nobody ordered. Begin Play starts that walk on a one-second timer. Fog decides whether you draw the camp. The camp does not light the map by walking.",
       "whyGame": "Moving the camp from Tick keeps it walking through a pause and spends a path query you already scheduled.",
       "expansions": [
-        { "title": "The way back", "detail": "The return path is empty in the sample. The camp never walks home until you fill it." },
-        { "title": "Drawing", "detail": "The client's Visible bit decides if the camp is drawn." },
-        { "title": "Orders", "detail": "The player did not select this camp. It is not waiting for a click." }
+        {
+          "title": "The way back",
+          "detail": "The return path is empty in the sample. The camp never walks home until you fill it."
+        },
+        {
+          "title": "Drawing",
+          "detail": "The client's Visible bit decides if the camp is drawn."
+        },
+        {
+          "title": "Orders",
+          "detail": "The player did not select this camp. It is not waiting for a click."
+        }
       ],
       "quiz": [
         {
@@ -486,9 +531,12 @@
         {
           "id": "stgb-patrol-6",
           "kind": "tf",
-          "prompt": "A neutral camp should set Visible true on each step.",
-          "choices": ["True", "False"],
-          "answer": 1,
+          "prompt": "A neutral camp walks its route and leaves Visible to the vision pass.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
           "why": "Vision belongs to Reveal."
         },
         {
@@ -549,9 +597,18 @@
       "plainEnglish": "A medal is a result the server records. A kill or an objective calls AwardMedal. The point value lives on the medal's data, not as a typed 10.",
       "whyGame": "A client that awards its own medal inflates a board the host never granted.",
       "expansions": [
-        { "title": "A kill", "detail": "The kill calls AwardMedal on the server." },
-        { "title": "An objective", "detail": "The objective uses the same event with its own data value." },
-        { "title": "The board", "detail": "The board shows the host's score, not a local guess." }
+        {
+          "title": "A kill",
+          "detail": "The kill calls AwardMedal on the server."
+        },
+        {
+          "title": "An objective",
+          "detail": "The objective uses the same event with its own data value."
+        },
+        {
+          "title": "The board",
+          "detail": "The board shows the host's score, not a local guess."
+        }
       ],
       "quiz": [
         {
@@ -623,7 +680,10 @@
           "id": "stgb-scoring-6",
           "kind": "tf",
           "prompt": "Giving an order should award a medal.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "An order is not a result."
         },
@@ -685,9 +745,18 @@
       "plainEnglish": "The match save stores supplies, score, each camp's direction, and orders that are still running. It does not store fog. After load, the reveal timer looks again.",
       "whyGame": "A saved visibility bit draws a camp that has already walked somewhere else.",
       "expansions": [
-        { "title": "Orders in flight", "detail": "A move that had not finished is part of the match." },
-        { "title": "Camps", "detail": "Store GoingRight so the camp continues the leg it was on." },
-        { "title": "When", "detail": "Load a finished struct at Begin Play. Do not write the slot from Tick." }
+        {
+          "title": "Orders in flight",
+          "detail": "A move that had not finished is part of the match."
+        },
+        {
+          "title": "Camps",
+          "detail": "Store GoingRight so the camp continues the leg it was on."
+        },
+        {
+          "title": "When",
+          "detail": "Load a finished struct at Begin Play. Do not write the slot from Tick."
+        }
       ],
       "quiz": [
         {
@@ -759,7 +828,10 @@
           "id": "stgb-save-6",
           "kind": "tf",
           "prompt": "The match save should include the fog bits.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "Reveal rebuilds them."
         },
@@ -881,7 +953,10 @@
       "id": "stgb-exam-3",
       "kind": "tf",
       "prompt": "Unselected units should ignore a right-click.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 0,
       "why": "The branch is the gate."
     },
@@ -928,7 +1003,10 @@
       "id": "stgb-exam-7",
       "kind": "tf",
       "prompt": "A barracks and a turret should share one typed cost in the graph.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 1,
       "why": "Each row names its own cost."
     },
@@ -975,7 +1053,10 @@
       "id": "stgb-exam-11",
       "kind": "tf",
       "prompt": "Visible is one widget per spectator.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 1,
       "why": "It is a team fact."
     },
@@ -1022,7 +1103,10 @@
       "id": "stgb-exam-15",
       "kind": "tf",
       "prompt": "A camp step should mark its cell visible.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 1,
       "why": "Walking must not light the map."
     },
@@ -1069,7 +1153,10 @@
       "id": "stgb-exam-19",
       "kind": "tf",
       "prompt": "Loading a match should restore every Visible bit.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 1,
       "why": "The timer looks again."
     },
@@ -1129,7 +1216,10 @@
       "id": "stgb-exam-24",
       "kind": "tf",
       "prompt": "Tick is a valid place to write the match slot.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 1,
       "why": "Write a finished struct."
     },
@@ -1189,7 +1279,10 @@
       "id": "stgb-exam-29",
       "kind": "tf",
       "prompt": "In-flight orders belong in the match struct.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 0,
       "why": "The unit should keep executing them."
     },
@@ -1198,7 +1291,7 @@
       "kind": "mc",
       "prompt": "You need the line that gates a click, the line that spends, and the line that awards. Which trio is that?",
       "choices": [
-        "The Selected branch, the authority supply subtract, and the authority score add",
+        "The Selected branch, the authority supply subtract",
         "What the team can see, plus camp direction, plus the sample slot",
         "Three copies of the same tick search",
         "A client subtract, a client score add, and a saved fog bit"
@@ -1249,7 +1342,10 @@
       "id": "stgb-exam-34",
       "kind": "tf",
       "prompt": "The sample cost 25 and the sample medal 10 should both move into data.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 0,
       "why": "Rows and assets name those numbers."
     }

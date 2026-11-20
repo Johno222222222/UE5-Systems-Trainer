@@ -5,9 +5,18 @@
       "plainEnglish": "One look serves both the quiet glimpse and the sudden noise. Begin Play starts that look on a short loop. A creak or a bottle can start the same look immediately.",
       "whyGame": "A second brain for sound will set a flag the stalk never reads, so the hunter ignores the bottle you just threw.",
       "expansions": [
-        { "title": "A closed door", "detail": "The channel stops on the door. The hunter does not see through it." },
-        { "title": "A bottle", "detail": "The bottle calls the same look right away. It does not wait for the next loop." },
-        { "title": "A miss", "detail": "A miss leaves the alert flag alone. Darkness is not a special case." }
+        {
+          "title": "A closed door",
+          "detail": "The channel stops on the door. The hunter does not see through it."
+        },
+        {
+          "title": "A bottle",
+          "detail": "The bottle calls the same look right away. It does not wait for the next loop."
+        },
+        {
+          "title": "A miss",
+          "detail": "A miss leaves the alert flag alone. Darkness is not a special case."
+        }
       ],
       "quiz": [
         {
@@ -79,7 +88,10 @@
           "id": "hori-perception-6",
           "kind": "tf",
           "prompt": "A missed horror trace should leave the alert flag unchanged.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 0,
           "why": "The sample assigns only on a hit."
         },
@@ -88,7 +100,7 @@
           "kind": "mc",
           "prompt": "A closed door stands between the hunter and the player. What does the trace do?",
           "choices": [
-            "It stops on the door, so the hit branch does not run",
+            "It stops on the door",
             "It continues through the door mesh",
             "It sets the alert flag to 1 anyway",
             "It opens the door with PlayFromStart"
@@ -141,9 +153,18 @@
       "plainEnglish": "A fuse, a door, and a hide lever answer the same Interact call. The press traces a short way from the camera and calls that function on whatever it hits.",
       "whyGame": "A cast for every new prop means the next switch the art team adds never works until a programmer edits the trace.",
       "expansions": [
-        { "title": "A fuse", "detail": "The fuse implements Interact. The trace does not know the fuse class." },
-        { "title": "A hide lever", "detail": "The lever is the same function. It is not a second trace on Tick." },
-        { "title": "A miss", "detail": "Nothing in reach logs and returns. It does not alert the hunter." }
+        {
+          "title": "A fuse",
+          "detail": "The fuse implements Interact. The trace does not know the fuse class."
+        },
+        {
+          "title": "A hide lever",
+          "detail": "The lever is the same function. It is not a second trace on Tick."
+        },
+        {
+          "title": "A miss",
+          "detail": "Nothing in reach logs and returns. It does not alert the hunter."
+        }
       ],
       "quiz": [
         {
@@ -214,9 +235,12 @@
         {
           "id": "hori-interaction-6",
           "kind": "tf",
-          "prompt": "A missed use trace should set the hunter alert flag.",
-          "choices": ["True", "False"],
-          "answer": 1,
+          "prompt": "A missed use trace logs the miss and does not set the hunter alert flag.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
           "why": "The miss logs and returns."
         },
         {
@@ -250,7 +274,7 @@
           "kind": "mc",
           "prompt": "The generated line starts the trace at the owner's location plus a short forward vector. In this horror camera, what is wrong with that origin?",
           "choices": [
-            "The crosshair is on the camera, so a chest-height start misses what the player sees",
+            "The crosshair is on the camera",
             "Forward vectors are illegal in a trace",
             "The owner location is always the hunter",
             "A forward vector replicates the door bool"
@@ -277,9 +301,18 @@
       "plainEnglish": "The hunter walks a route on a one-second timer. When the alert flag is set, it leaves that route for a chase. When the flag fades, it goes back to the route.",
       "whyGame": "Chasing from Tick means the hunter keeps running through a pause and through a save load.",
       "expansions": [
-        { "title": "The way back", "detail": "The return path is still empty in the sample. Fill it or the hunter never walks home." },
-        { "title": "One look", "detail": "The stalk reads the flag. It does not trace again." },
-        { "title": "The timer", "detail": "Begin Play already started the route timer. AdvancePatrol must not start another." }
+        {
+          "title": "The way back",
+          "detail": "The return path is still empty in the sample. Fill it or the hunter never walks home."
+        },
+        {
+          "title": "One look",
+          "detail": "The stalk reads the flag. It does not trace again."
+        },
+        {
+          "title": "The timer",
+          "detail": "Begin Play already started the route timer. AdvancePatrol must not start another."
+        }
       ],
       "quiz": [
         {
@@ -350,9 +383,12 @@
         {
           "id": "hori-stalk-6",
           "kind": "tf",
-          "prompt": "The stalk should run its own line trace in addition to Sense.",
-          "choices": ["True", "False"],
-          "answer": 1,
+          "prompt": "The stalk reads the alert flag and should not run a second line trace.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
           "why": "Two traces pick different corners."
         },
         {
@@ -399,7 +435,7 @@
           "kind": "mc",
           "prompt": "You load a save and the hunter is already mid-chase from a Tick step. What was stored wrong?",
           "choices": [
-            "The chase was a frame step, so the loaded flag and the pose disagree",
+            "The chase was a frame step",
             "The use key was saved",
             "The camera shake binding was saved",
             "The door curve keys were saved"
@@ -413,9 +449,18 @@
       "plainEnglish": "The door swings on a timeline. Overlap starts the play. A flip-flop writes whether it is open. The creak plays with the swing and calls Sense.",
       "whyGame": "Yawing the hinge every frame never fires a finished event, so the creak either loops or never starts.",
       "expansions": [
-        { "title": "Co-op", "detail": "Replicate the open bool. Each machine plays the curve locally from that bool." },
-        { "title": "The creak", "detail": "The sound calls Sense. That is how a door alerts the hunter." },
-        { "title": "Load", "detail": "Set the curve to the end. Do not play it from the start or the creak fires again." }
+        {
+          "title": "Co-op",
+          "detail": "Replicate the open bool. Each machine plays the curve locally from that bool."
+        },
+        {
+          "title": "The creak",
+          "detail": "The sound calls Sense. That is how a door alerts the hunter."
+        },
+        {
+          "title": "Load",
+          "detail": "Set the curve to the end. Do not play it from the start or the creak fires again."
+        }
       ],
       "quiz": [
         {
@@ -486,9 +531,12 @@
         {
           "id": "hori-door-6",
           "kind": "tf",
-          "prompt": "Loading an open horror door should call PlayFromStart.",
-          "choices": ["True", "False"],
-          "answer": 1,
+          "prompt": "Loading an open horror door should set the curve to the open end.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
           "why": "PlayFromStart replays the creak into Sense."
         },
         {
@@ -510,7 +558,7 @@
           "prompt": "OnRep of IsOpen arrives on a client and the door is open. What should that client do?",
           "choices": [
             "Set the curve to the open end without replaying the creak if the swing already finished",
-            "Call PlayFromStart every time the bool replicates",
+            "Call PlayFromStart every time the bool replicates. That replays the creak on proxies.",
             "Trace from the door toward the hunter",
             "Subtract limb health"
           ],
@@ -523,7 +571,7 @@
           "prompt": "Two timelines are fighting on one door. Who built the extra one?",
           "choices": [
             "A second construction, often from load or from Tick, beside the excerpt's single component",
-            "The fear dispatcher",
+            "The fear dispatcher. A cupboard creak is not what built the second timeline.",
             "The fuel overlap",
             "The patrol timer"
           ],
@@ -535,7 +583,7 @@
           "kind": "mc",
           "prompt": "A loaded house plays the creak and the alert flag climbs. How was the open bool applied?",
           "choices": [
-            "Through PlayFromStart, which swings and calls Sense",
+            "Through PlayFromStart",
             "By setting the curve to the end in silence",
             "By writing only the hunter mesh",
             "By clearing the inventory"
@@ -549,9 +597,18 @@
       "plainEnglish": "A bite is applied on the server. The write sits inside the authority check, and the result is clamped. Other machines hear the change and play the limp. They do not subtract again.",
       "whyGame": "A client that punches the screen early will snap back when the server's number arrives, and a second subtract on the notify makes the bite land twice.",
       "expansions": [
-        { "title": "The floor", "detail": "A bruise stops at 10 percent of that limb's max. Crossing zero is the downed state." },
-        { "title": "The notify", "detail": "OnRep plays the limp. It does not apply the bite." },
-        { "title": "The attacker", "detail": "The hunter calls Any Damage on the server." }
+        {
+          "title": "The floor",
+          "detail": "A bruise stops at 10 percent of that limb's max. Crossing zero is the downed state."
+        },
+        {
+          "title": "The notify",
+          "detail": "OnRep plays the limp. It does not apply the bite."
+        },
+        {
+          "title": "The attacker",
+          "detail": "The hunter calls Any Damage on the server."
+        }
       ],
       "quiz": [
         {
@@ -622,9 +679,12 @@
         {
           "id": "hori-limbs-6",
           "kind": "tf",
-          "prompt": "The limp notify should subtract the bite again.",
-          "choices": ["True", "False"],
-          "answer": 1,
+          "prompt": "The limp notify plays the result and does not subtract the bite again.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
           "why": "OnRep only presents the value."
         },
         {
@@ -685,9 +745,18 @@
       "plainEnglish": "Keys and fuel cans use one slot path. Overlap adds the item when the stack count is positive. The most that stack can hold lives on the item, next to its name.",
       "whyGame": "A highlight on a key that fills the fuel can means the use trace is doing the pickup's job.",
       "expansions": [
-        { "title": "A key", "detail": "A key stack is usually one. The door asks the inventory if you have it." },
-        { "title": "Fuel", "detail": "Fuel may stack. The cap is on the asset." },
-        { "title": "The highlight", "detail": "The use trace can show a prompt. It does not increment the count." }
+        {
+          "title": "A key",
+          "detail": "A key stack is usually one. The door asks the inventory if you have it."
+        },
+        {
+          "title": "Fuel",
+          "detail": "Fuel may stack. The cap is on the asset."
+        },
+        {
+          "title": "The highlight",
+          "detail": "The use trace can show a prompt. It does not increment the count."
+        }
       ],
       "quiz": [
         {
@@ -759,7 +828,10 @@
           "id": "hori-inventory-6",
           "kind": "tf",
           "prompt": "The stack cap belongs as a magic number inside the overlap graph.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "The cap sits on the item asset."
         },
@@ -807,7 +879,7 @@
           "kind": "mc",
           "prompt": "Fuel and a key share a cast to the can class. What breaks when a third item arrives?",
           "choices": [
-            "The new item never adds, because the cast does not know its class",
+            "The new item never adds",
             "Sense stops looping",
             "The timeline curve loses its keys",
             "The authority check always fails"
@@ -821,9 +893,18 @@
       "plainEnglish": "Fear is an effect. Begin Play binds the listeners and starts a one-second timer. That timer calls ApplyEffect, which broadcasts. The camera and the UI listen. They do not poll the alert flag.",
       "whyGame": "Shaking the camera from Tick keeps shaking for a frame after the flag fades, and it shakes during a pause.",
       "expansions": [
-        { "title": "The cupboard", "detail": "A door creak should call Sense, not the fear broadcast." },
-        { "title": "The pulse", "detail": "ApplyEffect is the broadcast. It is not the glimpse timer." },
-        { "title": "The save", "detail": "Save the fear float if it should resume. Do not save the delegate bindings." }
+        {
+          "title": "The cupboard",
+          "detail": "A door creak should call Sense, not the fear broadcast."
+        },
+        {
+          "title": "The pulse",
+          "detail": "ApplyEffect is the broadcast. It is not the glimpse timer."
+        },
+        {
+          "title": "The save",
+          "detail": "Save the fear float if it should resume. Do not save the delegate bindings."
+        }
       ],
       "quiz": [
         {
@@ -870,7 +951,7 @@
           "kind": "mc",
           "prompt": "The camera shakes on Tick after the alert flag has already decayed. Why is there a leftover shake?",
           "choices": [
-            "Tick does not know the pulse ended, so one more frame still shakes",
+            "Tick does not know the pulse ended",
             "OnEffect fired twice on purpose",
             "The door finished delegate shook the camera",
             "The save slot replayed the creak"
@@ -895,7 +976,10 @@
           "id": "hori-fear-6",
           "kind": "tf",
           "prompt": "Fear delegate bindings belong in the save slot.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "Bindings are rebuilt. The float may be saved."
         },
@@ -930,7 +1014,7 @@
           "kind": "mc",
           "prompt": "The game pauses and the camera is still shaking from Tick. What should have been pulsing instead?",
           "choices": [
-            "ApplyEffect on its timer, which you can stop with the pause",
+            "ApplyEffect on its timer",
             "The hinge yaw",
             "The stack count",
             "The route direction bool"
@@ -957,9 +1041,18 @@
       "plainEnglish": "The night save stores the alert flag, the limb, whether the door is open, the patrol direction, the stack count, and the fear float if the pulse should resume. It does not store curves, bindings, or meshes.",
       "whyGame": "Playing the door from the start on load creaks, calls Sense, and wakes a house you just loaded as calm.",
       "expansions": [
-        { "title": "The curve", "detail": "Set the door curve to the end that matches the bool." },
-        { "title": "Order", "detail": "Apply doors before Sense starts, or the hunter glimpses a door that is not there yet." },
-        { "title": "When", "detail": "Write the struct on a finished event. Load it at Begin Play." }
+        {
+          "title": "The curve",
+          "detail": "Set the door curve to the end that matches the bool."
+        },
+        {
+          "title": "Order",
+          "detail": "Apply doors before Sense starts, or the hunter glimpses a door that is not there yet."
+        },
+        {
+          "title": "When",
+          "detail": "Write the struct on a finished event. Load it at Begin Play."
+        }
       ],
       "quiz": [
         {
@@ -1031,7 +1124,10 @@
           "id": "hori-save-6",
           "kind": "tf",
           "prompt": "The hunter mesh belongs in the night save.",
-          "choices": ["True", "False"],
+          "choices": [
+            "True",
+            "False"
+          ],
           "answer": 1,
           "why": "The mesh is not game state."
         },
@@ -1150,7 +1246,10 @@
       "id": "hori-exam-2",
       "kind": "tf",
       "prompt": "A missed horror trace should leave the alert flag at 1.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 1,
       "why": "A miss does not assign."
     },
@@ -1188,7 +1287,7 @@
         "The press that calls Interact with the look that writes the alert flag",
         "The door curve with the fuel cap",
         "The limp with the route direction",
-        "The fear float with the stack count"
+        "The fear float with the stack count. Fear and inventory are not the two events that got mixed here."
       ],
       "answer": 0,
       "why": "Use and Sense are different events."
@@ -1210,7 +1309,10 @@
       "id": "hori-exam-7",
       "kind": "tf",
       "prompt": "A hide lever needs its own Tick graph.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 1,
       "why": "It implements Interact."
     },
@@ -1257,7 +1359,10 @@
       "id": "hori-exam-11",
       "kind": "tf",
       "prompt": "Replicating the door hinge is cheaper than replicating the open bool.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 1,
       "why": "The hinge streams transforms. The bool is one value."
     },
@@ -1317,7 +1422,10 @@
       "id": "hori-exam-16",
       "kind": "tf",
       "prompt": "OnRep of a co-op limb should play the limp and leave the number alone.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 0,
       "why": "The server already wrote it."
     },
@@ -1377,7 +1485,10 @@
       "id": "hori-exam-21",
       "kind": "tf",
       "prompt": "The camera should poll the alert flag on Tick to decide when to shake.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 1,
       "why": "It binds to OnEffect."
     },
@@ -1386,7 +1497,7 @@
       "kind": "mc",
       "prompt": "Which values should the night struct skip?",
       "choices": [
-        "Curve keys, delegate bindings, and meshes",
+        "Curve keys, delegate bindings",
         "The alert flag and the open bool",
         "The limb and the stack count",
         "The route direction"
@@ -1437,7 +1548,10 @@
       "id": "hori-exam-26",
       "kind": "tf",
       "prompt": "A key and a fuel can should each cast to their own class inside the overlap.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 1,
       "why": "Both call AddToSlot."
     },
@@ -1485,7 +1599,7 @@
       "kind": "mc",
       "prompt": "A downed limb and a bruise both change the same float. What extra rule separates them?",
       "choices": [
-        "A bruise stops at 10 percent of max, and zero is the down",
+        "A bruise stops at 10 percent of max",
         "A bruise replicates and a down does not",
         "A bruise is client-side and a down is a door bool",
         "A bruise calls Sense and a down calls AddToSlot"
@@ -1497,7 +1611,10 @@
       "id": "hori-exam-31",
       "kind": "tf",
       "prompt": "Begin Play should start the patrol timer, and AdvancePatrol should not start another.",
-      "choices": ["True", "False"],
+      "choices": [
+        "True",
+        "False"
+      ],
       "answer": 0,
       "why": "A timer per call sprints the route."
     },
