@@ -2,1604 +2,1256 @@
   "id": "strategy-beginner",
   "sections": {
     "orders": {
-      "plainEnglish": "In plain English: IA_Order reaches only the selected unit, through ReceiveOrder. What the function actually does is ReceiveOrder only on the unit that is Selected. the order action, after the Selected branch is who is allowed to do it.",
-      "whyGame": "In a real match, searching every unit from Tick and moving them all to the cursor looks almost right and then costs a query, a desync, or a double write. formation offsets stays on its own event so this lesson does not swallow it.",
+      "plainEnglish": "You select a unit, then you right-click an order. Only the selected unit hears it. A tank and a rifle squad implement the same receive function.",
+      "whyGame": "Searching the whole map for the cursor every frame repeats a question the selection already answered, and it moves units you never clicked.",
       "expansions": [
-        {
-          "title": "Selection and orders listener",
-          "detail": "A follow-on in Strategy — Beginner should bind to IA_Order after the unit's Selected flag is true. It should not poll selection and orders."
-        },
-        {
-          "title": "Selection and orders data",
-          "detail": "Numbers a designer tunes for selection and orders belong on a data row. ReceiveOrder only on the unit that is Selected can read that row without a new function."
-        },
-        {
-          "title": "Selection and orders neighbor",
-          "detail": "formation offsets must not be implemented inside Branch on Selected. IA_Order reaches only the selected unit, through ReceiveOrder."
-        }
+        { "title": "A tank", "detail": "The tank implements ReceiveOrder. The click does not name the tank class." },
+        { "title": "A squad", "detail": "The rifle squad uses that same function and decides what a move means for infantry." },
+        { "title": "The rest of the army", "detail": "Unselected units ignore the click." }
       ],
       "quiz": [
         {
-          "id": "strategy-beginner-orders-s1",
+          "id": "stgb-orders-1",
           "kind": "mc",
-          "prompt": "IA_Order reaches only the selected unit, through ReceiveOrder. When `void UKitComponent::Graph_IA_Order_tpl_orders_input() // node:tpl_orders_input` runs, what does the player get?",
+          "prompt": "The player right-clicks a destination. Which units should receive that order?",
           "choices": [
-            "ReceiveOrder only on the unit that is Selected. That keeps the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "The line searching every unit from Tick and moving them all to the cursor. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "The constructor writes the result before a pawn exists. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "formation offsets overwrites the value on every client. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder."
+            "Only the units whose Selected flag is set",
+            "Every unit currently on the map",
+            "Only units inside the fog reveal radius",
+            "The neutral camp that happens to be nearest"
           ],
           "answer": 0,
-          "why": "ReceiveOrder only on the unit that is Selected"
+          "why": "Selection is the gate."
         },
         {
-          "id": "strategy-beginner-orders-s2",
+          "id": "stgb-orders-2",
           "kind": "mc",
-          "prompt": "IA_Order reaches only the selected unit, through ReceiveOrder. Where does Branch on Selected sit relative to IA_Order?",
+          "prompt": "The order excerpt branches on Selected and then calls ProcessEvent on ReceiveOrder. What does that call do?",
           "choices": [
-            "Branch on Selected runs after the unit's Selected flag is true. IA_Order reaches that gate through Triggered. That keeps the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "Branch on Selected runs before IA_Order, so the write does not wait for the player. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "Branch on Selected sits on Tick while IA_Order is idle. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "Branch on Selected sits in OnRep and applies the change a second time. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder."
+            "It runs the selected unit's own order function",
+            "It subtracts the sample supply cost",
+            "It marks a map cell as visible",
+            "It adds ten to the match score"
           ],
           "answer": 0,
-          "why": "IA_Order is the start."
+          "why": "ReceiveOrder is the unit's response."
         },
         {
-          "id": "strategy-beginner-orders-s3",
-          "kind": "tf",
-          "prompt": "True or false: IA_Order reaches only the selected unit, through ReceiveOrder.",
+          "id": "stgb-orders-3",
+          "kind": "mc",
+          "prompt": "A tank is selected and the player issues a move. Which node comes next?",
           "choices": [
-            "True",
-            "False"
+            "ReceiveOrder on that tank",
+            "A fresh search of every actor for the cursor",
+            "A fog reveal that also lights the path",
+            "A medal award treating the move as a result"
           ],
           "answer": 0,
-          "why": "IA_Order reaches only the selected unit, through ReceiveOrder."
+          "why": "The click reaches the selected unit."
         },
         {
-          "id": "strategy-beginner-orders-s4",
-          "kind": "tf",
-          "prompt": "True or false: IA_Order reaches only the selected unit, through ReceiveOrder. You keep that promise by searching every unit from Tick and moving them all to the cursor.",
+          "id": "stgb-orders-4",
+          "kind": "mc",
+          "prompt": "You move the cursor search onto Tick so orders feel instant. What starts walking that nobody selected?",
           "choices": [
-            "True",
-            "False"
+            "Every idle frame repeats a query, and units you never selected start walking",
+            "The mapping context forgets the right-click binding",
+            "Supplies stop replicating",
+            "Medals can no longer be named in data"
           ],
+          "answer": 0,
+          "why": "The selection already knows who is listening."
+        },
+        {
+          "id": "stgb-orders-5",
+          "kind": "mc",
+          "prompt": "A rifle squad and a tank are both on the field, and only the squad is selected. Who walks?",
+          "choices": [
+            "The squad, because it is the one with Selected set",
+            "Both units, since they share one receive function",
+            "The tank, because vehicles outrank infantry",
+            "The neutral camp, because it is always listening"
+          ],
+          "answer": 0,
+          "why": "Sharing the function does not skip the flag."
+        },
+        {
+          "id": "stgb-orders-6",
+          "kind": "tf",
+          "prompt": "An order click should move every unit on the map.",
+          "choices": ["True", "False"],
           "answer": 1,
-          "why": "the order action, after the Selected branch is the real writer."
+          "why": "Unselected units do not hear the click."
         },
         {
-          "id": "strategy-beginner-orders-s5",
+          "id": "stgb-orders-7",
           "kind": "mc",
-          "prompt": "IA_Order reaches only the selected unit, through ReceiveOrder. Who may commit the change?",
+          "prompt": "What is IA_Order in this lesson?",
           "choices": [
-            "the order action, after the Selected branch. That keeps the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "Every client writes it so the result feels instant. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "The widget writes it because that is what the player is looking at. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "The constructor writes it once, and IA_Order never fires. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder."
+            "The right-click action that carries the order",
+            "The fog reveal timer",
+            "The supply spend event",
+            "The medal award"
           ],
           "answer": 0,
-          "why": "the order action, after the Selected branch"
+          "why": "The action is the click. The unit decides the meaning."
         },
         {
-          "id": "strategy-beginner-orders-s6",
+          "id": "stgb-orders-8",
           "kind": "mc",
-          "prompt": "IA_Order reaches only the selected unit, through ReceiveOrder. What has to be true before Branch on Selected writes?",
+          "prompt": "Art adds a new engineer unit. What must that unit implement so the existing click works?",
           "choices": [
-            "the unit's Selected flag is true. That keeps the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "IA_Order has not fired and the graph is only hoping. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "Tick has run one frame even though nothing changed. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "formation offsets has already performed this write. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder."
+            "ReceiveOrder",
+            "A private cursor trace on its own tick",
+            "A cast from the order graph to the engineer class",
+            "A fog write that lights the engineer by existing"
           ],
           "answer": 0,
-          "why": "the unit's Selected flag is true"
+          "why": "The click never lists classes."
         },
         {
-          "id": "strategy-beginner-orders-s7",
-          "kind": "tf",
-          "prompt": "True or false: IA_Order reaches only the selected unit, through ReceiveOrder. IA_Order is the start, and Triggered is the pin that continues into the write.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "IA_Order through Triggered."
-        },
-        {
-          "id": "strategy-beginner-orders-s8",
+          "id": "stgb-orders-9",
           "kind": "mc",
-          "prompt": "IA_Order reaches only the selected unit, through ReceiveOrder. Delete IA_Order and leave the rest of the Strategy — Beginner compiled. What does the player lose?",
+          "prompt": "Which line is the order gate, not the fog write?",
           "choices": [
-            "Selection and orders never starts, because nothing else fires Triggered. That keeps the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "Nothing visible, because Tick still does the work. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "formation offsets quietly takes over the job. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "The next travel's constructor writes it. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder."
+            "The branch on Selected before ReceiveOrder",
+            "Visible = true after a reveal hit",
+            "Supplies = (Supplies - 25.f) inside the authority check",
+            "Score = (Score + 10.f) inside the authority check"
           ],
           "answer": 0,
-          "why": "IA_Order is the only start."
+          "why": "Selected decides who hears the click."
         },
         {
-          "id": "strategy-beginner-orders-s9",
+          "id": "stgb-orders-10",
           "kind": "mc",
-          "prompt": "IA_Order reaches only the selected unit, through ReceiveOrder. Which broken schedule is the one to refuse?",
+          "prompt": "The player clicks empty ground with nobody selected. What should happen?",
           "choices": [
-            "searching every unit from Tick and moving them all to the cursor. That keeps the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "Leaving the real work on IA_Order. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "Waiting until the unit's Selected flag is true before the write. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "Keeping the order action, after the Selected branch as the only writer. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder."
+            "Nothing receives the order",
+            "The nearest unit walks there",
+            "Fog clears along the click",
+            "The match score increases"
           ],
           "answer": 0,
-          "why": "searching every unit from Tick and moving them all to the cursor"
-        },
-        {
-          "id": "strategy-beginner-orders-s10",
-          "kind": "mc",
-          "prompt": "IA_Order reaches only the selected unit, through ReceiveOrder. formation offsets wants to live in this same function. What stays separate?",
-          "choices": [
-            "formation offsets keeps its own event. This function only handles ReceiveOrder only on the unit that is Selected. That keeps the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "formation offsets is inlined so one Tick serves both jobs. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "formation offsets writes the value from the client. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "formation offsets runs inside OnRep after this write. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder."
-          ],
-          "answer": 0,
-          "why": "One event, one job."
-        },
-        {
-          "id": "strategy-beginner-orders-s11",
-          "kind": "mc",
-          "prompt": "IA_Order reaches only the selected unit, through ReceiveOrder. A teammate also applies the write from OnRep, so the game need not wait for the order action, after the Selected branch. What goes wrong?",
-          "choices": [
-            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "The widget stops drawing until Tick resumes. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "IA_Order stops firing. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder."
-          ],
-          "answer": 0,
-          "why": "OnRep shows the result."
-        },
-        {
-          "id": "strategy-beginner-orders-s12",
-          "kind": "mc",
-          "prompt": "IA_Order reaches only the selected unit, through ReceiveOrder. Which gate sits immediately in front of the write?",
-          "choices": [
-            "the unit's Selected flag is true, reached from IA_Order via Triggered. That keeps the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "A Tick frame, even when IA_Order is idle. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "A cast to every Blueprint that might show up. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder.",
-            "A save reload, which would replay the change at the wrong moment. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder."
-          ],
-          "answer": 0,
-          "why": "the unit's Selected flag is true is the gate."
+          "why": "No selected unit means no receiver."
         }
       ]
     },
     "economy": {
-      "plainEnglish": "In plain English: Spend subtracts a data cost on the authority. What the function actually does is Supplies reduced by the data cost, and only on the authority. the authority, inside the Spend event is who is allowed to do it.",
-      "whyGame": "In a real match, every client subtracting 25, or paying for a shell out of the same float looks almost right and then costs a query, a desync, or a double write. the shell budget stays on its own event so this lesson does not swallow it.",
+      "plainEnglish": "Supplies are a stock you spend on purpose. A build order calls a spend event. The server subtracts the cost. The cost itself lives in a data row, not as a typed 25 in the graph.",
+      "whyGame": "A client that subtracts on its own spends a private stock, and the other machines still show the old total.",
       "expansions": [
-        {
-          "title": "Supplies listener",
-          "detail": "A follow-on in Strategy — Beginner should bind to Spend after HasAuthority passes. It should not poll supplies."
-        },
-        {
-          "title": "Supplies data",
-          "detail": "Numbers a designer tunes for supplies belong on a data row. Supplies reduced by the data cost, and only on the authority can read that row without a new function."
-        },
-        {
-          "title": "Supplies neighbor",
-          "detail": "the shell budget must not be implemented inside Set Supplies. Spend subtracts a data cost on the authority."
-        }
+        { "title": "A barracks", "detail": "The barracks row names its cost. The graph reads the row." },
+        { "title": "A turret", "detail": "The turret has a different cost in data. It does not need a second subtract literal." },
+        { "title": "A broke player", "detail": "If the stock cannot cover the row, the spend does not happen." }
       ],
       "quiz": [
         {
-          "id": "strategy-beginner-economy-s1",
+          "id": "stgb-economy-1",
           "kind": "mc",
-          "prompt": "Spend subtracts a data cost on the authority. When `Supplies = (Supplies - 25.f); // node:tpl_economy_set` runs, what does the player get?",
+          "prompt": "A build order should spend supplies. What kind of event is that spend?",
           "choices": [
-            "Supplies reduced by the data cost, and only on the authority. That keeps the rule that spend subtracts a data cost on the authority.",
-            "The line every client subtracting 25, or paying for a shell out of the same float. That would break the rule that spend subtracts a data cost on the authority.",
-            "The constructor writes the result before a pawn exists. That would break the rule that spend subtracts a data cost on the authority.",
-            "the shell budget overwrites the value on every client. That would break the rule that spend subtracts a data cost on the authority."
+            "A custom event the build calls once",
+            "A subtract on every frame while the building exists",
+            "A fog reveal",
+            "A medal award"
           ],
           "answer": 0,
-          "why": "Supplies reduced by the data cost, and only on the authority"
+          "why": "Spend is intentional, not a tick."
         },
         {
-          "id": "strategy-beginner-economy-s2",
+          "id": "stgb-economy-2",
           "kind": "mc",
-          "prompt": "Spend subtracts a data cost on the authority. Where does Set Supplies sit relative to Spend?",
+          "prompt": "The excerpt assigns Supplies = (Supplies - 25.f) inside HasAuthority. What is 25 standing in for?",
           "choices": [
-            "Set Supplies runs after HasAuthority passes. Spend reaches that gate through the spend event. That keeps the rule that spend subtracts a data cost on the authority.",
-            "Set Supplies runs before Spend, so the write does not wait for the player. That would break the rule that spend subtracts a data cost on the authority.",
-            "Set Supplies sits on Tick while Spend is idle. That would break the rule that spend subtracts a data cost on the authority.",
-            "Set Supplies sits in OnRep and applies the change a second time. That would break the rule that spend subtracts a data cost on the authority."
+            "A sample cost that a data row should own",
+            "The only legal price for every building",
+            "The fog timer interval",
+            "The medal value"
           ],
           "answer": 0,
-          "why": "Spend is the start."
+          "why": "The number is a placeholder."
         },
         {
-          "id": "strategy-beginner-economy-s3",
-          "kind": "tf",
-          "prompt": "True or false: Spend subtracts a data cost on the authority.",
+          "id": "stgb-economy-3",
+          "kind": "mc",
+          "prompt": "The player orders a barracks and the stock can cover it. Which write comes next?",
           "choices": [
-            "True",
-            "False"
+            "The authority subtract of that row's cost",
+            "A client-side subtract so the number drops immediately",
+            "A fog bit on the building plot",
+            "Ten points added to the match score"
           ],
           "answer": 0,
-          "why": "Spend subtracts a data cost on the authority."
+          "why": "The server spends the stock."
         },
         {
-          "id": "strategy-beginner-economy-s4",
-          "kind": "tf",
-          "prompt": "True or false: Spend subtracts a data cost on the authority. You keep that promise by every client subtracting 25, or paying for a shell out of the same float.",
+          "id": "stgb-economy-4",
+          "kind": "mc",
+          "prompt": "Each client subtracts 25 outside the authority check. What do the machines disagree about?",
           "choices": [
-            "True",
-            "False"
+            "Every machine spends a private stock and the totals diverge",
+            "The right-click binding stops firing",
+            "Camps freeze on their paths",
+            "Fog reveals through walls"
           ],
+          "answer": 0,
+          "why": "One stock, written by the authority."
+        },
+        {
+          "id": "stgb-economy-5",
+          "kind": "mc",
+          "prompt": "A barracks costs 80 and a turret costs 40. Where do those two numbers live?",
+          "choices": [
+            "On their data rows",
+            "As two literals in the spend graph",
+            "On the fog bool",
+            "In the medal asset by accident"
+          ],
+          "answer": 0,
+          "why": "The row names the cost."
+        },
+        {
+          "id": "stgb-economy-6",
+          "kind": "tf",
+          "prompt": "A client may subtract supplies locally so the stock feels instant.",
+          "choices": ["True", "False"],
           "answer": 1,
-          "why": "the authority, inside the Spend event is the real writer."
+          "why": "The private subtract will not match the host."
         },
         {
-          "id": "strategy-beginner-economy-s5",
+          "id": "stgb-economy-7",
           "kind": "mc",
-          "prompt": "Spend subtracts a data cost on the authority. Who may commit the change?",
+          "prompt": "The stock is 20 and the row costs 25. What should the spend event do?",
           "choices": [
-            "the authority, inside the Spend event. That keeps the rule that spend subtracts a data cost on the authority.",
-            "Every client writes it so the result feels instant. That would break the rule that spend subtracts a data cost on the authority.",
-            "The widget writes it because that is what the player is looking at. That would break the rule that spend subtracts a data cost on the authority.",
-            "The constructor writes it once, and Spend never fires. That would break the rule that spend subtracts a data cost on the authority."
+            "Refuse the build",
+            "Drive the stock negative and build anyway",
+            "Award a medal for the attempt",
+            "Clear fog around the plot"
           ],
           "answer": 0,
-          "why": "the authority, inside the Spend event"
+          "why": "You cannot spend what you do not have."
         },
         {
-          "id": "strategy-beginner-economy-s6",
+          "id": "stgb-economy-8",
           "kind": "mc",
-          "prompt": "Spend subtracts a data cost on the authority. What has to be true before Set Supplies writes?",
+          "prompt": "Which line is the supply write?",
           "choices": [
-            "HasAuthority passes. That keeps the rule that spend subtracts a data cost on the authority.",
-            "Spend has not fired and the graph is only hoping. That would break the rule that spend subtracts a data cost on the authority.",
-            "Tick has run one frame even though nothing changed. That would break the rule that spend subtracts a data cost on the authority.",
-            "the shell budget has already performed this write. That would break the rule that spend subtracts a data cost on the authority."
+            "Supplies = (Supplies - 25.f) inside HasAuthority",
+            "Visible = true on a reveal hit",
+            "GoingRight = true on a camp path",
+            "The branch on Selected"
           ],
           "answer": 0,
-          "why": "HasAuthority passes"
+          "why": "That assignment is the spend."
         },
         {
-          "id": "strategy-beginner-economy-s7",
-          "kind": "tf",
-          "prompt": "True or false: Spend subtracts a data cost on the authority. Spend is the start, and the spend event is the pin that continues into the write.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "Spend through the spend event."
-        },
-        {
-          "id": "strategy-beginner-economy-s8",
+          "id": "stgb-economy-9",
           "kind": "mc",
-          "prompt": "Spend subtracts a data cost on the authority. Delete Spend and leave the rest of the Strategy — Beginner compiled. What does the player lose?",
+          "prompt": "An order to build never calls the spend event. What does the player get?",
           "choices": [
-            "Supplies never starts, because nothing else fires the spend event. That keeps the rule that spend subtracts a data cost on the authority.",
-            "Nothing visible, because Tick still does the work. That would break the rule that spend subtracts a data cost on the authority.",
-            "the shell budget quietly takes over the job. That would break the rule that spend subtracts a data cost on the authority.",
-            "The next travel's constructor writes it. That would break the rule that spend subtracts a data cost on the authority."
+            "A building and the same stock they started with",
+            "A medal",
+            "A revealed camp",
+            "A saved match"
           ],
           "answer": 0,
-          "why": "Spend is the only start."
+          "why": "The order has to call the spend."
         },
         {
-          "id": "strategy-beginner-economy-s9",
+          "id": "stgb-economy-10",
           "kind": "mc",
-          "prompt": "Spend subtracts a data cost on the authority. Which broken schedule is the one to refuse?",
+          "prompt": "Why is Tick the wrong place to drain supplies?",
           "choices": [
-            "every client subtracting 25, or paying for a shell out of the same float. That keeps the rule that spend subtracts a data cost on the authority.",
-            "Leaving the real work on Spend. That would break the rule that spend subtracts a data cost on the authority.",
-            "Waiting until HasAuthority passes before the write. That would break the rule that spend subtracts a data cost on the authority.",
-            "Keeping the authority, inside the Spend event as the only writer. That would break the rule that spend subtracts a data cost on the authority."
+            "The stock would fall while nobody is building",
+            "Tick cannot read a float",
+            "The authority check is illegal on a custom event",
+            "Data rows cannot store costs"
           ],
           "answer": 0,
-          "why": "every client subtracting 25, or paying for a shell out of the same float"
-        },
-        {
-          "id": "strategy-beginner-economy-s10",
-          "kind": "mc",
-          "prompt": "Spend subtracts a data cost on the authority. the shell budget wants to live in this same function. What stays separate?",
-          "choices": [
-            "the shell budget keeps its own event. This function only handles Supplies reduced by the data cost, and only on the authority. That keeps the rule that spend subtracts a data cost on the authority.",
-            "the shell budget is inlined so one Tick serves both jobs. That would break the rule that spend subtracts a data cost on the authority.",
-            "the shell budget writes the value from the client. That would break the rule that spend subtracts a data cost on the authority.",
-            "the shell budget runs inside OnRep after this write. That would break the rule that spend subtracts a data cost on the authority."
-          ],
-          "answer": 0,
-          "why": "One event, one job."
-        },
-        {
-          "id": "strategy-beginner-economy-s11",
-          "kind": "mc",
-          "prompt": "Spend subtracts a data cost on the authority. A teammate also applies the write from OnRep, so the game need not wait for the authority, inside the Spend event. What goes wrong?",
-          "choices": [
-            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that spend subtracts a data cost on the authority.",
-            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that spend subtracts a data cost on the authority.",
-            "The widget stops drawing until Tick resumes. That would break the rule that spend subtracts a data cost on the authority.",
-            "Spend stops firing. That would break the rule that spend subtracts a data cost on the authority."
-          ],
-          "answer": 0,
-          "why": "OnRep shows the result."
-        },
-        {
-          "id": "strategy-beginner-economy-s12",
-          "kind": "mc",
-          "prompt": "Spend subtracts a data cost on the authority. Which gate sits immediately in front of the write?",
-          "choices": [
-            "HasAuthority passes, reached from Spend via the spend event. That keeps the rule that spend subtracts a data cost on the authority.",
-            "A Tick frame, even when Spend is idle. That would break the rule that spend subtracts a data cost on the authority.",
-            "A cast to every Blueprint that might show up. That would break the rule that spend subtracts a data cost on the authority.",
-            "A save reload, which would replay the change at the wrong moment. That would break the rule that spend subtracts a data cost on the authority."
-          ],
-          "answer": 0,
-          "why": "HasAuthority passes is the gate."
+          "why": "Spend happens when a build asks."
         }
       ]
     },
     "fog": {
-      "plainEnglish": "In plain English: Reveal runs four times a second. Visible is a team fact. What the function actually does is Visible set from a trace on a 0.25 second timer. the server timer is who is allowed to do it.",
-      "whyGame": "In a real match, writing Visible from Tick, or letting a client mark itself seen looks almost right and then costs a query, a desync, or a double write. relevance stays on its own event so this lesson does not swallow it.",
+      "plainEnglish": "Fog is what this team can see. A short timer calls Reveal. A hit marks that cell visible. A wall blocks the look. Orders do not paint the map.",
+      "whyGame": "Letting a client set Visible cheats the map, and saving the bool shows camps that have already walked away.",
       "expansions": [
-        {
-          "title": "Fog of war listener",
-          "detail": "A follow-on in Strategy — Beginner should bind to Reveal after the reveal trace hits. It should not poll fog of war."
-        },
-        {
-          "title": "Fog of war data",
-          "detail": "Numbers a designer tunes for fog of war belong on a data row. Visible set from a trace on a 0.25 second timer can read that row without a new function."
-        },
-        {
-          "title": "Fog of war neighbor",
-          "detail": "relevance must not be implemented inside Set Visible. Reveal runs four times a second. Visible is a team fact."
-        }
+        { "title": "A wall", "detail": "The trace stops. The cell beyond stays hidden." },
+        { "title": "A spectator", "detail": "Visibility is a team fact, not a widget each spectator owns." },
+        { "title": "After load", "detail": "The timer recomputes vision from positions. Do not restore the old bits." }
       ],
       "quiz": [
         {
-          "id": "strategy-beginner-fog-s1",
+          "id": "stgb-fog-1",
           "kind": "mc",
-          "prompt": "Reveal runs four times a second. Visible is a team fact. When `Visible = true; // node:tpl_fog_set` runs, what does the player get?",
+          "prompt": "What does the fog bool mean?",
           "choices": [
-            "Visible set from a trace on a 0.25 second timer. That keeps the rule that reveal runs four times a second. Visible is a team fact.",
-            "The line writing Visible from Tick, or letting a client mark itself seen. That would break the rule that reveal runs four times a second. Visible is a team fact.",
-            "The constructor writes the result before a pawn exists. That would break the rule that reveal runs four times a second. Visible is a team fact.",
-            "relevance overwrites the value on every client. That would break the rule that reveal runs four times a second. Visible is a team fact."
+            "This team can see that cell",
+            "A widget on one spectator's screen",
+            "The unit is selected",
+            "The camp is walking right"
           ],
           "answer": 0,
-          "why": "Visible set from a trace on a 0.25 second timer"
+          "why": "Visible is a team fact."
         },
         {
-          "id": "strategy-beginner-fog-s2",
+          "id": "stgb-fog-2",
           "kind": "mc",
-          "prompt": "Reveal runs four times a second. Visible is a team fact. Where does Set Visible sit relative to Reveal?",
+          "prompt": "Reveal assigns Visible = true when the trace hits. When does that line run?",
           "choices": [
-            "Set Visible runs after the reveal trace hits. Reveal reaches that gate through the timer. That keeps the rule that reveal runs four times a second. Visible is a team fact.",
-            "Set Visible runs before Reveal, so the write does not wait for the player. That would break the rule that reveal runs four times a second. Visible is a team fact.",
-            "Set Visible sits on Tick while Reveal is idle. That would break the rule that reveal runs four times a second. Visible is a team fact.",
-            "Set Visible sits in OnRep and applies the change a second time. That would break the rule that reveal runs four times a second. Visible is a team fact."
+            "Only on a hit from the reveal timer",
+            "Whenever any order is clicked",
+            "Whenever a camp takes a step",
+            "Whenever the score changes"
           ],
           "answer": 0,
-          "why": "Reveal is the start."
+          "why": "The hit is the condition."
         },
         {
-          "id": "strategy-beginner-fog-s3",
-          "kind": "tf",
-          "prompt": "True or false: Reveal runs four times a second. Visible is a team fact.",
+          "id": "stgb-fog-3",
+          "kind": "mc",
+          "prompt": "Begin Play runs for fog. Which node should it start?",
           "choices": [
-            "True",
-            "False"
+            "A looping Reveal timer at 0.25 seconds",
+            "A per-frame write of Visible",
+            "The order function",
+            "Granting points for a result"
           ],
           "answer": 0,
-          "why": "Reveal runs four times a second. Visible is a team fact."
+          "why": "The excerpt starts that timer."
         },
         {
-          "id": "strategy-beginner-fog-s4",
-          "kind": "tf",
-          "prompt": "True or false: Reveal runs four times a second. Visible is a team fact. You keep that promise by writing Visible from Tick, or letting a client mark itself seen.",
+          "id": "stgb-fog-4",
+          "kind": "mc",
+          "prompt": "An order click sets Visible along the path. What lights up that the team never saw?",
           "choices": [
-            "True",
-            "False"
+            "Commanding a unit lights map the team has not actually seen",
+            "Supplies double",
+            "The camp path reverses",
+            "Medals stop awarding"
           ],
+          "answer": 0,
+          "why": "Orders must not paint fog."
+        },
+        {
+          "id": "stgb-fog-5",
+          "kind": "mc",
+          "prompt": "A wall stands between the team and a camp. What does Reveal do?",
+          "choices": [
+            "It stops on the wall and leaves the camp hidden",
+            "It marks the camp visible anyway",
+            "It orders the camp to move",
+            "It spends 25 supplies"
+          ],
+          "answer": 0,
+          "why": "The wall blocks the channel."
+        },
+        {
+          "id": "stgb-fog-6",
+          "kind": "tf",
+          "prompt": "A client may set Visible true to update its own map.",
+          "choices": ["True", "False"],
           "answer": 1,
-          "why": "the server timer is the real writer."
+          "why": "That is a cheat. Gate the write."
         },
         {
-          "id": "strategy-beginner-fog-s5",
+          "id": "stgb-fog-7",
           "kind": "mc",
-          "prompt": "Reveal runs four times a second. Visible is a team fact. Who may commit the change?",
+          "prompt": "The sample reveal has no authority check. What do you add before a networked match?",
           "choices": [
-            "the server timer. That keeps the rule that reveal runs four times a second. Visible is a team fact.",
-            "Every client writes it so the result feels instant. That would break the rule that reveal runs four times a second. Visible is a team fact.",
-            "The widget writes it because that is what the player is looking at. That would break the rule that reveal runs four times a second. Visible is a team fact.",
-            "The constructor writes it once, and Reveal never fires. That would break the rule that reveal runs four times a second. Visible is a team fact."
+            "A gate so only the authority writes Visible",
+            "A second timer at one second",
+            "A medal for every revealed cell",
+            "A save of every bool"
           ],
           "answer": 0,
-          "why": "the server timer"
+          "why": "The sample is local. The match is not."
         },
         {
-          "id": "strategy-beginner-fog-s6",
+          "id": "stgb-fog-8",
           "kind": "mc",
-          "prompt": "Reveal runs four times a second. Visible is a team fact. What has to be true before Set Visible writes?",
+          "prompt": "Which interval does the real Reveal timer use?",
           "choices": [
-            "the reveal trace hits. That keeps the rule that reveal runs four times a second. Visible is a team fact.",
-            "Reveal has not fired and the graph is only hoping. That would break the rule that reveal runs four times a second. Visible is a team fact.",
-            "Tick has run one frame even though nothing changed. That would break the rule that reveal runs four times a second. Visible is a team fact.",
-            "relevance has already performed this write. That would break the rule that reveal runs four times a second. Visible is a team fact."
+            "0.25 seconds",
+            "Once per drawn frame",
+            "Once at match start",
+            "The same one-second step as a camp"
           ],
           "answer": 0,
-          "why": "the reveal trace hits"
+          "why": "Begin Play starts 0.25."
         },
         {
-          "id": "strategy-beginner-fog-s7",
-          "kind": "tf",
-          "prompt": "True or false: Reveal runs four times a second. Visible is a team fact. Reveal is the start, and the timer is the pin that continues into the write.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "Reveal through the timer."
-        },
-        {
-          "id": "strategy-beginner-fog-s8",
+          "id": "stgb-fog-9",
           "kind": "mc",
-          "prompt": "Reveal runs four times a second. Visible is a team fact. Delete Reveal and leave the rest of the Strategy — Beginner compiled. What does the player lose?",
+          "prompt": "Why is Visible not a widget each spectator owns?",
           "choices": [
-            "Fog of war never starts, because nothing else fires the timer. That keeps the rule that reveal runs four times a second. Visible is a team fact.",
-            "Nothing visible, because Tick still does the work. That would break the rule that reveal runs four times a second. Visible is a team fact.",
-            "relevance quietly takes over the job. That would break the rule that reveal runs four times a second. Visible is a team fact.",
-            "The next travel's constructor writes it. That would break the rule that reveal runs four times a second. Visible is a team fact."
+            "The team shares one fact about the map",
+            "Widgets cannot read bools",
+            "Spectators are the only ones who should cheat fog",
+            "The camp graph is the one that writes it"
           ],
           "answer": 0,
-          "why": "Reveal is the only start."
+          "why": "One team, one vision."
         },
         {
-          "id": "strategy-beginner-fog-s9",
+          "id": "stgb-fog-10",
           "kind": "mc",
-          "prompt": "Reveal runs four times a second. Visible is a team fact. Which broken schedule is the one to refuse?",
+          "prompt": "You save Visible and load it after the camp has walked. What does the player see?",
           "choices": [
-            "writing Visible from Tick, or letting a client mark itself seen. That keeps the rule that reveal runs four times a second. Visible is a team fact.",
-            "Leaving the real work on Reveal. That would break the rule that reveal runs four times a second. Visible is a team fact.",
-            "Waiting until the reveal trace hits before the write. That would break the rule that reveal runs four times a second. Visible is a team fact.",
-            "Keeping the server timer as the only writer. That would break the rule that reveal runs four times a second. Visible is a team fact."
+            "A camp drawn where it no longer stands",
+            "The correct camp, because the bit follows the actor",
+            "An empty stock",
+            "A medal popup"
           ],
           "answer": 0,
-          "why": "writing Visible from Tick, or letting a client mark itself seen"
-        },
-        {
-          "id": "strategy-beginner-fog-s10",
-          "kind": "mc",
-          "prompt": "Reveal runs four times a second. Visible is a team fact. relevance wants to live in this same function. What stays separate?",
-          "choices": [
-            "relevance keeps its own event. This function only handles Visible set from a trace on a 0.25 second timer. That keeps the rule that reveal runs four times a second. Visible is a team fact.",
-            "relevance is inlined so one Tick serves both jobs. That would break the rule that reveal runs four times a second. Visible is a team fact.",
-            "relevance writes the value from the client. That would break the rule that reveal runs four times a second. Visible is a team fact.",
-            "relevance runs inside OnRep after this write. That would break the rule that reveal runs four times a second. Visible is a team fact."
-          ],
-          "answer": 0,
-          "why": "One event, one job."
-        },
-        {
-          "id": "strategy-beginner-fog-s11",
-          "kind": "mc",
-          "prompt": "Reveal runs four times a second. Visible is a team fact. A teammate also applies the write from OnRep, so the game need not wait for the server timer. What goes wrong?",
-          "choices": [
-            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that reveal runs four times a second. Visible is a team fact.",
-            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that reveal runs four times a second. Visible is a team fact.",
-            "The widget stops drawing until Tick resumes. That would break the rule that reveal runs four times a second. Visible is a team fact.",
-            "Reveal stops firing. That would break the rule that reveal runs four times a second. Visible is a team fact."
-          ],
-          "answer": 0,
-          "why": "OnRep shows the result."
-        },
-        {
-          "id": "strategy-beginner-fog-s12",
-          "kind": "mc",
-          "prompt": "Reveal runs four times a second. Visible is a team fact. Which gate sits immediately in front of the write?",
-          "choices": [
-            "the reveal trace hits, reached from Reveal via the timer. That keeps the rule that reveal runs four times a second. Visible is a team fact.",
-            "A Tick frame, even when Reveal is idle. That would break the rule that reveal runs four times a second. Visible is a team fact.",
-            "A cast to every Blueprint that might show up. That would break the rule that reveal runs four times a second. Visible is a team fact.",
-            "A save reload, which would replay the change at the wrong moment. That would break the rule that reveal runs four times a second. Visible is a team fact."
-          ],
-          "answer": 0,
-          "why": "the reveal trace hits is the gate."
+          "why": "Recompute vision after load. Do not restore the bit."
         }
       ]
     },
     "patrol": {
-      "plainEnglish": "In plain English: A camp walks its route on a timer while fog hides it. What the function actually does is the next patrol point on a one second timer, flipping GoingRight at the ends. the timer armed in Begin Play is who is allowed to do it.",
-      "whyGame": "In a real match, stepping the route from Tick, or starting a second move while Sense should only raise Alert looks almost right and then costs a query, a desync, or a double write. fog of war stays on its own event so this lesson does not swallow it.",
+      "plainEnglish": "A neutral camp walks a route nobody ordered. Begin Play starts that walk on a one-second timer. Fog decides whether you draw the camp. The camp does not light the map by walking.",
+      "whyGame": "Moving the camp from Tick keeps it walking through a pause and spends a path query you already scheduled.",
       "expansions": [
-        {
-          "title": "Neutral camps listener",
-          "detail": "A follow-on in Strategy — Beginner should bind to AdvancePatrol after one second has passed. It should not poll neutral camps."
-        },
-        {
-          "title": "Neutral camps data",
-          "detail": "Numbers a designer tunes for neutral camps belong on a data row. the next patrol point on a one second timer, flipping GoingRight at the ends can read that row without a new function."
-        },
-        {
-          "title": "Neutral camps neighbor",
-          "detail": "fog of war must not be implemented inside Advance Patrol. A camp walks its route on a timer while fog hides it."
-        }
+        { "title": "The way back", "detail": "The return path is empty in the sample. The camp never walks home until you fill it." },
+        { "title": "Drawing", "detail": "The client's Visible bit decides if the camp is drawn." },
+        { "title": "Orders", "detail": "The player did not select this camp. It is not waiting for a click." }
       ],
       "quiz": [
         {
-          "id": "strategy-beginner-patrol-s1",
+          "id": "stgb-patrol-1",
           "kind": "mc",
-          "prompt": "A camp walks its route on a timer while fog hides it. When `void UKitComponent::Graph_AdvancePatrol_tpl_aipatrol_advance() // node:tpl_ai-patrol_advance` runs, what does the player get?",
+          "prompt": "Who ordered the neutral camp to walk?",
           "choices": [
-            "the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that a camp walks its route on a timer while fog hides it.",
-            "The line stepping the route from Tick, or starting a second move while Sense should only raise Alert. That would break the rule that a camp walks its route on a timer while fog hides it.",
-            "The constructor writes the result before a pawn exists. That would break the rule that a camp walks its route on a timer while fog hides it.",
-            "fog of war overwrites the value on every client. That would break the rule that a camp walks its route on a timer while fog hides it."
+            "Nobody. Begin Play started its route timer",
+            "The player's last right-click",
+            "The fog reveal",
+            "The medal event"
           ],
           "answer": 0,
-          "why": "the next patrol point on a one second timer, flipping GoingRight at the ends"
+          "why": "A camp is not a selected unit."
         },
         {
-          "id": "strategy-beginner-patrol-s2",
+          "id": "stgb-patrol-2",
           "kind": "mc",
-          "prompt": "A camp walks its route on a timer while fog hides it. Where does Advance Patrol sit relative to AdvancePatrol?",
+          "prompt": "The camp path sets GoingRight = true. What did that line decide?",
           "choices": [
-            "Advance Patrol runs after one second has passed. AdvancePatrol reaches that gate through the timer. That keeps the rule that a camp walks its route on a timer while fog hides it.",
-            "Advance Patrol runs before AdvancePatrol, so the write does not wait for the player. That would break the rule that a camp walks its route on a timer while fog hides it.",
-            "Advance Patrol sits on Tick while AdvancePatrol is idle. That would break the rule that a camp walks its route on a timer while fog hides it.",
-            "Advance Patrol sits in OnRep and applies the change a second time. That would break the rule that a camp walks its route on a timer while fog hides it."
+            "The camp is on the outward leg",
+            "The team can see the camp",
+            "The camp is selected",
+            "The camp just earned a medal"
           ],
           "answer": 0,
-          "why": "AdvancePatrol is the start."
+          "why": "GoingRight is direction, not vision."
         },
         {
-          "id": "strategy-beginner-patrol-s3",
-          "kind": "tf",
-          "prompt": "True or false: A camp walks its route on a timer while fog hides it.",
+          "id": "stgb-patrol-3",
+          "kind": "mc",
+          "prompt": "The camp should step about once a second. Which node does that?",
           "choices": [
-            "True",
-            "False"
+            "AdvancePatrol on the timer Begin Play started",
+            "A cursor search",
+            "The fog look",
+            "The supply subtract"
           ],
           "answer": 0,
-          "why": "A camp walks its route on a timer while fog hides it."
+          "why": "The route timer owns the step."
         },
         {
-          "id": "strategy-beginner-patrol-s4",
-          "kind": "tf",
-          "prompt": "True or false: A camp walks its route on a timer while fog hides it. You keep that promise by stepping the route from Tick, or starting a second move while Sense should only raise Alert.",
+          "id": "stgb-patrol-4",
+          "kind": "mc",
+          "prompt": "The camp graph writes Visible as it walks. What does that walk paint on the map?",
           "choices": [
-            "True",
-            "False"
+            "Walking lights the map even when the team cannot see",
+            "The camp stops forever",
+            "Supplies refund themselves",
+            "Score resets"
           ],
+          "answer": 0,
+          "why": "Fog writes vision. The camp only walks."
+        },
+        {
+          "id": "stgb-patrol-5",
+          "kind": "mc",
+          "prompt": "The return path has no points. What does the camp do at the end of the route?",
+          "choices": [
+            "It stops, because the walk back was never authored",
+            "It becomes selected",
+            "It spends 25 supplies",
+            "It awards a medal"
+          ],
+          "answer": 0,
+          "why": "The B path is unfinished."
+        },
+        {
+          "id": "stgb-patrol-6",
+          "kind": "tf",
+          "prompt": "A neutral camp should set Visible true on each step.",
+          "choices": ["True", "False"],
           "answer": 1,
-          "why": "the timer armed in Begin Play is the real writer."
+          "why": "Vision belongs to Reveal."
         },
         {
-          "id": "strategy-beginner-patrol-s5",
+          "id": "stgb-patrol-7",
           "kind": "mc",
-          "prompt": "A camp walks its route on a timer while fog hides it. Who may commit the change?",
+          "prompt": "The match pauses while a Tick step is moving the camp. What keeps happening?",
           "choices": [
-            "the timer armed in Begin Play. That keeps the rule that a camp walks its route on a timer while fog hides it.",
-            "Every client writes it so the result feels instant. That would break the rule that a camp walks its route on a timer while fog hides it.",
-            "The widget writes it because that is what the player is looking at. That would break the rule that a camp walks its route on a timer while fog hides it.",
-            "The constructor writes it once, and AdvancePatrol never fires. That would break the rule that a camp walks its route on a timer while fog hides it."
+            "The camp keeps walking unless that step is gated",
+            "The camp is drawn through fog",
+            "The stock ticks down",
+            "A medal fires"
           ],
           "answer": 0,
-          "why": "the timer armed in Begin Play"
+          "why": "A timer you own can pause. A raw step is easy to leave running."
         },
         {
-          "id": "strategy-beginner-patrol-s6",
+          "id": "stgb-patrol-8",
           "kind": "mc",
-          "prompt": "A camp walks its route on a timer while fog hides it. What has to be true before Advance Patrol writes?",
+          "prompt": "The client's fog bit is false for this cell. What should the client draw?",
           "choices": [
-            "one second has passed. That keeps the rule that a camp walks its route on a timer while fog hides it.",
-            "AdvancePatrol has not fired and the graph is only hoping. That would break the rule that a camp walks its route on a timer while fog hides it.",
-            "Tick has run one frame even though nothing changed. That would break the rule that a camp walks its route on a timer while fog hides it.",
-            "fog of war has already performed this write. That would break the rule that a camp walks its route on a timer while fog hides it."
+            "Nothing for that camp",
+            "The camp at full detail",
+            "The camp's order queue",
+            "The camp's medal"
           ],
           "answer": 0,
-          "why": "one second has passed"
+          "why": "Visible decides the draw."
         },
         {
-          "id": "strategy-beginner-patrol-s7",
-          "kind": "tf",
-          "prompt": "True or false: A camp walks its route on a timer while fog hides it. AdvancePatrol is the start, and the timer is the pin that continues into the write.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "AdvancePatrol through the timer."
-        },
-        {
-          "id": "strategy-beginner-patrol-s8",
+          "id": "stgb-patrol-9",
           "kind": "mc",
-          "prompt": "A camp walks its route on a timer while fog hides it. Delete AdvancePatrol and leave the rest of the Strategy — Beginner compiled. What does the player lose?",
+          "prompt": "Which line is the camp direction, not a player order?",
           "choices": [
-            "Neutral camps never starts, because nothing else fires the timer. That keeps the rule that a camp walks its route on a timer while fog hides it.",
-            "Nothing visible, because Tick still does the work. That would break the rule that a camp walks its route on a timer while fog hides it.",
-            "fog of war quietly takes over the job. That would break the rule that a camp walks its route on a timer while fog hides it.",
-            "The next travel's constructor writes it. That would break the rule that a camp walks its route on a timer while fog hides it."
+            "GoingRight = true on the camp path",
+            "The branch on Selected",
+            "The supply subtract",
+            "The score add"
           ],
           "answer": 0,
-          "why": "AdvancePatrol is the only start."
+          "why": "The camp walks without a click."
         },
         {
-          "id": "strategy-beginner-patrol-s9",
+          "id": "stgb-patrol-10",
           "kind": "mc",
-          "prompt": "A camp walks its route on a timer while fog hides it. Which broken schedule is the one to refuse?",
+          "prompt": "You start a new route timer inside AdvancePatrol. What does the camp do?",
           "choices": [
-            "stepping the route from Tick, or starting a second move while Sense should only raise Alert. That keeps the rule that a camp walks its route on a timer while fog hides it.",
-            "Leaving the real work on AdvancePatrol. That would break the rule that a camp walks its route on a timer while fog hides it.",
-            "Waiting until one second has passed before the write. That would break the rule that a camp walks its route on a timer while fog hides it.",
-            "Keeping the timer armed in Begin Play as the only writer. That would break the rule that a camp walks its route on a timer while fog hides it."
+            "It speeds up as timers pile up",
+            "It waits for a right-click",
+            "It reveals the whole map",
+            "It saves the match"
           ],
           "answer": 0,
-          "why": "stepping the route from Tick, or starting a second move while Sense should only raise Alert"
-        },
-        {
-          "id": "strategy-beginner-patrol-s10",
-          "kind": "mc",
-          "prompt": "A camp walks its route on a timer while fog hides it. fog of war wants to live in this same function. What stays separate?",
-          "choices": [
-            "fog of war keeps its own event. This function only handles the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that a camp walks its route on a timer while fog hides it.",
-            "fog of war is inlined so one Tick serves both jobs. That would break the rule that a camp walks its route on a timer while fog hides it.",
-            "fog of war writes the value from the client. That would break the rule that a camp walks its route on a timer while fog hides it.",
-            "fog of war runs inside OnRep after this write. That would break the rule that a camp walks its route on a timer while fog hides it."
-          ],
-          "answer": 0,
-          "why": "One event, one job."
-        },
-        {
-          "id": "strategy-beginner-patrol-s11",
-          "kind": "mc",
-          "prompt": "A camp walks its route on a timer while fog hides it. A teammate also applies the write from OnRep, so the game need not wait for the timer armed in Begin Play. What goes wrong?",
-          "choices": [
-            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that a camp walks its route on a timer while fog hides it.",
-            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that a camp walks its route on a timer while fog hides it.",
-            "The widget stops drawing until Tick resumes. That would break the rule that a camp walks its route on a timer while fog hides it.",
-            "AdvancePatrol stops firing. That would break the rule that a camp walks its route on a timer while fog hides it."
-          ],
-          "answer": 0,
-          "why": "OnRep shows the result."
-        },
-        {
-          "id": "strategy-beginner-patrol-s12",
-          "kind": "mc",
-          "prompt": "A camp walks its route on a timer while fog hides it. Which gate sits immediately in front of the write?",
-          "choices": [
-            "one second has passed, reached from AdvancePatrol via the timer. That keeps the rule that a camp walks its route on a timer while fog hides it.",
-            "A Tick frame, even when AdvancePatrol is idle. That would break the rule that a camp walks its route on a timer while fog hides it.",
-            "A cast to every Blueprint that might show up. That would break the rule that a camp walks its route on a timer while fog hides it.",
-            "A save reload, which would replay the change at the wrong moment. That would break the rule that a camp walks its route on a timer while fog hides it."
-          ],
-          "answer": 0,
-          "why": "one second has passed is the gate."
+          "why": "Begin Play already started the timer."
         }
       ]
     },
     "scoring": {
-      "plainEnglish": "In plain English: AwardMedal adds a data value on the authority. What the function actually does is Score increased by the data value on the authority. the authority inside AwardMedal is who is allowed to do it.",
-      "whyGame": "In a real match, a client adding 10, or OnRep adding another 10 when the widget refreshes looks almost right and then costs a query, a desync, or a double write. the score widget stays on its own event so this lesson does not swallow it.",
+      "plainEnglish": "A medal is a result the server records. A kill or an objective calls AwardMedal. The point value lives on the medal's data, not as a typed 10.",
+      "whyGame": "A client that awards its own medal inflates a board the host never granted.",
       "expansions": [
-        {
-          "title": "Medals listener",
-          "detail": "A follow-on in Strategy — Beginner should bind to AwardMedal after HasAuthority passes. It should not poll medals."
-        },
-        {
-          "title": "Medals data",
-          "detail": "Numbers a designer tunes for medals belong on a data row. Score increased by the data value on the authority can read that row without a new function."
-        },
-        {
-          "title": "Medals neighbor",
-          "detail": "the score widget must not be implemented inside Set Score. AwardMedal adds a data value on the authority."
-        }
+        { "title": "A kill", "detail": "The kill calls AwardMedal on the server." },
+        { "title": "An objective", "detail": "The objective uses the same event with its own data value." },
+        { "title": "The board", "detail": "The board shows the host's score, not a local guess." }
       ],
       "quiz": [
         {
-          "id": "strategy-beginner-scoring-s1",
+          "id": "stgb-scoring-1",
           "kind": "mc",
-          "prompt": "AwardMedal adds a data value on the authority. When `Score = (Score + 10.f); // node:tpl_scoring_set` runs, what does the player get?",
+          "prompt": "A player captures an objective. What should record the result?",
           "choices": [
-            "Score increased by the data value on the authority. That keeps the rule that awardMedal adds a data value on the authority.",
-            "The line a client adding 10, or OnRep adding another 10 when the widget refreshes. That would break the rule that awardMedal adds a data value on the authority.",
-            "The constructor writes the result before a pawn exists. That would break the rule that awardMedal adds a data value on the authority.",
-            "the score widget overwrites the value on every client. That would break the rule that awardMedal adds a data value on the authority."
+            "AwardMedal on the server",
+            "The order click",
+            "The fog timer",
+            "The camp step"
           ],
           "answer": 0,
-          "why": "Score increased by the data value on the authority"
+          "why": "A medal is a result, not an order."
         },
         {
-          "id": "strategy-beginner-scoring-s2",
+          "id": "stgb-scoring-2",
           "kind": "mc",
-          "prompt": "AwardMedal adds a data value on the authority. Where does Set Score sit relative to AwardMedal?",
+          "prompt": "The excerpt assigns Score = (Score + 10.f) inside HasAuthority. What is 10?",
           "choices": [
-            "Set Score runs after HasAuthority passes. AwardMedal reaches that gate through the medal event. That keeps the rule that awardMedal adds a data value on the authority.",
-            "Set Score runs before AwardMedal, so the write does not wait for the player. That would break the rule that awardMedal adds a data value on the authority.",
-            "Set Score sits on Tick while AwardMedal is idle. That would break the rule that awardMedal adds a data value on the authority.",
-            "Set Score sits in OnRep and applies the change a second time. That would break the rule that awardMedal adds a data value on the authority."
+            "A sample value the medal data should name",
+            "The required score of every medal",
+            "The supply cost of a barracks",
+            "The fog interval"
           ],
           "answer": 0,
-          "why": "AwardMedal is the start."
+          "why": "Ten is a stand-in."
         },
         {
-          "id": "strategy-beginner-scoring-s3",
-          "kind": "tf",
-          "prompt": "True or false: AwardMedal adds a data value on the authority.",
+          "id": "stgb-scoring-3",
+          "kind": "mc",
+          "prompt": "The server has accepted a kill. Which write comes next?",
           "choices": [
-            "True",
-            "False"
+            "The authority add of that medal's value",
+            "A client add so the popup appears first",
+            "Visible = true on the killer",
+            "A supply refund"
           ],
           "answer": 0,
-          "why": "AwardMedal adds a data value on the authority."
+          "why": "The host grants the points."
         },
         {
-          "id": "strategy-beginner-scoring-s4",
-          "kind": "tf",
-          "prompt": "True or false: AwardMedal adds a data value on the authority. You keep that promise by a client adding 10, or OnRep adding another 10 when the widget refreshes.",
+          "id": "stgb-scoring-4",
+          "kind": "mc",
+          "prompt": "A client adds 10 outside the authority check. What does the board show?",
           "choices": [
-            "True",
-            "False"
+            "A local number the host never granted",
+            "The same score on every machine",
+            "The camp's direction",
+            "The fog radius"
           ],
+          "answer": 0,
+          "why": "The inflate never replicates as truth."
+        },
+        {
+          "id": "stgb-scoring-5",
+          "kind": "mc",
+          "prompt": "Two medals are worth 5 and 25. Where is that difference stored?",
+          "choices": [
+            "On each medal's data asset",
+            "As two literals in AwardMedal",
+            "On the fog bool",
+            "In the camp path"
+          ],
+          "answer": 0,
+          "why": "Data names the value, the way a row names a cost."
+        },
+        {
+          "id": "stgb-scoring-6",
+          "kind": "tf",
+          "prompt": "Giving an order should award a medal.",
+          "choices": ["True", "False"],
           "answer": 1,
-          "why": "the authority inside AwardMedal is the real writer."
+          "why": "An order is not a result."
         },
         {
-          "id": "strategy-beginner-scoring-s5",
+          "id": "stgb-scoring-7",
           "kind": "mc",
-          "prompt": "AwardMedal adds a data value on the authority. Who may commit the change?",
+          "prompt": "Where does the score assignment belong?",
           "choices": [
-            "the authority inside AwardMedal. That keeps the rule that awardMedal adds a data value on the authority.",
-            "Every client writes it so the result feels instant. That would break the rule that awardMedal adds a data value on the authority.",
-            "The widget writes it because that is what the player is looking at. That would break the rule that awardMedal adds a data value on the authority.",
-            "The constructor writes it once, and AwardMedal never fires. That would break the rule that awardMedal adds a data value on the authority."
+            "Inside HasAuthority in AwardMedal",
+            "On the client that saw the kill",
+            "In the fog look",
+            "On the neutral camp's route"
           ],
           "answer": 0,
-          "why": "the authority inside AwardMedal"
+          "why": "The repair nests it there."
         },
         {
-          "id": "strategy-beginner-scoring-s6",
+          "id": "stgb-scoring-8",
           "kind": "mc",
-          "prompt": "AwardMedal adds a data value on the authority. What has to be true before Set Score writes?",
+          "prompt": "Which line is the medal write?",
           "choices": [
-            "HasAuthority passes. That keeps the rule that awardMedal adds a data value on the authority.",
-            "AwardMedal has not fired and the graph is only hoping. That would break the rule that awardMedal adds a data value on the authority.",
-            "Tick has run one frame even though nothing changed. That would break the rule that awardMedal adds a data value on the authority.",
-            "the score widget has already performed this write. That would break the rule that awardMedal adds a data value on the authority."
+            "Score = (Score + 10.f) inside HasAuthority",
+            "Supplies = (Supplies - 25.f) inside HasAuthority",
+            "The fog bit set after a hit",
+            "The camp facing along its outward leg"
           ],
           "answer": 0,
-          "why": "HasAuthority passes"
+          "why": "Score is the board."
         },
         {
-          "id": "strategy-beginner-scoring-s7",
-          "kind": "tf",
-          "prompt": "True or false: AwardMedal adds a data value on the authority. AwardMedal is the start, and the medal event is the pin that continues into the write.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "AwardMedal through the medal event."
-        },
-        {
-          "id": "strategy-beginner-scoring-s8",
+          "id": "stgb-scoring-9",
           "kind": "mc",
-          "prompt": "AwardMedal adds a data value on the authority. Delete AwardMedal and leave the rest of the Strategy — Beginner compiled. What does the player lose?",
+          "prompt": "The kill popup plays on a machine that has not heard the server score. What is that popup showing?",
           "choices": [
-            "Medals never starts, because nothing else fires the medal event. That keeps the rule that awardMedal adds a data value on the authority.",
-            "Nothing visible, because Tick still does the work. That would break the rule that awardMedal adds a data value on the authority.",
-            "the score widget quietly takes over the job. That would break the rule that awardMedal adds a data value on the authority.",
-            "The next travel's constructor writes it. That would break the rule that awardMedal adds a data value on the authority."
+            "A guess, until the authority value arrives",
+            "The official board",
+            "The supply stock",
+            "The camp path"
           ],
           "answer": 0,
-          "why": "AwardMedal is the only start."
+          "why": "The host number is the board."
         },
         {
-          "id": "strategy-beginner-scoring-s9",
+          "id": "stgb-scoring-10",
           "kind": "mc",
-          "prompt": "AwardMedal adds a data value on the authority. Which broken schedule is the one to refuse?",
+          "prompt": "Why does AwardMedal take the value from data instead of adding 10 for everything?",
           "choices": [
-            "a client adding 10, or OnRep adding another 10 when the widget refreshes. That keeps the rule that awardMedal adds a data value on the authority.",
-            "Leaving the real work on AwardMedal. That would break the rule that awardMedal adds a data value on the authority.",
-            "Waiting until HasAuthority passes before the write. That would break the rule that awardMedal adds a data value on the authority.",
-            "Keeping the authority inside AwardMedal as the only writer. That would break the rule that awardMedal adds a data value on the authority."
+            "A kill and an objective are not worth the same points",
+            "Data assets cannot be read on the server",
+            "The fog timer overwrites Score",
+            "Selection clears the board"
           ],
           "answer": 0,
-          "why": "a client adding 10, or OnRep adding another 10 when the widget refreshes"
-        },
-        {
-          "id": "strategy-beginner-scoring-s10",
-          "kind": "mc",
-          "prompt": "AwardMedal adds a data value on the authority. the score widget wants to live in this same function. What stays separate?",
-          "choices": [
-            "the score widget keeps its own event. This function only handles Score increased by the data value on the authority. That keeps the rule that awardMedal adds a data value on the authority.",
-            "the score widget is inlined so one Tick serves both jobs. That would break the rule that awardMedal adds a data value on the authority.",
-            "the score widget writes the value from the client. That would break the rule that awardMedal adds a data value on the authority.",
-            "the score widget runs inside OnRep after this write. That would break the rule that awardMedal adds a data value on the authority."
-          ],
-          "answer": 0,
-          "why": "One event, one job."
-        },
-        {
-          "id": "strategy-beginner-scoring-s11",
-          "kind": "mc",
-          "prompt": "AwardMedal adds a data value on the authority. A teammate also applies the write from OnRep, so the game need not wait for the authority inside AwardMedal. What goes wrong?",
-          "choices": [
-            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that awardMedal adds a data value on the authority.",
-            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that awardMedal adds a data value on the authority.",
-            "The widget stops drawing until Tick resumes. That would break the rule that awardMedal adds a data value on the authority.",
-            "AwardMedal stops firing. That would break the rule that awardMedal adds a data value on the authority."
-          ],
-          "answer": 0,
-          "why": "OnRep shows the result."
-        },
-        {
-          "id": "strategy-beginner-scoring-s12",
-          "kind": "mc",
-          "prompt": "AwardMedal adds a data value on the authority. Which gate sits immediately in front of the write?",
-          "choices": [
-            "HasAuthority passes, reached from AwardMedal via the medal event. That keeps the rule that awardMedal adds a data value on the authority.",
-            "A Tick frame, even when AwardMedal is idle. That would break the rule that awardMedal adds a data value on the authority.",
-            "A cast to every Blueprint that might show up. That would break the rule that awardMedal adds a data value on the authority.",
-            "A save reload, which would replay the change at the wrong moment. That would break the rule that awardMedal adds a data value on the authority."
-          ],
-          "answer": 0,
-          "why": "HasAuthority passes is the gate."
+          "why": "The asset names the medal."
         }
       ]
     },
     "save": {
-      "plainEnglish": "In plain English: Begin Play restores supplies, score, and the route, then fog recomputes. What the function actually does is one struct loaded at Begin Play, written earlier by an event rather than by Tick. Begin Play for the load, and a finished event for the save is who is allowed to do it.",
-      "whyGame": "In a real match, assigning SlotValue from Tick every frame, including while a value is still changing looks almost right and then costs a query, a desync, or a double write. Tick stays on its own event so this lesson does not swallow it.",
+      "plainEnglish": "The match save stores supplies, score, each camp's direction, and orders that are still running. It does not store fog. After load, the reveal timer looks again.",
+      "whyGame": "A saved visibility bit draws a camp that has already walked somewhere else.",
       "expansions": [
-        {
-          "title": "Save the match listener",
-          "detail": "A follow-on in Strategy — Beginner should bind to Begin Play after the slot struct already exists. It should not poll save the match."
-        },
-        {
-          "title": "Save the match data",
-          "detail": "Numbers a designer tunes for save the match belong on a data row. one struct loaded at Begin Play, written earlier by an event rather than by Tick can read that row without a new function."
-        },
-        {
-          "title": "Save the match neighbor",
-          "detail": "Tick must not be implemented inside Begin Play. Begin Play restores supplies, score, and the route, then fog recomputes."
-        }
+        { "title": "Orders in flight", "detail": "A move that had not finished is part of the match." },
+        { "title": "Camps", "detail": "Store GoingRight so the camp continues the leg it was on." },
+        { "title": "When", "detail": "Load a finished struct at Begin Play. Do not write the slot from Tick." }
       ],
       "quiz": [
         {
-          "id": "strategy-beginner-save-s1",
+          "id": "stgb-save-1",
           "kind": "mc",
-          "prompt": "Begin Play restores supplies, score, and the route, then fog recomputes. When `void UKitComponent::Graph_BeginPlay_tpl_saveload_begin() // node:tpl_save-load_begin` runs, what does the player get?",
+          "prompt": "Which set belongs in the match save?",
           "choices": [
-            "one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "The line assigning SlotValue from Tick every frame, including while a value is still changing. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "The constructor writes the result before a pawn exists. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "Tick overwrites the value on every client. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes."
+            "Supplies, score, camp direction, and orders still running",
+            "Every Visible bit",
+            "The reveal timer object",
+            "The cursor position each frame"
           ],
           "answer": 0,
-          "why": "one struct loaded at Begin Play, written earlier by an event rather than by Tick"
+          "why": "Save results the timer cannot rebuild."
         },
         {
-          "id": "strategy-beginner-save-s2",
+          "id": "stgb-save-2",
           "kind": "mc",
-          "prompt": "Begin Play restores supplies, score, and the route, then fog recomputes. Where does Begin Play sit relative to Begin Play?",
+          "prompt": "The sample assigns SlotValue = 1.f on Begin Play. What replaces that stand-in?",
           "choices": [
-            "Begin Play runs after the slot struct already exists. Begin Play reaches that gate through Begin Play. That keeps the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "Begin Play runs before Begin Play, so the write does not wait for the player. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "Begin Play sits on Tick while Begin Play is idle. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "Begin Play sits in OnRep and applies the change a second time. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes."
+            "The match struct",
+            "A single Visible bit",
+            "The literal 25",
+            "The literal 10"
           ],
           "answer": 0,
-          "why": "Begin Play is the start."
+          "why": "1 is the sample shape."
         },
         {
-          "id": "strategy-beginner-save-s3",
-          "kind": "tf",
-          "prompt": "True or false: Begin Play restores supplies, score, and the route, then fog recomputes.",
+          "id": "stgb-save-3",
+          "kind": "mc",
+          "prompt": "A finished struct is on disk. Which event loads it?",
           "choices": [
-            "True",
-            "False"
+            "Begin Play",
+            "The ordinary frame loop",
+            "The fog look",
+            "The right-click"
           ],
           "answer": 0,
-          "why": "Begin Play restores supplies, score, and the route, then fog recomputes."
+          "why": "Load when the match starts."
         },
         {
-          "id": "strategy-beginner-save-s4",
-          "kind": "tf",
-          "prompt": "True or false: Begin Play restores supplies, score, and the route, then fog recomputes. You keep that promise by assigning SlotValue from Tick every frame, including while a value is still changing.",
+          "id": "stgb-save-4",
+          "kind": "mc",
+          "prompt": "Tick writes the slot every frame. What half-finished state gets stored?",
           "choices": [
-            "True",
-            "False"
+            "You store half-finished spends and half-finished orders",
+            "Fog becomes authoritative",
+            "Camps stop patrolling",
+            "Medals double on purpose"
           ],
+          "answer": 0,
+          "why": "Write when something finishes."
+        },
+        {
+          "id": "stgb-save-5",
+          "kind": "mc",
+          "prompt": "You pack Visible so the map looks right immediately. What is stale?",
+          "choices": [
+            "Any cell a camp has walked out of since the save",
+            "The supply total",
+            "The score",
+            "The selected flag"
+          ],
+          "answer": 0,
+          "why": "The timer recomputes vision from positions."
+        },
+        {
+          "id": "stgb-save-6",
+          "kind": "tf",
+          "prompt": "The match save should include the fog bits.",
+          "choices": ["True", "False"],
           "answer": 1,
-          "why": "Begin Play for the load, and a finished event for the save is the real writer."
+          "why": "Reveal rebuilds them."
         },
         {
-          "id": "strategy-beginner-save-s5",
+          "id": "stgb-save-7",
           "kind": "mc",
-          "prompt": "Begin Play restores supplies, score, and the route, then fog recomputes. Who may commit the change?",
+          "prompt": "A camp was walking back when the player saved. What must the struct remember?",
           "choices": [
-            "Begin Play for the load, and a finished event for the save. That keeps the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "Every client writes it so the result feels instant. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "The widget writes it because that is what the player is looking at. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "The constructor writes it once, and Begin Play never fires. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes."
+            "That camp's direction",
+            "That camp's current Visible bit",
+            "The cursor pixel",
+            "The medal popup"
           ],
           "answer": 0,
-          "why": "Begin Play for the load, and a finished event for the save"
+          "why": "GoingRight is the leg."
         },
         {
-          "id": "strategy-beginner-save-s6",
+          "id": "stgb-save-8",
           "kind": "mc",
-          "prompt": "Begin Play restores supplies, score, and the route, then fog recomputes. What has to be true before Begin Play writes?",
+          "prompt": "An order was halfway to its point. Why is that order in the slot?",
           "choices": [
-            "the slot struct already exists. That keeps the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "Begin Play has not fired and the graph is only hoping. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "Tick has run one frame even though nothing changed. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "Tick has already performed this write. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes."
+            "The unit should keep executing it after load",
+            "Orders are the same thing as fog",
+            "The score is derived from open orders",
+            "The supply cost is recomputed from the click"
           ],
           "answer": 0,
-          "why": "the slot struct already exists"
+          "why": "In-flight orders are match state."
         },
         {
-          "id": "strategy-beginner-save-s7",
-          "kind": "tf",
-          "prompt": "True or false: Begin Play restores supplies, score, and the route, then fog recomputes. Begin Play is the start, and Begin Play is the pin that continues into the write.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "Begin Play through Begin Play."
-        },
-        {
-          "id": "strategy-beginner-save-s8",
+          "id": "stgb-save-9",
           "kind": "mc",
-          "prompt": "Begin Play restores supplies, score, and the route, then fog recomputes. Delete Begin Play and leave the rest of the Strategy — Beginner compiled. What does the player lose?",
+          "prompt": "After load, what rebuilds the map the team can see?",
           "choices": [
-            "Save the match never starts, because nothing else fires Begin Play. That keeps the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "Nothing visible, because Tick still does the work. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "Tick quietly takes over the job. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "The next travel's constructor writes it. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes."
+            "The reveal timer, from where units now stand",
+            "The saved Visible bits",
+            "The camp step, by writing Visible",
+            "Granting points"
           ],
           "answer": 0,
-          "why": "Begin Play is the only start."
+          "why": "Look again. Do not restore the bits."
         },
         {
-          "id": "strategy-beginner-save-s9",
+          "id": "stgb-save-10",
           "kind": "mc",
-          "prompt": "Begin Play restores supplies, score, and the route, then fog recomputes. Which broken schedule is the one to refuse?",
+          "prompt": "Which line is the sample save shape you replace?",
           "choices": [
-            "assigning SlotValue from Tick every frame, including while a value is still changing. That keeps the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "Leaving the real work on Begin Play. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "Waiting until the slot struct already exists before the write. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "Keeping Begin Play for the load, and a finished event for the save as the only writer. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes."
+            "SlotValue = 1.f at Begin Play",
+            "The fog bit",
+            "The sample supply subtract",
+            "The sample score add"
           ],
           "answer": 0,
-          "why": "assigning SlotValue from Tick every frame, including while a value is still changing"
-        },
-        {
-          "id": "strategy-beginner-save-s10",
-          "kind": "mc",
-          "prompt": "Begin Play restores supplies, score, and the route, then fog recomputes. Tick wants to live in this same function. What stays separate?",
-          "choices": [
-            "Tick keeps its own event. This function only handles one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "Tick is inlined so one Tick serves both jobs. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "Tick writes the value from the client. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "Tick runs inside OnRep after this write. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes."
-          ],
-          "answer": 0,
-          "why": "One event, one job."
-        },
-        {
-          "id": "strategy-beginner-save-s11",
-          "kind": "mc",
-          "prompt": "Begin Play restores supplies, score, and the route, then fog recomputes. A teammate also applies the write from OnRep, so the game need not wait for Begin Play for the load, and a finished event for the save. What goes wrong?",
-          "choices": [
-            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "The widget stops drawing until Tick resumes. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "Begin Play stops firing. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes."
-          ],
-          "answer": 0,
-          "why": "OnRep shows the result."
-        },
-        {
-          "id": "strategy-beginner-save-s12",
-          "kind": "mc",
-          "prompt": "Begin Play restores supplies, score, and the route, then fog recomputes. Which gate sits immediately in front of the write?",
-          "choices": [
-            "the slot struct already exists, reached from Begin Play via Begin Play. That keeps the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "A Tick frame, even when Begin Play is idle. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "A cast to every Blueprint that might show up. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-            "A save reload, which would replay the change at the wrong moment. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes."
-          ],
-          "answer": 0,
-          "why": "the slot struct already exists is the gate."
+          "why": "That assignment is the stand-in."
         }
       ]
     }
   },
-  "exam": [
-    {
-      "id": "study-strategy-beginner-exam-0",
-      "kind": "tf",
-      "prompt": "True or false: IA_Order reaches only the selected unit, through ReceiveOrder. Spend subtracts a data cost on the authority. That pair of rules also means supplies may every client subtracting 25, or paying for a shell out of the same float.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 1,
-      "why": "Selection and orders does not give Supplies permission to every client subtracting 25, or paying for a shell out of the same float."
-    },
-    {
-      "id": "study-strategy-beginner-exam-1",
-      "kind": "tf",
-      "prompt": "True or false: IA_Order reaches only the selected unit, through ReceiveOrder. Reveal runs four times a second. Visible is a team fact. Selection and orders still starts at IA_Order after the player has learned fog of war.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 0,
-      "why": "IA_Order remains the start of Selection and orders."
-    },
-    {
-      "id": "study-strategy-beginner-exam-2",
-      "kind": "mc",
-      "prompt": "IA_Order reaches only the selected unit, through ReceiveOrder. A camp walks its route on a timer while fog hides it. A prototype runs both jobs from AdvancePatrol. What do you put back in Strategy — Beginner?",
-      "choices": [
-        "Selection and orders keeps IA_Order so it can ReceiveOrder only on the unit that is Selected. Neutral camps keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that iA_Order reaches only the selected unit, through ReceiveOrder. A camp walks its route on a timer while fog hides it.",
-        "Fold the first job into AdvancePatrol so the exam build has one event. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder. A camp walks its route on a timer while fog hides it.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder. A camp walks its route on a timer while fog hides it.",
-        "Let each client apply both writes before the authority answers. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder. A camp walks its route on a timer while fog hides it."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-strategy-beginner-exam-3",
-      "kind": "mc",
-      "prompt": "IA_Order reaches only the selected unit, through ReceiveOrder. AwardMedal adds a data value on the authority. A prototype runs both jobs from AwardMedal. What do you put back in Strategy — Beginner?",
-      "choices": [
-        "Selection and orders keeps IA_Order so it can ReceiveOrder only on the unit that is Selected. Medals keeps AwardMedal so it can Score increased by the data value on the authority. That keeps the rule that iA_Order reaches only the selected unit, through ReceiveOrder. AwardMedal adds a data value on the authority.",
-        "Fold the first job into AwardMedal so the exam build has one event. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder. AwardMedal adds a data value on the authority.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder. AwardMedal adds a data value on the authority.",
-        "Let each client apply both writes before the authority answers. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder. AwardMedal adds a data value on the authority."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-strategy-beginner-exam-4",
-      "kind": "mc",
-      "prompt": "IA_Order reaches only the selected unit, through ReceiveOrder. Begin Play restores supplies, score, and the route, then fog recomputes. A prototype runs both jobs from Begin Play. What do you put back in Strategy — Beginner?",
-      "choices": [
-        "Selection and orders keeps IA_Order so it can ReceiveOrder only on the unit that is Selected. Save the match keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that iA_Order reaches only the selected unit, through ReceiveOrder. Begin Play restores supplies, score, and the route, then fog recomputes.",
-        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder. Begin Play restores supplies, score, and the route, then fog recomputes.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder. Begin Play restores supplies, score, and the route, then fog recomputes.",
-        "Let each client apply both writes before the authority answers. That would break the rule that iA_Order reaches only the selected unit, through ReceiveOrder. Begin Play restores supplies, score, and the route, then fog recomputes."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-strategy-beginner-exam-5",
-      "kind": "mc",
-      "prompt": "Spend subtracts a data cost on the authority. IA_Order reaches only the selected unit, through ReceiveOrder. A prototype runs both jobs from IA_Order. What do you put back in Strategy — Beginner?",
-      "choices": [
-        "Supplies keeps Spend so it can Supplies reduced by the data cost, and only on the authority. Selection and orders keeps IA_Order so it can ReceiveOrder only on the unit that is Selected. That keeps the rule that spend subtracts a data cost on the authority. IA_Order reaches only the selected unit, through ReceiveOrder.",
-        "Fold the first job into IA_Order so the exam build has one event. That would break the rule that spend subtracts a data cost on the authority. IA_Order reaches only the selected unit, through ReceiveOrder.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that spend subtracts a data cost on the authority. IA_Order reaches only the selected unit, through ReceiveOrder.",
-        "Let each client apply both writes before the authority answers. That would break the rule that spend subtracts a data cost on the authority. IA_Order reaches only the selected unit, through ReceiveOrder."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-strategy-beginner-exam-6",
-      "kind": "mc",
-      "prompt": "Spend subtracts a data cost on the authority. Reveal runs four times a second. Visible is a team fact. A prototype runs both jobs from Reveal. What do you put back in Strategy — Beginner?",
-      "choices": [
-        "Supplies keeps Spend so it can Supplies reduced by the data cost, and only on the authority. Fog of war keeps Reveal so it can Visible set from a trace on a 0.25 second timer. That keeps the rule that spend subtracts a data cost on the authority. Reveal runs four times a second. Visible is a team fact.",
-        "Fold the first job into Reveal so the exam build has one event. That would break the rule that spend subtracts a data cost on the authority. Reveal runs four times a second. Visible is a team fact.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that spend subtracts a data cost on the authority. Reveal runs four times a second. Visible is a team fact.",
-        "Let each client apply both writes before the authority answers. That would break the rule that spend subtracts a data cost on the authority. Reveal runs four times a second. Visible is a team fact."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-strategy-beginner-exam-7",
-      "kind": "tf",
-      "prompt": "True or false: Spend subtracts a data cost on the authority. A camp walks its route on a timer while fog hides it. That pair of rules also means neutral camps may stepping the route from Tick, or starting a second move while Sense should only raise Alert.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 1,
-      "why": "Supplies does not give Neutral camps permission to stepping the route from Tick, or starting a second move while Sense should only raise Alert."
-    },
-    {
-      "id": "study-strategy-beginner-exam-8",
-      "kind": "tf",
-      "prompt": "True or false: Spend subtracts a data cost on the authority. AwardMedal adds a data value on the authority. Supplies still starts at Spend after the player has learned medals.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 0,
-      "why": "Spend remains the start of Supplies."
-    },
-    {
-      "id": "study-strategy-beginner-exam-9",
-      "kind": "mc",
-      "prompt": "Spend subtracts a data cost on the authority. Begin Play restores supplies, score, and the route, then fog recomputes. A prototype runs both jobs from Begin Play. What do you put back in Strategy — Beginner?",
-      "choices": [
-        "Supplies keeps Spend so it can Supplies reduced by the data cost, and only on the authority. Save the match keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that spend subtracts a data cost on the authority. Begin Play restores supplies, score, and the route, then fog recomputes.",
-        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that spend subtracts a data cost on the authority. Begin Play restores supplies, score, and the route, then fog recomputes.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that spend subtracts a data cost on the authority. Begin Play restores supplies, score, and the route, then fog recomputes.",
-        "Let each client apply both writes before the authority answers. That would break the rule that spend subtracts a data cost on the authority. Begin Play restores supplies, score, and the route, then fog recomputes."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-strategy-beginner-exam-10",
-      "kind": "mc",
-      "prompt": "Reveal runs four times a second. Visible is a team fact. IA_Order reaches only the selected unit, through ReceiveOrder. A prototype runs both jobs from IA_Order. What do you put back in Strategy — Beginner?",
-      "choices": [
-        "Fog of war keeps Reveal so it can Visible set from a trace on a 0.25 second timer. Selection and orders keeps IA_Order so it can ReceiveOrder only on the unit that is Selected. That keeps the rule that reveal runs four times a second. Visible is a team fact. IA_Order reaches only the selected unit, through ReceiveOrder.",
-        "Fold the first job into IA_Order so the exam build has one event. That would break the rule that reveal runs four times a second. Visible is a team fact. IA_Order reaches only the selected unit, through ReceiveOrder.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that reveal runs four times a second. Visible is a team fact. IA_Order reaches only the selected unit, through ReceiveOrder.",
-        "Let each client apply both writes before the authority answers. That would break the rule that reveal runs four times a second. Visible is a team fact. IA_Order reaches only the selected unit, through ReceiveOrder."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-strategy-beginner-exam-11",
-      "kind": "mc",
-      "prompt": "Reveal runs four times a second. Visible is a team fact. Spend subtracts a data cost on the authority. A prototype runs both jobs from Spend. What do you put back in Strategy — Beginner?",
-      "choices": [
-        "Fog of war keeps Reveal so it can Visible set from a trace on a 0.25 second timer. Supplies keeps Spend so it can Supplies reduced by the data cost, and only on the authority. That keeps the rule that reveal runs four times a second. Visible is a team fact. Spend subtracts a data cost on the authority.",
-        "Fold the first job into Spend so the exam build has one event. That would break the rule that reveal runs four times a second. Visible is a team fact. Spend subtracts a data cost on the authority.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that reveal runs four times a second. Visible is a team fact. Spend subtracts a data cost on the authority.",
-        "Let each client apply both writes before the authority answers. That would break the rule that reveal runs four times a second. Visible is a team fact. Spend subtracts a data cost on the authority."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-strategy-beginner-exam-12",
-      "kind": "mc",
-      "prompt": "Reveal runs four times a second. Visible is a team fact. A camp walks its route on a timer while fog hides it. A prototype runs both jobs from AdvancePatrol. What do you put back in Strategy — Beginner?",
-      "choices": [
-        "Fog of war keeps Reveal so it can Visible set from a trace on a 0.25 second timer. Neutral camps keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that reveal runs four times a second. Visible is a team fact. A camp walks its route on a timer while fog hides it.",
-        "Fold the first job into AdvancePatrol so the exam build has one event. That would break the rule that reveal runs four times a second. Visible is a team fact. A camp walks its route on a timer while fog hides it.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that reveal runs four times a second. Visible is a team fact. A camp walks its route on a timer while fog hides it.",
-        "Let each client apply both writes before the authority answers. That would break the rule that reveal runs four times a second. Visible is a team fact. A camp walks its route on a timer while fog hides it."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-strategy-beginner-exam-13",
-      "kind": "mc",
-      "prompt": "Reveal runs four times a second. Visible is a team fact. AwardMedal adds a data value on the authority. A prototype runs both jobs from AwardMedal. What do you put back in Strategy — Beginner?",
-      "choices": [
-        "Fog of war keeps Reveal so it can Visible set from a trace on a 0.25 second timer. Medals keeps AwardMedal so it can Score increased by the data value on the authority. That keeps the rule that reveal runs four times a second. Visible is a team fact. AwardMedal adds a data value on the authority.",
-        "Fold the first job into AwardMedal so the exam build has one event. That would break the rule that reveal runs four times a second. Visible is a team fact. AwardMedal adds a data value on the authority.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that reveal runs four times a second. Visible is a team fact. AwardMedal adds a data value on the authority.",
-        "Let each client apply both writes before the authority answers. That would break the rule that reveal runs four times a second. Visible is a team fact. AwardMedal adds a data value on the authority."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-strategy-beginner-exam-14",
-      "kind": "tf",
-      "prompt": "True or false: Reveal runs four times a second. Visible is a team fact. Begin Play restores supplies, score, and the route, then fog recomputes. That pair of rules also means save the match may assigning SlotValue from Tick every frame, including while a value is still changing.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 1,
-      "why": "Fog of war does not give Save the match permission to assigning SlotValue from Tick every frame, including while a value is still changing."
-    },
-    {
-      "id": "study-strategy-beginner-exam-15",
-      "kind": "tf",
-      "prompt": "True or false: A camp walks its route on a timer while fog hides it. IA_Order reaches only the selected unit, through ReceiveOrder. Neutral camps still starts at AdvancePatrol after the player has learned selection and orders.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 0,
-      "why": "AdvancePatrol remains the start of Neutral camps."
-    },
-    {
-      "id": "study-strategy-beginner-exam-16",
-      "kind": "mc",
-      "prompt": "A camp walks its route on a timer while fog hides it. Spend subtracts a data cost on the authority. A prototype runs both jobs from Spend. What do you put back in Strategy — Beginner?",
-      "choices": [
-        "Neutral camps keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. Supplies keeps Spend so it can Supplies reduced by the data cost, and only on the authority. That keeps the rule that a camp walks its route on a timer while fog hides it. Spend subtracts a data cost on the authority.",
-        "Fold the first job into Spend so the exam build has one event. That would break the rule that a camp walks its route on a timer while fog hides it. Spend subtracts a data cost on the authority.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that a camp walks its route on a timer while fog hides it. Spend subtracts a data cost on the authority.",
-        "Let each client apply both writes before the authority answers. That would break the rule that a camp walks its route on a timer while fog hides it. Spend subtracts a data cost on the authority."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-strategy-beginner-exam-17",
-      "kind": "mc",
-      "prompt": "A camp walks its route on a timer while fog hides it. Reveal runs four times a second. Visible is a team fact. A prototype runs both jobs from Reveal. What do you put back in Strategy — Beginner?",
-      "choices": [
-        "Neutral camps keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. Fog of war keeps Reveal so it can Visible set from a trace on a 0.25 second timer. That keeps the rule that a camp walks its route on a timer while fog hides it. Reveal runs four times a second. Visible is a team fact.",
-        "Fold the first job into Reveal so the exam build has one event. That would break the rule that a camp walks its route on a timer while fog hides it. Reveal runs four times a second. Visible is a team fact.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that a camp walks its route on a timer while fog hides it. Reveal runs four times a second. Visible is a team fact.",
-        "Let each client apply both writes before the authority answers. That would break the rule that a camp walks its route on a timer while fog hides it. Reveal runs four times a second. Visible is a team fact."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-strategy-beginner-exam-18",
-      "kind": "mc",
-      "prompt": "A camp walks its route on a timer while fog hides it. AwardMedal adds a data value on the authority. A prototype runs both jobs from AwardMedal. What do you put back in Strategy — Beginner?",
-      "choices": [
-        "Neutral camps keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. Medals keeps AwardMedal so it can Score increased by the data value on the authority. That keeps the rule that a camp walks its route on a timer while fog hides it. AwardMedal adds a data value on the authority.",
-        "Fold the first job into AwardMedal so the exam build has one event. That would break the rule that a camp walks its route on a timer while fog hides it. AwardMedal adds a data value on the authority.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that a camp walks its route on a timer while fog hides it. AwardMedal adds a data value on the authority.",
-        "Let each client apply both writes before the authority answers. That would break the rule that a camp walks its route on a timer while fog hides it. AwardMedal adds a data value on the authority."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-strategy-beginner-exam-19",
-      "kind": "mc",
-      "prompt": "A camp walks its route on a timer while fog hides it. Begin Play restores supplies, score, and the route, then fog recomputes. A prototype runs both jobs from Begin Play. What do you put back in Strategy — Beginner?",
-      "choices": [
-        "Neutral camps keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. Save the match keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that a camp walks its route on a timer while fog hides it. Begin Play restores supplies, score, and the route, then fog recomputes.",
-        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that a camp walks its route on a timer while fog hides it. Begin Play restores supplies, score, and the route, then fog recomputes.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that a camp walks its route on a timer while fog hides it. Begin Play restores supplies, score, and the route, then fog recomputes.",
-        "Let each client apply both writes before the authority answers. That would break the rule that a camp walks its route on a timer while fog hides it. Begin Play restores supplies, score, and the route, then fog recomputes."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-strategy-beginner-exam-20",
-      "kind": "mc",
-      "prompt": "AwardMedal adds a data value on the authority. IA_Order reaches only the selected unit, through ReceiveOrder. A prototype runs both jobs from IA_Order. What do you put back in Strategy — Beginner?",
-      "choices": [
-        "Medals keeps AwardMedal so it can Score increased by the data value on the authority. Selection and orders keeps IA_Order so it can ReceiveOrder only on the unit that is Selected. That keeps the rule that awardMedal adds a data value on the authority. IA_Order reaches only the selected unit, through ReceiveOrder.",
-        "Fold the first job into IA_Order so the exam build has one event. That would break the rule that awardMedal adds a data value on the authority. IA_Order reaches only the selected unit, through ReceiveOrder.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that awardMedal adds a data value on the authority. IA_Order reaches only the selected unit, through ReceiveOrder.",
-        "Let each client apply both writes before the authority answers. That would break the rule that awardMedal adds a data value on the authority. IA_Order reaches only the selected unit, through ReceiveOrder."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-strategy-beginner-exam-21",
-      "kind": "tf",
-      "prompt": "True or false: AwardMedal adds a data value on the authority. Spend subtracts a data cost on the authority. That pair of rules also means supplies may every client subtracting 25, or paying for a shell out of the same float.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 1,
-      "why": "Medals does not give Supplies permission to every client subtracting 25, or paying for a shell out of the same float."
-    },
-    {
-      "id": "study-strategy-beginner-exam-22",
-      "kind": "tf",
-      "prompt": "True or false: AwardMedal adds a data value on the authority. Reveal runs four times a second. Visible is a team fact. Medals still starts at AwardMedal after the player has learned fog of war.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 0,
-      "why": "AwardMedal remains the start of Medals."
-    },
-    {
-      "id": "study-strategy-beginner-exam-23",
-      "kind": "mc",
-      "prompt": "AwardMedal adds a data value on the authority. A camp walks its route on a timer while fog hides it. A prototype runs both jobs from AdvancePatrol. What do you put back in Strategy — Beginner?",
-      "choices": [
-        "Medals keeps AwardMedal so it can Score increased by the data value on the authority. Neutral camps keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that awardMedal adds a data value on the authority. A camp walks its route on a timer while fog hides it.",
-        "Fold the first job into AdvancePatrol so the exam build has one event. That would break the rule that awardMedal adds a data value on the authority. A camp walks its route on a timer while fog hides it.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that awardMedal adds a data value on the authority. A camp walks its route on a timer while fog hides it.",
-        "Let each client apply both writes before the authority answers. That would break the rule that awardMedal adds a data value on the authority. A camp walks its route on a timer while fog hides it."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-strategy-beginner-exam-24",
-      "kind": "mc",
-      "prompt": "AwardMedal adds a data value on the authority. Begin Play restores supplies, score, and the route, then fog recomputes. A prototype runs both jobs from Begin Play. What do you put back in Strategy — Beginner?",
-      "choices": [
-        "Medals keeps AwardMedal so it can Score increased by the data value on the authority. Save the match keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that awardMedal adds a data value on the authority. Begin Play restores supplies, score, and the route, then fog recomputes.",
-        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that awardMedal adds a data value on the authority. Begin Play restores supplies, score, and the route, then fog recomputes.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that awardMedal adds a data value on the authority. Begin Play restores supplies, score, and the route, then fog recomputes.",
-        "Let each client apply both writes before the authority answers. That would break the rule that awardMedal adds a data value on the authority. Begin Play restores supplies, score, and the route, then fog recomputes."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-strategy-beginner-exam-25",
-      "kind": "mc",
-      "prompt": "Begin Play restores supplies, score, and the route, then fog recomputes. IA_Order reaches only the selected unit, through ReceiveOrder. A prototype runs both jobs from IA_Order. What do you put back in Strategy — Beginner?",
-      "choices": [
-        "Save the match keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. Selection and orders keeps IA_Order so it can ReceiveOrder only on the unit that is Selected. That keeps the rule that begin Play restores supplies, score, and the route, then fog recomputes. IA_Order reaches only the selected unit, through ReceiveOrder.",
-        "Fold the first job into IA_Order so the exam build has one event. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes. IA_Order reaches only the selected unit, through ReceiveOrder.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes. IA_Order reaches only the selected unit, through ReceiveOrder.",
-        "Let each client apply both writes before the authority answers. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes. IA_Order reaches only the selected unit, through ReceiveOrder."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-strategy-beginner-exam-26",
-      "kind": "mc",
-      "prompt": "Begin Play restores supplies, score, and the route, then fog recomputes. Spend subtracts a data cost on the authority. A prototype runs both jobs from Spend. What do you put back in Strategy — Beginner?",
-      "choices": [
-        "Save the match keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. Supplies keeps Spend so it can Supplies reduced by the data cost, and only on the authority. That keeps the rule that begin Play restores supplies, score, and the route, then fog recomputes. Spend subtracts a data cost on the authority.",
-        "Fold the first job into Spend so the exam build has one event. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes. Spend subtracts a data cost on the authority.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes. Spend subtracts a data cost on the authority.",
-        "Let each client apply both writes before the authority answers. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes. Spend subtracts a data cost on the authority."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-strategy-beginner-exam-27",
-      "kind": "mc",
-      "prompt": "Begin Play restores supplies, score, and the route, then fog recomputes. Reveal runs four times a second. Visible is a team fact. A prototype runs both jobs from Reveal. What do you put back in Strategy — Beginner?",
-      "choices": [
-        "Save the match keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. Fog of war keeps Reveal so it can Visible set from a trace on a 0.25 second timer. That keeps the rule that begin Play restores supplies, score, and the route, then fog recomputes. Reveal runs four times a second. Visible is a team fact.",
-        "Fold the first job into Reveal so the exam build has one event. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes. Reveal runs four times a second. Visible is a team fact.",
-        "Run both from Tick whenever either lesson might have changed. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes. Reveal runs four times a second. Visible is a team fact.",
-        "Let each client apply both writes before the authority answers. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes. Reveal runs four times a second. Visible is a team fact."
-      ],
-      "answer": 0,
-      "why": "Each lesson keeps its own event."
-    },
-    {
-      "id": "study-strategy-beginner-exam-28",
-      "kind": "tf",
-      "prompt": "True or false: Begin Play restores supplies, score, and the route, then fog recomputes. A camp walks its route on a timer while fog hides it. That pair of rules also means neutral camps may stepping the route from Tick, or starting a second move while Sense should only raise Alert.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 1,
-      "why": "Save the match does not give Neutral camps permission to stepping the route from Tick, or starting a second move while Sense should only raise Alert."
-    },
-    {
-      "id": "study-strategy-beginner-exam-29",
-      "kind": "tf",
-      "prompt": "True or false: Begin Play restores supplies, score, and the route, then fog recomputes. AwardMedal adds a data value on the authority. Save the match still starts at Begin Play after the player has learned medals.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 0,
-      "why": "Begin Play remains the start of Save the match."
-    },
-    {
-      "id": "study-strategy-beginner-exam-extra-0",
-      "kind": "tf",
-      "prompt": "True or false: IA_Order reaches only the selected unit, through ReceiveOrder. During a listen server already at twenty frames, searching every unit from Tick and moving them all to the cursor is still not a substitute for the order action, after the Selected branch.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 0,
-      "why": "IA_Order reaches only the selected unit, through ReceiveOrder."
-    },
-    {
-      "id": "study-strategy-beginner-exam-extra-1",
-      "kind": "mc",
-      "prompt": "Spend subtracts a data cost on the authority. During a client who joined after the fight started, the build instead does this: every client subtracting 25, or paying for a shell out of the same float. Which repair matches the rule?",
-      "choices": [
-        "During a client who joined after the fight started, the authority, inside the Spend event performs Supplies reduced by the data cost, and only on the authority. That keeps the rule that spend subtracts a data cost on the authority.",
-        "During a client who joined after the fight started, leave the broken path in the build. That would break the rule that spend subtracts a data cost on the authority.",
-        "During a client who joined after the fight started, move the write onto the widget. That would break the rule that spend subtracts a data cost on the authority.",
-        "During a client who joined after the fight started, apply the write again inside OnRep. That would break the rule that spend subtracts a data cost on the authority."
-      ],
-      "answer": 0,
-      "why": "Spend subtracts a data cost on the authority."
-    },
-    {
-      "id": "study-strategy-beginner-exam-extra-2",
-      "kind": "mc",
-      "prompt": "Reveal runs four times a second. Visible is a team fact. During a paused match that still simulates pawns, the build instead does this: writing Visible from Tick, or letting a client mark itself seen. Which repair matches the rule?",
-      "choices": [
-        "During a paused match that still simulates pawns, the server timer performs Visible set from a trace on a 0.25 second timer. That keeps the rule that reveal runs four times a second. Visible is a team fact.",
-        "During a paused match that still simulates pawns, leave the broken path in the build. That would break the rule that reveal runs four times a second. Visible is a team fact.",
-        "During a paused match that still simulates pawns, move the write onto the widget. That would break the rule that reveal runs four times a second. Visible is a team fact.",
-        "During a paused match that still simulates pawns, apply the write again inside OnRep. That would break the rule that reveal runs four times a second. Visible is a team fact."
-      ],
-      "answer": 0,
-      "why": "Reveal runs four times a second. Visible is a team fact."
-    },
-    {
-      "id": "study-strategy-beginner-exam-extra-3",
-      "kind": "mc",
-      "prompt": "A camp walks its route on a timer while fog hides it. During a second player sharing the same pawn class, the build instead does this: stepping the route from Tick, or starting a second move while Sense should only raise Alert. Which repair matches the rule?",
-      "choices": [
-        "During a second player sharing the same pawn class, the timer armed in Begin Play performs the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that a camp walks its route on a timer while fog hides it.",
-        "During a second player sharing the same pawn class, leave the broken path in the build. That would break the rule that a camp walks its route on a timer while fog hides it.",
-        "During a second player sharing the same pawn class, move the write onto the widget. That would break the rule that a camp walks its route on a timer while fog hides it.",
-        "During a second player sharing the same pawn class, apply the write again inside OnRep. That would break the rule that a camp walks its route on a timer while fog hides it."
-      ],
-      "answer": 0,
-      "why": "A camp walks its route on a timer while fog hides it."
-    },
-    {
-      "id": "study-strategy-beginner-exam-extra-4",
-      "kind": "mc",
-      "prompt": "AwardMedal adds a data value on the authority. During a designer who duplicated the component, the build instead does this: a client adding 10, or OnRep adding another 10 when the widget refreshes. Which repair matches the rule?",
-      "choices": [
-        "During a designer who duplicated the component, the authority inside AwardMedal performs Score increased by the data value on the authority. That keeps the rule that awardMedal adds a data value on the authority.",
-        "During a designer who duplicated the component, leave the broken path in the build. That would break the rule that awardMedal adds a data value on the authority.",
-        "During a designer who duplicated the component, move the write onto the widget. That would break the rule that awardMedal adds a data value on the authority.",
-        "During a designer who duplicated the component, apply the write again inside OnRep. That would break the rule that awardMedal adds a data value on the authority."
-      ],
-      "answer": 0,
-      "why": "AwardMedal adds a data value on the authority."
-    },
-    {
-      "id": "study-strategy-beginner-exam-extra-5",
-      "kind": "mc",
-      "prompt": "Begin Play restores supplies, score, and the route, then fog recomputes. During a replay that scrubs backward, the build instead does this: assigning SlotValue from Tick every frame, including while a value is still changing. Which repair matches the rule?",
-      "choices": [
-        "During a replay that scrubs backward, Begin Play for the load, and a finished event for the save performs one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-        "During a replay that scrubs backward, leave the broken path in the build. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-        "During a replay that scrubs backward, move the write onto the widget. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-        "During a replay that scrubs backward, apply the write again inside OnRep. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes."
-      ],
-      "answer": 0,
-      "why": "Begin Play restores supplies, score, and the route, then fog recomputes."
-    },
-    {
-      "id": "study-strategy-beginner-exam-extra-6",
-      "kind": "tf",
-      "prompt": "True or false: IA_Order reaches only the selected unit, through ReceiveOrder. During a bot standing still at the objective, searching every unit from Tick and moving them all to the cursor is still not a substitute for the order action, after the Selected branch.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 0,
-      "why": "IA_Order reaches only the selected unit, through ReceiveOrder."
-    },
-    {
-      "id": "study-strategy-beginner-exam-extra-7",
-      "kind": "mc",
-      "prompt": "Spend subtracts a data cost on the authority. During a late tick after the player released the control, the build instead does this: every client subtracting 25, or paying for a shell out of the same float. Which repair matches the rule?",
-      "choices": [
-        "During a late tick after the player released the control, the authority, inside the Spend event performs Supplies reduced by the data cost, and only on the authority. That keeps the rule that spend subtracts a data cost on the authority.",
-        "During a late tick after the player released the control, leave the broken path in the build. That would break the rule that spend subtracts a data cost on the authority.",
-        "During a late tick after the player released the control, move the write onto the widget. That would break the rule that spend subtracts a data cost on the authority.",
-        "During a late tick after the player released the control, apply the write again inside OnRep. That would break the rule that spend subtracts a data cost on the authority."
-      ],
-      "answer": 0,
-      "why": "Spend subtracts a data cost on the authority."
-    },
-    {
-      "id": "study-strategy-beginner-exam-extra-8",
-      "kind": "mc",
-      "prompt": "Reveal runs four times a second. Visible is a team fact. During a listen server already at twenty frames, the build instead does this: writing Visible from Tick, or letting a client mark itself seen. Which repair matches the rule?",
-      "choices": [
-        "During a listen server already at twenty frames, the server timer performs Visible set from a trace on a 0.25 second timer. That keeps the rule that reveal runs four times a second. Visible is a team fact.",
-        "During a listen server already at twenty frames, leave the broken path in the build. That would break the rule that reveal runs four times a second. Visible is a team fact.",
-        "During a listen server already at twenty frames, move the write onto the widget. That would break the rule that reveal runs four times a second. Visible is a team fact.",
-        "During a listen server already at twenty frames, apply the write again inside OnRep. That would break the rule that reveal runs four times a second. Visible is a team fact."
-      ],
-      "answer": 0,
-      "why": "Reveal runs four times a second. Visible is a team fact."
-    },
-    {
-      "id": "study-strategy-beginner-exam-extra-9",
-      "kind": "mc",
-      "prompt": "A camp walks its route on a timer while fog hides it. During a client who joined after the fight started, the build instead does this: stepping the route from Tick, or starting a second move while Sense should only raise Alert. Which repair matches the rule?",
-      "choices": [
-        "During a client who joined after the fight started, the timer armed in Begin Play performs the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that a camp walks its route on a timer while fog hides it.",
-        "During a client who joined after the fight started, leave the broken path in the build. That would break the rule that a camp walks its route on a timer while fog hides it.",
-        "During a client who joined after the fight started, move the write onto the widget. That would break the rule that a camp walks its route on a timer while fog hides it.",
-        "During a client who joined after the fight started, apply the write again inside OnRep. That would break the rule that a camp walks its route on a timer while fog hides it."
-      ],
-      "answer": 0,
-      "why": "A camp walks its route on a timer while fog hides it."
-    },
-    {
-      "id": "study-strategy-beginner-exam-extra-10",
-      "kind": "mc",
-      "prompt": "AwardMedal adds a data value on the authority. During a paused match that still simulates pawns, the build instead does this: a client adding 10, or OnRep adding another 10 when the widget refreshes. Which repair matches the rule?",
-      "choices": [
-        "During a paused match that still simulates pawns, the authority inside AwardMedal performs Score increased by the data value on the authority. That keeps the rule that awardMedal adds a data value on the authority.",
-        "During a paused match that still simulates pawns, leave the broken path in the build. That would break the rule that awardMedal adds a data value on the authority.",
-        "During a paused match that still simulates pawns, move the write onto the widget. That would break the rule that awardMedal adds a data value on the authority.",
-        "During a paused match that still simulates pawns, apply the write again inside OnRep. That would break the rule that awardMedal adds a data value on the authority."
-      ],
-      "answer": 0,
-      "why": "AwardMedal adds a data value on the authority."
-    },
-    {
-      "id": "study-strategy-beginner-exam-extra-11",
-      "kind": "mc",
-      "prompt": "Begin Play restores supplies, score, and the route, then fog recomputes. During a second player sharing the same pawn class, the build instead does this: assigning SlotValue from Tick every frame, including while a value is still changing. Which repair matches the rule?",
-      "choices": [
-        "During a second player sharing the same pawn class, Begin Play for the load, and a finished event for the save performs one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-        "During a second player sharing the same pawn class, leave the broken path in the build. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-        "During a second player sharing the same pawn class, move the write onto the widget. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes.",
-        "During a second player sharing the same pawn class, apply the write again inside OnRep. That would break the rule that begin Play restores supplies, score, and the route, then fog recomputes."
-      ],
-      "answer": 0,
-      "why": "Begin Play restores supplies, score, and the route, then fog recomputes."
-    },
-    {
-      "id": "study-strategy-beginner-exam-extra-12",
-      "kind": "tf",
-      "prompt": "True or false: IA_Order reaches only the selected unit, through ReceiveOrder. During a designer who duplicated the component, searching every unit from Tick and moving them all to the cursor is still not a substitute for the order action, after the Selected branch.",
-      "choices": [
-        "True",
-        "False"
-      ],
-      "answer": 0,
-      "why": "IA_Order reaches only the selected unit, through ReceiveOrder."
-    },
-    {
-      "id": "study-strategy-beginner-exam-extra-13",
-      "kind": "mc",
-      "prompt": "Spend subtracts a data cost on the authority. During a replay that scrubs backward, the build instead does this: every client subtracting 25, or paying for a shell out of the same float. Which repair matches the rule?",
-      "choices": [
-        "During a replay that scrubs backward, the authority, inside the Spend event performs Supplies reduced by the data cost, and only on the authority. That keeps the rule that spend subtracts a data cost on the authority.",
-        "During a replay that scrubs backward, leave the broken path in the build. That would break the rule that spend subtracts a data cost on the authority.",
-        "During a replay that scrubs backward, move the write onto the widget. That would break the rule that spend subtracts a data cost on the authority.",
-        "During a replay that scrubs backward, apply the write again inside OnRep. That would break the rule that spend subtracts a data cost on the authority."
-      ],
-      "answer": 0,
-      "why": "Spend subtracts a data cost on the authority."
-    }
-  ],
   "repairWrongs": {
     "strategy-beginner-e2": [
-      "Ship the broken sample as written (Tick searches every unit) and treat the red node as close enough.",
-      "Use Selected, then ReceiveOrder, but also leave the broken sample running so both paths write.",
-      "Drop Selected, then ReceiveOrder and replay the broken sample from OnRep: Tick searches every unit"
+      "Searching the level every frame finds the cursor more honestly",
+      "Fog should decide which unit receives the click",
+      "The supply stock should gate ReceiveOrder"
     ],
     "strategy-beginner-e4": [
-      "Ship the broken sample as written (Supplies = (Supplies - 25.f); // on each client) and treat the red node as close enough.",
-      "Use Supplies = (Supplies - 25.f) inside HasAuthority, but also leave the broken sample running so both paths write.",
-      "Drop Supplies = (Supplies - 25.f) inside HasAuthority and replay the broken sample from OnRep: Supplies = (Supplies - 25.f); // on each client"
+      "Each client should spend so the number drops before the host answers",
+      "The fog timer is a fine place to subtract the cost",
+      "A medal award should be what spends supplies"
     ],
     "strategy-beginner-e8": [
-      "Ship the broken sample as written (Tick sets Visible) and treat the red node as close enough.",
-      "Use 0.25f, but also leave the broken sample running so both paths write.",
-      "Drop 0.25f and replay the broken sample from OnRep: Tick sets Visible"
+      "Writing Visible every frame is fresher than a quarter-second look",
+      "The camp step should be the reveal interval",
+      "Right-click should paint the cells it crosses"
     ],
     "strategy-beginner-e13": [
-      "Ship the broken sample as written (Score = (Score + 10.f); // client) and treat the red node as close enough.",
-      "Use Inside HasAuthority in AwardMedal, but also leave the broken sample running so both paths write.",
-      "Drop Inside HasAuthority in AwardMedal and replay the broken sample from OnRep: Score = (Score + 10.f); // client"
+      "The client who saw the kill should add the points",
+      "Reveal should add the score when a unit is visible",
+      "The order click should be the award"
     ],
     "strategy-beginner-e15": [
-      "Ship the broken sample as written (Tick writes SlotValue) and treat the red node as close enough.",
-      "Use Begin Play, but also leave the broken sample running so both paths write.",
-      "Drop Begin Play and replay the broken sample from OnRep: Tick writes SlotValue"
+      "Tick is the honest place to snapshot a live match",
+      "Reveal should load the struct",
+      "The right-click should be the load"
     ],
     "strategy-beginner-e18": [
-      "Ship the broken sample as written (void Tick() { for (auto* Unit : All) Unit->MoveTo(Cursor); }) and treat the red node as close enough.",
-      "Use Selected, but also leave the broken sample running so both paths write.",
-      "Drop Selected and replay the broken sample from OnRep: void Tick() { for (auto* Unit : All) Unit->MoveTo(Cursor); }"
+      "Every unit should walk toward the cursor",
+      "Visible should decide who receives the order",
+      "The camp direction should gate the click"
     ]
-  }
+  },
+  "exam": [
+    {
+      "id": "stgb-exam-1",
+      "kind": "mc",
+      "prompt": "Tick moves every strategy unit toward the cursor. What should have gated the order?",
+      "choices": [
+        "The Selected flag",
+        "The fog bit",
+        "How many supplies remain",
+        "The camp direction"
+      ],
+      "answer": 0,
+      "why": "Only the selection hears the click."
+    },
+    {
+      "id": "stgb-exam-2",
+      "kind": "mc",
+      "prompt": "A tank and a rifle squad share ReceiveOrder. What still differs?",
+      "choices": [
+        "Which of them has Selected set",
+        "Which of them writes Visible",
+        "Which of them owns the medal asset",
+        "Which of them stores the fog timer"
+      ],
+      "answer": 0,
+      "why": "The function is shared. The flag is not."
+    },
+    {
+      "id": "stgb-exam-3",
+      "kind": "tf",
+      "prompt": "Unselected units should ignore a right-click.",
+      "choices": ["True", "False"],
+      "answer": 0,
+      "why": "The branch is the gate."
+    },
+    {
+      "id": "stgb-exam-4",
+      "kind": "mc",
+      "prompt": "Which call spends supplies for a build?",
+      "choices": [
+        "The spend event, on the authority",
+        "A per-frame drain",
+        "The fog look",
+        "A neutral camp taking one route step"
+      ],
+      "answer": 0,
+      "why": "The build calls the spend once."
+    },
+    {
+      "id": "stgb-exam-5",
+      "kind": "mc",
+      "prompt": "The graph subtracts 25 for a barracks and a turret. What did the author skip?",
+      "choices": [
+        "The data row that should name each cost",
+        "The fog interval",
+        "The camp return path",
+        "The medal popup"
+      ],
+      "answer": 0,
+      "why": "25 is the sample."
+    },
+    {
+      "id": "stgb-exam-6",
+      "kind": "mc",
+      "prompt": "The host has 100 supplies and a client has already subtracted 25 locally. What does a second client still show?",
+      "choices": [
+        "100, until the authority write arrives",
+        "Seventy-five, as if every client shared that private subtract",
+        "A wiped stock, as if a mismatch cleared it",
+        "The fog radius"
+      ],
+      "answer": 0,
+      "why": "The private spend is not the stock."
+    },
+    {
+      "id": "stgb-exam-7",
+      "kind": "tf",
+      "prompt": "A barracks and a turret should share one typed cost in the graph.",
+      "choices": ["True", "False"],
+      "answer": 1,
+      "why": "Each row names its own cost."
+    },
+    {
+      "id": "stgb-exam-8",
+      "kind": "mc",
+      "prompt": "What interval does Reveal use?",
+      "choices": [
+        "A quarter of a second",
+        "Every frame",
+        "The camp's one-second step",
+        "Only when the player clicks"
+      ],
+      "answer": 0,
+      "why": "The excerpt loops at 0.25."
+    },
+    {
+      "id": "stgb-exam-9",
+      "kind": "mc",
+      "prompt": "A right-click paints Visible along the drag. Which system was misused?",
+      "choices": [
+        "Orders, which are not allowed to write fog",
+        "The medal asset",
+        "The supply row",
+        "The camp return path"
+      ],
+      "answer": 0,
+      "why": "Reveal is the only writer."
+    },
+    {
+      "id": "stgb-exam-10",
+      "kind": "mc",
+      "prompt": "A wall blocks the team from a camp. Which assignment must not run?",
+      "choices": [
+        "Visible = true for the camp's cell",
+        "The camp's direction flag",
+        "The supply subtract",
+        "The score add"
+      ],
+      "answer": 0,
+      "why": "No hit, no reveal."
+    },
+    {
+      "id": "stgb-exam-11",
+      "kind": "tf",
+      "prompt": "Visible is one widget per spectator.",
+      "choices": ["True", "False"],
+      "answer": 1,
+      "why": "It is a team fact."
+    },
+    {
+      "id": "stgb-exam-12",
+      "kind": "mc",
+      "prompt": "The camp reaches the end of an empty return path. What is missing?",
+      "choices": [
+        "Points on the way back",
+        "A Selected flag on the camp",
+        "A medal for arriving",
+        "A supply refund"
+      ],
+      "answer": 0,
+      "why": "The B path was never authored."
+    },
+    {
+      "id": "stgb-exam-13",
+      "kind": "mc",
+      "prompt": "Fog's bit is false and the camp graph is correct. What does the client draw?",
+      "choices": [
+        "No camp",
+        "The camp, because patrol ignores fog",
+        "The camp's order queue",
+        "A medal icon"
+      ],
+      "answer": 0,
+      "why": "The bit decides the draw."
+    },
+    {
+      "id": "stgb-exam-14",
+      "kind": "mc",
+      "prompt": "Which line is the camp, not the player?",
+      "choices": [
+        "GoingRight = true on a path Begin Play started",
+        "The branch on Selected",
+        "The right-click action",
+        "The medal event"
+      ],
+      "answer": 0,
+      "why": "Nobody selected the camp."
+    },
+    {
+      "id": "stgb-exam-15",
+      "kind": "tf",
+      "prompt": "A camp step should mark its cell visible.",
+      "choices": ["True", "False"],
+      "answer": 1,
+      "why": "Walking must not light the map."
+    },
+    {
+      "id": "stgb-exam-16",
+      "kind": "mc",
+      "prompt": "A kill and a finished objective need points. What do they both call?",
+      "choices": [
+        "AwardMedal",
+        "The unit's order function",
+        "Painting what the team can see",
+        "The camp route step"
+      ],
+      "answer": 0,
+      "why": "Both are results."
+    },
+    {
+      "id": "stgb-exam-17",
+      "kind": "mc",
+      "prompt": "The board shows 40 on the client and 30 on the host. Where was the extra 10 added?",
+      "choices": [
+        "On the client, outside HasAuthority",
+        "Inside the fog timer",
+        "On the camp path",
+        "In the save struct's fog bits"
+      ],
+      "answer": 0,
+      "why": "The client awarded itself."
+    },
+    {
+      "id": "stgb-exam-18",
+      "kind": "mc",
+      "prompt": "Where should a medal's point value live?",
+      "choices": [
+        "On the medal data",
+        "As the literal 10 for every award",
+        "On the Visible bit",
+        "In the cursor search"
+      ],
+      "answer": 0,
+      "why": "Data names it."
+    },
+    {
+      "id": "stgb-exam-19",
+      "kind": "tf",
+      "prompt": "Loading a match should restore every Visible bit.",
+      "choices": ["True", "False"],
+      "answer": 1,
+      "why": "The timer looks again."
+    },
+    {
+      "id": "stgb-exam-20",
+      "kind": "mc",
+      "prompt": "Which event loads a finished match struct?",
+      "choices": [
+        "Begin Play",
+        "The ordinary frame loop",
+        "A neutral camp's route",
+        "A spectator widget"
+      ],
+      "answer": 0,
+      "why": "Load at the start."
+    },
+    {
+      "id": "stgb-exam-21",
+      "kind": "mc",
+      "prompt": "You are choosing what to pack. Which item do you leave out?",
+      "choices": [
+        "The fog bits",
+        "The supply total",
+        "The score",
+        "Orders that have not finished"
+      ],
+      "answer": 0,
+      "why": "Fog is recomputed."
+    },
+    {
+      "id": "stgb-exam-22",
+      "kind": "mc",
+      "prompt": "A camp was on the return leg. The load starts it outward. What field was dropped?",
+      "choices": [
+        "GoingRight for that camp",
+        "Visible for that cell",
+        "The medal literal",
+        "The cursor search"
+      ],
+      "answer": 0,
+      "why": "Direction is the leg."
+    },
+    {
+      "id": "stgb-exam-23",
+      "kind": "mc",
+      "prompt": "The player builds a turret, reveals a wall, and never clicks a unit. Which writes are allowed?",
+      "choices": [
+        "The authority supply subtract and the reveal hit",
+        "A cursor move of every unit and a client-side medal",
+        "A camp write of Visible and a tick snapshot",
+        "A local supply subtract and a saved fog bit"
+      ],
+      "answer": 0,
+      "why": "Spend and reveal are the two events that fired."
+    },
+    {
+      "id": "stgb-exam-24",
+      "kind": "tf",
+      "prompt": "Tick is a valid place to write the match slot.",
+      "choices": ["True", "False"],
+      "answer": 1,
+      "why": "Write a finished struct."
+    },
+    {
+      "id": "stgb-exam-25",
+      "kind": "mc",
+      "prompt": "Which pair is a result versus an order?",
+      "choices": [
+        "AwardMedal versus ReceiveOrder",
+        "Reveal versus the camp step",
+        "The supply row versus the fog bit",
+        "Begin Play versus the save struct"
+      ],
+      "answer": 0,
+      "why": "A medal records. An order commands."
+    },
+    {
+      "id": "stgb-exam-26",
+      "kind": "mc",
+      "prompt": "The stock cannot cover the row. What still must not happen?",
+      "choices": [
+        "The building appearing anyway",
+        "The fog timer continuing",
+        "The camp taking its next step",
+        "The score staying unchanged"
+      ],
+      "answer": 0,
+      "why": "Refuse the build."
+    },
+    {
+      "id": "stgb-exam-27",
+      "kind": "mc",
+      "prompt": "A spectator widget stores its own Visible flags. What can that player do?",
+      "choices": [
+        "Mark unseen cells as seen on their own screen",
+        "Spend the host's supplies",
+        "Reverse every camp",
+        "Grant a medal the host records"
+      ],
+      "answer": 0,
+      "why": "Vision has to be a team fact."
+    },
+    {
+      "id": "stgb-exam-28",
+      "kind": "mc",
+      "prompt": "Begin Play starts both a fog timer and a camp timer. Which one writes Visible?",
+      "choices": [
+        "The quarter-second reveal",
+        "The one-second camp step",
+        "Both timers, which would keep the map bright",
+        "Neither timer, if the click were what paints fog"
+      ],
+      "answer": 0,
+      "why": "Only Reveal paints."
+    },
+    {
+      "id": "stgb-exam-29",
+      "kind": "tf",
+      "prompt": "In-flight orders belong in the match struct.",
+      "choices": ["True", "False"],
+      "answer": 0,
+      "why": "The unit should keep executing them."
+    },
+    {
+      "id": "stgb-exam-30",
+      "kind": "mc",
+      "prompt": "You need the line that gates a click, the line that spends, and the line that awards. Which trio is that?",
+      "choices": [
+        "The Selected branch, the authority supply subtract, and the authority score add",
+        "What the team can see, plus camp direction, plus the sample slot",
+        "Three copies of the same tick search",
+        "A client subtract, a client score add, and a saved fog bit"
+      ],
+      "answer": 0,
+      "why": "Those are the three jobs."
+    },
+    {
+      "id": "stgb-exam-31",
+      "kind": "mc",
+      "prompt": "After load the map shows a camp in a cell the team can no longer see. What was restored?",
+      "choices": [
+        "A Visible bit",
+        "The supply total",
+        "The score",
+        "An in-flight order"
+      ],
+      "answer": 0,
+      "why": "The bit was stale."
+    },
+    {
+      "id": "stgb-exam-32",
+      "kind": "mc",
+      "prompt": "A new unit type arrives from art. What does the order graph not need?",
+      "choices": [
+        "A cast to that new class",
+        "The unit to implement ReceiveOrder",
+        "The Selected check",
+        "The right-click action"
+      ],
+      "answer": 0,
+      "why": "The click never lists classes."
+    },
+    {
+      "id": "stgb-exam-33",
+      "kind": "mc",
+      "prompt": "The pause menu is up and camps are still sliding. Which step is running?",
+      "choices": [
+        "A per-frame move that was never paused",
+        "The quarter-second reveal",
+        "The medal event",
+        "Loading the match struct"
+      ],
+      "answer": 0,
+      "why": "The route timer can be paused. A tick slide often is not."
+    },
+    {
+      "id": "stgb-exam-34",
+      "kind": "tf",
+      "prompt": "The sample cost 25 and the sample medal 10 should both move into data.",
+      "choices": ["True", "False"],
+      "answer": 0,
+      "why": "Rows and assets name those numbers."
+    }
+  ]
 }

@@ -1023,7 +1023,7 @@
       "choices": [
         "Alert, Health, and IsOpen",
         "Unrelated rifle-kit numbers from a different genre",
-        "Gait, ammo, and the equipped weapon from the rifle kit",
+        "Rifle gait plus ammo plus the equipped weapon",
         "Network interest, fog, and barrel heat"
       ],
       "answer": 0,

@@ -1161,7 +1161,7 @@
       "prompt": "Relevant is false and Visible is true. Can that pair be honest?",
       "choices": [
         "Yes. You can be seen by the rules of fog and still be out of network range",
-        "No. They are one bit",
+        "They are one shared bit, not two resources",
         "Only if heat is zero",
         "Only during a reload"
       ],
