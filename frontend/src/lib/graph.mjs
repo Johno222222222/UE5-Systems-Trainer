@@ -915,12 +915,10 @@ function exprFor(graph, node, seen = new Set(), outPin = null) {
       if (outPin?.name === "Blocking Hit") return `${hit}.bBlockingHit`;
       return `${hit}.GetActor()`;
     }
-    case "get-player-character": return `UGameplayStatics::GetPlayerCharacter(this, 0)`;
-    case "get-player-controller": return `UGameplayStatics::GetPlayerController(this, 0)`;
-    case "has-gameplay-tag": {
-      const tag = String(node.data?.tag || "State.Example").replace(/["\\]/g, "");
-      return `(Cast<IAbilitySystemInterface>(GetOwner()) && Cast<IAbilitySystemInterface>(GetOwner())->GetAbilitySystemComponent() && Cast<IAbilitySystemInterface>(GetOwner())->GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName(TEXT("${tag}")), false)))`;
-    }
+    case "get-player-character":
+    case "get-player-controller":
+    case "has-gameplay-tag":
+      return pureLocalName(node);
     case "cast-to": return `Cast_${ident(node.id, "Cast")}`;
     case "make-struct": return `Made_${ident(node.id, "Make")}`;
     case "break-struct": return breakMemberExpr(node, outPin);
@@ -1048,11 +1046,11 @@ function statementFor(node, graph) {
     }
     case "play-sound": {
       const location = incomingValue(graph, node, "Location") || "(GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector)";
-      return `if (UWorld* World_${id} = GetWorld()) { UGameplayStatics::PlaySoundAtLocation(World_${id}, nullptr, ${location}); }`;
+      return `if (UWorld* World_${id} = GetWorld()) { UGameplayStatics::PlaySoundAtLocation(World_${id}, static_cast<USoundBase*>(nullptr), ${location}); }`;
     }
     case "spawn-niagara": {
       const location = incomingValue(graph, node, "Location") || "(GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector)";
-      return `if (UWorld* World_${id} = GetWorld()) { UNiagaraFunctionLibrary::SpawnSystemAtLocation(World_${id}, nullptr, ${location}); }`;
+      return `if (UWorld* World_${id} = GetWorld()) { UNiagaraFunctionLibrary::SpawnSystemAtLocation(World_${id}, static_cast<UNiagaraSystem*>(nullptr), ${location}); }`;
     }
     case "set-blackboard": {
       const key = String(node.data?.key || "Target").replace(/["\\]/g, "");
@@ -1155,8 +1153,36 @@ function statementFor(node, graph) {
   }
 }
 
+const STANDALONE_PURE = new Set(["get-player-character", "get-player-controller", "has-gameplay-tag"]);
+
+function pureLocalName(node) {
+  return `Node_${ident(node.id, "Pure")}`;
+}
+
+function pureStatement(node) {
+  const name = pureLocalName(node);
+  if (node.catalog === "get-player-character") return `ACharacter* ${name} = UGameplayStatics::GetPlayerCharacter(this, 0);`;
+  if (node.catalog === "get-player-controller") return `APlayerController* ${name} = UGameplayStatics::GetPlayerController(this, 0);`;
+  const tag = String(node.data?.tag || "State.Example").replace(/["\\]/g, "");
+  return `bool ${name} = Cast<IAbilitySystemInterface>(GetOwner()) && Cast<IAbilitySystemInterface>(GetOwner())->GetAbilitySystemComponent() && Cast<IAbilitySystemInterface>(GetOwner())->GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName(TEXT("${tag}")), false));`;
+}
+
+function emitStandalonePures(graph, node, indent, out) {
+  if (!graph._pure) graph._pure = new Set();
+  for (const pin of node.pins || []) {
+    if (pin.dir !== "in" || pin.type === "exec") continue;
+    const wire = (graph.wires || []).find((item) => item.to?.node === node.id && item.to?.pin === pin.id);
+    if (!wire) continue;
+    const src = (graph.nodes || []).find((item) => item.id === wire.from?.node);
+    if (!src || !STANDALONE_PURE.has(src.catalog) || graph._pure.has(src.id)) continue;
+    graph._pure.add(src.id);
+    out.push(`${indent}${pureStatement(src)} // node:${src.id}`);
+  }
+}
+
 function emitBody(graph, node, indent, seen, out) {
   if (!node || seen.has(node.id)) return;
+  emitStandalonePures(graph, node, indent, out);
   const nextSeen = new Set(seen);
   nextSeen.add(node.id);
   const execOut = node.pins.filter((item) => item.dir === "out" && item.type === "exec");
@@ -1421,7 +1447,11 @@ export function syncCpp(system, graph) {
   const needs = [
     [/GetWorld\s*\(|UGameplayStatics::/, "Engine/World.h"],
     [/UGameplayStatics::/, "Kismet/GameplayStatics.h"],
-    [/UNiagaraFunctionLibrary/, "NiagaraFunctionLibrary.h"],
+    [/UNiagaraFunctionLibrary|UNiagaraSystem/, "NiagaraFunctionLibrary.h"],
+    [/UNiagaraSystem/, "NiagaraSystem.h"],
+    [/PlaySoundAtLocation|USoundBase/, "Sound/SoundBase.h"],
+    [/FCollisionShape|SweepSingleByChannel/, "CollisionShape.h"],
+    [/FGameplayEffectContextHandle|FGameplayEffectSpecHandle/, "GameplayEffectTypes.h"],
     [/AAIController|UBlackboardComponent/, "AIController.h"],
     [/UBlackboardComponent/, "BehaviorTree/BlackboardComponent.h"],
     [/IAbilitySystemInterface/, "AbilitySystemInterface.h"],
@@ -1438,6 +1468,7 @@ export function syncCpp(system, graph) {
     [/UPrimitiveComponent/, "Components/PrimitiveComponent.h"],
     [/GetOwner\s*\(|->Destroy\s*\(|OnTakeAnyDamage|OnTakePointDamage|GetActorLocation/, "GameFramework/Actor.h"],
     [/UDamageType/, "Engine/DamageEvents.h"],
+    [/UDamageType/, "GameFramework/DamageType.h"],
   ];
   const headerText = String(system?.cpp_header || "");
   for (const [pattern, include] of needs) {

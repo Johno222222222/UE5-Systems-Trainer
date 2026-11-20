@@ -88,9 +88,26 @@ test("each new gameplay node simulates, exports Blueprint text, and emits compon
     const exported = text.exportBlueprintText(doc.items[0]);
     assert.match(exported.text, /Begin Object/, id);
   }
+  const sample = await buildSystem();
+  assert.match(sample.cpp_source, /#include "GameFramework\/DamageType.h"/);
+  assert.match(sample.cpp_source, /UDamageType::StaticClass\(\)/);
+  for (const id of NEW_NODES) {
+    assert.match(sample.cpp_source, new RegExp(`// node:${id}\\b`), `${id} is not its own statement`);
+  }
+  assert.match(sample.cpp_source, /ACharacter\* Node_/);
+  assert.match(sample.cpp_source, /APlayerController\* Node_/);
+  assert.match(sample.cpp_source, /HasMatchingGameplayTag/);
+  assert.match(sample.cpp_source, /#include "Sound\/SoundBase.h"/);
+  assert.match(sample.cpp_source, /#include "NiagaraSystem.h"/);
+  assert.match(sample.cpp_source, /#include "CollisionShape.h"/);
+  assert.match(sample.cpp_source, /#include "GameplayTagContainer.h"/);
+  assert.match(sample.cpp_source, /#include "AbilitySystemComponent.h"/);
+  assert.match(sample.cpp_source, /#include "AIController.h"/);
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ue5-nodes-"));
   const written = await writeSample(dir);
   assert.ok(fs.existsSync(written.uplugin));
   const cpp = fs.readdirSync(dir, { recursive: true }).map(String).filter((name) => name.endsWith(".cpp"));
   assert.ok(cpp.length >= 1);
+  const pluginCpp = fs.readFileSync(path.join(dir, cpp[0]), "utf8");
+  assert.match(pluginCpp, /#include "GameFramework\/DamageType.h"/);
 });

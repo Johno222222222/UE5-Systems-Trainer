@@ -68,6 +68,12 @@ async function buildSystem() {
   });
   const branch = graph.createNode("branch", x, 160, { id: "tag-branch" });
   nodes.push(branch);
+  const switched = byId("switch-authority");
+  wires.push({
+    id: "auth-to-tag",
+    from: { node: switched.id, pin: inPin(switched, "Authority").id },
+    to: { node: branch.id, pin: inPin(branch, "Exec").id },
+  });
   wires.push({
     id: "tag-to-branch",
     from: { node: "has-gameplay-tag", pin: outPin(byId("has-gameplay-tag")).id },
