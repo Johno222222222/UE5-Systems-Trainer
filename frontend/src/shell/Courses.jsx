@@ -5,6 +5,33 @@ import ChoiceButton from "../components/ChoiceButton";
 import GlossaryText, { GlossaryTags } from "../components/GlossaryText";
 import LessonStudio from "./LessonStudio";
 
+const COURSE_SAVES = "ue5_course_bookmarks";
+
+function readSaves() {
+  try { return JSON.parse(window.localStorage.getItem(COURSE_SAVES) || "[]"); }
+  catch { return []; }
+}
+
+function SavedCourseSelect({ saved, onPick, testId }) {
+  return (
+    <label className="text-[12px] text-[var(--text-secondary)]">
+      Load saved
+      <select
+        className="ml-2 bg-[var(--bg-main)] border border-[var(--border)] rounded px-2 py-1"
+        data-testid={testId}
+        value=""
+        onChange={(event) => {
+          const id = event.target.value;
+          if (id) onPick(id);
+        }}
+      >
+        <option value="">Choose a save</option>
+        {saved.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}
+      </select>
+    </label>
+  );
+}
+
 export default function Courses() {
   const [cards, setCards] = useState([]);
   const [reviews, setReviews] = useState([]);
@@ -21,6 +48,7 @@ export default function Courses() {
   const [level, setLevel] = useState("all");
   const [resume, setResume] = useState(null);
   const [saveNote, setSaveNote] = useState("");
+  const [savedCourses, setSavedCourses] = useState(readSaves);
 
   const loadList = () => api.get("/study").then((r) => {
     setCards(r.data?.courses || []);
@@ -58,6 +86,13 @@ export default function Courses() {
         examMode: false,
       });
       setSaveNote("Saved on this computer.");
+      const next = [
+        { id: course.id, title: course.title, genre: course.genre || "", level: course.level || "", at: new Date().toISOString() },
+        ...savedCourses.filter((item) => item.id !== course.id),
+      ].slice(0, 12);
+      setSavedCourses(next);
+      try { window.localStorage.setItem(COURSE_SAVES, JSON.stringify(next)); }
+      catch { /* the dropdown still shows this visit */ }
     } catch (err) {
       setSaveNote(errorText(err));
     }
@@ -100,13 +135,14 @@ export default function Courses() {
           <p className="mt-2 text-[13px] text-[var(--text-secondary)] max-w-xl">
             A course is a shorter scored path than a program. General pulls from every genre. FPS, TPS, Horror, and Strategy each have their own. Quizzes, a diff, a short assignment, and a takeaway stay on every module. Scores stay on this computer. You can retake any module.
           </p>
-          <div className="mt-4 flex flex-wrap gap-2" data-testid="course-filters">
+          <div className="mt-4 flex flex-wrap items-center gap-2" data-testid="course-filters">
             {[["all", "All"], ["general", "General"], ["fps", "FPS"], ["tps", "TPS"], ["horror", "Horror"], ["strategy", "Strategy"]].map(([id, label]) => (
               <button key={id} type="button" className={`chip ${genre === id ? "active" : ""}`} data-testid={`course-genre-${id}`} onClick={() => setGenre(id)}>{label}</button>
             ))}
             <button type="button" className={`chip ${level === "all" ? "active" : ""}`} data-testid="course-level-all" onClick={() => setLevel("all")}>Any level</button>
             <button type="button" className={`chip ${level === "beginner" ? "active" : ""}`} data-testid="course-level-beginner" onClick={() => setLevel("beginner")}>Beginner</button>
             <button type="button" className={`chip ${level === "intermediate" ? "active" : ""}`} data-testid="course-level-intermediate" onClick={() => setLevel("intermediate")}>Intermediate</button>
+            <SavedCourseSelect saved={savedCourses} onPick={openCourse} testId="course-load-saved" />
           </div>
           {loadError && <p className="mt-3 text-[12px] font-mono text-[var(--accent-red)]" data-testid="courses-load-error">{loadError}</p>}
           {!cards.length && (
@@ -175,6 +211,9 @@ export default function Courses() {
   return (
     <GlossaryTags.Provider value={course.glossary_tags || null}>
       <div data-testid="course-screen">
+        <div className="px-7 pt-3 flex items-center gap-2">
+          <SavedCourseSelect saved={savedCourses} onPick={openCourse} testId="course-page-load-saved" />
+        </div>
         <LessonStudio
           eyebrow="courses"
           title={course.title}

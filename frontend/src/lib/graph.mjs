@@ -350,7 +350,7 @@ function canonicalType(type, name) {
 
 function normalizeNode(node) {
   const catalog = BY_ID.get(node?.catalog);
-  const data = { ...(node?.data || {}) };
+  const data = { ...(node?.data || {}), ...(node?.note ? { note: node.note } : {}) };
   const pins = Array.isArray(node?.pins) && node.pins.length
     ? node.pins.map((item, index) => ({
       id: item.id || pinSlug(item.dir || "out", item.name || index),
@@ -404,20 +404,21 @@ function legacyPins(names, dir) {
 export function fromLegacy(nodes = [], edges = []) {
   const graph = emptyGraph();
   graph.nodes = (nodes || []).map((node) => {
+    const carried = { ...(node?.data || {}), ...(node?.note ? { note: node.note } : {}) };
     if (node?.catalog && BY_ID.has(node.catalog)) {
-      return createNode(node.catalog, node.x, node.y, { id: node.id, label: node.label, data: node.data || {} });
+      return createNode(node.catalog, node.x, node.y, { id: node.id, label: node.label, data: carried });
     }
     const inputs = legacyPins(node?.inputs, "in");
     const outputs = legacyPins(node?.outputs, "out");
     return {
       id: String(node?.id || uid("n")),
-      catalog: "",
+      catalog: String(node?.catalog || ""),
       kind: node?.node_type || "flow",
       label: String(node?.label || "Node"),
       x: Number(node?.x) || 0,
       y: Number(node?.y) || 0,
       pins: [...inputs, ...outputs],
-      data: {},
+      data: carried,
     };
   });
   for (const edge of edges || []) {

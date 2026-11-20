@@ -4,10 +4,16 @@
 // No model call. The same line always gets the same sentence.
 
 let authoredNodes = {};
+let lineNotes = {};
 try {
   authoredNodes = require("../../content/study/nodes.json");
 } catch (err) {
   authoredNodes = {};
+}
+try {
+  lineNotes = require("../../content/study/lines.json");
+} catch (err) {
+  lineNotes = {};
 }
 
 const CATALOG_EXPLAIN = {
@@ -203,12 +209,77 @@ function headerNote(header) {
   return `${key} declares the type the next line uses, so a game build can see that type without the editor's shared headers.`;
 }
 
-function nodeWhy(catalog, label) {
+const LABEL_CATALOG = {
+  "event beginplay": "begin-play",
+  "event begin play": "begin-play",
+  beginplay: "begin-play",
+  "begin play": "begin-play",
+  "event tick": "tick",
+  tick: "tick",
+  "set timer by function name": "set-timer-function",
+  "set timer by function": "set-timer-function",
+  "set timer": "set-timer",
+  "line trace": "line-trace",
+  branch: "branch",
+  "print string": "print-string",
+  "cast to": "cast-to",
+  "has authority": "has-authority",
+  "apply damage": "apply-damage",
+  "interface call": "interface-call",
+  "call function": "call-function",
+  delay: "delay",
+  flipflop: "flipflop",
+  "break struct": "break-struct",
+  "make struct": "make-struct",
+  "on rep": "on-rep",
+  onrep: "on-rep",
+};
+
+const NAMED_NOTES = {
+  "trace for focus": "Trace For Focus fires a short line trace from the camera to find the usable thing you are looking at. It runs when the timer calls it, not on every frame. For example, a door under the crosshair becomes the focused actor about ten times a second.",
+  "branch valid focus": "Branch Valid Focus continues only if the trace hit something that can be used. A miss stops here and clears the prompt. For example, looking at the sky does not offer a Use button.",
+  "broadcast onfocuschanged": "Broadcast OnFocusChanged tells listeners such as the HUD that the focused object changed, so the prompt updates. It does not trace and it does not open the door. For example, the widget shows Use when focus lands on a crate and hides when focus leaves.",
+  "broadcast on focus changed": "Broadcast OnFocusChanged tells listeners such as the HUD that the focused object changed, so the prompt updates. It does not trace and it does not open the door. For example, the widget shows Use when focus lands on a crate and hides when focus leaves.",
+};
+
+function catalogFromLabel(label) {
+  const key = tidy(label).toLowerCase();
+  if (LABEL_CATALOG[key]) return LABEL_CATALOG[key];
+  if (NAMED_NOTES[key]) return "";
+  return "";
+}
+
+function composeUnknown(node) {
+  const label = tidy(node?.label) || tidy(node?.data?.function) || tidy(node?.data?.action) || "This node";
+  const kind = String(node?.kind || node?.node_type || "step");
+  const fn = node?.data?.function || node?.data?.action || node?.data?.name || "";
+  const pins = (node?.pins || []).map((pin) => pin.name).filter((name) => name && !/^exec$/i.test(name));
+  const pinText = pins.length ? `, with ${pins.join(" and ")}` : "";
+  const callText = fn ? `, and it calls ${fn}` : "";
+  return `${label} is the ${kind} step on this generated graph${pinText}${callText}. For example, ${label} runs when the previous step finishes rather than on Tick.`;
+}
+
+function explainNode(node) {
+  const source = node && typeof node === "object" ? node : { catalog: node, label: "" };
+  const catalog = String(source.catalog || "");
+  const id = String(source.id || "");
+  const label = tidy(source.label) || "This node";
+  const written = String(source.data?.note || source.note || "").trim();
+  if (written && !/does the job printed on the node/i.test(written)) return written;
+  const named = NAMED_NOTES[label.toLowerCase()];
+  if (named) return named;
   if (authoredNodes[catalog]) return authoredNodes[catalog];
-  const name = tidy(label) || "This node";
-  const base = explainCatalog(catalog);
-  if (base) return `${name}: ${base}`;
-  return `${name} fires when its incoming exec runs, then does the job printed on the node.`;
+  if (authoredNodes[id]) return authoredNodes[id];
+  if (lineNotes[id]) return lineNotes[id];
+  const fromLabel = catalogFromLabel(label);
+  if (fromLabel && authoredNodes[fromLabel]) return authoredNodes[fromLabel];
+  const base = explainCatalog(catalog) || explainCatalog(fromLabel);
+  if (base) return `${label}: ${base}`;
+  return composeUnknown(source);
+}
+
+function nodeWhy(catalog, label) {
+  return explainNode({ catalog, label });
 }
 
 const EXPANSION_SETS = {
@@ -270,5 +341,6 @@ module.exports = {
   explainCatalog,
   headerNote,
   nodeWhy,
+  explainNode,
   expansionExamples,
 };

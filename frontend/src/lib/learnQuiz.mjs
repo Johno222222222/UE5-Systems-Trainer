@@ -3,7 +3,7 @@
 
 import { challengesOf } from "./practice.mjs";
 import { readEventGraph } from "./graph.mjs";
-import { explainLine, expansionExamples, headerNote, nodeWhy } from "./lineExplain.js";
+import { explainLine, expansionExamples, explainNode, headerNote } from "./lineExplain.js";
 import { isTrueFalse } from "./quizShuffle.js";
 
 function unique(list) {
@@ -285,10 +285,10 @@ export function pictureOf(system) {
     dependencyNotes: dependencies.slice(0, 8).map((name) => ({ name, note: headerNote(name) })),
     expansions,
     expansionCards: expansions.map((item) => ({ text: item, examples: expansionExamples(item) })),
-    whyNotes: nodes.map((node) => ({
+    whyNotes: (graph.nodes || []).map((node) => ({
       id: node.id,
       label: node.label,
-      layman: nodeWhy(node.catalog, node.label),
+      layman: explainNode(node),
     })),
   };
 }
