@@ -2,672 +2,596 @@
   "id": "strategy-beginner",
   "modules": {
     "orders": {
-      "plainEnglish": "In plain English, A click is not a search means: IA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives.",
-      "whyGame": "In a real game, getting a click is not a search wrong shows up as writing Visible from Tick, or letting a client mark itself seen. the server timer is the repair, and the generated line `Visible = true; // node:tpl_fog_set` is that repair in C++.",
+      "plainEnglish": "The right-click is an order, not a search of every unit. Selected is already true before the click. The graph branches on that bool and calls ReceiveOrder. A tank and a rifle squad answer the same name.",
+      "whyGame": "A cast list grows every time a new chassis arrives, and a click that ignores selection walks the whole army.",
       "expansions": [
         {
-          "title": "A click is not a search as a door",
-          "detail": "If a click is not a search is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The gate",
+          "detail": "Unselected units do not hear the click."
         },
         {
-          "title": "A click is not a search as data",
-          "detail": "Designer numbers for a click is not a search live on a row. Visible set from a trace on a 0.25 second timer reads the row instead of a literal."
+          "title": "The name",
+          "detail": "ReceiveOrder is the interface. The click does not list classes."
         },
         {
-          "title": "A click is not a search as a listener",
-          "detail": "Later systems listen for Reveal. They do not writing Visible from Tick, or letting a client mark itself seen."
+          "title": "Vision",
+          "detail": "The click does not paint fog."
         }
       ],
       "quiz": [
         {
-          "id": "strategy-beginner-orders-c1",
+          "id": "stgc-orders-1",
           "kind": "mc",
-          "prompt": "IA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset. What should own that decision in A click is not a search?",
+          "prompt": "The player right-clicks a destination. Which units should receive it?",
           "choices": [
-            "the server timer. That keeps the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset.",
-            "The widget that draws a click is not a search owns it. That would break the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset.",
-            "Every client owns it, before Reveal is replicated. That would break the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset."
+            "Only units whose Selected flag is already set",
+            "Every unit on the map",
+            "Only units inside the vision radius",
+            "The nearest neutral camp"
           ],
           "answer": 0,
-          "why": "IA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset."
+          "why": "Selection is the gate."
         },
         {
-          "id": "strategy-beginner-orders-c2",
+          "id": "stgc-orders-2",
           "kind": "mc",
-          "prompt": "IA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset. The course graph contains `Visible = true; // node:tpl_fog_set`. What is that line doing in gameplay terms?",
+          "prompt": "The order excerpt branches on Selected and then calls the interface. What does the call accomplish?",
           "choices": [
-            "Visible set from a trace on a 0.25 second timer. That keeps the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset.",
-            "writing Visible from Tick, or letting a client mark itself seen. That would break the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset."
+            "It runs the selected unit's own order function",
+            "It searches the level for the cursor",
+            "It paints fog along the drag",
+            "It awards points"
           ],
           "answer": 0,
-          "why": "Visible set from a trace on a 0.25 second timer"
+          "why": "ReceiveOrder is the unit's response."
         },
         {
-          "id": "strategy-beginner-orders-c3",
+          "id": "stgc-orders-3",
           "kind": "mc",
-          "prompt": "IA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset. Where should Set Visible sit?",
+          "prompt": "A tank is selected and the player issues a move. What runs next?",
           "choices": [
-            "After the reveal trace hits, started by Reveal through the timer. That keeps the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset.",
-            "It runs before Reveal, so the player is not required. That would break the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset.",
-            "It sits on Tick beside Reveal. That would break the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset."
+            "ReceiveOrder on that tank",
+            "A fresh search of every actor",
+            "A vision write",
+            "Granting a result"
           ],
           "answer": 0,
-          "why": "the reveal trace hits is the gate."
+          "why": "The click reaches the selected unit."
         },
         {
-          "id": "strategy-beginner-orders-c4",
+          "id": "stgc-orders-4",
+          "kind": "mc",
+          "prompt": "You search the whole level from the frame loop so orders feel instant. What starts walking?",
+          "choices": [
+            "Units nobody selected",
+            "Only the selected tank",
+            "Only a revealed camp",
+            "No movement at all, if a search were unable to move actors"
+          ],
+          "answer": 0,
+          "why": "The selection already knows who is listening."
+        },
+        {
+          "id": "stgc-orders-5",
+          "kind": "mc",
+          "prompt": "A tank and a rifle squad both need orders. Which function do both implement?",
+          "choices": [
+            "ReceiveOrder",
+            "One cast per chassis, growing forever",
+            "The vision bit",
+            "Granting a result"
+          ],
+          "answer": 0,
+          "why": "One name. The click does not list classes."
+        },
+        {
+          "id": "stgc-orders-6",
           "kind": "tf",
-          "prompt": "True or false: IA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "strategy-beginner-orders-c5",
-          "kind": "tf",
-          "prompt": "True or false: IA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset. You keep that promise by writing Visible from Tick, or letting a client mark itself seen.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "writing Visible from Tick, or letting a client mark itself seen is the broken schedule."
-        },
-        {
-          "id": "strategy-beginner-orders-c6",
-          "kind": "mc",
-          "prompt": "IA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset. Which mistake breaks it?",
-          "choices": [
-            "writing Visible from Tick, or letting a client mark itself seen. That keeps the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset.",
-            "Leaving the real work on Reveal. That would break the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset.",
-            "Waiting until the reveal trace hits. That would break the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset.",
-            "Keeping the server timer as the only writer. That would break the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset."
-          ],
-          "answer": 0,
-          "why": "writing Visible from Tick, or letting a client mark itself seen"
-        },
-        {
-          "id": "strategy-beginner-orders-c7",
-          "kind": "tf",
-          "prompt": "True or false: IA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset. Reveal through the timer remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the server timer"
-        },
-        {
-          "id": "strategy-beginner-orders-c8",
-          "kind": "mc",
-          "prompt": "IA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while Reveal stayed one call. That keeps the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset.",
-            "A data row must be recompiled for this section. That would break the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset.",
-            "Set Visible only works for one class, so the cast is the stable choice. That would break the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "strategy-beginner-orders-c9",
-          "kind": "mc",
-          "prompt": "IA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset. What does the player lose if Reveal is removed?",
-          "choices": [
-            "A click is not a search never starts, because the timer was the only way in. That keeps the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset.",
-            "Nothing, because Tick still does the job. That would break the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset.",
-            "The constructor replaces Reveal on the next map. That would break the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset."
-          ],
-          "answer": 0,
-          "why": "Reveal is the start."
-        },
-        {
-          "id": "strategy-beginner-orders-c10",
-          "kind": "tf",
-          "prompt": "True or false: IA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset. OnRep should perform the write again so the section does not wait for the server timer.",
+          "prompt": "An order click should move every unit on the map.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "Unselected units do not hear it."
         },
         {
-          "id": "strategy-beginner-orders-c11",
+          "id": "stgc-orders-7",
           "kind": "mc",
-          "prompt": "IA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset. Which gate sits immediately in front of the write?",
+          "prompt": "Art adds a new chassis. What does the order graph change?",
           "choices": [
-            "the reveal trace hits. That keeps the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset.",
-            "A Tick frame, whether or not Reveal fired. That would break the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset.",
-            "A client prediction that skips the server timer. That would break the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset.",
-            "A cast to every actor this course might spawn. That would break the rule that iA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset."
+            "Nothing, if the chassis implements ReceiveOrder",
+            "A new cast to that class",
+            "A new vision timer",
+            "A new medal row"
           ],
           "answer": 0,
-          "why": "the reveal trace hits"
+          "why": "The click never lists classes."
         },
         {
-          "id": "strategy-beginner-orders-c11b",
-          "kind": "tf",
-          "prompt": "True or false: IA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives. The click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished. Formation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "stgc-orders-8",
+          "kind": "mc",
+          "prompt": "The click paints Visible along the path. What did the order steal?",
           "choices": [
-            "True",
-            "False"
+            "The vision pass",
+            "The selection flag",
+            "The building's cost row",
+            "The medal board"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "Orders do not paint fog."
+        },
+        {
+          "id": "stgc-orders-9",
+          "kind": "mc",
+          "prompt": "Nobody is selected and the player clicks empty ground. What receives the order?",
+          "choices": [
+            "No unit",
+            "The nearest unit",
+            "The camp",
+            "The scoreboard"
+          ],
+          "answer": 0,
+          "why": "No flag, no receiver."
+        },
+        {
+          "id": "stgc-orders-10",
+          "kind": "mc",
+          "prompt": "Which line is the order gate?",
+          "choices": [
+            "The branch on Selected before ReceiveOrder",
+            "Visible set by the vision timer",
+            "Spending the team's money",
+            "Adding to the board"
+          ],
+          "answer": 0,
+          "why": "Selected decides who hears the click."
         }
-      ],
-      "graph": "fog"
+      ]
     },
     "stock": {
-      "plainEnglish": "In plain English, A row, not 25 means: Spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock.",
-      "whyGame": "In a real game, getting a row, not 25 wrong shows up as writing Visible from Tick, or letting a client mark itself seen. the server timer is the repair, and the generated line `Visible = true; // node:tpl_fog_set` is that repair in C++.",
+      "plainEnglish": "Spend is the build, not a frame drain. Only the authority changes supplies. The sample subtracts 25, and that number belongs on a row named by the building. A barracks and a turret do not cost the same. Income can be a slow timer that spends a negative cost.",
+      "whyGame": "A shared literal makes every building the same price, and a client subtract spends a private stock.",
       "expansions": [
         {
-          "title": "A row, not 25 as a door",
-          "detail": "If a row, not 25 is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The row",
+          "detail": "The graph reads the cost and writes the stock."
         },
         {
-          "title": "A row, not 25 as data",
-          "detail": "Designer numbers for a row, not 25 live on a row. Visible set from a trace on a 0.25 second timer reads the row instead of a literal."
+          "title": "The gate",
+          "detail": "HasAuthority wraps the write."
         },
         {
-          "title": "A row, not 25 as a listener",
-          "detail": "Later systems listen for Reveal. They do not writing Visible from Tick, or letting a client mark itself seen."
+          "title": "Income",
+          "detail": "A slow timer can call spend with a negative cost, or a sibling event."
         }
       ],
       "quiz": [
         {
-          "id": "strategy-beginner-stock-c1",
+          "id": "stgc-stock-1",
           "kind": "mc",
-          "prompt": "Spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock. What should own that decision in A row, not 25?",
+          "prompt": "A build should spend supplies. What kind of event is that spend?",
           "choices": [
-            "the server timer. That keeps the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock.",
-            "The widget that draws a row, not 25 owns it. That would break the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock.",
-            "Every client owns it, before Reveal is replicated. That would break the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock."
+            "A custom event the build calls once",
+            "A subtract on every frame the building exists",
+            "Painting what the team can see",
+            "Granting a result"
           ],
           "answer": 0,
-          "why": "Spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock."
+          "why": "Spend is intentional."
         },
         {
-          "id": "strategy-beginner-stock-c2",
+          "id": "stgc-stock-2",
           "kind": "mc",
-          "prompt": "Spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock. The course graph contains `Visible = true; // node:tpl_fog_set`. What is that line doing in gameplay terms?",
+          "prompt": "The excerpt subtracts 25 inside the authority check. What does 25 stand for?",
           "choices": [
-            "Visible set from a trace on a 0.25 second timer. That keeps the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock.",
-            "writing Visible from Tick, or letting a client mark itself seen. That would break the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock."
+            "A sample cost a row should name",
+            "The required price of every building",
+            "The medal value",
+            "The vision interval"
           ],
           "answer": 0,
-          "why": "Visible set from a trace on a 0.25 second timer"
+          "why": "The number is a placeholder."
         },
         {
-          "id": "strategy-beginner-stock-c3",
+          "id": "stgc-stock-3",
           "kind": "mc",
-          "prompt": "Spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock. Where should Set Visible sit?",
+          "prompt": "The stock can cover the row. Which write follows?",
           "choices": [
-            "After the reveal trace hits, started by Reveal through the timer. That keeps the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock.",
-            "It runs before Reveal, so the player is not required. That would break the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock.",
-            "It sits on Tick beside Reveal. That would break the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock."
+            "The authority subtract of that row's cost",
+            "A client subtract so the number drops early",
+            "A vision bit on the plot",
+            "Ten points on the board"
           ],
           "answer": 0,
-          "why": "the reveal trace hits is the gate."
+          "why": "The server spends."
         },
         {
-          "id": "strategy-beginner-stock-c4",
+          "id": "stgc-stock-4",
+          "kind": "mc",
+          "prompt": "Each client subtracts outside the authority check. What do the machines disagree about?",
+          "choices": [
+            "How much stock is left",
+            "Which unit heard the click",
+            "Which cell is visible",
+            "Which medal row exists"
+          ],
+          "answer": 0,
+          "why": "One stock, one writer."
+        },
+        {
+          "id": "stgc-stock-5",
+          "kind": "mc",
+          "prompt": "A barracks costs 80 and a turret costs 40. Where do those numbers live?",
+          "choices": [
+            "On their data rows",
+            "As one literal in the spend graph",
+            "On the vision bool",
+            "In the medal asset"
+          ],
+          "answer": 0,
+          "why": "The row names the bill."
+        },
+        {
+          "id": "stgc-stock-6",
           "kind": "tf",
-          "prompt": "True or false: Spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "strategy-beginner-stock-c5",
-          "kind": "tf",
-          "prompt": "True or false: Spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock. You keep that promise by writing Visible from Tick, or letting a client mark itself seen.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "writing Visible from Tick, or letting a client mark itself seen is the broken schedule."
-        },
-        {
-          "id": "strategy-beginner-stock-c6",
-          "kind": "mc",
-          "prompt": "Spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock. Which mistake breaks it?",
-          "choices": [
-            "writing Visible from Tick, or letting a client mark itself seen. That keeps the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock.",
-            "Leaving the real work on Reveal. That would break the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock.",
-            "Waiting until the reveal trace hits. That would break the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock.",
-            "Keeping the server timer as the only writer. That would break the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock."
-          ],
-          "answer": 0,
-          "why": "writing Visible from Tick, or letting a client mark itself seen"
-        },
-        {
-          "id": "strategy-beginner-stock-c7",
-          "kind": "tf",
-          "prompt": "True or false: Spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock. Reveal through the timer remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the server timer"
-        },
-        {
-          "id": "strategy-beginner-stock-c8",
-          "kind": "mc",
-          "prompt": "Spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while Reveal stayed one call. That keeps the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock.",
-            "A data row must be recompiled for this section. That would break the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock.",
-            "Set Visible only works for one class, so the cast is the stable choice. That would break the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "strategy-beginner-stock-c9",
-          "kind": "mc",
-          "prompt": "Spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock. What does the player lose if Reveal is removed?",
-          "choices": [
-            "A row, not 25 never starts, because the timer was the only way in. That keeps the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock.",
-            "Nothing, because Tick still does the job. That would break the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock.",
-            "The constructor replaces Reveal on the next map. That would break the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock."
-          ],
-          "answer": 0,
-          "why": "Reveal is the start."
-        },
-        {
-          "id": "strategy-beginner-stock-c10",
-          "kind": "tf",
-          "prompt": "True or false: Spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock. OnRep should perform the write again so the section does not wait for the server timer.",
+          "prompt": "A barracks and a turret should share one typed cost.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "Each row names its own cost."
         },
         {
-          "id": "strategy-beginner-stock-c11",
+          "id": "stgc-stock-7",
           "kind": "mc",
-          "prompt": "Spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock. Which gate sits immediately in front of the write?",
+          "prompt": "Income arrives slowly. How can that add to the stock without a second float?",
           "choices": [
-            "the reveal trace hits. That keeps the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock.",
-            "A Tick frame, whether or not Reveal fired. That would break the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock.",
-            "A client prediction that skips the server timer. That would break the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock.",
-            "A cast to every actor this course might spawn. That would break the rule that spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock."
+            "A timer that spends a negative cost",
+            "A frame drain run backwards",
+            "A medal that adds supplies",
+            "A vision pass that refunds"
           ],
           "answer": 0,
-          "why": "the reveal trace hits"
+          "why": "Negative spend is income, or a sibling event."
         },
         {
-          "id": "strategy-beginner-stock-c11b",
-          "kind": "tf",
-          "prompt": "True or false: Spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock. Income is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font. Reveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "stgc-stock-8",
+          "kind": "mc",
+          "prompt": "The stock is 20 and the row costs 25. What should the spend do?",
           "choices": [
-            "True",
-            "False"
+            "Refuse the build",
+            "Drive the stock negative and build anyway",
+            "Award a medal for trying",
+            "Clear fog around the plot"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "You cannot spend what you do not have."
+        },
+        {
+          "id": "stgc-stock-9",
+          "kind": "mc",
+          "prompt": "Which line is the money write?",
+          "choices": [
+            "The supply subtract inside the authority check",
+            "Visible set on a reveal hit",
+            "The selection gate",
+            "Adding to the board"
+          ],
+          "answer": 0,
+          "why": "That assignment is the spend."
+        },
+        {
+          "id": "stgc-stock-10",
+          "kind": "mc",
+          "prompt": "Why is the frame loop the wrong place to drain supplies?",
+          "choices": [
+            "The stock would fall while nobody is building",
+            "A float cannot be read there",
+            "Authority checks are illegal on a custom event",
+            "Rows cannot store costs"
+          ],
+          "answer": 0,
+          "why": "Spend happens when a build asks."
         }
-      ],
-      "graph": "fog"
+      ]
     },
     "fog": {
-      "plainEnglish": "In plain English, Four times a second means: Begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell.",
-      "whyGame": "In a real game, getting four times a second wrong shows up as writing Visible from Tick, or letting a client mark itself seen. the server timer is the repair, and the generated line `Visible = true; // node:tpl_fog_set` is that repair in C++.",
+      "plainEnglish": "Begin Play starts the vision timer. Reveal runs four times a second. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact, not a spectator widget, and it is not Relevant.",
+      "whyGame": "Letting a client set the bit cheats the map, and an order that paints cells shows ground the team has not seen.",
       "expansions": [
         {
-          "title": "Four times a second as a door",
-          "detail": "If four times a second is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The wall",
+          "detail": "The trace stops. The cell beyond stays hidden."
         },
         {
-          "title": "Four times a second as data",
-          "detail": "Designer numbers for four times a second live on a row. Visible set from a trace on a 0.25 second timer reads the row instead of a literal."
+          "title": "Interest",
+          "detail": "Relevant decides whether the actor exists on a client. Vision decides the cell."
         },
         {
-          "title": "Four times a second as a listener",
-          "detail": "Later systems listen for Reveal. They do not writing Visible from Tick, or letting a client mark itself seen."
+          "title": "Orders",
+          "detail": "A click must not set Visible."
         }
       ],
       "quiz": [
         {
-          "id": "strategy-beginner-fog-c1",
+          "id": "stgc-fog-1",
           "kind": "mc",
-          "prompt": "Begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough. What should own that decision in Four times a second?",
+          "prompt": "What does the vision bool mean?",
           "choices": [
-            "the server timer. That keeps the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough.",
-            "The widget that draws four times a second owns it. That would break the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough.",
-            "Every client owns it, before Reveal is replicated. That would break the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough."
+            "This team can see that cell",
+            "A widget on one spectator's screen",
+            "This client receives the actor",
+            "This unit heard the click"
           ],
           "answer": 0,
-          "why": "Begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough."
+          "why": "Visible is a team fact."
         },
         {
-          "id": "strategy-beginner-fog-c2",
+          "id": "stgc-fog-2",
           "kind": "mc",
-          "prompt": "Begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough. The course graph contains `Visible = true; // node:tpl_fog_set`. What is that line doing in gameplay terms?",
+          "prompt": "Reveal assigns Visible on a clear trace. How often does that timer run?",
           "choices": [
-            "Visible set from a trace on a 0.25 second timer. That keeps the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough.",
-            "writing Visible from Tick, or letting a client mark itself seen. That would break the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough."
+            "Four times a second",
+            "Once on each drawn frame",
+            "Only when the player clicks",
+            "Twice a second, with interest"
           ],
           "answer": 0,
-          "why": "Visible set from a trace on a 0.25 second timer"
+          "why": "Begin Play starts the quarter-second pass."
         },
         {
-          "id": "strategy-beginner-fog-c3",
+          "id": "stgc-fog-3",
           "kind": "mc",
-          "prompt": "Begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough. Where should Set Visible sit?",
+          "prompt": "A wall blocks the team. Which assignment must not run?",
           "choices": [
-            "After the reveal trace hits, started by Reveal through the timer. That keeps the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough.",
-            "It runs before Reveal, so the player is not required. That would break the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough.",
-            "It sits on Tick beside Reveal. That would break the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough."
+            "Visible for the cell beyond the wall",
+            "The host's interest in its own units",
+            "A selected unit's order",
+            "A row read for a cost"
           ],
           "answer": 0,
-          "why": "the reveal trace hits is the gate."
+          "why": "No hit, no vision."
         },
         {
-          "id": "strategy-beginner-fog-c4",
+          "id": "stgc-fog-4",
+          "kind": "mc",
+          "prompt": "A client sets Visible so its own map updates. What can that player mark?",
+          "choices": [
+            "Unseen cells as seen",
+            "Only cells the authority already revealed",
+            "Only the selected unit",
+            "Only the stock"
+          ],
+          "answer": 0,
+          "why": "The bit is not a client property."
+        },
+        {
+          "id": "stgc-fog-5",
+          "kind": "mc",
+          "prompt": "You replicate a spectator widget instead of the bit. What fails to be shared?",
+          "choices": [
+            "The team's vision",
+            "The unit mesh",
+            "The order action",
+            "The medal row"
+          ],
+          "answer": 0,
+          "why": "The bit is the replicated object."
+        },
+        {
+          "id": "stgc-fog-6",
           "kind": "tf",
-          "prompt": "True or false: Begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "strategy-beginner-fog-c5",
-          "kind": "tf",
-          "prompt": "True or false: Begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough. You keep that promise by writing Visible from Tick, or letting a client mark itself seen.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "writing Visible from Tick, or letting a client mark itself seen is the broken schedule."
-        },
-        {
-          "id": "strategy-beginner-fog-c6",
-          "kind": "mc",
-          "prompt": "Begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough. Which mistake breaks it?",
-          "choices": [
-            "writing Visible from Tick, or letting a client mark itself seen. That keeps the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough.",
-            "Leaving the real work on Reveal. That would break the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough.",
-            "Waiting until the reveal trace hits. That would break the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough.",
-            "Keeping the server timer as the only writer. That would break the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough."
-          ],
-          "answer": 0,
-          "why": "writing Visible from Tick, or letting a client mark itself seen"
-        },
-        {
-          "id": "strategy-beginner-fog-c7",
-          "kind": "tf",
-          "prompt": "True or false: Begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough. Reveal through the timer remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the server timer"
-        },
-        {
-          "id": "strategy-beginner-fog-c8",
-          "kind": "mc",
-          "prompt": "Begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while Reveal stayed one call. That keeps the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough.",
-            "A data row must be recompiled for this section. That would break the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough.",
-            "Set Visible only works for one class, so the cast is the stable choice. That would break the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "strategy-beginner-fog-c9",
-          "kind": "mc",
-          "prompt": "Begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough. What does the player lose if Reveal is removed?",
-          "choices": [
-            "Four times a second never starts, because the timer was the only way in. That keeps the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough.",
-            "Nothing, because Tick still does the job. That would break the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough.",
-            "The constructor replaces Reveal on the next map. That would break the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough."
-          ],
-          "answer": 0,
-          "why": "Reveal is the start."
-        },
-        {
-          "id": "strategy-beginner-fog-c10",
-          "kind": "tf",
-          "prompt": "True or false: Begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough. OnRep should perform the write again so the section does not wait for the server timer.",
+          "prompt": "Visible and Relevant answer the same question.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "One is who sees. One is who receives the actor."
         },
         {
-          "id": "strategy-beginner-fog-c11",
+          "id": "stgc-fog-7",
           "kind": "mc",
-          "prompt": "Begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough. Which gate sits immediately in front of the write?",
+          "prompt": "An order paints cells along the drag. Which system was misused?",
           "choices": [
-            "the reveal trace hits. That keeps the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough.",
-            "A Tick frame, whether or not Reveal fired. That would break the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough.",
-            "A client prediction that skips the server timer. That would break the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough.",
-            "A cast to every actor this course might spawn. That would break the rule that begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough."
+            "Orders, which are not allowed to write vision",
+            "The medal row",
+            "The building's cost row",
+            "The selection flag"
           ],
           "answer": 0,
-          "why": "the reveal trace hits"
+          "why": "Reveal is the writer."
         },
         {
-          "id": "strategy-beginner-fog-c11b",
-          "kind": "tf",
-          "prompt": "True or false: Begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell. An order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat. Hidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "stgc-fog-8",
+          "kind": "mc",
+          "prompt": "Which interval is the vision pass, not interest?",
           "choices": [
-            "True",
-            "False"
+            "A quarter of a second",
+            "A half second",
+            "Once a second",
+            "Every frame of the match"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "Reveal is the faster of the two passes."
+        },
+        {
+          "id": "stgc-fog-9",
+          "kind": "mc",
+          "prompt": "Who starts the vision timer?",
+          "choices": [
+            "Begin Play, once",
+            "Every Reveal call",
+            "The right-click",
+            "Recording a kill"
+          ],
+          "answer": 0,
+          "why": "One timer."
+        },
+        {
+          "id": "stgc-fog-10",
+          "kind": "mc",
+          "prompt": "Which line is vision, not interest?",
+          "choices": [
+            "Visible set for the team after a clear trace",
+            "Relevant set from the half-second trace",
+            "The selection gate",
+            "Spending the team's money"
+          ],
+          "answer": 0,
+          "why": "Reveal paints cells."
         }
-      ],
-      "graph": "fog"
+      ]
     },
     "medal": {
-      "plainEnglish": "In plain English, A kill is not a cell means: AwardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again.",
-      "whyGame": "In a real game, getting a kill is not a cell wrong shows up as writing Visible from Tick, or letting a client mark itself seen. the server timer is the repair, and the generated line `Visible = true; // node:tpl_fog_set` is that repair in C++.",
+      "plainEnglish": "A kill or a capture calls AwardMedal on the server. The sample adds 10, and that number belongs on a medal row because a kill and a capture do not score the same. The board reads Score. Its notify refreshes. Revealing a cell does not add points, and neither does driving.",
+      "whyGame": "A notify that adds again doubles the award, and a fog cell that scores points pays the player for looking.",
       "expansions": [
         {
-          "title": "A kill is not a cell as a door",
-          "detail": "If a kill is not a cell is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The row",
+          "detail": "The graph reads the value and adds it on the authority."
         },
         {
-          "title": "A kill is not a cell as data",
-          "detail": "Designer numbers for a kill is not a cell live on a row. Visible set from a trace on a 0.25 second timer reads the row instead of a literal."
+          "title": "The board",
+          "detail": "OnRep refreshes. It does not add."
         },
         {
-          "title": "A kill is not a cell as a listener",
-          "detail": "Later systems listen for Reveal. They do not writing Visible from Tick, or letting a client mark itself seen."
+          "title": "Not a result",
+          "detail": "A revealed cell and a drive are not medals."
         }
       ],
       "quiz": [
         {
-          "id": "strategy-beginner-medal-c1",
+          "id": "stgc-medal-1",
           "kind": "mc",
-          "prompt": "AwardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset. What should own that decision in A kill is not a cell?",
+          "prompt": "A player captures an objective. What should record it?",
           "choices": [
-            "the server timer. That keeps the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset.",
-            "The widget that draws a kill is not a cell owns it. That would break the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset.",
-            "Every client owns it, before Reveal is replicated. That would break the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset."
+            "AwardMedal on the server",
+            "The order click",
+            "The vision timer",
+            "A drive across the cell"
           ],
           "answer": 0,
-          "why": "AwardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset."
+          "why": "A medal is a result."
         },
         {
-          "id": "strategy-beginner-medal-c2",
+          "id": "stgc-medal-2",
           "kind": "mc",
-          "prompt": "AwardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset. The course graph contains `Visible = true; // node:tpl_fog_set`. What is that line doing in gameplay terms?",
+          "prompt": "The excerpt adds 10 inside the authority check. What does 10 stand for?",
           "choices": [
-            "Visible set from a trace on a 0.25 second timer. That keeps the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset.",
-            "writing Visible from Tick, or letting a client mark itself seen. That would break the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset."
+            "A sample value the medal row should name",
+            "The points for every event, including a look",
+            "The building cost",
+            "The vision interval"
           ],
           "answer": 0,
-          "why": "Visible set from a trace on a 0.25 second timer"
+          "why": "Ten is a stand-in."
         },
         {
-          "id": "strategy-beginner-medal-c3",
+          "id": "stgc-medal-3",
           "kind": "mc",
-          "prompt": "AwardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset. Where should Set Visible sit?",
+          "prompt": "The server has accepted a kill. Which write follows?",
           "choices": [
-            "After the reveal trace hits, started by Reveal through the timer. That keeps the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset.",
-            "It runs before Reveal, so the player is not required. That would break the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset.",
-            "It sits on Tick beside Reveal. That would break the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset."
+            "The authority add of that row's value",
+            "A client add so the popup appears first",
+            "Visible on the killer",
+            "A supply refund"
           ],
           "answer": 0,
-          "why": "the reveal trace hits is the gate."
+          "why": "The host grants the points."
         },
         {
-          "id": "strategy-beginner-medal-c4",
+          "id": "stgc-medal-4",
+          "kind": "mc",
+          "prompt": "The board's notify adds 10 after the server already did. What does the board show?",
+          "choices": [
+            "Double the award",
+            "The host's granted total",
+            "How much the team can still spend",
+            "The vision radius"
+          ],
+          "answer": 0,
+          "why": "Refresh. Do not award again."
+        },
+        {
+          "id": "stgc-medal-5",
+          "kind": "mc",
+          "prompt": "A kill and a capture are worth different points. Where is that difference?",
+          "choices": [
+            "On two medal rows",
+            "As one literal for every award",
+            "On the vision bool",
+            "In the order graph"
+          ],
+          "answer": 0,
+          "why": "The row names the value."
+        },
+        {
+          "id": "stgc-medal-6",
           "kind": "tf",
-          "prompt": "True or false: AwardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "strategy-beginner-medal-c5",
-          "kind": "tf",
-          "prompt": "True or false: AwardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset. You keep that promise by writing Visible from Tick, or letting a client mark itself seen.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "writing Visible from Tick, or letting a client mark itself seen is the broken schedule."
-        },
-        {
-          "id": "strategy-beginner-medal-c6",
-          "kind": "mc",
-          "prompt": "AwardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset. Which mistake breaks it?",
-          "choices": [
-            "writing Visible from Tick, or letting a client mark itself seen. That keeps the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset.",
-            "Leaving the real work on Reveal. That would break the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset.",
-            "Waiting until the reveal trace hits. That would break the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset.",
-            "Keeping the server timer as the only writer. That would break the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset."
-          ],
-          "answer": 0,
-          "why": "writing Visible from Tick, or letting a client mark itself seen"
-        },
-        {
-          "id": "strategy-beginner-medal-c7",
-          "kind": "tf",
-          "prompt": "True or false: AwardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset. Reveal through the timer remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the server timer"
-        },
-        {
-          "id": "strategy-beginner-medal-c8",
-          "kind": "mc",
-          "prompt": "AwardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while Reveal stayed one call. That keeps the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset.",
-            "A data row must be recompiled for this section. That would break the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset.",
-            "Set Visible only works for one class, so the cast is the stable choice. That would break the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "strategy-beginner-medal-c9",
-          "kind": "mc",
-          "prompt": "AwardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset. What does the player lose if Reveal is removed?",
-          "choices": [
-            "A kill is not a cell never starts, because the timer was the only way in. That keeps the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset.",
-            "Nothing, because Tick still does the job. That would break the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset.",
-            "The constructor replaces Reveal on the next map. That would break the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset."
-          ],
-          "answer": 0,
-          "why": "Reveal is the start."
-        },
-        {
-          "id": "strategy-beginner-medal-c10",
-          "kind": "tf",
-          "prompt": "True or false: AwardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset. OnRep should perform the write again so the section does not wait for the server timer.",
+          "prompt": "Revealing a fog cell should add points.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "A cell is not a kill."
         },
         {
-          "id": "strategy-beginner-medal-c11",
+          "id": "stgc-medal-7",
           "kind": "mc",
-          "prompt": "AwardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset. Which gate sits immediately in front of the write?",
+          "prompt": "Driving across the map awards points. What was treated as a result?",
           "choices": [
-            "the reveal trace hits. That keeps the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset.",
-            "A Tick frame, whether or not Reveal fired. That would break the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset.",
-            "A client prediction that skips the server timer. That would break the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset.",
-            "A cast to every actor this course might spawn. That would break the rule that awardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset."
+            "Travel, which is not a medal",
+            "A kill the server confirmed",
+            "A capture the row named",
+            "A board refresh"
           ],
           "answer": 0,
-          "why": "the reveal trace hits"
+          "why": "Driving does not score."
         },
         {
-          "id": "strategy-beginner-medal-c11b",
-          "kind": "tf",
-          "prompt": "True or false: AwardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again. Revealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment. The patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "stgc-medal-8",
+          "kind": "mc",
+          "prompt": "Where does the score assignment belong?",
           "choices": [
-            "True",
-            "False"
+            "Inside the authority check in AwardMedal",
+            "On the client that saw the kill",
+            "Inside the vision pass",
+            "Inside the spend event"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "The host grants it."
+        },
+        {
+          "id": "stgc-medal-9",
+          "kind": "mc",
+          "prompt": "Which line is the award, not the refresh?",
+          "choices": [
+            "Score increased inside the authority check",
+            "The board widget reading Score",
+            "Visible set by Reveal",
+            "Spending the team's money"
+          ],
+          "answer": 0,
+          "why": "The add is the medal. The board displays it."
+        },
+        {
+          "id": "stgc-medal-10",
+          "kind": "mc",
+          "prompt": "The local popup plays before the server score arrives. What may it show?",
+          "choices": [
+            "A guess, until the authority value arrives",
+            "The official board",
+            "How much the team can still spend",
+            "The selected unit"
+          ],
+          "answer": 0,
+          "why": "The host number is the board."
         }
-      ],
-      "graph": "fog"
+      ]
     }
   }
 }
