@@ -18,6 +18,10 @@ const ENGINE_EXACT = new Set([
   "AbilitySystemComponent.h",
   "NiagaraFunctionLibrary.h",
   "NavigationSystem.h",
+  "AbilitySystemInterface.h",
+  "GameplayTagContainer.h",
+  "GameplayEffect.h",
+  "AIController.h",
 ]);
 
 // These look like engine paths but are not public headers in UE 5.8.
@@ -41,6 +45,8 @@ const ENGINE_PREFIXES = [
   "Templates/",
   "Logging/",
   "Curves/",
+  "BehaviorTree/",
+  "Abilities/",
 ];
 
 const SYMBOL_HEADERS = [
@@ -54,6 +60,17 @@ const SYMBOL_HEADERS = [
   [/\bDOREPLIFETIME\b/, "Net/UnrealNetwork.h"],
   [/\bUUserWidget\b/, "Blueprint/UserWidget.h"],
   [/\bUEnhancedInputComponent\b/, "EnhancedInputComponent.h"],
+  [/\bUNiagaraFunctionLibrary\b/, "NiagaraFunctionLibrary.h"],
+  [/\bUGameplayStatics\b/, "Kismet/GameplayStatics.h"],
+  [/\bAAIController\b/, "AIController.h"],
+  [/\bUBlackboardComponent\b/, "BehaviorTree/BlackboardComponent.h"],
+  [/\bIAbilitySystemInterface\b/, "AbilitySystemInterface.h"],
+  [/\bUAbilitySystemComponent\b|\bFGameplayTag\b/, "AbilitySystemComponent.h"],
+  [/\bFGameplayTag\b/, "GameplayTagContainer.h"],
+  [/\bUGameplayEffect\b|\bFGameplayEffect/, "GameplayEffect.h"],
+  [/\bUGameplayAbility\b/, "Abilities/GameplayAbility.h"],
+  [/\bGetPlayerCharacter\b|\bACharacter\b/, "GameFramework/Character.h"],
+  [/\bGetPlayerController\b|\bAPlayerController\b/, "GameFramework/PlayerController.h"],
 ];
 
 function quotedIncludes(text) {

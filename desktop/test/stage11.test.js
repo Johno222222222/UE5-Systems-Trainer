@@ -102,7 +102,7 @@ test("import previews a conflict, renames, and keeps community notes", async () 
   }
 });
 
-test("the community index is bundled, off by default, and a fixture folder parses", async () => {
+test("the community index is bundled, the public repo is the default, and a fixture folder parses", async () => {
   const bundled = loadCommunityIndex();
   assert.deepEqual(bundled.problems, []);
   assert.ok(bundled.packs.some((item) => item.id === "sample-notes"));
@@ -117,27 +117,48 @@ test("the community index is bundled, off by default, and a fixture folder parse
   assert.equal(fixture.packs[0].title, "Local pack");
   assert.deepEqual(fixture.problems, []);
 
+  const pack = {
+    format: "bbpack",
+    schema: 1,
+    kind: "template",
+    name: "Hello",
+    author: "Sam",
+    version: "1.0.0",
+    description: "Fixture",
+    content: { template: { id: "hello", title: "Hello" } },
+  };
   const handle = await boot({
-    fetchImpl: async (url) => new Response(JSON.stringify([
-      { name: "hello.bbpack", download_url: "https://example.test/hello.bbpack" },
-    ]), { status: 200, headers: { "content-type": "application/json" } }),
+    fetchImpl: async (url) => {
+      const text = String(url);
+      if (text.endsWith("/index.json")) {
+        return new Response(JSON.stringify({
+          packs: [{ id: "hello", name: "Hello", description: "Hi", author: "Sam", version: "1.0.0", tags: ["demo"], file: "hello.bbpack" }],
+        }), { status: 200, headers: { "content-type": "application/json" } });
+      }
+      return new Response(JSON.stringify(pack), { status: 200, headers: { "content-type": "application/json" } });
+    },
   });
   try {
-    const off = await (await fetch(`http://127.0.0.1:${handle.port}/api/community`)).json();
-    assert.equal(off.enabled, false);
-    assert.equal(off.source, "bundled");
-    const sample = await (await fetch(`http://127.0.0.1:${handle.port}/api/community/packs/sample-notes`)).json();
-    assert.match(sample.filename, /sample-notes\.bbpack/);
+    const listed = await (await fetch(`http://127.0.0.1:${handle.port}/api/community`)).json();
+    assert.equal(listed.enabled, true);
+    assert.equal(listed.repo, "Johno222222222/ue5-systems-training-tool-packs");
+    assert.equal(listed.source, "github");
+    assert.equal(listed.packs[0].id, "hello");
+    assert.equal(listed.packs[0].version, "1.0.0");
+    assert.deepEqual(listed.packs[0].tags, ["demo"]);
+    const sample = await (await fetch(`http://127.0.0.1:${handle.port}/api/community/packs/hello`)).json();
+    assert.equal(sample.filename, "hello.bbpack");
     assert.ok(sample.base64.length > 20);
-    const saved = await (await fetch(`http://127.0.0.1:${handle.port}/api/community/settings`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ enabled: true, repo: "example/packs", path: "packs" }),
-    })).json();
-    assert.equal(saved.enabled, true);
-    const on = await (await fetch(`http://127.0.0.1:${handle.port}/api/community`)).json();
-    assert.equal(on.source, "github");
-    assert.equal(on.packs[0].id, "hello");
+    assert.equal(sample.preview.name, "Hello");
+    const broken = await boot({
+      fetchImpl: async () => new Response("not-json", { status: 200, headers: { "content-type": "text/plain" } }),
+    });
+    try {
+      const bad = await (await fetch(`http://127.0.0.1:${broken.port}/api/community`)).json();
+      assert.ok((bad.problems || []).length > 0);
+    } finally {
+      await broken.close();
+    }
   } finally {
     await handle.close();
   }
@@ -182,5 +203,5 @@ test("the installer workflow builds macOS and Linux apart from Windows", () => {
   assert.equal(/windows:[\s\S]*?needs:\s*\[macos/.test(text), false);
   const pkg = require("../../package.json");
   assert.ok(pkg.build.files.some((item) => String(item).includes("content/community")));
-  assert.equal(pkg.version, "1.17.0");
+  assert.equal(pkg.version, "1.18.0");
 });
