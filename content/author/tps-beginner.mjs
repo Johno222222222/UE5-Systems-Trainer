@@ -97,7 +97,7 @@ const sections = [
     why: "Any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
     depends: ["Any Damage", "Has Authority", "OnRep"],
     paragraphs: [
-      `Third-person health is a replicated float with a body the other players can see. Any Damage is the event. The excerpt assigns Health = 90.f inside if (HasAuthority()). The 90 is a sample literal. A hit reaction on a client must not be a second write, or two players see two different bodies fall. Replace 90 with the computed value. Leave the authority block where the compiler put it.`,
+      `Third-person health is a replicated float with a body the other players can see. Any Damage is the event. The excerpt assigns Health = 90.f inside if (GetOwner() && GetOwner()->HasAuthority()). The 90 is a sample literal. A hit reaction on a client must not be a second write, or two players see two different bodies fall. Replace 90 with the computed value. Leave the authority block where the compiler put it.`,
       `OnRep_Health logs that health changed. On a third-person pawn that notify plays the flinch on the mesh everyone can see. It does not subtract again. The camera does not shake from this function. The local client can shake from the notify. The weapon calls the damage event. It does not assign Health.`,
       `The magazine, the aim bool, and the squadmate's patrol are unrelated floats. Save stores Health after the server writes it. A Tick that drains health, so the third-person mesh can bleed, ignores the event and bleeds while the player is standing in a menu.`,
       `A client that predicts the flinch is fine. A client that predicts the number is the snap you see when the server float arrives.`,

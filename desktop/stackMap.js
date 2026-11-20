@@ -231,7 +231,7 @@ ${kept.map((item) => item.text).join("\n\n")}
 `);
   const source = repairFloats(`#include "${base}.h"
 ${sources.join("\n\n")}
-`);
+`).replace(/(\n\})\s*;/g, "$1");
 
   const map = stackMap(list);
   const dedupedNames = new Set(deduped.map((item) => item.name));

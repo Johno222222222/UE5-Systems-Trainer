@@ -367,7 +367,7 @@ void UCharacterInteractComponent::GetLifetimeReplicatedProps(TArray<FLifetimePro
 {
   Super::GetLifetimeReplicatedProps(OutLifetimeProps);
   DOREPLIFETIME(UCharacterInteractComponent, LastInteractId);
-};`;
+}`;
 
   const distanceHeader = mustLine(header, "float TraceDistance");
   const intervalHeader = mustLine(header, "float TraceInterval");

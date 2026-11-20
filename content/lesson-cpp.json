@@ -551,7 +551,7 @@
       },
       {
         "line": 9,
-        "text": "\tif (HasAuthority()) // node:tpl_replicated-health_auth"
+        "text": "\tif (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_replicated-health_auth"
       },
       {
         "line": 10,
@@ -839,7 +839,7 @@
       },
       {
         "line": 15,
-        "text": "\tif (HasAuthority()) // node:tpl_aoi_auth"
+        "text": "\tif (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_aoi_auth"
       },
       {
         "line": 16,
@@ -891,7 +891,7 @@
       },
       {
         "line": 10,
-        "text": "\tif (HasAuthority()) // node:tpl_artillery_auth"
+        "text": "\tif (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_artillery_auth"
       },
       {
         "line": 11,
@@ -1083,7 +1083,7 @@
       },
       {
         "line": 7,
-        "text": "\tif (HasAuthority()) // node:tpl_economy_auth"
+        "text": "\tif (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_economy_auth"
       },
       {
         "line": 8,
@@ -1203,7 +1203,7 @@
       },
       {
         "line": 7,
-        "text": "\tif (HasAuthority()) // node:tpl_gunsmith_auth"
+        "text": "\tif (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_gunsmith_auth"
       },
       {
         "line": 8,
@@ -1455,7 +1455,7 @@
       },
       {
         "line": 7,
-        "text": "\tif (HasAuthority()) // node:tpl_scoring_auth"
+        "text": "\tif (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_scoring_auth"
       },
       {
         "line": 8,
@@ -1507,7 +1507,7 @@
       },
       {
         "line": 7,
-        "text": "\tif (HasAuthority()) // node:tpl_vehicle-drive_auth"
+        "text": "\tif (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_vehicle-drive_auth"
       },
       {
         "line": 8,

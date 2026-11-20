@@ -202,7 +202,7 @@
         {
           "id": "authority",
           "title": "Who writes the number",
-          "takeaway": "Shared numbers have one writer. Health in a replicated kit, a limb floored at 10% of its max, Supplies, Score, Shells, EquippedId, and Relevant are all that kind of number. The graph compiler puts the following statements inside if (HasAuthority()), so Health = 90.f and EquippedId = IA_Equip are not left on the next line. A handwritten sample that assigns the float after an empty check is still the bug: every client would write a private copy, and the copies snap back when the server value arrives.\n\nOnRep is the notify. It plays a limp, refreshes a board, or rebuilds a third-person mesh. It does not subtract the damage again and it does not add the medal again. A horror lesson that is truly single player can clamp locally and skip OnRep, and the course should say so. The moment a second machine exists, the gate comes back.\n\nWidgets are not the number. A coin icon, a health bar, and a selection decal read the float. Replicating the widget replicates fonts and layout. Clients may punch a prediction. They may not adopt their prediction as the float. A strategy client that sets Visible to see the enemy base is the same bug with a bool.",
+          "takeaway": "Shared numbers have one writer. Health in a replicated kit, a limb floored at 10% of its max, Supplies, Score, Shells, EquippedId, and Relevant are all that kind of number. The graph compiler puts the following statements inside if (GetOwner() && GetOwner()->HasAuthority()), so Health = 90.f and EquippedId = IA_Equip are not left on the next line. A handwritten sample that assigns the float after an empty check is still the bug: every client would write a private copy, and the copies snap back when the server value arrives.\n\nOnRep is the notify. It plays a limp, refreshes a board, or rebuilds a third-person mesh. It does not subtract the damage again and it does not add the medal again. A horror lesson that is truly single player can clamp locally and skip OnRep, and the course should say so. The moment a second machine exists, the gate comes back.\n\nWidgets are not the number. A coin icon, a health bar, and a selection decal read the float. Replicating the widget replicates fonts and layout. Clients may punch a prediction. They may not adopt their prediction as the float. A strategy client that sets Visible to see the enemy base is the same bug with a bool.",
           "assignment": {
             "prompt": "Name the check that must wrap a replicated write, and the notify that must not write again.",
             "accept": [
@@ -215,7 +215,7 @@
               "id": "au-1",
               "prompt": "A broken sample leaves Health = 90.f outside an empty HasAuthority block. Where does the generated replicated-health function put that assignment?",
               "choices": [
-                "Inside if (HasAuthority())",
+                "Inside if (GetOwner() && GetOwner()->HasAuthority())",
                 "On the next line, after an empty check",
                 "Inside OnRep",
                 "Inside Tick"
@@ -283,7 +283,7 @@
             "bug": "right",
             "left": {
               "label": "Authority",
-              "code": "if (HasAuthority()) { Health = Clamped; }"
+              "code": "if (GetOwner() && GetOwner()->HasAuthority()) { Health = Clamped; }"
             },
             "right": {
               "label": "Client",
@@ -401,7 +401,7 @@
         {
           "id": "onrep",
           "title": "Replication and OnRep",
-          "takeaway": "Replication ships the number. OnRep is the local reaction. A limb write nested inside HasAuthority becomes Health, or LeftArm, on the server, clamped so a normal hit cannot pass 10% of max. OnRep plays the limp on every proxy that has the pawn. A second subtract in the notify bites twice. A medal's OnRep refreshes the board and does not add 10 again. EquippedId's OnRep rebuilds a third-person mesh from the asset and does not invent a new id.\n\nPrediction is allowed for the reaction and not for the number. An early flinch, a widget punch, a local muzzle flash from IA_Fire: those are fine. An early Health, an early Score, an early EquippedId: those snap. The generated excerpts assign Health = 90.f and EquippedId = IA_Equip inside if (HasAuthority()). A repair question may still show the old broken shape, with the assignment after an empty check. The remaining design step is a computed value instead of a literal where the design has a formula.\n\nSingle-player horror can stay on the local clamp. Co-op horror cannot. A listen server is not an excuse to skip the gate, because the remote client is still another writer unless you check.",
+          "takeaway": "Replication ships the number. OnRep is the local reaction. A limb write nested inside HasAuthority becomes Health, or LeftArm, on the server, clamped so a normal hit cannot pass 10% of max. OnRep plays the limp on every proxy that has the pawn. A second subtract in the notify bites twice. A medal's OnRep refreshes the board and does not add 10 again. EquippedId's OnRep rebuilds a third-person mesh from the asset and does not invent a new id.\n\nPrediction is allowed for the reaction and not for the number. An early flinch, a widget punch, a local muzzle flash from IA_Fire: those are fine. An early Health, an early Score, an early EquippedId: those snap. The generated excerpts assign Health = 90.f and EquippedId = IA_Equip inside if (GetOwner() && GetOwner()->HasAuthority()). A repair question may still show the old broken shape, with the assignment after an empty check. The remaining design step is a computed value instead of a literal where the design has a formula.\n\nSingle-player horror can stay on the local clamp. Co-op horror cannot. A listen server is not an excuse to skip the gate, because the remote client is still another writer unless you check.",
           "assignment": {
             "prompt": "For a limb max of 80, what is the 10% floor, and which function must not subtract again?",
             "accept": [
@@ -440,7 +440,7 @@
               "id": "or-3",
               "prompt": "A broken sample assigns EquippedId outside HasAuthority and proxies pop. Where does the generated gunsmith function assign it?",
               "choices": [
-                "Inside if (HasAuthority())",
+                "Inside if (GetOwner() && GetOwner()->HasAuthority())",
                 "On the line after an empty check",
                 "In the anim blueprint",
                 "In the save pose"
@@ -584,7 +584,7 @@
               "id": "in-4",
               "prompt": "A client sets Relevant and actors pop in. Where does the generated CheckAOI function assign Relevant = bHit?",
               "choices": [
-                "Inside if (HasAuthority())",
+                "Inside if (GetOwner() && GetOwner()->HasAuthority())",
                 "After an empty authority block",
                 "In the widget",
                 "In the save"

@@ -92,16 +92,20 @@ test("every template keeps its header first and avoids bare float suffixes", asy
   assert.match(system.cpp_source, /^#include "Kit\.h"/);
 });
 
-function assertAuthorityGuards(source, label) {
-  const empty = /if\s*\(\s*HasAuthority\(\)\s*\)\s*\{\s*(?:\/\*[^*]*\*\/\s*)?\}/;
-  assert.equal(empty.test(source), false, `${label} has an empty HasAuthority block`);
+function assertAuthorityGuards(source, label, { component = true } = {}) {
+  const call = component
+    ? /if\s*\(\s*GetOwner\(\)\s*&&\s*GetOwner\(\)->HasAuthority\(\)\s*\)/
+    : /if\s*\(\s*HasAuthority\(\)\s*\)/;
+  if (component) assert.doesNotMatch(source, /if\s*\(\s*HasAuthority\(\)\s*\)/, `${label} calls HasAuthority on a component`);
+  const empty = new RegExp(`${call.source}\\s*\\{\\s*(?:\\/\\*[^*]*\\*\\/\\s*)?\\}`);
+  assert.equal(empty.test(source), false, `${label} has an empty authority block`);
   const lines = source.split("\n");
   for (let i = 0; i < lines.length; i += 1) {
-    if (!/if\s*\(\s*HasAuthority\(\)\s*\)/.test(lines[i])) continue;
+    if (!call.test(lines[i])) continue;
     const rest = lines.slice(i).join("\n");
-    const block = rest.match(/if\s*\(\s*HasAuthority\(\)\s*\)[^{]*\{([\s\S]*?)\n[ \t]*\}/);
-    assert.ok(block, `${label} HasAuthority at line ${i + 1} has no block`);
-    assert.ok(block[1].trim().length > 0, `${label} HasAuthority block is empty`);
+    const block = rest.match(new RegExp(`${call.source}[^{]*\\{([\\s\\S]*?)\\n[ \\t]*\\}`));
+    assert.ok(block, `${label} authority check at line ${i + 1} has no block`);
+    assert.ok(block[1].trim().length > 0, `${label} authority block is empty`);
   }
 }
 
@@ -136,8 +140,14 @@ test("no generated function leaves HasAuthority empty and assigns on the next li
     }],
   };
   const system = graph.commitDocument({ cpp_header: HEADER, cpp_source: SOURCE }, doc).system;
-  assert.match(system.cpp_source, /if \(HasAuthority\(\)\)[^{]*\{\s*Health = 90\.f;/);
+  assert.match(system.cpp_source, /if \(GetOwner\(\) && GetOwner\(\)->HasAuthority\(\)\)[^{]*\{\s*Health = 90\.f;/);
   assertAuthorityGuards(system.cpp_source, "hand graph");
+  const actorHeader = HEADER.replace("class KIT_API UKitComponent : public UActorComponent", "class KIT_API AKitActor : public AActor");
+  const actorSource = SOURCE.replaceAll("UKitComponent", "AKitActor");
+  const actor = graph.commitDocument({ cpp_header: actorHeader, cpp_source: actorSource }, doc).system;
+  assert.match(actor.cpp_source, /if \(HasAuthority\(\)\)[^{]*\{\s*Health = 90\.f;/);
+  assert.doesNotMatch(actor.cpp_source, /GetOwner\(\)->HasAuthority/);
+  assertAuthorityGuards(actor.cpp_source, "actor graph", { component: false });
 });
 
 test("pickup adds one ammo, declares it, and binds a real overlap signature", async () => {

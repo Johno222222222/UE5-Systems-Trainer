@@ -31,7 +31,7 @@ const sections = [
     why: "Spend subtracts a data cost on the authority.",
     depends: ["Spend", "Has Authority", "Supplies"],
     paragraphs: [
-      `The strategy economy is a stock of supplies. Spend is a custom event, not Tick. The excerpt assigns Supplies = (Supplies - 25.f) inside if (HasAuthority()). The 25 is the sample cost. A data row should own it, so a barracks and a turret do not share a literal typed in the graph. A client that subtracts outside that check spends a private stock, and the copies diverge.`,
+      `The strategy economy is a stock of supplies. Spend is a custom event, not Tick. The excerpt assigns Supplies = (Supplies - 25.f) inside if (GetOwner() && GetOwner()->HasAuthority()). The 25 is the sample cost. A data row should own it, so a barracks and a turret do not share a literal typed in the graph. A client that subtracts outside that check spends a private stock, and the copies diverge.`,
       `An order to build calls Spend. ReceiveOrder does not itself subtract, or every move order would bill the player. The unit asks the economy when the order is a purchase. Fog does not spend. Scoring does not. A refund is the same event with a negative cost, still on the authority, still from the data row.`,
       `Replicating the coin icon, or every floating number, is the expensive version. The float is the state. The UI binds to it. A Tick that drips income also drips while the match is paused and never asks whether a building exists. Income, if you add it, is a slow timer that calls the same Spend path with a negative cost.`,
       `Save stores Supplies after the server write. Loading a client's guess fills the base with money the host did not have.`,
@@ -39,7 +39,7 @@ const sections = [
     assignment: { kind: "cpp", prompt: "Clients each subtract 25 from Supplies. Where must that assignment sit, and what should own the 25?", accept: ["HasAuthority", "data"], model: "Nest Supplies = (Supplies - 25.f) inside HasAuthority. The data row owns the cost. Spend is the event, not Tick." },
     quiz: [
       ["What does the economy excerpt assign?", ["Supplies = (Supplies - 25.f)", "Score = (Score + 10.f)", "Visible = true", "Selected"], 0, "25 is the sample cost."],
-      ["Where does the economy excerpt subtract Supplies?", ["Inside if (HasAuthority())", "On every client, after the check", "In the widget", "On Tick"], 0, "The subtract is already in the authority block. 25 should become a data row."],
+      ["Where does the economy excerpt subtract Supplies?", ["Inside if (GetOwner() && GetOwner()->HasAuthority())", "On every client, after the check", "In the widget", "On Tick"], 0, "The subtract is already in the authority block. 25 should become a data row."],
       ["Who calls Spend?", ["A build order, not every move", "Tick", "Fog", "The medal"], 0, "A purchase asks the economy."],
       ["True or false: income should drip on Tick.", YN, 1, "A slow timer calls Spend with a negative cost."],
       ["What replicates?", ["The supplies float", "The coin widget", "Every floating combat text", "The data asset itself"], 0, "The UI is local."],
@@ -97,7 +97,7 @@ const sections = [
     why: "AwardMedal adds a data value on the authority.",
     depends: ["AwardMedal", "Has Authority", "Score"],
     paragraphs: [
-      `A medal is a result, not an order. AwardMedal is the server event for a kill or an objective. The excerpt assigns Score = (Score + 10.f) inside if (HasAuthority()). Ten is the sample. The data asset should name the medal's value, the way the economy's row names a cost. A client that awards its own medal, outside that check, inflates the board. The board then shows a number the host never granted.`,
+      `A medal is a result, not an order. AwardMedal is the server event for a kill or an objective. The excerpt assigns Score = (Score + 10.f) inside if (GetOwner() && GetOwner()->HasAuthority()). Ten is the sample. The data asset should name the medal's value, the way the economy's row names a cost. A client that awards its own medal, outside that check, inflates the board. The board then shows a number the host never granted.`,
       `The board widget reads Score. It is not replicated. Fog does not add score when a cell becomes visible. Supplies are not score. Spending and scoring can share the authority habit. They must not share the float, or a purchase lowers the kill board.`,
       `The camp patrol does not call AwardMedal when it flips GoingRight. The kill does. An order completed, a point captured, is another call with a different data value. Tick that scans for dead units rediscovers deaths the kill event already reported.`,
       `Save stores Score after the server add. A load that adds 10 again because Begin Play fires AwardMedal double-counts the match.`,

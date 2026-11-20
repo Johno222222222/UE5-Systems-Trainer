@@ -271,9 +271,9 @@
       "reading": [
         "Area of interest is how a large FPS stops shipping every actor to every client. Project JOHNO's netcode note is the same rule: relevance is a server fact. A pawn across the map is not replicated just because its widget exists. The sample graph stands in for that test. Begin Play starts a timer. Twice a second, CheckAOI runs, the authority traces, and Relevant is set from the hit.",
         "UE5's replication graph is the production version of this timer. It groups actors by cell and by team. The sample cannot build that graph in one event, so it uses a line trace as the stand-in and writes a bool. The interval in the generated timer is 0.5f, looping. That is a relevancy pass, not a render pass. Clients that are not relevant never receive the actor's properties.",
-        "The excerpt shows SetTimer for Graph_CheckAOI at 0.5f. Inside CheckAOI, if (HasAuthority()) wraps the trace and Relevant = bHit. A client that writes Relevant outside that check can mark itself relevant and pull actors the server meant to hide. The widget is never the replicated object.",
+        "The excerpt shows SetTimer for Graph_CheckAOI at 0.5f. Inside CheckAOI, if (GetOwner() && GetOwner()->HasAuthority()) wraps the trace and Relevant = bHit. A client that writes Relevant outside that check can mark itself relevant and pull actors the server meant to hide. The widget is never the replicated object.",
         "Interaction, the weapon, and health still run for a relevant pawn. They do not each run their own relevancy test. EW gear that listens for signals should use the same relevance gate, or a jammer across the map costs bandwidth for a noise nobody can hear. Destruction debris should die out of relevance quickly. A Tick that asks every connection about every actor is the failure mode this timer replaces.",
-        "Area of interest closes on Area of interest. The server decides Relevant on a timer, not on Tick. Line 10 is `if (UWorld* World = GetWorld()) { FTimerHandle Timer_tpl_aoi_timer; World->GetTimerManager`. Line 15 is `if (HasAuthority()) // node:tpl_aoi_auth`. Line 17 is `FHitResult Hit_tpl_aoi_trace; bool bHit_tpl_aoi_trace = false; if (UWorld* World_tpl_aoi_t`. CheckAOI stays on its own event and is not written from Area of interest. Has Authority stays on its own event and is not written from Area of interest. Relevant stays on its own event and is not written from Area of interest. Replication graph stays on its own event and is not written from Area of interest. SetTimer calls CheckAOI at 0.5f. Relevant = bHit, inside HasAuthority. Tick is not the pass. The assignment names the repair to keep. Area of interest does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Area of interest already uses."
+        "Area of interest closes on Area of interest. The server decides Relevant on a timer, not on Tick. Line 10 is `if (UWorld* World = GetWorld()) { FTimerHandle Timer_tpl_aoi_timer; World->GetTimerManager`. Line 15 is `if (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_aoi_auth`. Line 17 is `FHitResult Hit_tpl_aoi_trace; bool bHit_tpl_aoi_trace = false; if (UWorld* World_tpl_aoi_t`. CheckAOI stays on its own event and is not written from Area of interest. Has Authority stays on its own event and is not written from Area of interest. Relevant stays on its own event and is not written from Area of interest. Replication graph stays on its own event and is not written from Area of interest. SetTimer calls CheckAOI at 0.5f. Relevant = bHit, inside HasAuthority. Tick is not the pass. The assignment names the repair to keep. Area of interest does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Area of interest already uses."
       ],
       "assignment": {
         "kind": "graph",
@@ -335,7 +335,7 @@
           "id": "aoi-q5",
           "prompt": "Where does the AOI excerpt assign Relevant = bHit?",
           "choices": [
-            "Inside if (HasAuthority()) in CheckAOI",
+            "Inside if (GetOwner() && GetOwner()->HasAuthority()) in CheckAOI",
             "On the client, after the timer",
             "In the widget",
             "In Begin Play, before the timer"
@@ -520,10 +520,10 @@
       ],
       "reading": [
         "Project JOHNO treats a body as attributes, not as one bar only. A limb has its own float. A normal hit may drop that limb, but not through the floor the design set: 10% of the limb's max. The clamp is the rule. The sample graph is the replicated health graph, because the networking rule is the same whether the float is named Health or LeftArm. Any Damage arrives. Only the authority writes. Clients hear OnRep.",
-        "The generated function is Graph_AnyDamage. if (HasAuthority()) contains Health = 90.f. That 90 is the sample literal standing in for a computed result. The authority gate is already around the write. The medical rule still replaces 90 with the clamped result, not a literal typed beside the check. A limb at 100 with a max of 100 does not go to 0 from a bruise. The floor is 0.1 times max. A dedicated downed state, not this clamp, is what crosses zero.",
+        "The generated function is Graph_AnyDamage. if (GetOwner() && GetOwner()->HasAuthority()) contains Health = 90.f. That 90 is the sample literal standing in for a computed result. The authority gate is already around the write. The medical rule still replaces 90 with the clamped result, not a literal typed beside the check. A limb at 100 with a max of 100 does not go to 0 from a bruise. The floor is 0.1 times max. A dedicated downed state, not this clamp, is what crosses zero.",
         "OnRep_Health in the excerpt logs that health changed. That is the client notify. A hit flash, a limp, or a blood widget belongs there. Subtracting again inside OnRep double-applies the hit. The limb widget reads the float. It is not replicated.",
         "Ballistics calls this damage event. It does not write the limb. The gunsmith does not. Save stores the limb floats after the authority has written them. A medic item in the inventory calls the same event with a negative damage, still on the authority, and the same clamp keeps the limb at or under its max. EW and vehicles do not own limbs. A destroyed vehicle is a different health component.",
-        "Limb medical and the 10% clamp closes on Replicated health. The server writes the float. A limb does not fall below 10% from a normal hit. Line 9 is `if (HasAuthority()) // node:tpl_replicated-health_auth`. Line 11 is `Health = 90.f; // node:tpl_replicated-health_set`. Line 17 is `UE_LOG(LogTemp, Display, TEXT(\"%s\"), TEXT(\"Health changed\")); // node:tpl_replicated-healt`. Any Damage stays on its own event and is not written from Limb medical and the 10% clamp. Has Authority stays on its own event and is not written from Limb medical and the 10% clamp. OnRep stays on its own event and is not written from Limb medical and the 10% clamp. Limb clamp stays on its own event and is not written from Limb medical and the 10% clamp. Health = 90.f already sits inside if (HasAuthority()). Replace 90 with a clamp to 10% of max. OnRep only notifies. The assignment names the repair to keep. Limb medical and the 10% clamp does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Replicated health already uses."
+        "Limb medical and the 10% clamp closes on Replicated health. The server writes the float. A limb does not fall below 10% from a normal hit. Line 9 is `if (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_replicated-health_auth`. Line 11 is `Health = 90.f; // node:tpl_replicated-health_set`. Line 17 is `UE_LOG(LogTemp, Display, TEXT(\"%s\"), TEXT(\"Health changed\")); // node:tpl_replicated-healt`. Any Damage stays on its own event and is not written from Limb medical and the 10% clamp. Has Authority stays on its own event and is not written from Limb medical and the 10% clamp. OnRep stays on its own event and is not written from Limb medical and the 10% clamp. Limb clamp stays on its own event and is not written from Limb medical and the 10% clamp. Health = 90.f already sits inside if (GetOwner() && GetOwner()->HasAuthority()). Replace 90 with a clamp to 10% of max. OnRep only notifies. The assignment names the repair to keep. Limb medical and the 10% clamp does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Replicated health already uses."
       ],
       "assignment": {
         "kind": "cpp",
@@ -532,7 +532,7 @@
           "clamp",
           "10"
         ],
-        "model": "Health = 90.f already sits inside if (HasAuthority()). Replace 90 with a clamp to 10% of max. OnRep only notifies."
+        "model": "Health = 90.f already sits inside if (GetOwner() && GetOwner()->HasAuthority()). Replace 90 with a clamp to 10% of max. OnRep only notifies."
       },
       "quiz": [
         {
@@ -768,10 +768,10 @@
       ],
       "reading": [
         "The Project JOHNO gunsmith is a data record with ten slots. A slot holds an attachment id: optic, magazine, barrel, and the rest. The graph does not store transforms. IA_Equip selects a slot. The authority writes EquippedId. The owning client builds the visible weapon from the data asset that id names. A radial menu and a number key both send IA_Equip. The graph cannot tell them apart, and it should not try.",
-        "The excerpt is short. Graph_IA_Equip assigns EquippedId = IA_Equip inside if (HasAuthority()). A client that writes the id outside that check predicts a weapon the server will overwrite, and the mesh pops. The ten slot records never travel as actors. They live in the asset.",
+        "The excerpt is short. Graph_IA_Equip assigns EquippedId = IA_Equip inside if (GetOwner() && GetOwner()->HasAuthority()). A client that writes the id outside that check predicts a weapon the server will overwrite, and the mesh pops. The ten slot records never travel as actors. They live in the asset.",
         "Spawning ten components on every equip replicates sockets the client can read from the asset. That is the expensive version. One id is the cheap version. Wear and heat from the ballistics graph hang off the equipped weapon, not off each slot. Swapping the id does not reset another player's limb medical state.",
         "Inventory stores the weapon item that points at the same asset. Save stores EquippedId, not the meshes. Movement and GASP do not read it, except that a heavy weapon might change Speed through an ability, which is a different write. The L2 radial menu is just another sender of IA_Equip.",
-        "Ten-slot gunsmith closes on Gunsmith. Ten slots stay in the data asset. EquippedId is what replicates. Line 7 is `if (HasAuthority()) // node:tpl_gunsmith_auth`. Line 9 is `EquippedId = IA_Equip; // node:tpl_gunsmith_set`. IA_Equip stays on its own event and is not written from Ten-slot gunsmith. EquippedId stays on its own event and is not written from Ten-slot gunsmith. Ten slots stays on its own event and is not written from Ten-slot gunsmith. EquippedId = IA_Equip, nested inside HasAuthority. The data record holds ten slots. The client builds meshes. The assignment names the repair to keep. Ten-slot gunsmith does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Gunsmith already uses."
+        "Ten-slot gunsmith closes on Gunsmith. Ten slots stay in the data asset. EquippedId is what replicates. Line 7 is `if (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_gunsmith_auth`. Line 9 is `EquippedId = IA_Equip; // node:tpl_gunsmith_set`. IA_Equip stays on its own event and is not written from Ten-slot gunsmith. EquippedId stays on its own event and is not written from Ten-slot gunsmith. Ten slots stays on its own event and is not written from Ten-slot gunsmith. EquippedId = IA_Equip, nested inside HasAuthority. The data record holds ten slots. The client builds meshes. The assignment names the repair to keep. Ten-slot gunsmith does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Gunsmith already uses."
       ],
       "assignment": {
         "kind": "inefficiency",
@@ -811,7 +811,7 @@
           "id": "gunsmith-q3",
           "prompt": "Where does the gunsmith excerpt assign EquippedId?",
           "choices": [
-            "Inside if (HasAuthority())",
+            "Inside if (GetOwner() && GetOwner()->HasAuthority())",
             "On the client, beside the check",
             "On Tick",
             "In OnRep"

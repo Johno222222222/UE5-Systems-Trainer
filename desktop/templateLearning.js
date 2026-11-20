@@ -120,6 +120,10 @@ const PACKS = [
     concepts: [{ id: "hitstop", title: "Hitstop" }],
     cls: "CombatComponent",
     body: "ComboIndex++;",
+    members: [
+      "  UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category=\"Combat\")",
+      "  int32 ComboIndex = 0;",
+    ],
   },
   {
     id: "inventory",
@@ -152,6 +156,12 @@ const PACKS = [
     concepts: [{ id: "ui-data", title: "UI and data" }],
     cls: "InventoryComponent",
     body: "Slots.SetNum(SlotCount);",
+    members: [
+      "  UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category=\"Inventory\")",
+      "  TArray<int32> Slots;",
+      "  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=\"Inventory\")",
+      "  int32 SlotCount = 20;",
+    ],
   },
   {
     id: "dialogue",
@@ -184,6 +194,14 @@ const PACKS = [
     concepts: [{ id: "data-tables", title: "Data Tables" }],
     cls: "DialogueComponent",
     body: "Row = Table->FindRow<FDialogueRow>(RowId, TEXT(\"Dialogue\"));",
+    members: [
+      "  UPROPERTY()",
+      "  UObject* Table = nullptr;",
+      "  UPROPERTY()",
+      "  FName RowId;",
+      "  UPROPERTY()",
+      "  UObject* Row = nullptr;",
+    ],
   },
   {
     id: "ai_guard",
@@ -216,6 +234,14 @@ const PACKS = [
     concepts: [{ id: "perception", title: "AI Perception" }],
     cls: "GuardSense",
     body: "Blackboard->SetValueAsObject(TargetKey, Sensed);",
+    members: [
+      "  UPROPERTY()",
+      "  UObject* Blackboard = nullptr;",
+      "  UPROPERTY()",
+      "  FName TargetKey;",
+      "  UPROPERTY()",
+      "  UObject* Sensed = nullptr;",
+    ],
   },
   {
     id: "save",
@@ -248,6 +274,12 @@ const PACKS = [
     concepts: [{ id: "save-games", title: "SaveGame" }],
     cls: "SaveSubsystem",
     body: "UGameplayStatics::AsyncSaveGameToSlot(Pending, Slot, 0);",
+    members: [
+      "  UPROPERTY()",
+      "  UObject* Pending = nullptr;",
+      "  UPROPERTY()",
+      "  int32 Slot = 0;",
+    ],
   },
   {
     id: "vehicle",
@@ -280,6 +312,12 @@ const PACKS = [
     concepts: [{ id: "chaos-vehicles", title: "Chaos vehicles" }],
     cls: "VehicleAssist",
     body: "Movement->SetThrottleInput(Throttle);",
+    members: [
+      "  UPROPERTY()",
+      "  UObject* Movement = nullptr;",
+      "  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=\"Vehicle\")",
+      "  float Throttle = 0.f;",
+    ],
   },
   {
     id: "gas",
@@ -312,6 +350,12 @@ const PACKS = [
     concepts: [{ id: "gas", title: "Gameplay Ability System" }],
     cls: "AbilityBinder",
     body: "ASC->TryActivateAbilitiesByTag(FireballTags);",
+    members: [
+      "  UPROPERTY()",
+      "  UObject* ASC = nullptr;",
+      "  UPROPERTY()",
+      "  FName FireballTags;",
+    ],
   },
   {
     id: "interaction",
@@ -344,6 +388,10 @@ const PACKS = [
     concepts: [{ id: "interfaces", title: "Interfaces" }],
     cls: "InteractTrace",
     body: "IInteractable::Execute_Interact(HitActor, GetOwner());",
+    members: [
+      "  UPROPERTY()",
+      "  AActor* HitActor = nullptr;",
+    ],
   },
 ];
 
@@ -359,12 +407,11 @@ function attachStarters(templates) {
       "  GENERATED_BODY()",
       "public:",
       "  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=\"Game\")",
-      `  float ${pack.params[0][0] === "combo_window" ? "ComboWindow" : "Tunable"} = 1.f;`,
+      pack.id === "combat" ? "  float ComboWindow = 0.35f;" : "  float Tunable = 1.f;",
+      ...(pack.members || []),
       "  void Run();",
       "};",
     ];
-    // Keep the declared line numbers honest for every pack.
-    header[9] = pack.id === "combat" ? "  float ComboWindow = 0.35f;" : header[9];
     const source = SOURCE(pack.cls, pack.body);
     const system = build({ ...pack, header, source });
     return [pack.id, system];

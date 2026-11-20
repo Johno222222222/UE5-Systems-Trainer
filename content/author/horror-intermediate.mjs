@@ -109,7 +109,7 @@ const sections = [
     why: "Even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
     depends: ["Any Damage", "Has Authority", "OnRep"],
     paragraphs: [
-      `Co-op horror adds a second machine, so the local clamp lesson is no longer enough. The excerpt assigns Health = 90.f inside if (HasAuthority()), and OnRep logs the change. Replace 90 with a clamp. A normal hit does not drop a limb below 10% of its max. The downed state is what crosses zero. OnRep plays the limp on every proxy. It does not subtract again.`,
+      `Co-op horror adds a second machine, so the local clamp lesson is no longer enough. The excerpt assigns Health = 90.f inside if (GetOwner() && GetOwner()->HasAuthority()), and OnRep logs the change. Replace 90 with a clamp. A normal hit does not drop a limb below 10% of its max. The downed state is what crosses zero. OnRep plays the limp on every proxy. It does not subtract again.`,
       `The hunter's attack calls Any Damage on the server. A client that applies the bite locally so the screen punches early will snap when the server float arrives. The screen punch can be predicted. The number cannot. Sense does not write Health. A sight is not a bite.`,
       `Fear can read the limb. It does not assign it. Inventory's medkit calls the same event with a heal, still inside the authority, still clamped at max. Save stores the limb after that write. The door and the patrol do not have a copy of the player's limb.`,
       `The single-player graph's FMath::Clamp line is the math. This graph adds the authority gate around it. Skipping the gate because the mode feels single player on a listen server still lets the remote client disagree.`,

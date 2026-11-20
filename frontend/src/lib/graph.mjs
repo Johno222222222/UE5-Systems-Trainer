@@ -820,6 +820,14 @@ function classNameOf(header) {
   return match ? match[1] : "UGraphSystem";
 }
 
+// HasAuthority() is an AActor method. Generated kit classes are UActorComponent,
+// so a component has to ask its owner. Actor subclasses keep the direct call.
+function authorityCall(graph) {
+  const header = String(graph?.cppHeader || "");
+  if (/:\s*public\s+(?:[A-Za-z0-9_]+_API\s+)?A[A-Z]\w*/.test(header)) return "HasAuthority()";
+  return "GetOwner() && GetOwner()->HasAuthority()";
+}
+
 function functionBase(node) {
   const tail = ident(node.id, "Node");
   if (node.catalog === "on-rep") return `OnRep_${ident(node.data?.variable || "Value")}`;
@@ -866,7 +874,7 @@ function exprFor(graph, node, seen = new Set(), outPin = null) {
   switch (node.catalog) {
     case "get-variable": return ident(node.data?.variable || "Value");
     case "literal": return literalCpp(node);
-    case "has-authority": return "HasAuthority()";
+    case "has-authority": return authorityCall(graph);
     case "add": return `(${arg("A", "0")} + ${arg("B", "0")})`;
     case "subtract": return `(${arg("A", "0")} - ${arg("B", "0")})`;
     case "multiply": return `(${arg("A", "0")} * ${arg("B", "0")})`;
@@ -1104,7 +1112,7 @@ function emitBody(graph, node, indent, seen, out) {
     out.push(`${indent}// macro ${node.data?.function || node.label} // node:${node.id}`);
     const macro = (graph.macros || []).find((item) => item.id === node.data?.graphId);
     const start = macro?.nodes?.find((item) => item.catalog === "macro-in");
-    if (macro && start) emitBody({ ...macro, macros: graph.macros }, outgoing(macro, start, start.pins.find((item) => item.type === "exec" && item.dir === "out")?.id), indent, nextSeen, out);
+    if (macro && start) emitBody({ ...macro, macros: graph.macros, cppHeader: graph.cppHeader, cppClass: graph.cppClass }, outgoing(macro, start, start.pins.find((item) => item.type === "exec" && item.dir === "out")?.id), indent, nextSeen, out);
     const done = node.pins.find((item) => item.dir === "out" && item.type === "exec");
     if (done) emitBody(graph, outgoing(graph, node, done.id), indent, nextSeen, out);
     return;
@@ -1115,7 +1123,7 @@ function emitBody(graph, node, indent, seen, out) {
     return;
   }
   if (node.catalog === "has-authority") {
-    out.push(`${indent}if (HasAuthority()) // node:${node.id}`);
+    out.push(`${indent}if (${authorityCall(graph)}) // node:${node.id}`);
     out.push(`${indent}{`);
     if (execOut[0]) emitBody(graph, outgoing(graph, node, execOut[0].id), `${indent}\t`, nextSeen, out);
     out.push(`${indent}}`);
@@ -1199,6 +1207,7 @@ export function syncCpp(system, graph) {
   eventGraph.macros = docItems.filter((item) => item && item.kind === "macro");
   const cls = classNameOf(system?.cpp_header);
   eventGraph.cppClass = cls;
+  eventGraph.cppHeader = system?.cpp_header || "";
   const events = eventGraph.nodes.filter((node) => node.kind === "event").sort(byPos);
   const headerLines = ["public:"];
   const sourceLines = [];

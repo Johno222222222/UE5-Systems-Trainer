@@ -102,17 +102,17 @@ Scanning every actor on Tick to find pickups still ends at the same interface, a
   mod("authority", "One writer for health",
     `Damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout.
 
-The generated replicated-health function nests the assignment inside if (HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max.
+The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max.
 
 The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.`,
     ["Name the check that wraps the write, and the notify that must not subtract again.", ["HasAuthority", "OnRep"]],
     [
-      ["auth-1", "Where does the generated health assignment sit?", ["Inside if (HasAuthority())", "After an empty check", "Inside Tick", "Inside the widget"], 0, "The server writes.", "What wraps the write?"],
+      ["auth-1", "Where does the generated health assignment sit?", ["Inside if (GetOwner() && GetOwner()->HasAuthority())", "After an empty check", "Inside Tick", "Inside the widget"], 0, "The server writes.", "What wraps the write?"],
       ["auth-2", "What should OnRep do?", ["Play the feedback", "Subtract again", "Call AddToSlot", "Trace"], 0, "The float is already new.", "What is OnRep for?"],
       ["auth-3", "What replicates?", ["The float", "The health widget", "The blood actor", "The mapping context"], 0, "One number.", "What crosses the network?"],
       ["auth-4", "True or false: the owning client may subtract Health so the bar moves early.", YN, 1, "The server float snaps the prediction.", "May the client write health?"],
     ],
-    ["Which write is broken?", "Which assignment can run on every machine?", "The right-hand write is unguarded.", "right", ["Authority", "if (HasAuthority()) { Health = Clamped; }"], ["Client", "Health = Health - Amount;"]]),
+    ["Which write is broken?", "Which assignment can run on every machine?", "The right-hand write is unguarded.", "right", ["Authority", "if (GetOwner() && GetOwner()->HasAuthority()) { Health = Clamped; }"], ["Client", "Health = Health - Amount;"]]),
 ]);
 
 const tpsBeginner = course("tps-beginner", "TPS, beginner", "A short third-person course: the shoulder aim, speed from the stick, a companion that does not loot, and a save that skips the camera.", "beginner", "tps", [
@@ -199,7 +199,7 @@ The aim graph does not assign Health. The vehicle does not. Single-player can om
     ["For a limb max of 80, what is the floor, and which notify must not subtract?", ["8", "OnRep"]],
     [
       ["limb-1", "A limb maxes at 80. What floor was skipped if a bruise empties it?", ["8", "0", "90", "10"], 0, "Ten percent of 80.", "What is 10% of 80?"],
-      ["limb-2", "Where does the generated assignment sit?", ["Inside if (HasAuthority())", "After an empty check", "Inside IA_Aim", "Inside OnRep"], 0, "The server writes.", "What wraps the limb write?"],
+      ["limb-2", "Where does the generated assignment sit?", ["Inside if (GetOwner() && GetOwner()->HasAuthority())", "After an empty check", "Inside IA_Aim", "Inside OnRep"], 0, "The server writes.", "What wraps the limb write?"],
       ["limb-3", "What may a client predict?", ["The flinch", "The limb number", "EquippedId", "Supplies"], 0, "The reaction is local.", "What can be early?"],
       ["limb-4", "What replaces the literal 90?", ["The clamped result", "Another literal", "Aiming", "Throttle"], 0, "90 is a stand-in.", "What replaces 90?"],
       ["limb-5", "True or false: the owning client should write the limb so the body reacts early.", YN, 1, "The server float snaps that write.", "May the client write the limb?"],
@@ -415,7 +415,7 @@ The patrol that guards a point uses a timer and a flip, the same shape as any ro
       ["medal-3", "Where does the value 10 belong?", ["A medal row", "The fog timer", "The order click", "The widget"], 0, "A kill and a capture differ.", "Where is the medal value?"],
       ["medal-4", "True or false: revealing a fog cell should add 10.", YN, 1, "Vision is not a medal.", "Does fog score?"],
     ],
-    ["Which score is broken?", "Which version scores from Tick?", "The right-hand version is Tick.", "right", ["Event", "if (HasAuthority()) Score = Score + Row.Value;"], ["Tick", "void Tick() { Score += 10.f; }"]]),
+    ["Which score is broken?", "Which version scores from Tick?", "The right-hand version is Tick.", "right", ["Event", "if (GetOwner() && GetOwner()->HasAuthority()) Score = Score + Row.Value;"], ["Tick", "void Tick() { Score += 10.f; }"]]),
 ]);
 
 const strategyIntermediate = course("strategy-intermediate", "Strategy, intermediate", "A short strategy course: hidden units that still march, a barrage that does not lift fog, interest versus vision, and a save that skips the wheels.", "intermediate", "strategy", [

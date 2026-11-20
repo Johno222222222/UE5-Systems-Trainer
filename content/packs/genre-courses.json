@@ -255,7 +255,7 @@
         {
           "id": "authority",
           "title": "One writer for health",
-          "takeaway": "Damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout.\n\nThe generated replicated-health function nests the assignment inside if (HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max.\n\nThe weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
+          "takeaway": "Damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout.\n\nThe generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max.\n\nThe weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
           "assignment": {
             "prompt": "Name the check that wraps the write, and the notify that must not subtract again.",
             "accept": [
@@ -268,7 +268,7 @@
               "id": "auth-1",
               "prompt": "Where does the generated health assignment sit?",
               "choices": [
-                "Inside if (HasAuthority())",
+                "Inside if (GetOwner() && GetOwner()->HasAuthority())",
                 "After an empty check",
                 "Inside Tick",
                 "Inside the widget"
@@ -323,7 +323,7 @@
             "bug": "right",
             "left": {
               "label": "Authority",
-              "code": "if (HasAuthority()) { Health = Clamped; }"
+              "code": "if (GetOwner() && GetOwner()->HasAuthority()) { Health = Clamped; }"
             },
             "right": {
               "label": "Client",
@@ -798,7 +798,7 @@
               "id": "limb-2",
               "prompt": "Where does the generated assignment sit?",
               "choices": [
-                "Inside if (HasAuthority())",
+                "Inside if (GetOwner() && GetOwner()->HasAuthority())",
                 "After an empty check",
                 "Inside IA_Aim",
                 "Inside OnRep"
@@ -2082,7 +2082,7 @@
             "bug": "right",
             "left": {
               "label": "Event",
-              "code": "if (HasAuthority()) Score = Score + Row.Value;"
+              "code": "if (GetOwner() && GetOwner()->HasAuthority()) Score = Score + Row.Value;"
             },
             "right": {
               "label": "Tick",

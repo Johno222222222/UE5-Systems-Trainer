@@ -60,7 +60,7 @@ const sections = [
     depends: ["CheckAOI", "Relevant", "Has Authority"],
     paragraphs: [
       `A third-person pawn is expensive to replicate because the mesh is large and the animation is busy. Area of interest drops pawns the player cannot see. The sample starts CheckAOI from Begin Play on a 0.5 second looping timer. The authority traces. The excerpt assigns Relevant = bHit. Clients that are not relevant do not receive the pawn, so they also do not receive its GASP speed or its equipped id.`,
-      `The excerpt puts the trace and Relevant = bHit inside if (HasAuthority()). A client that sets Relevant on its own pawn pulls every cosmetic the server had culled, including other players' shoulder cameras. The camera is not replicated. The pawn is.`,
+      `The excerpt puts the trace and Relevant = bHit inside if (GetOwner() && GetOwner()->HasAuthority()). A client that sets Relevant on its own pawn pulls every cosmetic the server had culled, including other players' shoulder cameras. The camera is not replicated. The pawn is.`,
       `The weapon, the limbs, and the gunsmith id replicate only while Relevant is true. They do not run their own timers. A vehicle the player can hear but not see may stay relevant by a larger radius. That radius is data on the vehicle, not a tick of every wheel. Debris from destruction should leave relevance quickly.`,
       `Shortening 0.5 to every frame turns the pass into Tick. Lengthening it makes pop-in obvious on a third-person mesh, which is large on screen. 0.5 is the sample. The replication graph is the production system that replaces the trace.`,
     ],
@@ -68,7 +68,7 @@ const sections = [
     quiz: [
       ["What interval does the third-person AOI excerpt use?", ["0.5f looping", "Every frame", "1.f once", "0.2f"], 0, "SetTimer's period is 0.5f."],
       ["What does it assign?", ["Relevant = bHit", "Aiming = true", "Speed = 200.f", "EquippedId = IA_Equip"], 0, "The hit is the stand-in for the cell test."],
-      ["Where does the third-person AOI excerpt assign Relevant?", ["Inside if (HasAuthority()), with the trace", "After the check, on the client", "In the shoulder boom", "In the radial widget"], 0, "The write is already in the authority block."],
+      ["Where does the third-person AOI excerpt assign Relevant?", ["Inside if (GetOwner() && GetOwner()->HasAuthority()), with the trace", "After the check, on the client", "In the shoulder boom", "In the radial widget"], 0, "The write is already in the authority block."],
       ["True or false: the shoulder camera component should replicate.", YN, 1, "The pawn replicates. The camera is local."],
       ["Which actors should leave relevance quickly?", ["Destruction debris", "The local mapping context", "The aim bool", "The save struct"], 0, "Debris is noise once it is far."],
       ["A vehicle that can be heard around a corner needs what?", ["A larger radius on the vehicle, not a tick of every wheel", "The on-foot Speed", "Aiming", "The player's magazine"], 0, "Radius is data."],
@@ -109,7 +109,7 @@ const sections = [
     why: "The server writes the limb. A normal hit stops at 10% of max. OnRep plays the limp.",
     depends: ["Any Damage", "Has Authority", "10% clamp"],
     paragraphs: [
-      `Other players see a third-person limp, so the limb float has to be one number. Any Damage is the event. The excerpt assigns Health = 90.f inside if (HasAuthority()). Replace 90 with the clamped result. Project JOHNO's rule: a normal hit does not drop a limb below 10% of its max. A max of 50 floors at 5. Crossing zero is a downed state, not this clamp.`,
+      `Other players see a third-person limp, so the limb float has to be one number. Any Damage is the event. The excerpt assigns Health = 90.f inside if (GetOwner() && GetOwner()->HasAuthority()). Replace 90 with the clamped result. Project JOHNO's rule: a normal hit does not drop a limb below 10% of its max. A max of 50 floors at 5. Crossing zero is a downed state, not this clamp.`,
       `OnRep_Health is where the third-person mesh limps. Everyone who has the pawn relevant plays that reaction from the float. Subtracting inside OnRep makes the limp worse on every machine that receives the property. The local camera shake is also the notify, and only on the owning client.`,
       `Ballistics calls the event. The gunsmith does not. A medic item in the inventory calls the same event with healing, still on the authority, and the clamp also caps the heal at max. Save stores the limb after the server write. The shoulder camera does not store a copy of the limb.`,
       `A client that writes the limb so the third-person body reacts early will snap when the server float arrives. Play the reaction from the notify. Do not invent the number.`,
@@ -134,7 +134,7 @@ const sections = [
     why: "The third-person mesh builds from EquippedId. Ten slots stay in the asset.",
     depends: ["IA_Equip", "EquippedId", "Ten slots"],
     paragraphs: [
-      `The third-person body shows the weapon other players see, so the equipped id has to match. The gunsmith record has ten slots. IA_Equip, from a number key or from the radial menu, is the selection. The excerpt assigns EquippedId = IA_Equip inside if (HasAuthority()). The owning client and the proxies build the mesh from the asset. They do not each invent an id.`,
+      `The third-person body shows the weapon other players see, so the equipped id has to match. The gunsmith record has ten slots. IA_Equip, from a number key or from the radial menu, is the selection. The excerpt assigns EquippedId = IA_Equip inside if (GetOwner() && GetOwner()->HasAuthority()). The owning client and the proxies build the mesh from the asset. They do not each invent an id.`,
       `Replicating ten socket transforms so the third-person magazine, optic, and barrel match is the expensive version. One id is enough, and the asset says which socket each slot uses. Wear and heat hang off the equipped weapon. A cosmetic slot does not reset heat unless it is the barrel.`,
       `GASP may change the aim pose when the id changes, by reading the asset's anim set. It does not write EquippedId. The camera does not. Inventory holds the item that points at the same asset. Save stores the id. AOI means a non-relevant pawn does not send the id at all.`,
       `A client that writes the id locally shows a weapon the server will replace, and the third-person mesh pops in other players' views. That pop is the bug the authority gate prevents.`,
@@ -159,7 +159,7 @@ const sections = [
     why: "IA_Throttle is the axis. The server writes Throttle. The on-foot Speed stays separate.",
     depends: ["IA_Throttle", "Has Authority", "Throttle"],
     paragraphs: [
-      `Leaving the third-person pawn for a vehicle is a different component. IA_Throttle is the axis. The excerpt assigns Throttle = IA_Throttle inside if (HasAuthority()). The chaos vehicle reads Throttle. It does not read the on-foot Speed of 600 or 200. Copying Speed into Throttle launches the car at a sprint number that means something else.`,
+      `Leaving the third-person pawn for a vehicle is a different component. IA_Throttle is the axis. The excerpt assigns Throttle = IA_Throttle inside if (GetOwner() && GetOwner()->HasAuthority()). The chaos vehicle reads Throttle. It does not read the on-foot Speed of 600 or 200. Copying Speed into Throttle launches the car at a sprint number that means something else.`,
       `The shoulder camera disables while seated. IA_Aim does not steer. The gunsmith id may name a mounted weapon, and that weapon's heat is not the rifle's Heat. Artillery, if the vehicle is a gun, spends shells on its own event. It does not add 0.05 to the rifle. Wheels are local meshes driven by the simulated throttle. Replicating each wheel transform is the expensive version.`,
       `AOI for a vehicle can use a larger radius, because a truck is visible farther than a person. That is data, not a tick of the suspension. The player pawn's GASP database pauses while seated. It does not keep writing Speed into the vehicle.`,
       `Save stores Throttle only if the mode restores a moving vehicle. More often it stores fuel, which is a sibling of the economy's supplies, and the vehicle id. The on-foot slot and the vehicle slot can share a struct layout. They should not share the Speed field.`,
