@@ -2,672 +2,596 @@
   "id": "strategy-intermediate",
   "modules": {
     "march": {
-      "plainEnglish": "In plain English, Hidden is not frozen means: A unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives.",
-      "whyGame": "In a real game, getting hidden is not frozen wrong shows up as writing Visible from Tick, or letting a client mark itself seen. the server timer is the repair, and the generated line `Visible = true; // node:tpl_fog_set` is that repair in C++.",
+      "plainEnglish": "A unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because the team cannot see the unit freezes it, then teleports it when a spotter arrives. The formation id still selects the offsets.",
+      "whyGame": "Hidden is not frozen. The host keeps marching units the enemy has not spotted.",
       "expansions": [
         {
-          "title": "Hidden is not frozen as a door",
-          "detail": "If hidden is not frozen is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The order",
+          "detail": "ReceiveOrder still branches on Selected."
         },
         {
-          "title": "Hidden is not frozen as data",
-          "detail": "Designer numbers for hidden is not frozen live on a row. Visible set from a trace on a 0.25 second timer reads the row instead of a literal."
+          "title": "The shape",
+          "detail": "The formation id picks the offsets. The graph does not invent them."
         },
         {
-          "title": "Hidden is not frozen as a listener",
-          "detail": "Later systems listen for Reveal. They do not writing Visible from Tick, or letting a client mark itself seen."
+          "title": "The spotter",
+          "detail": "When vision returns, the unit is where the host moved it."
         }
       ],
       "quiz": [
         {
-          "id": "strategy-intermediate-march-c1",
+          "id": "stgm-march-1",
           "kind": "mc",
-          "prompt": "A unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit. What should own that decision in Hidden is not frozen?",
+          "prompt": "The enemy cannot see a unit and the host still has it selected. What should keep running?",
           "choices": [
-            "the server timer. That keeps the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit.",
-            "The widget that draws hidden is not frozen owns it. That would break the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit.",
-            "Every client owns it, before Reveal is replicated. That would break the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit."
+            "The unit's order",
+            "No march at all, until a spotter arrives",
+            "A vision write on the enemy team",
+            "A shell spend"
           ],
           "answer": 0,
-          "why": "A unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit."
+          "why": "Hidden is not frozen."
         },
         {
-          "id": "strategy-intermediate-march-c2",
+          "id": "stgm-march-2",
           "kind": "mc",
-          "prompt": "A unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit. The course graph contains `Visible = true; // node:tpl_fog_set`. What is that line doing in gameplay terms?",
+          "prompt": "You skip ReceiveOrder while Visible is false. What does a spotter see when the fog lifts?",
           "choices": [
-            "Visible set from a trace on a 0.25 second timer. That keeps the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit.",
-            "writing Visible from Tick, or letting a client mark itself seen. That would break the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit."
+            "The unit pops from the last cell the fog remembered",
+            "The unit where the host has been moving it",
+            "An empty queue and a correct position",
+            "A second copy of the unit"
           ],
           "answer": 0,
-          "why": "Visible set from a trace on a 0.25 second timer"
+          "why": "The host kept the order. The client must not have dropped it."
         },
         {
-          "id": "strategy-intermediate-march-c3",
+          "id": "stgm-march-3",
           "kind": "mc",
-          "prompt": "A unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit. Where should Set Visible sit?",
+          "prompt": "The formation id selects offsets. What does the graph not invent?",
           "choices": [
-            "After the reveal trace hits, started by Reveal through the timer. That keeps the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit.",
-            "It runs before Reveal, so the player is not required. That would break the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit.",
-            "It sits on Tick beside Reveal. That would break the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit."
+            "The shape",
+            "The selection flag",
+            "The vision bit",
+            "The shell budget"
           ],
           "answer": 0,
-          "why": "the reveal trace hits is the gate."
+          "why": "The id picks a shape that already exists."
         },
         {
-          "id": "strategy-intermediate-march-c4",
+          "id": "stgm-march-4",
+          "kind": "mc",
+          "prompt": "A hidden unit's order is also dropped on the host. What is lost?",
+          "choices": [
+            "The march the server was supposed to keep",
+            "Only the enemy's view, correctly",
+            "Only a cosmetic wheel",
+            "Only a medal popup"
+          ],
+          "answer": 0,
+          "why": "The host simulates. Vision is the enemy's problem."
+        },
+        {
+          "id": "stgm-march-5",
+          "kind": "mc",
+          "prompt": "Two squads are hidden and only one is selected. Who changes formation?",
+          "choices": [
+            "The selected squad",
+            "Both squads, since they share one data asset",
+            "Whichever the enemy can see",
+            "The gun battery"
+          ],
+          "answer": 0,
+          "why": "Selected still gates the click."
+        },
+        {
+          "id": "stgm-march-6",
           "kind": "tf",
-          "prompt": "True or false: A unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "strategy-intermediate-march-c5",
-          "kind": "tf",
-          "prompt": "True or false: A unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit. You keep that promise by writing Visible from Tick, or letting a client mark itself seen.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "writing Visible from Tick, or letting a client mark itself seen is the broken schedule."
-        },
-        {
-          "id": "strategy-intermediate-march-c6",
-          "kind": "mc",
-          "prompt": "A unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit. Which mistake breaks it?",
-          "choices": [
-            "writing Visible from Tick, or letting a client mark itself seen. That keeps the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit.",
-            "Leaving the real work on Reveal. That would break the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit.",
-            "Waiting until the reveal trace hits. That would break the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit.",
-            "Keeping the server timer as the only writer. That would break the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit."
-          ],
-          "answer": 0,
-          "why": "writing Visible from Tick, or letting a client mark itself seen"
-        },
-        {
-          "id": "strategy-intermediate-march-c7",
-          "kind": "tf",
-          "prompt": "True or false: A unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit. Reveal through the timer remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the server timer"
-        },
-        {
-          "id": "strategy-intermediate-march-c8",
-          "kind": "mc",
-          "prompt": "A unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while Reveal stayed one call. That keeps the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit.",
-            "A data row must be recompiled for this section. That would break the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit.",
-            "Set Visible only works for one class, so the cast is the stable choice. That would break the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "strategy-intermediate-march-c9",
-          "kind": "mc",
-          "prompt": "A unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit. What does the player lose if Reveal is removed?",
-          "choices": [
-            "Hidden is not frozen never starts, because the timer was the only way in. That keeps the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit.",
-            "Nothing, because Tick still does the job. That would break the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit.",
-            "The constructor replaces Reveal on the next map. That would break the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit."
-          ],
-          "answer": 0,
-          "why": "Reveal is the start."
-        },
-        {
-          "id": "strategy-intermediate-march-c10",
-          "kind": "tf",
-          "prompt": "True or false: A unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit. OnRep should perform the write again so the section does not wait for the server timer.",
+          "prompt": "A unit the enemy cannot see should stop taking orders.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "The host keeps the order."
         },
         {
-          "id": "strategy-intermediate-march-c11",
+          "id": "stgm-march-7",
           "kind": "mc",
-          "prompt": "A unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit. Which gate sits immediately in front of the write?",
+          "prompt": "Which pair can both be true?",
           "choices": [
-            "the reveal trace hits. That keeps the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit.",
-            "A Tick frame, whether or not Reveal fired. That would break the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit.",
-            "A client prediction that skips the server timer. That would break the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit.",
-            "A cast to every actor this course might spawn. That would break the rule that a unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit."
+            "Relevant to the host, and not visible to the enemy",
+            "Not relevant, and still marching on the host",
+            "Visible to the enemy, and culled from the host",
+            "Hearing this click without being selected"
           ],
           "answer": 0,
-          "why": "the reveal trace hits"
+          "why": "Simulation and vision differ."
         },
         {
-          "id": "strategy-intermediate-march-c11b",
-          "kind": "tf",
-          "prompt": "True or false: A unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives. ReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data. Clients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "stgm-march-8",
+          "kind": "mc",
+          "prompt": "Design renames the wedge to a column in the squad data. What does the order graph change?",
           "choices": [
-            "True",
-            "False"
+            "Nothing. The id now picks the new shape",
+            "Every offset literal",
+            "The vision interval",
+            "Spending one round of ammunition"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "The graph does not own the shape."
+        },
+        {
+          "id": "stgm-march-9",
+          "kind": "mc",
+          "prompt": "Which line still gates a hidden unit's click?",
+          "choices": [
+            "The branch on Selected",
+            "The vision bool",
+            "The shell count",
+            "The wheel transform"
+          ],
+          "answer": 0,
+          "why": "Selection, not vision."
+        },
+        {
+          "id": "stgm-march-10",
+          "kind": "mc",
+          "prompt": "A spotter arrives and the unit teleports. What was skipped while it was hidden?",
+          "choices": [
+            "The order, on the machine that should have kept marching",
+            "Painting cells, which would have been fine",
+            "A medal, correctly",
+            "A wheel rebuild, correctly"
+          ],
+          "answer": 0,
+          "why": "Keep the order. Reveal only the cell."
         }
-      ],
-      "graph": "fog"
+      ]
     },
     "barrage": {
-      "plainEnglish": "In plain English, The gun is not the spotter means: FireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money.",
-      "whyGame": "In a real game, getting the gun is not the spotter wrong shows up as writing Visible from Tick, or letting a client mark itself seen. the server timer is the repair, and the generated line `Visible = true; // node:tpl_fog_set` is that repair in C++.",
+      "plainEnglish": "A fire mission spends a shell. It does not set Visible. A spotter's reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock unless the design said ammo is the team's money.",
+      "whyGame": "Spending supplies for every shell bankrupts the base, and painting the impact cell shows ground nobody spotted.",
       "expansions": [
         {
-          "title": "The gun is not the spotter as a door",
-          "detail": "If the gun is not the spotter is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The shell",
+          "detail": "One shell per mission, on the authority."
         },
         {
-          "title": "The gun is not the spotter as data",
-          "detail": "Designer numbers for the gun is not the spotter live on a row. Visible set from a trace on a 0.25 second timer reads the row instead of a literal."
+          "title": "The spotter",
+          "detail": "Reveal lifts fog. The gun does not."
         },
         {
-          "title": "The gun is not the spotter as a listener",
-          "detail": "Later systems listen for Reveal. They do not writing Visible from Tick, or letting a client mark itself seen."
+          "title": "A hit",
+          "detail": "The impact can call AwardMedal when it destroys the marked target."
         }
       ],
       "quiz": [
         {
-          "id": "strategy-intermediate-barrage-c1",
+          "id": "stgm-barrage-1",
           "kind": "mc",
-          "prompt": "FireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat. What should own that decision in The gun is not the spotter?",
+          "prompt": "The player orders a barrage. What does the gun spend?",
           "choices": [
-            "the server timer. That keeps the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat.",
-            "The widget that draws the gun is not the spotter owns it. That would break the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat.",
-            "Every client owns it, before Reveal is replicated. That would break the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat."
+            "A shell",
+            "The team's build money, always",
+            "A vision bit",
+            "A formation id"
           ],
           "answer": 0,
-          "why": "FireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat."
+          "why": "Shells are the artillery budget."
         },
         {
-          "id": "strategy-intermediate-barrage-c2",
+          "id": "stgm-barrage-2",
           "kind": "mc",
-          "prompt": "FireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat. The course graph contains `Visible = true; // node:tpl_fog_set`. What is that line doing in gameplay terms?",
+          "prompt": "The mission excerpt subtracts one shell inside the authority check. What does that line spend?",
           "choices": [
-            "Visible set from a trace on a 0.25 second timer. That keeps the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat.",
-            "writing Visible from Tick, or letting a client mark itself seen. That would break the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat."
+            "Ammunition, not the base's money",
+            "The base's money, if a shot were a purchase",
+            "The points total, as a penalty",
+            "Fuel from a truck"
           ],
           "answer": 0,
-          "why": "Visible set from a trace on a 0.25 second timer"
+          "why": "Money is a separate call only if the design said so."
         },
         {
-          "id": "strategy-intermediate-barrage-c3",
+          "id": "stgm-barrage-3",
           "kind": "mc",
-          "prompt": "FireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat. Where should Set Visible sit?",
+          "prompt": "A blind barrage marks the impact cell visible. What did the gun steal?",
           "choices": [
-            "After the reveal trace hits, started by Reveal through the timer. That keeps the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat.",
-            "It runs before Reveal, so the player is not required. That would break the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat.",
-            "It sits on Tick beside Reveal. That would break the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat."
+            "The spotter's eyes",
+            "The formation shape",
+            "The selection flag",
+            "The wheel simulation"
           ],
           "answer": 0,
-          "why": "the reveal trace hits is the gate."
+          "why": "Reveal lifts fog. The gun does not."
         },
         {
-          "id": "strategy-intermediate-barrage-c4",
+          "id": "stgm-barrage-4",
+          "kind": "mc",
+          "prompt": "Every shell also subtracts supplies and the design never said ammo is money. What goes broke?",
+          "choices": [
+            "The base, from shots that should have spent shells",
+            "Only the shell rack, correctly",
+            "Only the medal board",
+            "Only the vision timer"
+          ],
+          "answer": 0,
+          "why": "Keep the budgets apart."
+        },
+        {
+          "id": "stgm-barrage-5",
+          "kind": "mc",
+          "prompt": "The impact destroys a marked target. What may the gun call besides the shell spend?",
+          "choices": [
+            "AwardMedal",
+            "Painting the crater so the shooter can see it",
+            "A formation change",
+            "A wheel replicate"
+          ],
+          "answer": 0,
+          "why": "A destroyed target can be a result. The cell is not."
+        },
+        {
+          "id": "stgm-barrage-6",
           "kind": "tf",
-          "prompt": "True or false: FireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "strategy-intermediate-barrage-c5",
-          "kind": "tf",
-          "prompt": "True or false: FireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat. You keep that promise by writing Visible from Tick, or letting a client mark itself seen.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "writing Visible from Tick, or letting a client mark itself seen is the broken schedule."
-        },
-        {
-          "id": "strategy-intermediate-barrage-c6",
-          "kind": "mc",
-          "prompt": "FireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat. Which mistake breaks it?",
-          "choices": [
-            "writing Visible from Tick, or letting a client mark itself seen. That keeps the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat.",
-            "Leaving the real work on Reveal. That would break the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat.",
-            "Waiting until the reveal trace hits. That would break the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat.",
-            "Keeping the server timer as the only writer. That would break the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat."
-          ],
-          "answer": 0,
-          "why": "writing Visible from Tick, or letting a client mark itself seen"
-        },
-        {
-          "id": "strategy-intermediate-barrage-c7",
-          "kind": "tf",
-          "prompt": "True or false: FireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat. Reveal through the timer remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the server timer"
-        },
-        {
-          "id": "strategy-intermediate-barrage-c8",
-          "kind": "mc",
-          "prompt": "FireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while Reveal stayed one call. That keeps the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat.",
-            "A data row must be recompiled for this section. That would break the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat.",
-            "Set Visible only works for one class, so the cast is the stable choice. That would break the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "strategy-intermediate-barrage-c9",
-          "kind": "mc",
-          "prompt": "FireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat. What does the player lose if Reveal is removed?",
-          "choices": [
-            "The gun is not the spotter never starts, because the timer was the only way in. That keeps the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat.",
-            "Nothing, because Tick still does the job. That would break the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat.",
-            "The constructor replaces Reveal on the next map. That would break the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat."
-          ],
-          "answer": 0,
-          "why": "Reveal is the start."
-        },
-        {
-          "id": "strategy-intermediate-barrage-c10",
-          "kind": "tf",
-          "prompt": "True or false: FireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat. OnRep should perform the write again so the section does not wait for the server timer.",
+          "prompt": "A fire mission should set Visible on the impact cell.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "A spotter reveals. A gun fires."
         },
         {
-          "id": "strategy-intermediate-barrage-c11",
+          "id": "stgm-barrage-7",
           "kind": "mc",
-          "prompt": "FireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat. Which gate sits immediately in front of the write?",
+          "prompt": "A shell misses the mark. What still happened, and what did not?",
           "choices": [
-            "the reveal trace hits. That keeps the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat.",
-            "A Tick frame, whether or not Reveal fired. That would break the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat.",
-            "A client prediction that skips the server timer. That would break the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat.",
-            "A cast to every actor this course might spawn. That would break the rule that fireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat."
+            "The shell was spent, and no medal was awarded",
+            "Supplies were refunded and fog cleared",
+            "The formation changed",
+            "The unit stopped marching"
           ],
           "answer": 0,
-          "why": "the reveal trace hits"
+          "why": "The spend is the shot. The medal is the mark."
         },
         {
-          "id": "strategy-intermediate-barrage-c11b",
-          "kind": "tf",
-          "prompt": "True or false: FireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money. The impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board. A move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "stgm-barrage-8",
+          "kind": "mc",
+          "prompt": "There is no shell budget. What can one click do?",
           "choices": [
-            "True",
-            "False"
+            "Stream impacts",
+            "Only reveal a cell",
+            "Only march a squad",
+            "Only award a medal"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "The budget is the anti-spam."
+        },
+        {
+          "id": "stgm-barrage-9",
+          "kind": "mc",
+          "prompt": "The design says a shell also costs money. Where does that money leave?",
+          "choices": [
+            "A separate spend call with the row's cost",
+            "Inside the shell line, by also touching supplies",
+            "On the board notify",
+            "In the vision trace"
+          ],
+          "answer": 0,
+          "why": "Do not fold money into the shell line."
+        },
+        {
+          "id": "stgm-barrage-10",
+          "kind": "mc",
+          "prompt": "Which event spends a shell without lifting fog?",
+          "choices": [
+            "FireMission",
+            "Reveal",
+            "A drain on each drawn frame",
+            "Refreshing the points display"
+          ],
+          "answer": 0,
+          "why": "The mission is the spend."
         }
-      ],
-      "graph": "fog"
+      ]
     },
     "cells": {
-      "plainEnglish": "In plain English, Two bools means: Relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision.",
-      "whyGame": "In a real game, getting two bools wrong shows up as writing Visible from Tick, or letting a client mark itself seen. the server timer is the repair, and the generated line `Visible = true; // node:tpl_fog_set` is that repair in C++.",
+      "plainEnglish": "Relevant and Visible answer different questions. Interest assigns Relevant twice a second from a trace, inside the authority check. Vision assigns Visible four times a second. One bool means culling the actor deletes it from a spotter's future vision.",
+      "whyGame": "A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible cheats the map.",
       "expansions": [
         {
-          "title": "Two bools as a door",
-          "detail": "If two bools is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "Interest",
+          "detail": "Half a second, authority, the hit becomes Relevant."
         },
         {
-          "title": "Two bools as data",
-          "detail": "Designer numbers for two bools live on a row. Visible set from a trace on a 0.25 second timer reads the row instead of a literal."
+          "title": "Vision",
+          "detail": "A quarter second, the hit becomes Visible for that team."
         },
         {
-          "title": "Two bools as a listener",
-          "detail": "Later systems listen for Reveal. They do not writing Visible from Tick, or letting a client mark itself seen."
+          "title": "Cheats",
+          "detail": "Neither bool is a client write."
         }
       ],
       "quiz": [
         {
-          "id": "strategy-intermediate-cells-c1",
+          "id": "stgm-cells-1",
           "kind": "mc",
-          "prompt": "Relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer. What should own that decision in Two bools?",
+          "prompt": "What does Relevant answer?",
           "choices": [
-            "the server timer. That keeps the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer.",
-            "The widget that draws two bools owns it. That would break the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer.",
-            "Every client owns it, before Reveal is replicated. That would break the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer."
+            "Whether this client receives the actor",
+            "Whether this team may see the cell",
+            "Whether the unit is selected",
+            "Whether a shell is left"
           ],
           "answer": 0,
-          "why": "Relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer."
+          "why": "Delivery, not vision."
         },
         {
-          "id": "strategy-intermediate-cells-c2",
+          "id": "stgm-cells-2",
           "kind": "mc",
-          "prompt": "Relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer. The course graph contains `Visible = true; // node:tpl_fog_set`. What is that line doing in gameplay terms?",
+          "prompt": "CheckAOI assigns Relevant from a trace. How often, and under what gate?",
           "choices": [
-            "Visible set from a trace on a 0.25 second timer. That keeps the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer.",
-            "writing Visible from Tick, or letting a client mark itself seen. That would break the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer."
+            "Twice a second, on the authority",
+            "Four times a second, on every client",
+            "Every frame, with no gate",
+            "Only while the cell is visible"
           ],
           "answer": 0,
-          "why": "Visible set from a trace on a 0.25 second timer"
+          "why": "0.5 seconds, inside the check."
         },
         {
-          "id": "strategy-intermediate-cells-c3",
+          "id": "stgm-cells-3",
           "kind": "mc",
-          "prompt": "Relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer. Where should Set Visible sit?",
+          "prompt": "You use one bool for both questions. What does culling the actor also delete?",
           "choices": [
-            "After the reveal trace hits, started by Reveal through the timer. That keeps the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer.",
-            "It runs before Reveal, so the player is not required. That would break the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer.",
-            "It sits on Tick beside Reveal. That would break the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer."
+            "A spotter's future chance to see it",
+            "Only the wheel bones",
+            "Only the medal row",
+            "Only the formation id"
           ],
           "answer": 0,
-          "why": "the reveal trace hits is the gate."
+          "why": "Vision needs the actor to still exist for the host."
         },
         {
-          "id": "strategy-intermediate-cells-c4",
+          "id": "stgm-cells-4",
+          "kind": "mc",
+          "prompt": "A client forces Relevant. What arrives that the server had hidden?",
+          "choices": [
+            "Cosmetics that machine was not supposed to receive",
+            "Only the vision bits",
+            "Only the shell count",
+            "Only the local UI"
+          ],
+          "answer": 0,
+          "why": "Interest is not a client switch."
+        },
+        {
+          "id": "stgm-cells-5",
+          "kind": "mc",
+          "prompt": "A client forces Visible. What can that player mark?",
+          "choices": [
+            "Unseen cells as seen",
+            "Only cells the authority revealed",
+            "Only selected units",
+            "Only trucks"
+          ],
+          "answer": 0,
+          "why": "Vision is not a client switch either."
+        },
+        {
+          "id": "stgm-cells-6",
           "kind": "tf",
-          "prompt": "True or false: Relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "strategy-intermediate-cells-c5",
-          "kind": "tf",
-          "prompt": "True or false: Relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer. You keep that promise by writing Visible from Tick, or letting a client mark itself seen.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "writing Visible from Tick, or letting a client mark itself seen is the broken schedule."
-        },
-        {
-          "id": "strategy-intermediate-cells-c6",
-          "kind": "mc",
-          "prompt": "Relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer. Which mistake breaks it?",
-          "choices": [
-            "writing Visible from Tick, or letting a client mark itself seen. That keeps the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer.",
-            "Leaving the real work on Reveal. That would break the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer.",
-            "Waiting until the reveal trace hits. That would break the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer.",
-            "Keeping the server timer as the only writer. That would break the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer."
-          ],
-          "answer": 0,
-          "why": "writing Visible from Tick, or letting a client mark itself seen"
-        },
-        {
-          "id": "strategy-intermediate-cells-c7",
-          "kind": "tf",
-          "prompt": "True or false: Relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer. Reveal through the timer remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the server timer"
-        },
-        {
-          "id": "strategy-intermediate-cells-c8",
-          "kind": "mc",
-          "prompt": "Relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while Reveal stayed one call. That keeps the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer.",
-            "A data row must be recompiled for this section. That would break the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer.",
-            "Set Visible only works for one class, so the cast is the stable choice. That would break the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "strategy-intermediate-cells-c9",
-          "kind": "mc",
-          "prompt": "Relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer. What does the player lose if Reveal is removed?",
-          "choices": [
-            "Two bools never starts, because the timer was the only way in. That keeps the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer.",
-            "Nothing, because Tick still does the job. That would break the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer.",
-            "The constructor replaces Reveal on the next map. That would break the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer."
-          ],
-          "answer": 0,
-          "why": "Reveal is the start."
-        },
-        {
-          "id": "strategy-intermediate-cells-c10",
-          "kind": "tf",
-          "prompt": "True or false: Relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer. OnRep should perform the write again so the section does not wait for the server timer.",
+          "prompt": "One bool can serve as both interest and vision.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "Culling would delete future sight."
         },
         {
-          "id": "strategy-intermediate-cells-c11",
+          "id": "stgm-cells-7",
           "kind": "mc",
-          "prompt": "Relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer. Which gate sits immediately in front of the write?",
+          "prompt": "Which timer is vision?",
           "choices": [
-            "the reveal trace hits. That keeps the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer.",
-            "A Tick frame, whether or not Reveal fired. That would break the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer.",
-            "A client prediction that skips the server timer. That would break the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer.",
-            "A cast to every actor this course might spawn. That would break the rule that relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer."
+            "Reveal, four times a second",
+            "An interest pass twice a second",
+            "The shell spend",
+            "The wheel rebuild"
           ],
           "answer": 0,
-          "why": "the reveal trace hits"
+          "why": "0.25 seconds paints cells."
         },
         {
-          "id": "strategy-intermediate-cells-c11b",
-          "kind": "tf",
-          "prompt": "True or false: Relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision. A client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs. Neither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "stgm-cells-8",
+          "kind": "mc",
+          "prompt": "A wall blocks the team and the host still simulates the unit beyond it. Which bools are those?",
           "choices": [
-            "True",
-            "False"
+            "Visible false, Relevant true on the host",
+            "Both false",
+            "The team sees it and the host also has it",
+            "The team sees it while the host has dropped it"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "The host has the actor. The team does not see the cell."
+        },
+        {
+          "id": "stgm-cells-9",
+          "kind": "mc",
+          "prompt": "You save both bools. What is stale after units move?",
+          "choices": [
+            "Cells and delivery that the passes would have recomputed",
+            "The formation id",
+            "The shell rack",
+            "The order that was still running"
+          ],
+          "answer": 0,
+          "why": "Run both passes again."
+        },
+        {
+          "id": "stgm-cells-10",
+          "kind": "mc",
+          "prompt": "Which line is interest, not vision?",
+          "choices": [
+            "Relevant assigned from the half-second trace",
+            "Visible assigned from the quarter-second trace",
+            "A shell subtracted by the gun",
+            "A formation id read"
+          ],
+          "answer": 0,
+          "why": "CheckAOI owns delivery."
         }
-      ],
-      "graph": "fog"
+      ]
     },
     "convoy": {
-      "plainEnglish": "In plain English, Wheels stay local means: A strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number.",
-      "whyGame": "In a real game, getting wheels stay local wrong shows up as writing Visible from Tick, or letting a client mark itself seen. the server timer is the repair, and the generated line `Visible = true; // node:tpl_fog_set` is that repair in C++.",
+      "plainEnglish": "A strategy truck replicates fuel, or supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from throttle and fuel. Driving does not drain supplies unless the design said the convoy spends the team's stock.",
+      "whyGame": "Streaming every wheel bone wastes the match, and spending the build budget on driving bankrupts the base.",
       "expansions": [
         {
-          "title": "Wheels stay local as a door",
-          "detail": "If wheels stay local is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "Fuel",
+          "detail": "It can be its own number."
         },
         {
-          "title": "Wheels stay local as data",
-          "detail": "Designer numbers for wheels stay local live on a row. Visible set from a trace on a 0.25 second timer reads the row instead of a literal."
+          "title": "The order",
+          "detail": "The order id says where the truck was told to go."
         },
         {
-          "title": "Wheels stay local as a listener",
-          "detail": "Later systems listen for Reveal. They do not writing Visible from Tick, or letting a client mark itself seen."
+          "title": "Wheels",
+          "detail": "Rebuild them. Do not replicate the bones."
         }
       ],
       "quiz": [
         {
-          "id": "strategy-intermediate-convoy-c1",
+          "id": "stgm-convoy-1",
           "kind": "mc",
-          "prompt": "A strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives. What should own that decision in Wheels stay local?",
+          "prompt": "What should a strategy truck replicate?",
           "choices": [
-            "the server timer. That keeps the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives.",
-            "The widget that draws wheels stay local owns it. That would break the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives.",
-            "Every client owns it, before Reveal is replicated. That would break the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives."
+            "Fuel, or the named stock, and the order id",
+            "Each wheel transform",
+            "The vision widget",
+            "A points toast"
           ],
           "answer": 0,
-          "why": "A strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives."
+          "why": "The simulation rebuilds the wheels."
         },
         {
-          "id": "strategy-intermediate-convoy-c2",
+          "id": "stgm-convoy-2",
           "kind": "mc",
-          "prompt": "A strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives. The course graph contains `Visible = true; // node:tpl_fog_set`. What is that line doing in gameplay terms?",
+          "prompt": "The client receives fuel and the order id. What does it rebuild locally?",
           "choices": [
-            "Visible set from a trace on a 0.25 second timer. That keeps the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives.",
-            "writing Visible from Tick, or letting a client mark itself seen. That would break the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives."
+            "The wheels, from throttle and fuel",
+            "The team's vision",
+            "The medal rows",
+            "The formation data asset"
           ],
           "answer": 0,
-          "why": "Visible set from a trace on a 0.25 second timer"
+          "why": "Bones are a simulation."
         },
         {
-          "id": "strategy-intermediate-convoy-c3",
+          "id": "stgm-convoy-3",
           "kind": "mc",
-          "prompt": "A strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives. Where should Set Visible sit?",
+          "prompt": "Driving drains supplies and the design never said the convoy spends that money. What was coupled?",
           "choices": [
-            "After the reveal trace hits, started by Reveal through the timer. That keeps the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives.",
-            "It runs before Reveal, so the player is not required. That would break the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives.",
-            "It sits on Tick beside Reveal. That would break the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives."
+            "Fuel and the team's build budget",
+            "The order id and the formation id",
+            "Vision and interest",
+            "A shell and a medal"
           ],
           "answer": 0,
-          "why": "the reveal trace hits is the gate."
+          "why": "Fuel can be its own number."
         },
         {
-          "id": "strategy-intermediate-convoy-c4",
+          "id": "stgm-convoy-4",
+          "kind": "mc",
+          "prompt": "You replicate every wheel bone. What streams that the client could have rebuilt?",
+          "choices": [
+            "Transforms, every frame the truck rolls",
+            "Only the fuel float",
+            "Only the order id",
+            "Only a destroyed-truck medal"
+          ],
+          "answer": 0,
+          "why": "The bones are the waste."
+        },
+        {
+          "id": "stgm-convoy-5",
+          "kind": "mc",
+          "prompt": "The truck is destroyed. What may that call, separate from fuel?",
+          "choices": [
+            "A medal, if the design named that result",
+            "A vision clear of the whole map",
+            "A formation rewrite",
+            "A client interest force"
+          ],
+          "answer": 0,
+          "why": "Destruction can be a result. Fuel was the stock."
+        },
+        {
+          "id": "stgm-convoy-6",
           "kind": "tf",
-          "prompt": "True or false: A strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "strategy-intermediate-convoy-c5",
-          "kind": "tf",
-          "prompt": "True or false: A strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives. You keep that promise by writing Visible from Tick, or letting a client mark itself seen.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "writing Visible from Tick, or letting a client mark itself seen is the broken schedule."
-        },
-        {
-          "id": "strategy-intermediate-convoy-c6",
-          "kind": "mc",
-          "prompt": "A strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives. Which mistake breaks it?",
-          "choices": [
-            "writing Visible from Tick, or letting a client mark itself seen. That keeps the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives.",
-            "Leaving the real work on Reveal. That would break the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives.",
-            "Waiting until the reveal trace hits. That would break the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives.",
-            "Keeping the server timer as the only writer. That would break the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives."
-          ],
-          "answer": 0,
-          "why": "writing Visible from Tick, or letting a client mark itself seen"
-        },
-        {
-          "id": "strategy-intermediate-convoy-c7",
-          "kind": "tf",
-          "prompt": "True or false: A strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives. Reveal through the timer remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the server timer"
-        },
-        {
-          "id": "strategy-intermediate-convoy-c8",
-          "kind": "mc",
-          "prompt": "A strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while Reveal stayed one call. That keeps the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives.",
-            "A data row must be recompiled for this section. That would break the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives.",
-            "Set Visible only works for one class, so the cast is the stable choice. That would break the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "strategy-intermediate-convoy-c9",
-          "kind": "mc",
-          "prompt": "A strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives. What does the player lose if Reveal is removed?",
-          "choices": [
-            "Wheels stay local never starts, because the timer was the only way in. That keeps the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives.",
-            "Nothing, because Tick still does the job. That would break the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives.",
-            "The constructor replaces Reveal on the next map. That would break the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives."
-          ],
-          "answer": 0,
-          "why": "Reveal is the start."
-        },
-        {
-          "id": "strategy-intermediate-convoy-c10",
-          "kind": "tf",
-          "prompt": "True or false: A strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives. OnRep should perform the write again so the section does not wait for the server timer.",
+          "prompt": "Each wheel transform should replicate.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "Rebuild the wheels from throttle and fuel."
         },
         {
-          "id": "strategy-intermediate-convoy-c11",
+          "id": "stgm-convoy-7",
           "kind": "mc",
-          "prompt": "A strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives. Which gate sits immediately in front of the write?",
+          "prompt": "Which value tells the client where the truck was told to go?",
           "choices": [
-            "the reveal trace hits. That keeps the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives.",
-            "A Tick frame, whether or not Reveal fired. That would break the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives.",
-            "A client prediction that skips the server timer. That would break the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives.",
-            "A cast to every actor this course might spawn. That would break the rule that a strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives."
+            "The order id",
+            "A wheel bone",
+            "The vision bool",
+            "The medal row"
           ],
           "answer": 0,
-          "why": "the reveal trace hits"
+          "why": "The order is the intent."
         },
         {
-          "id": "strategy-intermediate-convoy-c11b",
-          "kind": "tf",
-          "prompt": "True or false: A strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number. Destroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does. Save packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "stgm-convoy-8",
+          "kind": "mc",
+          "prompt": "Fuel hits zero and the axis is still pushed. What should stop the truck?",
           "choices": [
-            "True",
-            "False"
+            "The fuel budget",
+            "Setting the on-foot gait to 200",
+            "Erasing what the team can see",
+            "Unequipping a formation"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "Fuel is the truck's stock."
+        },
+        {
+          "id": "stgm-convoy-9",
+          "kind": "mc",
+          "prompt": "A client writes fuel so the gauge drops early. What corrects?",
+          "choices": [
+            "The gauge, when the authority value arrives",
+            "The formation asset",
+            "The vision timer",
+            "The medal board"
+          ],
+          "answer": 0,
+          "why": "Fuel is a server number."
+        },
+        {
+          "id": "stgm-convoy-10",
+          "kind": "mc",
+          "prompt": "Which pair is the truck's replicated state, not its bones?",
+          "choices": [
+            "Fuel and the order id",
+            "Two wheel transforms",
+            "Visible and the spectator widget",
+            "A medal popup and a font"
+          ],
+          "answer": 0,
+          "why": "State replicates. Bones rebuild."
         }
-      ],
-      "graph": "fog"
+      ]
     }
   }
 }
