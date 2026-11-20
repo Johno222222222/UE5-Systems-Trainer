@@ -2,8 +2,8 @@
   "id": "gas-basics",
   "modules": {
     "asc": {
-      "plainEnglish": "In plain English, The ability system means: The ability system component owns activate, cost, and cooldown. The character does not.",
-      "whyGame": "In a real game, getting the ability system wrong shows up as broadcasting OnEffect from Tick, or also subtracting the cost by hand. the timer started at Begin Play is the repair, and the generated line `void UKitComponent::Graph_ApplyEffect_tpl_gaseffect_apply() // node:tpl_gas-effect_apply` is that repair in C++.",
+      "plainEnglish": "The component owns activate, cost, and cooldown.",
+      "whyGame": "Cost and cooldown stay on the ability system.",
       "expansions": [
         {
           "title": "The ability system as a door",
@@ -20,46 +20,35 @@
       ],
       "quiz": [
         {
-          "id": "gas-basics-asc-c1",
+          "id": "gas-asc-1",
           "kind": "mc",
-          "prompt": "The ability system component owns activate, cost, and cooldown. The character does not. What should own that decision in The ability system?",
+          "prompt": "Who checks an ability's cost before it commits?",
           "choices": [
-            "the timer started at Begin Play. That keeps the rule that the ability system component owns activate, cost, and cooldown. The character does not.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that the ability system component owns activate, cost, and cooldown. The character does not.",
-            "The widget that draws the ability system owns it. That would break the rule that the ability system component owns activate, cost, and cooldown. The character does not.",
-            "Every client owns it, before ApplyEffect is replicated. That would break the rule that the ability system component owns activate, cost, and cooldown. The character does not."
+            "The ability system component on the character.",
+            "The character class, in its Tick.",
+            "The widget that draws the stamina bar.",
+            "Every client, as soon as the button is pressed."
           ],
           "answer": 0,
-          "why": "The ability system component owns activate, cost, and cooldown. The character does not."
+          "why": "The component owns activate, cost, and cooldown.",
+          "review_prompt": "Who checks an ability's cost before it commits?"
         },
         {
-          "id": "gas-basics-asc-c2",
+          "id": "gas-asc-2",
           "kind": "mc",
-          "prompt": "The ability system component owns activate, cost, and cooldown. The character does not. The course graph contains `void UKitComponent::Graph_ApplyEffect_tpl_gaseffect_apply() // node:tpl_gas-effect_apply`. What is that line doing in gameplay terms?",
+          "prompt": "A designer puts the cooldown test on the character Tick so it never misses a frame. What breaks?",
           "choices": [
-            "a one second timer that broadcasts OnEffect, which is the fear or cost reaction. That keeps the rule that the ability system component owns activate, cost, and cooldown. The character does not.",
-            "broadcasting OnEffect from Tick, or also subtracting the cost by hand. That would break the rule that the ability system component owns activate, cost, and cooldown. The character does not.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that the ability system component owns activate, cost, and cooldown. The character does not.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that the ability system component owns activate, cost, and cooldown. The character does not."
+            "The character is doing the ability system's job, and the check runs while no ability was asked for.",
+            "Nothing. Tick is the only place a cooldown can live.",
+            "The ability system refuses to start if Tick is also checking.",
+            "OnRep of health starts the ability instead."
           ],
           "answer": 0,
-          "why": "a one second timer that broadcasts OnEffect, which is the fear or cost reaction"
+          "why": "Cost and cooldown stay on the ability system.",
+          "review_prompt": "A designer puts the cooldown test on the character Tick so it never misses a frame. What breaks?"
         },
         {
-          "id": "gas-basics-asc-c3",
-          "kind": "mc",
-          "prompt": "The ability system component owns activate, cost, and cooldown. The character does not. Where should Apply Effect sit?",
-          "choices": [
-            "After the effect's timer elapses, started by ApplyEffect through the timer. That keeps the rule that the ability system component owns activate, cost, and cooldown. The character does not.",
-            "It runs before ApplyEffect, so the player is not required. That would break the rule that the ability system component owns activate, cost, and cooldown. The character does not.",
-            "It sits on Tick beside ApplyEffect. That would break the rule that the ability system component owns activate, cost, and cooldown. The character does not.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that the ability system component owns activate, cost, and cooldown. The character does not."
-          ],
-          "answer": 0,
-          "why": "the effect's timer elapses is the gate."
-        },
-        {
-          "id": "gas-basics-asc-c4",
+          "id": "gas-asc-3",
           "kind": "tf",
           "prompt": "True or false: The ability system component owns activate, cost, and cooldown. The character does not.",
           "choices": [
@@ -67,110 +56,133 @@
             "False"
           ],
           "answer": 0,
-          "why": "The takeaway states that directly."
+          "why": "That is the whole lesson.",
+          "review_prompt": "True or false: The ability system component owns activate, cost, and cooldown. The character does not."
         },
         {
-          "id": "gas-basics-asc-c5",
+          "id": "gas-asc-4",
           "kind": "tf",
-          "prompt": "True or false: The ability system component owns activate, cost, and cooldown. The character does not. You keep that promise by broadcasting OnEffect from Tick, or also subtracting the cost by hand.",
+          "prompt": "True or false: Each new character class should copy the cost check into its own Tick.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "broadcasting OnEffect from Tick, or also subtracting the cost by hand is the broken schedule."
+          "why": "The component already owns that check.",
+          "review_prompt": "True or false: Each new character class should copy the cost check into its own Tick."
         },
         {
-          "id": "gas-basics-asc-c6",
+          "id": "gas-asc-5",
           "kind": "mc",
-          "prompt": "The ability system component owns activate, cost, and cooldown. The character does not. Which mistake breaks it?",
+          "prompt": "A rifle and a medic both spend stamina. Where does that shared check live?",
           "choices": [
-            "broadcasting OnEffect from Tick, or also subtracting the cost by hand. That keeps the rule that the ability system component owns activate, cost, and cooldown. The character does not.",
-            "Leaving the real work on ApplyEffect. That would break the rule that the ability system component owns activate, cost, and cooldown. The character does not.",
-            "Waiting until the effect's timer elapses. That would break the rule that the ability system component owns activate, cost, and cooldown. The character does not.",
-            "Keeping the timer started at Begin Play as the only writer. That would break the rule that the ability system component owns activate, cost, and cooldown. The character does not."
+            "On the ability system component both characters already have.",
+            "In each character's constructor, as a different float.",
+            "On the HUD, which subtracts stamina when it redraws.",
+            "In the player controller's input function, before any ability exists."
           ],
           "answer": 0,
-          "why": "broadcasting OnEffect from Tick, or also subtracting the cost by hand"
+          "why": "One component, many characters.",
+          "review_prompt": "A rifle and a medic both spend stamina. Where does that shared check live?"
         },
         {
-          "id": "gas-basics-asc-c7",
+          "id": "gas-asc-6",
+          "kind": "mc",
+          "prompt": "What is the character allowed to do when the player presses the ability button?",
+          "choices": [
+            "Ask the ability system to activate. It does not decide the cost.",
+            "Subtract the cost itself and then tell the system the ability already ran.",
+            "Start a Tick that polls the button for the rest of the match.",
+            "Write the cooldown onto a replicated mesh pointer."
+          ],
+          "answer": 0,
+          "why": "The character asks. The system decides.",
+          "review_prompt": "What is the character allowed to do when the player presses the ability button?"
+        },
+        {
+          "id": "gas-asc-7",
           "kind": "tf",
-          "prompt": "True or false: The ability system component owns activate, cost, and cooldown. The character does not. ApplyEffect through the timer remains the start.",
+          "prompt": "True or false: Two characters can share one ability system component type and still have different abilities granted to them.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 0,
-          "why": "the timer started at Begin Play"
+          "why": "The component is the owner. The grants differ.",
+          "review_prompt": "True or false: Two characters can share one ability system component type and still have different abilities granted to them."
         },
         {
-          "id": "gas-basics-asc-c8",
+          "id": "gas-asc-8",
           "kind": "mc",
-          "prompt": "The ability system component owns activate, cost, and cooldown. The character does not. A teammate casts to every Blueprint instead. What scales worse as content is added?",
+          "prompt": "A cooldown is checked in the character and again in the ability system. What does the player see?",
           "choices": [
-            "The cast list grows with every new actor, while ApplyEffect stayed one call. That keeps the rule that the ability system component owns activate, cost, and cooldown. The character does not.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that the ability system component owns activate, cost, and cooldown. The character does not.",
-            "A data row must be recompiled for this section. That would break the rule that the ability system component owns activate, cost, and cooldown. The character does not.",
-            "Apply Effect only works for one class, so the cast is the stable choice. That would break the rule that the ability system component owns activate, cost, and cooldown. The character does not."
+            "The ability can be blocked twice, or the two checks can disagree.",
+            "A faster cooldown, because two checks finish sooner.",
+            "The widget hides, because cooldowns are visual only.",
+            "The server ignores both and activates anyway."
           ],
           "answer": 0,
-          "why": "One event stays stable."
+          "why": "One owner, one check.",
+          "review_prompt": "A cooldown is checked in the character and again in the ability system. What does the player see?"
         },
         {
-          "id": "gas-basics-asc-c9",
-          "kind": "mc",
-          "prompt": "The ability system component owns activate, cost, and cooldown. The character does not. What does the player lose if ApplyEffect is removed?",
-          "choices": [
-            "The ability system never starts, because the timer was the only way in. That keeps the rule that the ability system component owns activate, cost, and cooldown. The character does not.",
-            "Nothing, because Tick still does the job. That would break the rule that the ability system component owns activate, cost, and cooldown. The character does not.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that the ability system component owns activate, cost, and cooldown. The character does not.",
-            "The constructor replaces ApplyEffect on the next map. That would break the rule that the ability system component owns activate, cost, and cooldown. The character does not."
-          ],
-          "answer": 0,
-          "why": "ApplyEffect is the start."
-        },
-        {
-          "id": "gas-basics-asc-c10",
+          "id": "gas-asc-9",
           "kind": "tf",
-          "prompt": "True or false: The ability system component owns activate, cost, and cooldown. The character does not. OnRep should perform the write again so the section does not wait for the timer started at Begin Play.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "OnRep shows the result."
-        },
-        {
-          "id": "gas-basics-asc-c11",
-          "kind": "mc",
-          "prompt": "The ability system component owns activate, cost, and cooldown. The character does not. Which gate sits immediately in front of the write?",
-          "choices": [
-            "the effect's timer elapses. That keeps the rule that the ability system component owns activate, cost, and cooldown. The character does not.",
-            "A Tick frame, whether or not ApplyEffect fired. That would break the rule that the ability system component owns activate, cost, and cooldown. The character does not.",
-            "A client prediction that skips the timer started at Begin Play. That would break the rule that the ability system component owns activate, cost, and cooldown. The character does not.",
-            "A cast to every actor this course might spawn. That would break the rule that the ability system component owns activate, cost, and cooldown. The character does not."
-          ],
-          "answer": 0,
-          "why": "the effect's timer elapses"
-        },
-        {
-          "id": "gas-basics-asc-c11b",
-          "kind": "tf",
-          "prompt": "True or false: The ability system component owns activate, cost, and cooldown. The character does not. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "prompt": "True or false: The HUD should subtract stamina when it draws the bar, so the ability system can stay empty.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "why": "The bar reads the value. It does not spend it.",
+          "review_prompt": "True or false: The HUD should subtract stamina when it draws the bar, so the ability system can stay empty."
+        },
+        {
+          "id": "gas-asc-10",
+          "kind": "mc",
+          "prompt": "Where does a new ability get told it may start?",
+          "choices": [
+            "The ability system, after cost and tags pass.",
+            "Begin Play, once, for every ability the character might ever have.",
+            "The overlap of a nearby pickup.",
+            "OnRep of an unrelated health float."
+          ],
+          "answer": 0,
+          "why": "Activate is a system call.",
+          "review_prompt": "Where does a new ability get told it may start?"
+        },
+        {
+          "id": "gas-asc-11",
+          "kind": "tf",
+          "prompt": "True or false: Deleting the ability system and inlining its checks into every character is how you keep costs consistent.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Inlining is how the checks drift apart.",
+          "review_prompt": "True or false: Deleting the ability system and inlining its checks into every character is how you keep costs consistent."
+        },
+        {
+          "id": "gas-asc-12",
+          "kind": "mc",
+          "prompt": "A client predicts the ability started. Who still has to accept the cost?",
+          "choices": [
+            "The authority's ability system. The client's guess is not the commit.",
+            "The client alone, because prediction already played the animation.",
+            "The widget, on the next paint.",
+            "No one. Costs are cosmetic."
+          ],
+          "answer": 0,
+          "why": "Prediction can show. The system still commits.",
+          "review_prompt": "A client predicts the ability started. Who still has to accept the cost?"
         }
       ],
       "graph": "gas-effect"
     },
     "attributes": {
-      "plainEnglish": "In plain English, Attributes means: Health as an attribute is one number the ability system can change. Do not keep a second health float.",
-      "whyGame": "In a real game, getting attributes wrong shows up as broadcasting OnEffect from Tick, or also subtracting the cost by hand. the timer started at Begin Play is the repair, and the generated line `void UKitComponent::Graph_ApplyEffect_tpl_gaseffect_apply() // node:tpl_gas-effect_apply` is that repair in C++.",
+      "plainEnglish": "One number, on the attribute set.",
+      "whyGame": "Do not keep a second health float.",
       "expansions": [
         {
           "title": "Attributes as a door",
@@ -187,46 +199,35 @@
       ],
       "quiz": [
         {
-          "id": "gas-basics-attributes-c1",
+          "id": "gas-attr-1",
           "kind": "mc",
-          "prompt": "Health as an attribute is one number the ability system can change. Do not keep a second health float. What should own that decision in Attributes?",
+          "prompt": "Where does GAS health live?",
           "choices": [
-            "the timer started at Begin Play. That keeps the rule that health as an attribute is one number the ability system can change. Do not keep a second health float.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that health as an attribute is one number the ability system can change. Do not keep a second health float.",
-            "The widget that draws attributes owns it. That would break the rule that health as an attribute is one number the ability system can change. Do not keep a second health float.",
-            "Every client owns it, before ApplyEffect is replicated. That would break the rule that health as an attribute is one number the ability system can change. Do not keep a second health float."
+            "On an attribute set the ability system can change.",
+            "In a second float on the character, next to the attribute.",
+            "On the widget, as the only copy.",
+            "In the mesh component, replicated as a transform."
           ],
           "answer": 0,
-          "why": "Health as an attribute is one number the ability system can change. Do not keep a second health float."
+          "why": "One number, on the attribute set.",
+          "review_prompt": "Where does GAS health live?"
         },
         {
-          "id": "gas-basics-attributes-c2",
+          "id": "gas-attr-2",
           "kind": "mc",
-          "prompt": "Health as an attribute is one number the ability system can change. Do not keep a second health float. The course graph contains `void UKitComponent::Graph_ApplyEffect_tpl_gaseffect_apply() // node:tpl_gas-effect_apply`. What is that line doing in gameplay terms?",
+          "prompt": "A programmer keeps Character.Health and an attribute named Health. A heal updates only the attribute. What does the HUD show if it reads the character float?",
           "choices": [
-            "a one second timer that broadcasts OnEffect, which is the fear or cost reaction. That keeps the rule that health as an attribute is one number the ability system can change. Do not keep a second health float.",
-            "broadcasting OnEffect from Tick, or also subtracting the cost by hand. That would break the rule that health as an attribute is one number the ability system can change. Do not keep a second health float.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that health as an attribute is one number the ability system can change. Do not keep a second health float.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that health as an attribute is one number the ability system can change. Do not keep a second health float."
+            "The old value. The two numbers have diverged.",
+            "The attribute, because Unreal copies it across automatically.",
+            "Zero, because a second float disables health.",
+            "The mesh bounds, because health is a transform."
           ],
           "answer": 0,
-          "why": "a one second timer that broadcasts OnEffect, which is the fear or cost reaction"
+          "why": "Do not keep a second health float.",
+          "review_prompt": "A programmer keeps Character.Health and an attribute named Health. A heal updates only the attribute. What does the HUD show if it reads the character float?"
         },
         {
-          "id": "gas-basics-attributes-c3",
-          "kind": "mc",
-          "prompt": "Health as an attribute is one number the ability system can change. Do not keep a second health float. Where should Apply Effect sit?",
-          "choices": [
-            "After the effect's timer elapses, started by ApplyEffect through the timer. That keeps the rule that health as an attribute is one number the ability system can change. Do not keep a second health float.",
-            "It runs before ApplyEffect, so the player is not required. That would break the rule that health as an attribute is one number the ability system can change. Do not keep a second health float.",
-            "It sits on Tick beside ApplyEffect. That would break the rule that health as an attribute is one number the ability system can change. Do not keep a second health float.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that health as an attribute is one number the ability system can change. Do not keep a second health float."
-          ],
-          "answer": 0,
-          "why": "the effect's timer elapses is the gate."
-        },
-        {
-          "id": "gas-basics-attributes-c4",
+          "id": "gas-attr-3",
           "kind": "tf",
           "prompt": "True or false: Health as an attribute is one number the ability system can change. Do not keep a second health float.",
           "choices": [
@@ -234,110 +235,133 @@
             "False"
           ],
           "answer": 0,
-          "why": "The takeaway states that directly."
+          "why": "That is the lesson.",
+          "review_prompt": "True or false: Health as an attribute is one number the ability system can change. Do not keep a second health float."
         },
         {
-          "id": "gas-basics-attributes-c5",
+          "id": "gas-attr-4",
           "kind": "tf",
-          "prompt": "True or false: Health as an attribute is one number the ability system can change. Do not keep a second health float. You keep that promise by broadcasting OnEffect from Tick, or also subtracting the cost by hand.",
+          "prompt": "True or false: A second health float is useful so the HUD can disagree with the ability system on purpose.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "broadcasting OnEffect from Tick, or also subtracting the cost by hand is the broken schedule."
+          "why": "Disagreement is the bug.",
+          "review_prompt": "True or false: A second health float is useful so the HUD can disagree with the ability system on purpose."
         },
         {
-          "id": "gas-basics-attributes-c6",
+          "id": "gas-attr-5",
           "kind": "mc",
-          "prompt": "Health as an attribute is one number the ability system can change. Do not keep a second health float. Which mistake breaks it?",
+          "prompt": "A damage effect should change which number?",
           "choices": [
-            "broadcasting OnEffect from Tick, or also subtracting the cost by hand. That keeps the rule that health as an attribute is one number the ability system can change. Do not keep a second health float.",
-            "Leaving the real work on ApplyEffect. That would break the rule that health as an attribute is one number the ability system can change. Do not keep a second health float.",
-            "Waiting until the effect's timer elapses. That would break the rule that health as an attribute is one number the ability system can change. Do not keep a second health float.",
-            "Keeping the timer started at Begin Play as the only writer. That would break the rule that health as an attribute is one number the ability system can change. Do not keep a second health float."
+            "The health attribute, through the ability system.",
+            "A local float the character subtracts in Tick.",
+            "The widget's cached text.",
+            "The actor's location Z, as a clever encoding."
           ],
           "answer": 0,
-          "why": "broadcasting OnEffect from Tick, or also subtracting the cost by hand"
+          "why": "Effects write attributes.",
+          "review_prompt": "A damage effect should change which number?"
         },
         {
-          "id": "gas-basics-attributes-c7",
+          "id": "gas-attr-6",
+          "kind": "mc",
+          "prompt": "Who is allowed to be the source of truth for that attribute in a multiplayer game?",
+          "choices": [
+            "The authority's ability system. Clients receive the result.",
+            "Every client, so the hit feels instant and the server catches up later by guessing.",
+            "The UI on the owning client only.",
+            "The projectile, which stores health for the victim."
+          ],
+          "answer": 0,
+          "why": "The system on the authority owns the attribute.",
+          "review_prompt": "Who is allowed to be the source of truth for that attribute in a multiplayer game?"
+        },
+        {
+          "id": "gas-attr-7",
           "kind": "tf",
-          "prompt": "True or false: Health as an attribute is one number the ability system can change. Do not keep a second health float. ApplyEffect through the timer remains the start.",
+          "prompt": "True or false: An attribute set can hold health, stamina, and ammo as separate attributes without a parallel set of raw floats.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 0,
-          "why": "the timer started at Begin Play"
+          "why": "The set is the list of numbers.",
+          "review_prompt": "True or false: An attribute set can hold health, stamina, and ammo as separate attributes without a parallel set of raw floats."
         },
         {
-          "id": "gas-basics-attributes-c8",
+          "id": "gas-attr-8",
           "kind": "mc",
-          "prompt": "Health as an attribute is one number the ability system can change. Do not keep a second health float. A teammate casts to every Blueprint instead. What scales worse as content is added?",
+          "prompt": "A save writes the raw character float and ignores the attribute. What loads?",
           "choices": [
-            "The cast list grows with every new actor, while ApplyEffect stayed one call. That keeps the rule that health as an attribute is one number the ability system can change. Do not keep a second health float.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that health as an attribute is one number the ability system can change. Do not keep a second health float.",
-            "A data row must be recompiled for this section. That would break the rule that health as an attribute is one number the ability system can change. Do not keep a second health float.",
-            "Apply Effect only works for one class, so the cast is the stable choice. That would break the rule that health as an attribute is one number the ability system can change. Do not keep a second health float."
+            "A health the ability system is no longer using.",
+            "Both, because they are the same memory.",
+            "The mesh, because attributes serialize as transforms.",
+            "Nothing. Attributes cannot be saved at all."
           ],
           "answer": 0,
-          "why": "One event stays stable."
+          "why": "Save the attribute value, not a shadow float.",
+          "review_prompt": "A save writes the raw character float and ignores the attribute. What loads?"
         },
         {
-          "id": "gas-basics-attributes-c9",
-          "kind": "mc",
-          "prompt": "Health as an attribute is one number the ability system can change. Do not keep a second health float. What does the player lose if ApplyEffect is removed?",
-          "choices": [
-            "Attributes never starts, because the timer was the only way in. That keeps the rule that health as an attribute is one number the ability system can change. Do not keep a second health float.",
-            "Nothing, because Tick still does the job. That would break the rule that health as an attribute is one number the ability system can change. Do not keep a second health float.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that health as an attribute is one number the ability system can change. Do not keep a second health float.",
-            "The constructor replaces ApplyEffect on the next map. That would break the rule that health as an attribute is one number the ability system can change. Do not keep a second health float."
-          ],
-          "answer": 0,
-          "why": "ApplyEffect is the start."
-        },
-        {
-          "id": "gas-basics-attributes-c10",
+          "id": "gas-attr-9",
           "kind": "tf",
-          "prompt": "True or false: Health as an attribute is one number the ability system can change. Do not keep a second health float. OnRep should perform the write again so the section does not wait for the timer started at Begin Play.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "OnRep shows the result."
-        },
-        {
-          "id": "gas-basics-attributes-c11",
-          "kind": "mc",
-          "prompt": "Health as an attribute is one number the ability system can change. Do not keep a second health float. Which gate sits immediately in front of the write?",
-          "choices": [
-            "the effect's timer elapses. That keeps the rule that health as an attribute is one number the ability system can change. Do not keep a second health float.",
-            "A Tick frame, whether or not ApplyEffect fired. That would break the rule that health as an attribute is one number the ability system can change. Do not keep a second health float.",
-            "A client prediction that skips the timer started at Begin Play. That would break the rule that health as an attribute is one number the ability system can change. Do not keep a second health float.",
-            "A cast to every actor this course might spawn. That would break the rule that health as an attribute is one number the ability system can change. Do not keep a second health float."
-          ],
-          "answer": 0,
-          "why": "the effect's timer elapses"
-        },
-        {
-          "id": "gas-basics-attributes-c11b",
-          "kind": "tf",
-          "prompt": "True or false: Health as an attribute is one number the ability system can change. Do not keep a second health float. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "prompt": "True or false: The widget should own a third copy of health so animations can read it faster.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "why": "The widget reads. It does not own.",
+          "review_prompt": "True or false: The widget should own a third copy of health so animations can read it faster."
+        },
+        {
+          "id": "gas-attr-10",
+          "kind": "mc",
+          "prompt": "A buff adds 20 health. Where is the addition expressed?",
+          "choices": [
+            "In a gameplay effect that modifies the health attribute.",
+            "In the character Tick, which adds 20 whenever the buff tag might be on.",
+            "In the HUD paint, which draws a higher number without changing the attribute.",
+            "In the damage type class constructor."
+          ],
+          "answer": 0,
+          "why": "Effects modify attributes.",
+          "review_prompt": "A buff adds 20 health. Where is the addition expressed?"
+        },
+        {
+          "id": "gas-attr-11",
+          "kind": "tf",
+          "prompt": "True or false: Keeping the old float 'just in case' is safe as long as you remember to update it in most paths.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The path you forget is the desync.",
+          "review_prompt": "True or false: Keeping the old float 'just in case' is safe as long as you remember to update it in most paths."
+        },
+        {
+          "id": "gas-attr-12",
+          "kind": "mc",
+          "prompt": "What does the player notice when only the attribute changes and the HUD still reads the old float?",
+          "choices": [
+            "The bar lies. The character can be dead while the bar looks full, or the reverse.",
+            "Nothing. The bar always reads the attribute by magic.",
+            "The ability system shuts down.",
+            "Input stops."
+          ],
+          "answer": 0,
+          "why": "One number, one reader.",
+          "review_prompt": "What does the player notice when only the attribute changes and the HUD still reads the old float?"
         }
       ],
       "graph": "gas-effect"
     },
     "activate": {
-      "plainEnglish": "In plain English, Activate by tag means: Activate by gameplay tag so a new ability does not need a new cast.",
-      "whyGame": "In a real game, getting activate by tag wrong shows up as broadcasting OnEffect from Tick, or also subtracting the cost by hand. the timer started at Begin Play is the repair, and the generated line `void UKitComponent::Graph_ApplyEffect_tpl_gaseffect_apply() // node:tpl_gas-effect_apply` is that repair in C++.",
+      "plainEnglish": "Activate by tag.",
+      "whyGame": "The tag is the handle. The system finds the ability.",
       "expansions": [
         {
           "title": "Activate by tag as a door",
@@ -354,46 +378,35 @@
       ],
       "quiz": [
         {
-          "id": "gas-basics-activate-c1",
+          "id": "gas-act-1",
           "kind": "mc",
-          "prompt": "Activate by gameplay tag so a new ability does not need a new cast. What should own that decision in Activate by tag?",
+          "prompt": "How does this course start an ability?",
           "choices": [
-            "the timer started at Begin Play. That keeps the rule that activate by gameplay tag so a new ability does not need a new cast.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that activate by gameplay tag so a new ability does not need a new cast.",
-            "The widget that draws activate by tag owns it. That would break the rule that activate by gameplay tag so a new ability does not need a new cast.",
-            "Every client owns it, before ApplyEffect is replicated. That would break the rule that activate by gameplay tag so a new ability does not need a new cast."
+            "By gameplay tag, so a new ability does not need a new cast.",
+            "By casting to each ability Blueprint from the character.",
+            "By Tick, which tries every ability every frame.",
+            "By OnRep of health, which is assumed to mean 'pressed the button'."
           ],
           "answer": 0,
-          "why": "Activate by gameplay tag so a new ability does not need a new cast."
+          "why": "Activate by tag.",
+          "review_prompt": "How does this course start an ability?"
         },
         {
-          "id": "gas-basics-activate-c2",
+          "id": "gas-act-2",
           "kind": "mc",
-          "prompt": "Activate by gameplay tag so a new ability does not need a new cast. The course graph contains `void UKitComponent::Graph_ApplyEffect_tpl_gaseffect_apply() // node:tpl_gas-effect_apply`. What is that line doing in gameplay terms?",
+          "prompt": "A new dash ability is added. What code change does a tag activation avoid?",
           "choices": [
-            "a one second timer that broadcasts OnEffect, which is the fear or cost reaction. That keeps the rule that activate by gameplay tag so a new ability does not need a new cast.",
-            "broadcasting OnEffect from Tick, or also subtracting the cost by hand. That would break the rule that activate by gameplay tag so a new ability does not need a new cast.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that activate by gameplay tag so a new ability does not need a new cast.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that activate by gameplay tag so a new ability does not need a new cast."
+            "A new cast, or a new branch, inside the character.",
+            "None. You still add a cast for every ability, and the tag is only a comment.",
+            "A new Tick function per ability.",
+            "A new replicated mesh for the dash."
           ],
           "answer": 0,
-          "why": "a one second timer that broadcasts OnEffect, which is the fear or cost reaction"
+          "why": "The tag is the handle. The system finds the ability.",
+          "review_prompt": "A new dash ability is added. What code change does a tag activation avoid?"
         },
         {
-          "id": "gas-basics-activate-c3",
-          "kind": "mc",
-          "prompt": "Activate by gameplay tag so a new ability does not need a new cast. Where should Apply Effect sit?",
-          "choices": [
-            "After the effect's timer elapses, started by ApplyEffect through the timer. That keeps the rule that activate by gameplay tag so a new ability does not need a new cast.",
-            "It runs before ApplyEffect, so the player is not required. That would break the rule that activate by gameplay tag so a new ability does not need a new cast.",
-            "It sits on Tick beside ApplyEffect. That would break the rule that activate by gameplay tag so a new ability does not need a new cast.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that activate by gameplay tag so a new ability does not need a new cast."
-          ],
-          "answer": 0,
-          "why": "the effect's timer elapses is the gate."
-        },
-        {
-          "id": "gas-basics-activate-c4",
+          "id": "gas-act-3",
           "kind": "tf",
           "prompt": "True or false: Activate by gameplay tag so a new ability does not need a new cast.",
           "choices": [
@@ -401,110 +414,133 @@
             "False"
           ],
           "answer": 0,
-          "why": "The takeaway states that directly."
+          "why": "That is the lesson.",
+          "review_prompt": "True or false: Activate by gameplay tag so a new ability does not need a new cast."
         },
         {
-          "id": "gas-basics-activate-c5",
+          "id": "gas-act-4",
           "kind": "tf",
-          "prompt": "True or false: Activate by gameplay tag so a new ability does not need a new cast. You keep that promise by broadcasting OnEffect from Tick, or also subtracting the cost by hand.",
+          "prompt": "True or false: Each ability should be started with its own Cast node on the character so the graph shows every class.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "broadcasting OnEffect from Tick, or also subtracting the cost by hand is the broken schedule."
+          "why": "That cast list is what the tag avoids.",
+          "review_prompt": "True or false: Each ability should be started with its own Cast node on the character so the graph shows every class."
         },
         {
-          "id": "gas-basics-activate-c6",
+          "id": "gas-act-5",
           "kind": "mc",
-          "prompt": "Activate by gameplay tag so a new ability does not need a new cast. Which mistake breaks it?",
+          "prompt": "The button for reload is pressed. What does input call?",
           "choices": [
-            "broadcasting OnEffect from Tick, or also subtracting the cost by hand. That keeps the rule that activate by gameplay tag so a new ability does not need a new cast.",
-            "Leaving the real work on ApplyEffect. That would break the rule that activate by gameplay tag so a new ability does not need a new cast.",
-            "Waiting until the effect's timer elapses. That would break the rule that activate by gameplay tag so a new ability does not need a new cast.",
-            "Keeping the timer started at Begin Play as the only writer. That would break the rule that activate by gameplay tag so a new ability does not need a new cast."
+            "Activate by the reload tag. The ability system finds the granted ability.",
+            "A cast to the reload Blueprint, written into the input function.",
+            "Set Magazine directly, skipping the ability so cost cannot block it.",
+            "OnRep_Health, because reload is a replication event."
           ],
           "answer": 0,
-          "why": "broadcasting OnEffect from Tick, or also subtracting the cost by hand"
+          "why": "Input asks. The system activates.",
+          "review_prompt": "The button for reload is pressed. What does input call?"
         },
         {
-          "id": "gas-basics-activate-c7",
+          "id": "gas-act-6",
+          "kind": "mc",
+          "prompt": "A stun tag is on. What can block the reload ability without a special case in the character?",
+          "choices": [
+            "The ability system, because the tag activation can fail its tag check.",
+            "Nothing. Tag activation cannot fail.",
+            "The widget, by refusing to draw the button.",
+            "Tick, by deleting the ability each frame."
+          ],
+          "answer": 0,
+          "why": "Tags are how the system says no.",
+          "review_prompt": "A stun tag is on. What can block the reload ability without a special case in the character?"
+        },
+        {
+          "id": "gas-act-7",
           "kind": "tf",
-          "prompt": "True or false: Activate by gameplay tag so a new ability does not need a new cast. ApplyEffect through the timer remains the start.",
+          "prompt": "True or false: Two weapons can grant different abilities under the same input tag, and the character function does not change.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 0,
-          "why": "the timer started at Begin Play"
+          "why": "The grant changes. The activate call does not.",
+          "review_prompt": "True or false: Two weapons can grant different abilities under the same input tag, and the character function does not change."
         },
         {
-          "id": "gas-basics-activate-c8",
+          "id": "gas-act-8",
           "kind": "mc",
-          "prompt": "Activate by gameplay tag so a new ability does not need a new cast. A teammate casts to every Blueprint instead. What scales worse as content is added?",
+          "prompt": "Someone activates by class with a hard cast 'so it is explicit'. What grows when the tenth ability arrives?",
           "choices": [
-            "The cast list grows with every new actor, while ApplyEffect stayed one call. That keeps the rule that activate by gameplay tag so a new ability does not need a new cast.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that activate by gameplay tag so a new ability does not need a new cast.",
-            "A data row must be recompiled for this section. That would break the rule that activate by gameplay tag so a new ability does not need a new cast.",
-            "Apply Effect only works for one class, so the cast is the stable choice. That would break the rule that activate by gameplay tag so a new ability does not need a new cast."
+            "The cast list, and every character that copied it.",
+            "Nothing. Casts are free and do not name a class.",
+            "The attribute set, which must add a float per cast.",
+            "The fog system, which traces for each cast."
           ],
           "answer": 0,
-          "why": "One event stays stable."
+          "why": "Tags stay one call.",
+          "review_prompt": "Someone activates by class with a hard cast 'so it is explicit'. What grows when the tenth ability arrives?"
         },
         {
-          "id": "gas-basics-activate-c9",
-          "kind": "mc",
-          "prompt": "Activate by gameplay tag so a new ability does not need a new cast. What does the player lose if ApplyEffect is removed?",
-          "choices": [
-            "Activate by tag never starts, because the timer was the only way in. That keeps the rule that activate by gameplay tag so a new ability does not need a new cast.",
-            "Nothing, because Tick still does the job. That would break the rule that activate by gameplay tag so a new ability does not need a new cast.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that activate by gameplay tag so a new ability does not need a new cast.",
-            "The constructor replaces ApplyEffect on the next map. That would break the rule that activate by gameplay tag so a new ability does not need a new cast."
-          ],
-          "answer": 0,
-          "why": "ApplyEffect is the start."
-        },
-        {
-          "id": "gas-basics-activate-c10",
+          "id": "gas-act-9",
           "kind": "tf",
-          "prompt": "True or false: Activate by gameplay tag so a new ability does not need a new cast. OnRep should perform the write again so the section does not wait for the timer started at Begin Play.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "OnRep shows the result."
-        },
-        {
-          "id": "gas-basics-activate-c11",
-          "kind": "mc",
-          "prompt": "Activate by gameplay tag so a new ability does not need a new cast. Which gate sits immediately in front of the write?",
-          "choices": [
-            "the effect's timer elapses. That keeps the rule that activate by gameplay tag so a new ability does not need a new cast.",
-            "A Tick frame, whether or not ApplyEffect fired. That would break the rule that activate by gameplay tag so a new ability does not need a new cast.",
-            "A client prediction that skips the timer started at Begin Play. That would break the rule that activate by gameplay tag so a new ability does not need a new cast.",
-            "A cast to every actor this course might spawn. That would break the rule that activate by gameplay tag so a new ability does not need a new cast."
-          ],
-          "answer": 0,
-          "why": "the effect's timer elapses"
-        },
-        {
-          "id": "gas-basics-activate-c11b",
-          "kind": "tf",
-          "prompt": "True or false: Activate by gameplay tag so a new ability does not need a new cast. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "prompt": "True or false: Begin Play should activate every ability once so they are 'warmed up'.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "why": "Activate means start. Begin Play would fire them all at spawn.",
+          "review_prompt": "True or false: Begin Play should activate every ability once so they are 'warmed up'."
+        },
+        {
+          "id": "gas-act-10",
+          "kind": "mc",
+          "prompt": "Where does the cost get a chance to refuse the tag activation?",
+          "choices": [
+            "Inside the ability system, before the ability commits.",
+            "After the montage has finished, when it is too late to refuse.",
+            "On the client only, with the server forced to accept.",
+            "In the damage number popup."
+          ],
+          "answer": 0,
+          "why": "Cost runs as part of activation.",
+          "review_prompt": "Where does the cost get a chance to refuse the tag activation?"
+        },
+        {
+          "id": "gas-act-11",
+          "kind": "tf",
+          "prompt": "True or false: A gameplay tag is just a comment. The real start is still a chain of casts.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The tag is the lookup.",
+          "review_prompt": "True or false: A gameplay tag is just a comment. The real start is still a chain of casts."
+        },
+        {
+          "id": "gas-act-12",
+          "kind": "mc",
+          "prompt": "What does the player see if the tag is misspelled and nothing is granted under it?",
+          "choices": [
+            "The button does nothing. No cast error lists the missing class, because there is no cast.",
+            "Every ability fires, because a bad tag means all tags.",
+            "Health drops to zero.",
+            "The character Tick takes over and runs the ability by name."
+          ],
+          "answer": 0,
+          "why": "A missing grant is a quiet no.",
+          "review_prompt": "What does the player see if the tag is misspelled and nothing is granted under it?"
         }
       ],
       "graph": "gas-effect"
     },
     "effects": {
-      "plainEnglish": "In plain English, Effects means: A gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
-      "whyGame": "In a real game, getting effects wrong shows up as broadcasting OnEffect from Tick, or also subtracting the cost by hand. the timer started at Begin Play is the repair, and the generated line `void UKitComponent::Graph_ApplyEffect_tpl_gaseffect_apply() // node:tpl_gas-effect_apply` is that repair in C++.",
+      "plainEnglish": "The effect is the cost and the cooldown.",
+      "whyGame": "One cost, in the effect.",
       "expansions": [
         {
           "title": "Effects as a door",
@@ -521,46 +557,35 @@
       ],
       "quiz": [
         {
-          "id": "gas-basics-effects-c1",
+          "id": "gas-fx-1",
           "kind": "mc",
-          "prompt": "A gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well. What should own that decision in Effects?",
+          "prompt": "What applies the cooldown and the cost?",
           "choices": [
-            "the timer started at Begin Play. That keeps the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
-            "The widget that draws effects owns it. That would break the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
-            "Every client owns it, before ApplyEffect is replicated. That would break the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well."
+            "A gameplay effect. Do not also subtract the cost by hand.",
+            "The character Tick, subtracting a float and setting a timer of its own.",
+            "The widget, when it finishes the fade.",
+            "OnRep, which both plays the flash and spends the cost again."
           ],
           "answer": 0,
-          "why": "A gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well."
+          "why": "The effect is the cost and the cooldown.",
+          "review_prompt": "What applies the cooldown and the cost?"
         },
         {
-          "id": "gas-basics-effects-c2",
+          "id": "gas-fx-2",
           "kind": "mc",
-          "prompt": "A gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well. The course graph contains `void UKitComponent::Graph_ApplyEffect_tpl_gaseffect_apply() // node:tpl_gas-effect_apply`. What is that line doing in gameplay terms?",
+          "prompt": "A programmer subtracts stamina in the ability and also applies a cost effect. What does the player feel?",
           "choices": [
-            "a one second timer that broadcasts OnEffect, which is the fear or cost reaction. That keeps the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
-            "broadcasting OnEffect from Tick, or also subtracting the cost by hand. That would break the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well."
+            "Stamina drops twice for one activation.",
+            "A shorter cooldown, because two costs finish faster.",
+            "No change. The effect deletes the hand subtract.",
+            "The ability cannot start, because effects block all activation."
           ],
           "answer": 0,
-          "why": "a one second timer that broadcasts OnEffect, which is the fear or cost reaction"
+          "why": "One cost, in the effect.",
+          "review_prompt": "A programmer subtracts stamina in the ability and also applies a cost effect. What does the player feel?"
         },
         {
-          "id": "gas-basics-effects-c3",
-          "kind": "mc",
-          "prompt": "A gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well. Where should Apply Effect sit?",
-          "choices": [
-            "After the effect's timer elapses, started by ApplyEffect through the timer. That keeps the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
-            "It runs before ApplyEffect, so the player is not required. That would break the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
-            "It sits on Tick beside ApplyEffect. That would break the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well."
-          ],
-          "answer": 0,
-          "why": "the effect's timer elapses is the gate."
-        },
-        {
-          "id": "gas-basics-effects-c4",
+          "id": "gas-fx-3",
           "kind": "tf",
           "prompt": "True or false: A gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
           "choices": [
@@ -568,103 +593,126 @@
             "False"
           ],
           "answer": 0,
-          "why": "The takeaway states that directly."
+          "why": "That is the lesson.",
+          "review_prompt": "True or false: A gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well."
         },
         {
-          "id": "gas-basics-effects-c5",
+          "id": "gas-fx-4",
           "kind": "tf",
-          "prompt": "True or false: A gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well. You keep that promise by broadcasting OnEffect from Tick, or also subtracting the cost by hand.",
+          "prompt": "True or false: Hand-subtracting the cost is required because effects only change visuals.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "broadcasting OnEffect from Tick, or also subtracting the cost by hand is the broken schedule."
+          "why": "Effects change attributes.",
+          "review_prompt": "True or false: Hand-subtracting the cost is required because effects only change visuals."
         },
         {
-          "id": "gas-basics-effects-c6",
+          "id": "gas-fx-5",
           "kind": "mc",
-          "prompt": "A gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well. Which mistake breaks it?",
+          "prompt": "A damage-over-time should tick how?",
           "choices": [
-            "broadcasting OnEffect from Tick, or also subtracting the cost by hand. That keeps the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
-            "Leaving the real work on ApplyEffect. That would break the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
-            "Waiting until the effect's timer elapses. That would break the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
-            "Keeping the timer started at Begin Play as the only writer. That would break the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well."
+            "As an effect the ability system applies, on its own period.",
+            "As a character Tick that subtracts health whenever a bool might be set.",
+            "As an OnRep that subtracts every time the value replicates.",
+            "As a line trace from the camera."
           ],
           "answer": 0,
-          "why": "broadcasting OnEffect from Tick, or also subtracting the cost by hand"
+          "why": "Duration and period belong to the effect.",
+          "review_prompt": "A damage-over-time should tick how?"
         },
         {
-          "id": "gas-basics-effects-c7",
+          "id": "gas-fx-6",
+          "kind": "mc",
+          "prompt": "Who removes the effect when the stun ends?",
+          "choices": [
+            "The ability system, when the effect expires or is removed.",
+            "The animator, by stopping the montage.",
+            "The client, by writing the attribute back to full.",
+            "The overlap of the floor."
+          ],
+          "answer": 0,
+          "why": "The system owns the effect lifetime.",
+          "review_prompt": "Who removes the effect when the stun ends?"
+        },
+        {
+          "id": "gas-fx-7",
           "kind": "tf",
-          "prompt": "True or false: A gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well. ApplyEffect through the timer remains the start.",
+          "prompt": "True or false: A cooldown effect can block a second activation without a parallel float named CooldownRemaining on the character.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 0,
-          "why": "the timer started at Begin Play"
+          "why": "The effect is the cooldown.",
+          "review_prompt": "True or false: A cooldown effect can block a second activation without a parallel float named CooldownRemaining on the character."
         },
         {
-          "id": "gas-basics-effects-c8",
+          "id": "gas-fx-8",
           "kind": "mc",
-          "prompt": "A gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well. A teammate casts to every Blueprint instead. What scales worse as content is added?",
+          "prompt": "The HUD wants the remaining cooldown. What should it read?",
           "choices": [
-            "The cast list grows with every new actor, while ApplyEffect stayed one call. That keeps the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
-            "A data row must be recompiled for this section. That would break the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
-            "Apply Effect only works for one class, so the cast is the stable choice. That would break the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well."
+            "The effect or the attribute the system already exposes. It should not keep its own timer as the source of truth.",
+            "A timer it starts itself when it sees the button, ignoring the server.",
+            "Tick's frame count.",
+            "The mesh material parameter, as the only stored duration."
           ],
           "answer": 0,
-          "why": "One event stays stable."
+          "why": "Read the system. Do not invent a second clock.",
+          "review_prompt": "The HUD wants the remaining cooldown. What should it read?"
         },
         {
-          "id": "gas-basics-effects-c9",
-          "kind": "mc",
-          "prompt": "A gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well. What does the player lose if ApplyEffect is removed?",
-          "choices": [
-            "Effects never starts, because the timer was the only way in. That keeps the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
-            "Nothing, because Tick still does the job. That would break the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
-            "The constructor replaces ApplyEffect on the next map. That would break the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well."
-          ],
-          "answer": 0,
-          "why": "ApplyEffect is the start."
-        },
-        {
-          "id": "gas-basics-effects-c10",
+          "id": "gas-fx-9",
           "kind": "tf",
-          "prompt": "True or false: A gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well. OnRep should perform the write again so the section does not wait for the timer started at Begin Play.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "OnRep shows the result."
-        },
-        {
-          "id": "gas-basics-effects-c11",
-          "kind": "mc",
-          "prompt": "A gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well. Which gate sits immediately in front of the write?",
-          "choices": [
-            "the effect's timer elapses. That keeps the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
-            "A Tick frame, whether or not ApplyEffect fired. That would break the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
-            "A client prediction that skips the timer started at Begin Play. That would break the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well.",
-            "A cast to every actor this course might spawn. That would break the rule that a gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well."
-          ],
-          "answer": 0,
-          "why": "the effect's timer elapses"
-        },
-        {
-          "id": "gas-basics-effects-c11b",
-          "kind": "tf",
-          "prompt": "True or false: A gameplay effect applies cost and cooldown. Do not subtract the cost by hand as well. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "prompt": "True or false: Applying the effect and also calling the old health subtract keeps both generations of the code correct.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "why": "Both will run.",
+          "review_prompt": "True or false: Applying the effect and also calling the old health subtract keeps both generations of the code correct."
+        },
+        {
+          "id": "gas-fx-10",
+          "kind": "mc",
+          "prompt": "A heal effect and a damage effect touch the same health attribute. What prevents a second secret float from ignoring one of them?",
+          "choices": [
+            "There is no second float. Both effects modify the one attribute.",
+            "The character Tick rewrites health from the float after every effect.",
+            "The widget averages the float and the attribute.",
+            "OnRep copies the float back over the attribute."
+          ],
+          "answer": 0,
+          "why": "One attribute, many effects.",
+          "review_prompt": "A heal effect and a damage effect touch the same health attribute. What prevents a second secret float from ignoring one of them?"
+        },
+        {
+          "id": "gas-fx-11",
+          "kind": "tf",
+          "prompt": "True or false: Effects are client-only cosmetics, so the authority should keep a hand-written subtract as the real cost.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The effect is the real cost.",
+          "review_prompt": "True or false: Effects are client-only cosmetics, so the authority should keep a hand-written subtract as the real cost."
+        },
+        {
+          "id": "gas-fx-12",
+          "kind": "mc",
+          "prompt": "What does the player notice if the cost effect is missing and only the montage plays?",
+          "choices": [
+            "The ability looks like it ran, and the resource did not move.",
+            "The montage refuses to play.",
+            "Health replicates as the montage length.",
+            "Input unbinds."
+          ],
+          "answer": 0,
+          "why": "No effect, no cost.",
+          "review_prompt": "What does the player notice if the cost effect is missing and only the montage plays?"
         }
       ],
       "graph": "gas-effect"
