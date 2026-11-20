@@ -1,6 +1,6 @@
 # UE5 Systems Training Tool/Generator
 
-A desktop app for designing Unreal Engine 5 gameplay systems. You describe a system, and it builds an editable node graph, Blueprint pseudocode with WHY notes, C++ header and source, a setup guide, tuning sliders, a compile check, version history, and Unreal plugin export.
+A desktop app for designing Unreal Engine 5 gameplay systems. You describe a system, and it builds an editable node graph, Blueprint pseudocode with WHY notes, C++ header and source, a setup guide, tuning sliders, a compile check, version history, and Unreal plugin export, SPECIFICALLY FOR TRAINING PURPOSES.
 
 It runs on your computer. It uses the internet when it asks Gemini, OpenAI, Anthropic, or OpenRouter to generate or review something, using a key you provide. Ollama stays on this computer and works with the internet off.
 
