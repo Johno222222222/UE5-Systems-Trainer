@@ -63,7 +63,7 @@ test("the release workflow still collects five installer assets under the safe n
   const workflow = fs.readFileSync(path.join(__dirname, "..", "..", ".github", "workflows", "desktop-installer.yml"), "utf8");
   assert.equal(pkg.name, "ue5-system-architect");
   assert.equal(pkg.build.appId, "app.ue5.system-architect");
-  assert.equal(pkg.version, "1.16.0");
+  assert.equal(pkg.version, "1.17.0");
   assert.equal(pkg.build.productName.includes("/"), false);
   assert.equal(pkg.build.executableName, "UE5-Systems-Training-Tool-Generator");
   for (const target of ["win", "linux", "mac"]) {
@@ -163,6 +163,25 @@ test("foundations courses load and every template and node has context notes", a
   }
   assert.equal(sawTimer, true);
   assert.equal(sawBreak, true);
+});
+
+test("stacking every pair of templates has no compile errors", async () => {
+  const { catalog } = require("../references");
+  const { checkSystem } = await import(pathToFileURL(path.join(__dirname, "..", "..", "frontend", "src", "lib", "compileCheck.js")).href);
+  const examples = catalog().examples.filter((item) => item.starter?.cpp_header);
+  assert.ok(examples.length >= 8);
+  const named = examples.find((item) => item.title === "Character Interaction");
+  const combat = examples.find((item) => item.title === "Advanced Combat System");
+  const focus = composeStack([named.starter, combat.starter], { name: "Character Interaction + Advanced Combat System" });
+  assert.match(focus.system.cpp_header, /DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam\(FOnFocusChanged, AActor\*, Focused\);/);
+  assert.equal((focus.system.cpp_header.match(/DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam\(FOnFocusChanged/g) || []).length, 1);
+  for (let i = 0; i < examples.length; i += 1) {
+    for (let j = i + 1; j < examples.length; j += 1) {
+      const stacked = composeStack([examples[i].starter, examples[j].starter], { name: `${examples[i].id}-${examples[j].id}` });
+      const errors = checkSystem(stacked.system).filter((item) => item.severity === "error");
+      assert.deepEqual(errors.map((item) => `${item.file}${item.line ? `:${item.line}` : ""} ${item.message}`), [], `${examples[i].title} + ${examples[j].title}`);
+    }
+  }
 });
 
 test("POST /api/stack returns the composed system", async () => {

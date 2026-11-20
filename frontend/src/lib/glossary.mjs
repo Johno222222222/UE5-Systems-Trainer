@@ -81,6 +81,44 @@ export function linkTerms(text, phrases) {
   return parts;
 }
 
+export function uniqueTerms(entries) {
+  const byId = new Map();
+  for (const entry of entries || []) {
+    if (!entry) continue;
+    const id = entry.id || entry.term;
+    if (!id) continue;
+    const prev = byId.get(id);
+    if (!prev) {
+      byId.set(id, { ...entry, aliases: [...(entry.aliases || [])] });
+      continue;
+    }
+    const aliases = new Set([...(prev.aliases || []), ...(entry.aliases || []), entry.term].filter(Boolean));
+    aliases.delete(prev.term);
+    prev.aliases = [...aliases];
+  }
+  return [...byId.values()];
+}
+
+function nameMatches(name, needle) {
+  const words = String(name || "").toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+  if (words.includes(needle)) return true;
+  const queryWords = needle.split(/[^a-z0-9]+/).filter(Boolean);
+  return queryWords.length > 1 && queryWords.every((word) => words.includes(word));
+}
+
+// Search matches the term name and its aliases, not the definition body.
+// Duplicate ids collapse to one card so a later search cannot leave a stale row.
+export function filterGlossary(entries, query, tag = "") {
+  const terms = uniqueTerms(entries);
+  const needle = String(query || "").trim().toLowerCase();
+  return terms.filter((term) => {
+    if (tag && !(term.tags || []).includes(tag)) return false;
+    if (!needle) return true;
+    const names = [term.term, ...(term.aliases || [])];
+    return names.some((name) => nameMatches(name, needle));
+  });
+}
+
 export const GLOSSARY_REQUESTS_KEY = "ue5_architect_glossary_requests";
 
 export function addGlossaryRequest(list, word) {

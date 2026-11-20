@@ -1,0 +1,21 @@
+{
+  "id": "orders",
+  "title": "Orders",
+  "summary": "A selected unit receives one order interface call.",
+  "variables": [{"name": "Selected", "type": "bool", "default": "false"}],
+  "graph": {
+    "kind": "event",
+    "name": "Order",
+    "nodes": [
+      {"key": "input", "catalog": "enhanced-input", "x": 40, "y": 80, "data": {"action": "IA_Order"}, "note": "IA_Order is the right click. It does not move every unit."},
+      {"key": "branch", "catalog": "branch", "x": 340, "y": 80, "note": "Only the selected unit takes the order."},
+      {"key": "flag", "catalog": "get-variable", "x": 40, "y": 240, "data": {"variable": "Selected", "varType": "bool"}, "pinType": "bool", "note": "Selection is a bool on the unit, not a search of the whole level."},
+      {"key": "call", "catalog": "interface-call", "x": 640, "y": 40, "data": {"function": "ReceiveOrder"}, "note": "One interface. The tank and the infantry answer the same order."}
+    ],
+    "wires": [
+      {"from": "input", "fromPin": "Triggered", "to": "branch", "toPin": "Exec"},
+      {"from": "flag", "fromPin": "Value", "to": "branch", "toPin": "Condition"},
+      {"from": "branch", "fromPin": "Then", "to": "call", "toPin": "Exec"}
+    ]
+  }
+}

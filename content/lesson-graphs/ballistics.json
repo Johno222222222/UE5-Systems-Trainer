@@ -1,0 +1,28 @@
+{
+  "id": "ballistics",
+  "title": "Ballistics",
+  "summary": "A shot is a trace plus a wear add. Heat is state, not Tick.",
+  "variables": [{"name": "Heat", "type": "float", "default": "0.f"}],
+  "graph": {
+    "kind": "event",
+    "name": "Shot",
+    "nodes": [
+      {"key": "input", "catalog": "enhanced-input", "x": 40, "y": 80, "data": {"action": "IA_Fire"}, "note": "IA_Fire is the shot. Wear and heat update here."},
+      {"key": "trace", "catalog": "line-trace", "x": 320, "y": 80, "note": "The trace is the sample projectile. A physical projectile would replace this node, not Tick."},
+      {"key": "branch", "catalog": "branch", "x": 580, "y": 80, "note": "A hit applies damage. A miss still adds heat."},
+      {"key": "add", "catalog": "add", "x": 580, "y": 240, "note": "Heat plus a step."},
+      {"key": "get", "catalog": "get-variable", "x": 320, "y": 260, "data": {"variable": "Heat", "varType": "float"}, "note": "Current heat."},
+      {"key": "step", "catalog": "literal", "x": 320, "y": 380, "data": {"varType": "float", "value": "0.05"}, "note": "One shot of heat."},
+      {"key": "set", "catalog": "set-variable", "x": 860, "y": 200, "data": {"variable": "Heat", "varType": "float"}, "note": "Write heat on the weapon component."}
+    ],
+    "wires": [
+      {"from": "input", "fromPin": "Triggered", "to": "trace", "toPin": "Exec"},
+      {"from": "trace", "fromPin": "Exec", "to": "branch", "toPin": "Exec"},
+      {"from": "trace", "fromPin": "Hit", "to": "branch", "toPin": "Condition"},
+      {"from": "branch", "fromPin": "Then", "to": "set", "toPin": "Exec"},
+      {"from": "get", "fromPin": "Value", "to": "add", "toPin": "A"},
+      {"from": "step", "fromPin": "Value", "to": "add", "toPin": "B"},
+      {"from": "add", "fromPin": "Result", "to": "set", "toPin": "Value"}
+    ]
+  }
+}

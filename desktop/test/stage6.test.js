@@ -426,7 +426,7 @@ function headerClasses(header) {
   return [...code.matchAll(/\\b(?:class|struct)\\s+(?:\\w+_API\\s+)?([UAFIE][A-Z]\\w*)\\s*(?:final\\s*)?[:{]/g)].map((m) => m[1]);
 }`;
   const file = path.join(os.tmpdir(), `ue5-stage6-check-${process.pid}.mjs`);
-  fs.writeFileSync(file, raw.replace('import { baseName, headerClasses } from "./zipExport";', shim));
+  fs.writeFileSync(file, raw.replace('import { baseName, headerClasses } from "./cppNames.js";', shim));
   const { checkSystem } = await import(pathToFileURL(file).href);
   const templates = attachStarters(TEMPLATES);
   assert.equal(templates.length, 8);

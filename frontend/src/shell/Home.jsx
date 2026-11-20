@@ -41,6 +41,7 @@ function asTemplate(example) {
 }
 
 export function PlannedList({ compact = false }) {
+  const shell = useShell();
   const [items, setItems] = useState([]);
   useEffect(() => {
     api.get("/planned").then((res) => setItems(res.data?.items || [])).catch(() => setItems([]));
@@ -57,6 +58,9 @@ export function PlannedList({ compact = false }) {
               <span className="tag">{item.status}</span>
             </div>
             {!compact && <p className="mt-1 text-[12px] text-[var(--text-secondary)]">{item.detail}</p>}
+            {item.id === "module-stacking" && (
+              <button type="button" className="ue-btn mt-2" data-testid="home-stack-systems" onClick={() => shell.focusStack()}>Stack systems</button>
+            )}
           </div>
         ))}
       </div>

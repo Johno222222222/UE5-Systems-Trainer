@@ -101,6 +101,17 @@ function blockRank(block) {
   return 3;
 }
 
+function delegateDeclarations(header) {
+  const found = [];
+  const pattern = /DECLARE_(?:DYNAMIC_)?(?:MULTICAST_)?DELEGATE\w*\s*\([^;]*\);/g;
+  for (const match of String(header || "").matchAll(pattern)) {
+    const statement = match[0].replace(/\s+/g, " ").trim();
+    const type = statement.match(/\(\s*([A-Za-z_]\w*)/)?.[1] || statement;
+    found.push({ statement, type });
+  }
+  return found;
+}
+
 function includesOf(text) {
   return [...String(text || "").matchAll(/^\s*#include\s+"([^"]+)"/gm)].map((match) => match[1]);
 }
@@ -162,6 +173,8 @@ function composeStack(systems, { name } = {}) {
   const engineIncludes = [];
   const renames = [];
   const deduped = [];
+  const delegateStatements = [];
+  const seenDelegateTypes = new Set();
 
   const rememberInclude = (include) => {
     if (!include || include.endsWith(".generated.h")) return;
@@ -170,6 +183,7 @@ function composeStack(systems, { name } = {}) {
   };
 
   for (const system of list) {
+    const renameMark = renames.length;
     for (const include of [...includesOf(system.cpp_header), ...includesOf(system.cpp_source)]) rememberInclude(include);
     let source = stripIncludes(system.cpp_source);
     for (const block of blocksOf(system.cpp_header)) {
@@ -196,6 +210,15 @@ function composeStack(systems, { name } = {}) {
       kept.push({ text, system: system.system_name || "System" });
     }
     if (source) sources.push(repairFloats(source));
+    let headerText = system.cpp_header || "";
+    for (const item of renames.slice(renameMark)) {
+      headerText = headerText.replace(new RegExp(`\\b${item.from}\\b`, "g"), item.to);
+    }
+    for (const item of delegateDeclarations(headerText)) {
+      if (seenDelegateTypes.has(item.type)) continue;
+      seenDelegateTypes.add(item.type);
+      delegateStatements.push(item.statement);
+    }
   }
 
   if (!engineIncludes.includes("CoreMinimal.h")) engineIncludes.unshift("CoreMinimal.h");
@@ -203,7 +226,7 @@ function composeStack(systems, { name } = {}) {
   const header = repairFloats(`#pragma once
 ${engineIncludes.map((include) => `#include "${include}"`).join("\n")}
 #include "${base}.generated.h"
-
+${delegateStatements.length ? `\n${delegateStatements.join("\n")}\n` : ""}
 ${kept.map((item) => item.text).join("\n\n")}
 `);
   const source = repairFloats(`#include "${base}.h"

@@ -76,6 +76,15 @@ export default function Programs() {
   const [error, setError] = useState("");
   const [packProblems, setPackProblems] = useState([]);
   const [courses, setCourses] = useState([]);
+  const [tracks, setTracks] = useState([]);
+  const [genre, setGenre] = useState("fps");
+  const [trackLevel, setTrackLevel] = useState("beginner");
+  const [track, setTrack] = useState(null);
+  const [sectionIndex, setSectionIndex] = useState(0);
+  const [trackAnswers, setTrackAnswers] = useState({});
+  const [assignmentText, setAssignmentText] = useState("");
+  const [trackResult, setTrackResult] = useState(null);
+  const [examMode, setExamMode] = useState(false);
 
   const refreshCards = () => api.get("/study").then((r) => {
     setCards(r.data?.programs || []);
@@ -83,7 +92,45 @@ export default function Programs() {
     setPackProblems(r.data?.problems || []);
   }).catch((err) => setError(errorText(err)));
 
-  useEffect(() => { refreshCards(); }, []);
+  useEffect(() => {
+    refreshCards();
+    api.get("/tracks").then((response) => setTracks(response.data?.tracks || [])).catch(() => {});
+  }, []);
+
+  const openTrack = (id) => {
+    api.get(`/tracks/${id}`).then((response) => {
+      setTrack(response.data.track);
+      setSectionIndex(0);
+      setTrackAnswers({});
+      setAssignmentText("");
+      setTrackResult(null);
+      setExamMode(false);
+    }).catch((err) => toast.error(errorText(err)));
+  };
+
+  const submitSection = async () => {
+    const section = track?.sections?.[sectionIndex];
+    if (!track || !section) return;
+    try {
+      const { data } = await api.post(`/tracks/${track.id}/sections/${section.id}/attempt`, {
+        answers: trackAnswers,
+        assignment: assignmentText,
+      });
+      setTrackResult(data);
+    } catch (err) {
+      toast.error(errorText(err));
+    }
+  };
+
+  const submitExam = async () => {
+    if (!track) return;
+    try {
+      const { data } = await api.post(`/tracks/${track.id}/exam`, { answers: trackAnswers });
+      setTrackResult(data);
+    } catch (err) {
+      toast.error(errorText(err));
+    }
+  };
 
   const openProgram = (id) => {
     setOpenId(id);
@@ -150,6 +197,79 @@ export default function Programs() {
     }
   };
 
+  if (track) {
+    const section = track.sections[sectionIndex];
+    const questions = examMode ? track.exam.questions : section.quiz;
+    return (
+      <div className="home-screen" data-testid="track-screen">
+        <div className="home-inner">
+          <button type="button" className="why-concept !mt-0" onClick={() => { setTrack(null); setTrackResult(null); }}>All programs</button>
+          <div className="eyebrow mt-3">{track.genre} · {track.level}</div>
+          <h1 className="font-display text-[32px] font-extrabold uppercase tracking-wider leading-none mt-1">{track.title}</h1>
+          <img className="mt-4 w-full" alt="" src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(track.map)}`} data-testid="track-map" />
+          <div className="mt-3 flex flex-wrap gap-2">
+            {track.sections.map((item, index) => (
+              <button key={item.id} type="button" className={`chip ${!examMode && index === sectionIndex ? "active" : ""}`} data-testid={`track-section-${item.id}`} onClick={() => { setExamMode(false); setSectionIndex(index); setTrackAnswers({}); setTrackResult(null); setAssignmentText(""); }}>{item.order}. {item.title}</button>
+            ))}
+            <button type="button" className={`chip ${examMode ? "active" : ""}`} data-testid="track-exam" onClick={() => { setExamMode(true); setTrackAnswers({}); setTrackResult(null); }}>Final exam</button>
+          </div>
+          {!examMode && section && (
+            <div className="panel p-4 mt-4" data-testid="track-lesson">
+              <img className="w-full" alt="" src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(section.image)}`} data-testid="track-lesson-image" />
+              {section.flow && <img className="w-full mt-3" alt="" src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(section.flow)}`} data-testid="track-lesson-flow" />}
+              {section.reading.map((line, index) => {
+                const heading = typeof line === "string" ? "" : line.heading;
+                const body = typeof line === "string" ? line : line.body;
+                return (
+                  <div key={`${section.id}-${index}`} className="mt-3">
+                    {heading && <h2 className="text-[14px] font-semibold">{heading}</h2>}
+                    <p className="mt-1 text-[13px] text-[var(--text-secondary)]"><GlossaryText text={body} /></p>
+                  </div>
+                );
+              })}
+              {section.cpp?.length > 0 && (
+                <pre className="mt-3 text-[12px] font-mono text-[var(--text-secondary)] overflow-auto" data-testid="track-cpp">
+                  {section.cpp.map((row) => `${String(row.line).padStart(3, " ")}  ${row.text}`).join("\n")}
+                </pre>
+              )}
+              <label className="block mt-3">
+                <span className="eyebrow">Assignment</span>
+                <div className="mt-1 text-[13px]"><GlossaryText text={section.assignment.prompt} /></div>
+                <input className="mt-2 w-full bg-[var(--bg-main)] border border-[var(--border)] rounded px-2 py-1" data-testid="track-assignment" value={assignmentText} onChange={(event) => setAssignmentText(event.target.value)} />
+              </label>
+              {trackResult?.model && <p className="mt-2 text-[13px] text-[var(--text-secondary)]" data-testid="track-model">{trackResult.model}</p>}
+            </div>
+          )}
+          <div className="panel p-4 mt-4" data-testid="track-questions">
+            {(questions || []).map((question) => (
+              <div key={question.id} className="mt-3">
+                <div className="text-[13px]" data-testid={`track-q-${question.id}`}><GlossaryText text={question.prompt} /></div>
+                {question.figure && <img className="mt-2 w-full" alt="" src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(question.figure)}`} data-testid={`track-figure-${question.id}`} />}
+                {question.sample && <pre className="mt-2 text-[12px] font-mono text-[var(--text-secondary)] overflow-auto" data-testid={`track-sample-${question.id}`}>{question.sample}</pre>}
+                <div className="mt-2 flex flex-col gap-2">
+                  {question.choices.map((choice, choiceIndex) => (
+                    <ChoiceButton
+                      key={`${question.id}-${choiceIndex}`}
+                      id={choiceIndex}
+                      label={choice}
+                      picked={trackAnswers[question.id] ?? null}
+                      correct={trackResult ? question.answer : null}
+                      revealed={!!trackResult}
+                      onPick={(choiceId) => setTrackAnswers((current) => ({ ...current, [question.id]: choiceId }))}
+                      testId={`track-choice-${question.id}-${choiceIndex}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+            <button type="button" className="ue-btn ue-btn-primary mt-3" data-testid="track-submit" onClick={examMode ? submitExam : submitSection}>{examMode ? "Score exam" : "Score section"}</button>
+            {trackResult && <p className="mt-2 text-[13px]" data-testid="track-score">{trackResult.percent}% · {trackResult.passed ? "Passed" : "Not yet"}{trackResult.assignment_ok === false ? " · assignment needs another look" : ""}</p>}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!program) {
     return (
       <div className="home-screen" data-testid="programs-screen">
@@ -179,7 +299,24 @@ export default function Programs() {
               ))}
             </div>
           )}
-          <div className="home-grid mt-6">
+          <div className="mt-4 flex flex-wrap gap-2" data-testid="track-filters">
+            {["fps", "tps", "horror", "strategy"].map((id) => (
+              <button key={id} type="button" className={`chip ${genre === id ? "active" : ""}`} data-testid={`track-genre-${id}`} onClick={() => setGenre(id)}>{id.toUpperCase()}</button>
+            ))}
+            <button type="button" className={`chip ${trackLevel === "beginner" ? "active" : ""}`} data-testid="track-level-beginner" onClick={() => setTrackLevel("beginner")}>Beginner</button>
+            <button type="button" className={`chip ${trackLevel === "intermediate" ? "active" : ""}`} data-testid="track-level-intermediate" onClick={() => setTrackLevel("intermediate")}>Intermediate</button>
+          </div>
+          <div className="home-grid mt-3">
+            {tracks.filter((item) => item.genre === genre && item.level === trackLevel).map((item) => (
+              <button key={item.id} type="button" className="panel home-card text-left" data-testid={`track-card-${item.id}`} onClick={() => openTrack(item.id)}>
+                <div className="font-sub font-semibold text-[15px]">{item.title}</div>
+                <p className="mt-1 text-[12px] text-[var(--text-secondary)]">{item.summary}</p>
+                <div className="mt-2 text-[11px] font-mono text-[var(--text-muted)]">{item.sections.length} sections · final exam</div>
+              </button>
+            ))}
+          </div>
+          <div className="eyebrow mt-8">Saved lesson packs</div>
+          <div className="home-grid mt-3">
             {cards.map((card) => (
               <button key={card.id} type="button" className="panel home-card text-left" data-testid={`program-card-${card.id}`} onClick={() => openProgram(card.id)}>
                 <div className="font-sub font-semibold text-[15px]">{card.title}</div>

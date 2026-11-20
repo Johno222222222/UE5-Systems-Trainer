@@ -179,6 +179,8 @@
       "id": "gas-basics",
       "title": "GAS basics",
       "summary": "The ability system, attributes, activating by tag, and effects. Scores stay on this computer.",
+      "level": "intermediate",
+      "genre": "general",
       "glossary_tags": ["GAS"],
       "pass_mark": 70,
       "modules": [
@@ -288,6 +290,8 @@
       "id": "replication-basics",
       "title": "Multiplayer replication",
       "summary": "Authority, replicated properties, OnRep, and RPCs. Scores stay on this computer.",
+      "level": "intermediate",
+      "genre": "general",
       "glossary_tags": ["Networking"],
       "pass_mark": 70,
       "modules": [
@@ -397,6 +401,8 @@
       "id": "data-driven",
       "title": "Data-driven design",
       "summary": "Data tables, row structs, and data assets. Scores stay on this computer.",
+      "level": "beginner",
+      "genre": "general",
       "glossary_tags": ["Data"],
       "pass_mark": 70,
       "modules": [

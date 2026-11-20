@@ -1,0 +1,1403 @@
+{
+  "id": "tps-intermediate",
+  "genre": "tps",
+  "level": "intermediate",
+  "title": "TPS — Intermediate",
+  "summary": "Project JOHNO in third person: a shoulder camera with GASP, relevance, ballistics and heat, limb medical, a ten-slot gunsmith, a vehicle throttle, and a save.",
+  "sections": [
+    {
+      "id": "camera",
+      "title": "Shoulder camera and GASP",
+      "order": 1,
+      "graph": "camera",
+      "why": "Aiming pulls the shoulder camera in. Motion matching does not trace.",
+      "depends": [
+        "IA_Aim",
+        "Aiming",
+        "GASP"
+      ],
+      "reading": [
+        "The intermediate third-person camera shares the pawn with GASP motion matching. IA_Aim traces from the camera and sets Aiming. The shoulder boom reads that bool and shortens. GASP reads Speed and the trajectory. It does not read the trace, and it must not fire a second trace to decide whether the camera is tight. The excerpt is Graph_IA_Aim: a visibility trace, then Aiming = true when bHit is set. Release still has to clear the bool. This graph is the camera preset, not the interact preset.",
+        "Project JOHNO's over-the-shoulder pose changes when Aiming is true: the database picks an aim set instead of a hip set. That selection is a query. Putting it on Tick re-queries while the button is held and the result has not changed. The mapping context can put IA_Aim on a shoulder button without the graph knowing the device.",
+        "Movement writes Speed. If the aim pose also writes Speed, the gait and the camera fight and the mesh twists. A heavy aim may scale Speed in one function after the movement write. It does not replace IA_Move. The weapon reads Aiming for spread. The vehicle, when the player is driving, disables this boom instead of running IA_Aim into the seat.",
+        "Save can store Aiming. The boom transform is derived. AOI does not care about the camera. Relevance is about the pawn.",
+        "Shoulder camera and GASP closes on Camera aim. Aiming pulls the shoulder camera in. Motion matching does not trace. Line 10 is `FHitResult Hit_tpl_camera_trace; bool bHit_tpl_camera_trace = false; if (UWorld* World_tpl`. Line 13 is `Aiming = true; // node:tpl_camera_set`. IA_Aim stays on its own event and is not written from Shoulder camera and GASP. Aiming stays on its own event and is not written from Shoulder camera and GASP. GASP stays on its own event and is not written from Shoulder camera and GASP. GASP reads Aiming. Graph_IA_Aim sets Aiming = true. It does not write Speed. The assignment names the repair to keep. Shoulder camera and GASP does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Camera aim already uses."
+      ],
+      "assignment": {
+        "kind": "compatibility",
+        "prompt": "GASP is tracing on Tick to see if the shoulder camera is tight. Which bool should it read, and which excerpt assignment sets that bool?",
+        "accept": [
+          "Aiming",
+          "IA_Aim"
+        ],
+        "model": "GASP reads Aiming. Graph_IA_Aim sets Aiming = true. It does not write Speed."
+      },
+      "quiz": [
+        {
+          "id": "camera-q1",
+          "prompt": "What does the shoulder-camera excerpt assign?",
+          "choices": [
+            "Aiming = true",
+            "Speed = 600.f",
+            "Throttle = IA_Throttle",
+            "EquippedId = IA_Equip"
+          ],
+          "answer": 0,
+          "why": "The boom and GASP both read Aiming."
+        },
+        {
+          "id": "camera-q2",
+          "prompt": "Which preset is this lesson?",
+          "choices": [
+            "The camera graph, IA_Aim",
+            "The interact graph",
+            "The vehicle throttle",
+            "The patrol timer"
+          ],
+          "answer": 0,
+          "why": "Aim is not use."
+        },
+        {
+          "id": "camera-q3",
+          "prompt": "What must GASP not do while the shoulder button is held?",
+          "choices": [
+            "Trace again to rediscover Aiming",
+            "Read Speed",
+            "Pick an aim pose",
+            "Ignore Tick"
+          ],
+          "answer": 0,
+          "why": "The bool is already set."
+        },
+        {
+          "id": "camera-q4",
+          "prompt": "True or false: the aim pose should assign Speed itself.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Movement owns Speed. Aim may scale it in one place."
+        },
+        {
+          "id": "camera-q5",
+          "prompt": "A vehicle seat should do what with this boom?",
+          "choices": [
+            "Disable it, and not feed IA_Aim into the seat",
+            "Keep tracing",
+            "Write Throttle from Aiming",
+            "Save the boom transform"
+          ],
+          "answer": 0,
+          "why": "Driving is a different camera."
+        },
+        {
+          "id": "camera-q6",
+          "prompt": "Where can IA_Aim be bound without editing the graph?",
+          "choices": [
+            "A mapping context",
+            "Inside the trace",
+            "On the replication graph",
+            "In OnRep"
+          ],
+          "answer": 0,
+          "why": "The device is data."
+        },
+        {
+          "id": "camera-q7",
+          "prompt": "What is derived and should not be saved?",
+          "choices": [
+            "The boom transform",
+            "Aiming, if a mode needs it",
+            "The pawn location",
+            "Health"
+          ],
+          "answer": 0,
+          "why": "Aiming rebuilds the boom."
+        },
+        {
+          "id": "camera-q8",
+          "prompt": "If bHit is false and nothing clears Aiming, what sticks?",
+          "choices": [
+            "The tight camera",
+            "The magazine",
+            "Relevance",
+            "The gunsmith id"
+          ],
+          "answer": 0,
+          "why": "The sample never writes false."
+        }
+      ]
+    },
+    {
+      "id": "movement",
+      "title": "Motion-matched movement",
+      "order": 2,
+      "graph": "movement",
+      "why": "Speed is 600 or 200 from IA_Move. The shoulder camera does not write it.",
+      "depends": [
+        "IA_Move",
+        "Speed",
+        "GASP"
+      ],
+      "reading": [
+        "Third-person motion matching needs a gait before it needs a camera. IA_Move greater than zero writes Speed = 600.f. Otherwise the excerpt writes Speed = 200.f. GASP builds a trajectory from that speed. The shoulder camera's Aiming bool can select an aim set. It is not a second speed. If both graphs assign Speed, the last write in the frame wins and the trajectory pops.",
+        "The function is Graph_IA_Move. There is no Tick. A Tick write would also run while the player is in the gunsmith radial, and the on-foot database would keep sprinting under a menu. Crouch and prone are extra literals in the same branch, chosen by a stance the ability sets, not by the camera distance.",
+        "The vehicle throttle is a different variable on a different component. Copying Speed into Throttle makes the car use the on-foot numbers. AOI replicates the pawn, not the trajectory. Clients run the same database from the replicated speed. The pose itself stays local.",
+        "Save stores Speed only if the mode resumes a sprint. It does not store the chosen animation. The reload graph does not write Speed either, even if a heavy mag should slow the pawn. That slow is one multiply after this write.",
+        "Motion-matched movement closes on Movement. Speed is 600 or 200 from IA_Move. The shoulder camera does not write it. Line 9 is `Speed = 600.f; // node:tpl_movement_sprint`. Line 13 is `Speed = 200.f; // node:tpl_movement_walk`. IA_Move stays on its own event and is not written from Motion-matched movement. Speed stays on its own event and is not written from Motion-matched movement. GASP stays on its own event and is not written from Motion-matched movement. IA_Move > 0.f chooses Speed = 600.f or Speed = 200.f. Aiming does not assign Speed. The assignment names the repair to keep. Motion-matched movement does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Movement already uses."
+      ],
+      "assignment": {
+        "kind": "cpp",
+        "prompt": "Name the comparison in the third-person movement excerpt and the two Speed literals GASP reads.",
+        "accept": [
+          "IA_Move",
+          "200"
+        ],
+        "model": "IA_Move > 0.f chooses Speed = 600.f or Speed = 200.f. Aiming does not assign Speed."
+      },
+      "quiz": [
+        {
+          "id": "movement-q1",
+          "prompt": "Which literals does the motion-matching excerpt write?",
+          "choices": [
+            "600.f and 200.f",
+            "0.05f of heat",
+            "90.f of health",
+            "25.f of supplies"
+          ],
+          "answer": 0,
+          "why": "Sprint and walk."
+        },
+        {
+          "id": "movement-q2",
+          "prompt": "What breaks if the shoulder camera also assigns Speed?",
+          "choices": [
+            "The last write in the frame wins and the trajectory pops",
+            "GASP gets faster",
+            "The trace gets shorter",
+            "EquippedId clears"
+          ],
+          "answer": 0,
+          "why": "One writer."
+        },
+        {
+          "id": "movement-q3",
+          "prompt": "Why must Tick not own this write during the radial menu?",
+          "choices": [
+            "The database keeps sprinting under the menu",
+            "Tick cannot see IA_Move",
+            "Menus require Tick",
+            "Speed must be a bool"
+          ],
+          "answer": 0,
+          "why": "The axis event is the change."
+        },
+        {
+          "id": "movement-q4",
+          "prompt": "True or false: the animation pose should replicate.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Clients rebuild it from Speed."
+        },
+        {
+          "id": "movement-q5",
+          "prompt": "Throttle must not be copied from which variable?",
+          "choices": [
+            "Speed",
+            "Aiming",
+            "StackCount",
+            "SlotValue"
+          ],
+          "answer": 0,
+          "why": "The car is a different component."
+        },
+        {
+          "id": "movement-q6",
+          "prompt": "Where does a heavy magazine slow the pawn?",
+          "choices": [
+            "One multiply after the Speed write",
+            "Inside the camera trace",
+            "Inside OnRep_Health",
+            "Inside the ten slot records"
+          ],
+          "answer": 0,
+          "why": "One extra write, still not Tick."
+        },
+        {
+          "id": "movement-q7",
+          "prompt": "What does a crouch add to this branch?",
+          "choices": [
+            "Another literal, chosen by stance",
+            "A line trace",
+            "A replicated mesh",
+            "A save tick"
+          ],
+          "answer": 0,
+          "why": "Stance is data. The branch picks the number."
+        },
+        {
+          "id": "movement-q8",
+          "prompt": "If IA_Move is removed, what does the trajectory lose?",
+          "choices": [
+            "The choice between 600 and 200",
+            "The aim trace",
+            "The gunsmith id",
+            "Relevance"
+          ],
+          "answer": 0,
+          "why": "No axis, no gait."
+        }
+      ]
+    },
+    {
+      "id": "aoi",
+      "title": "Third-person relevance",
+      "order": 3,
+      "graph": "aoi",
+      "why": "Distant third-person pawns drop out on the 0.5s CheckAOI timer.",
+      "depends": [
+        "CheckAOI",
+        "Relevant",
+        "Has Authority"
+      ],
+      "reading": [
+        "A third-person pawn is expensive to replicate because the mesh is large and the animation is busy. Area of interest drops pawns the player cannot see. The sample starts CheckAOI from Begin Play on a 0.5 second looping timer. The authority traces. The excerpt assigns Relevant = bHit. Clients that are not relevant do not receive the pawn, so they also do not receive its GASP speed or its equipped id.",
+        "The excerpt puts the trace and Relevant = bHit inside if (HasAuthority()). A client that sets Relevant on its own pawn pulls every cosmetic the server had culled, including other players' shoulder cameras. The camera is not replicated. The pawn is.",
+        "The weapon, the limbs, and the gunsmith id replicate only while Relevant is true. They do not run their own timers. A vehicle the player can hear but not see may stay relevant by a larger radius. That radius is data on the vehicle, not a tick of every wheel. Debris from destruction should leave relevance quickly.",
+        "Shortening 0.5 to every frame turns the pass into Tick. Lengthening it makes pop-in obvious on a third-person mesh, which is large on screen. 0.5 is the sample. The replication graph is the production system that replaces the trace.",
+        "Third-person relevance closes on Area of interest. Distant third-person pawns drop out on the 0.5s CheckAOI timer. Line 10 is `if (UWorld* World = GetWorld()) { FTimerHandle Timer_tpl_aoi_timer; World->GetTimerManager`. Line 15 is `if (HasAuthority()) // node:tpl_aoi_auth`. Line 17 is `FHitResult Hit_tpl_aoi_trace; bool bHit_tpl_aoi_trace = false; if (UWorld* World_tpl_aoi_t`. CheckAOI stays on its own event and is not written from Third-person relevance. Relevant stays on its own event and is not written from Third-person relevance. Has Authority stays on its own event and is not written from Third-person relevance. CheckAOI runs every 0.5f. Relevant = bHit belongs inside HasAuthority. The assignment names the repair to keep. Third-person relevance does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Area of interest already uses."
+      ],
+      "assignment": {
+        "kind": "graph",
+        "prompt": "A third-person client sets Relevant on itself. What interval does the excerpt use, and which assignment should sit inside HasAuthority?",
+        "accept": [
+          "0.5",
+          "Relevant"
+        ],
+        "model": "CheckAOI runs every 0.5f. Relevant = bHit belongs inside HasAuthority."
+      },
+      "quiz": [
+        {
+          "id": "aoi-q1",
+          "prompt": "What interval does the third-person AOI excerpt use?",
+          "choices": [
+            "0.5f looping",
+            "Every frame",
+            "1.f once",
+            "0.2f"
+          ],
+          "answer": 0,
+          "why": "SetTimer's period is 0.5f."
+        },
+        {
+          "id": "aoi-q2",
+          "prompt": "What does it assign?",
+          "choices": [
+            "Relevant = bHit",
+            "Aiming = true",
+            "Speed = 200.f",
+            "EquippedId = IA_Equip"
+          ],
+          "answer": 0,
+          "why": "The hit is the stand-in for the cell test."
+        },
+        {
+          "id": "aoi-q3",
+          "prompt": "Where does the third-person AOI excerpt assign Relevant?",
+          "choices": [
+            "Inside if (HasAuthority()), with the trace",
+            "After the check, on the client",
+            "In the shoulder boom",
+            "In the radial widget"
+          ],
+          "answer": 0,
+          "why": "The write is already in the authority block."
+        },
+        {
+          "id": "aoi-q4",
+          "prompt": "True or false: the shoulder camera component should replicate.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The pawn replicates. The camera is local."
+        },
+        {
+          "id": "aoi-q5",
+          "prompt": "Which actors should leave relevance quickly?",
+          "choices": [
+            "Destruction debris",
+            "The local mapping context",
+            "The aim bool",
+            "The save struct"
+          ],
+          "answer": 0,
+          "why": "Debris is noise once it is far."
+        },
+        {
+          "id": "aoi-q6",
+          "prompt": "A vehicle that can be heard around a corner needs what?",
+          "choices": [
+            "A larger radius on the vehicle, not a tick of every wheel",
+            "The on-foot Speed",
+            "Aiming",
+            "The player's magazine"
+          ],
+          "answer": 0,
+          "why": "Radius is data."
+        },
+        {
+          "id": "aoi-q7",
+          "prompt": "What production system replaces this trace?",
+          "choices": [
+            "The replication graph",
+            "GASP",
+            "The gunsmith asset",
+            "The timeline on a door"
+          ],
+          "answer": 0,
+          "why": "Cells and teams live there."
+        },
+        {
+          "id": "aoi-q8",
+          "prompt": "If the period becomes 0.01, what did the pass become?",
+          "choices": [
+            "Almost a tick",
+            "A save",
+            "A radial menu",
+            "A limb clamp"
+          ],
+          "answer": 0,
+          "why": "The query cost climbs."
+        }
+      ]
+    },
+    {
+      "id": "ballistics",
+      "title": "Third-person shots, wear, and heat",
+      "order": 4,
+      "graph": "ballistics",
+      "why": "IA_Fire traces once. Heat steps by 0.05. The shoulder camera does not fire.",
+      "depends": [
+        "IA_Fire",
+        "Heat",
+        "Wear"
+      ],
+      "reading": [
+        "Third-person fire starts at IA_Fire, not at the shoulder camera and not at Tick. The excerpt traces and, on a hit, does Heat = (Heat + 0.05f). Wear is the sibling float on the same weapon. The visible muzzle on the third-person mesh is a local effect from the action. It is not a replicated projectile. A miss in the sample adds no heat. A real barrel still heats. Damage waits for the hit. Heat should not.",
+        "Aiming tightens spread by reading the camera bool before the trace direction is built. The camera graph does not add heat. If it did, aiming down the sights would cook the barrel. The magazine graph still owns Magazine and Reserve. This function must not decrement them.",
+        "Replicating each pellet's transform, so other players see the third-person tracer, is the expensive version. A tracer is a cosmetic spawned from the fire event on proxies that already have the pawn because it is relevant. Heat and wear replicate as floats, from the authority. The gunsmith asset names the heat step for the equipped barrel.",
+        "A vehicle cannon does not reuse this Heat. Limbs receive damage through Any Damage. Save stores heat and wear with EquippedId. AOI already decided whether the shooter exists for a given client.",
+        "Third-person shots, wear, and heat closes on Ballistics. IA_Fire traces once. Heat steps by 0.05. The shoulder camera does not fire. Line 10 is `FHitResult Hit_tpl_ballistics_trace; bool bHit_tpl_ballistics_trace = false; if (UWorld* W`. Line 13 is `Heat = (Heat + 0.05f); // node:tpl_ballistics_set`. IA_Fire stays on its own event and is not written from Third-person shots, wear, and heat. Heat stays on its own event and is not written from Third-person shots, wear, and heat. Wear stays on its own event and is not written from Third-person shots, wear, and heat. IA_Fire adds Heat = (Heat + 0.05f). Aiming only tightens spread. Tracers are local cosmetics on relevant proxies. The assignment names the repair to keep. Third-person shots, wear, and heat does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Ballistics already uses."
+      ],
+      "assignment": {
+        "kind": "inefficiency",
+        "prompt": "Third-person tracers replicate per pellet and heat rises while aiming. Which action should add heat, and what is the excerpt's assignment?",
+        "accept": [
+          "IA_Fire",
+          "0.05"
+        ],
+        "model": "IA_Fire adds Heat = (Heat + 0.05f). Aiming only tightens spread. Tracers are local cosmetics on relevant proxies."
+      },
+      "quiz": [
+        {
+          "id": "ballistics-q1",
+          "prompt": "Where does the third-person ballistics excerpt add heat?",
+          "choices": [
+            "Inside Graph_IA_Fire, on the hit",
+            "Inside Graph_IA_Aim",
+            "On Tick",
+            "Inside CheckAOI"
+          ],
+          "answer": 0,
+          "why": "Fire is the shot."
+        },
+        {
+          "id": "ballistics-q2",
+          "prompt": "What is the assignment?",
+          "choices": [
+            "Heat = (Heat + 0.05f)",
+            "Aiming = true",
+            "Speed = 600.f",
+            "Relevant = bHit"
+          ],
+          "answer": 0,
+          "why": "The step is 0.05."
+        },
+        {
+          "id": "ballistics-q3",
+          "prompt": "What may Aiming change before the trace?",
+          "choices": [
+            "The spread direction",
+            "The heat step, by cooking the barrel",
+            "Magazine",
+            "EquippedId"
+          ],
+          "answer": 0,
+          "why": "The camera bool tunes the shot. It does not heat."
+        },
+        {
+          "id": "ballistics-q4",
+          "prompt": "True or false: each pellet transform should replicate so the third-person tracer matches.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "A tracer is cosmetic on pawns that are already relevant."
+        },
+        {
+          "id": "ballistics-q5",
+          "prompt": "Which graph owns Reserve?",
+          "choices": [
+            "The reload graph",
+            "This heat graph",
+            "The camera",
+            "AOI"
+          ],
+          "answer": 0,
+          "why": "Ballistics does not move rounds."
+        },
+        {
+          "id": "ballistics-q6",
+          "prompt": "Who writes damage to a limb?",
+          "choices": [
+            "Any Damage, not this heat add",
+            "IA_Aim",
+            "The radial menu",
+            "GASP"
+          ],
+          "answer": 0,
+          "why": "Heat is weapon state. Damage is the body."
+        },
+        {
+          "id": "ballistics-q7",
+          "prompt": "Where is the per-barrel heat step stored?",
+          "choices": [
+            "The gunsmith data asset",
+            "The shoulder boom",
+            "The replication graph",
+            "Tick"
+          ],
+          "answer": 0,
+          "why": "EquippedId selects the asset."
+        },
+        {
+          "id": "ballistics-q8",
+          "prompt": "A miss adds no heat in the sample. What should the barrel do?",
+          "choices": [
+            "Still heat. Damage stays on the hit.",
+            "Cool down",
+            "Clear EquippedId",
+            "Set Aiming false"
+          ],
+          "answer": 0,
+          "why": "The shot happened."
+        }
+      ]
+    },
+    {
+      "id": "limbs",
+      "title": "Third-person limb medical",
+      "order": 5,
+      "graph": "replicated-health",
+      "why": "The server writes the limb. A normal hit stops at 10% of max. OnRep plays the limp.",
+      "depends": [
+        "Any Damage",
+        "Has Authority",
+        "10% clamp"
+      ],
+      "reading": [
+        "Other players see a third-person limp, so the limb float has to be one number. Any Damage is the event. The excerpt assigns Health = 90.f inside if (HasAuthority()). Replace 90 with the clamped result. Project JOHNO's rule: a normal hit does not drop a limb below 10% of its max. A max of 50 floors at 5. Crossing zero is a downed state, not this clamp.",
+        "OnRep_Health is where the third-person mesh limps. Everyone who has the pawn relevant plays that reaction from the float. Subtracting inside OnRep makes the limp worse on every machine that receives the property. The local camera shake is also the notify, and only on the owning client.",
+        "Ballistics calls the event. The gunsmith does not. A medic item in the inventory calls the same event with healing, still on the authority, and the clamp also caps the heal at max. Save stores the limb after the server write. The shoulder camera does not store a copy of the limb.",
+        "A client that writes the limb so the third-person body reacts early will snap when the server float arrives. Play the reaction from the notify. Do not invent the number.",
+        "Third-person limb medical closes on Replicated health. The server writes the limb. A normal hit stops at 10% of max. OnRep plays the limp. Line 9 is `if (HasAuthority()) // node:tpl_replicated-health_auth`. Line 11 is `Health = 90.f; // node:tpl_replicated-health_set`. Line 17 is `UE_LOG(LogTemp, Display, TEXT(\"%s\"), TEXT(\"Health changed\")); // node:tpl_replicated-healt`. Any Damage stays on its own event and is not written from Third-person limb medical. Has Authority stays on its own event and is not written from Third-person limb medical. 10% clamp stays on its own event and is not written from Third-person limb medical. Health = 90.f is already inside HasAuthority. Clamp to 10% of max, which is 5 when max is 50. OnRep plays the limp. The assignment names the repair to keep. Third-person limb medical does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Replicated health already uses."
+      ],
+      "assignment": {
+        "kind": "cpp",
+        "prompt": "A third-person limb max is 50 and a bruise empties it. What floor should the clamp use, and where does the excerpt already put Health = 90.f?",
+        "accept": [
+          "HasAuthority",
+          "percent"
+        ],
+        "model": "Health = 90.f is already inside HasAuthority. Clamp to 10% of max, which is 5 when max is 50. OnRep plays the limp."
+      },
+      "quiz": [
+        {
+          "id": "limbs-q1",
+          "prompt": "What literal does the third-person health excerpt assign?",
+          "choices": [
+            "Health = 90.f",
+            "Aiming = true",
+            "Heat + 0.05f",
+            "Relevant = bHit"
+          ],
+          "answer": 0,
+          "why": "90 stands in for a computed limb."
+        },
+        {
+          "id": "limbs-q2",
+          "prompt": "A limb maxes at 50. Where does a normal hit stop?",
+          "choices": [
+            "5",
+            "0",
+            "90",
+            "10"
+          ],
+          "answer": 0,
+          "why": "Ten percent of 50 is 5."
+        },
+        {
+          "id": "limbs-q3",
+          "prompt": "What does OnRep play on the visible body?",
+          "choices": [
+            "The limp",
+            "A second subtract",
+            "IA_Aim",
+            "The radial menu"
+          ],
+          "answer": 0,
+          "why": "The mesh reaction is the notify."
+        },
+        {
+          "id": "limbs-q4",
+          "prompt": "True or false: the owning client should write the limb so the body reacts early.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The reaction can be early. The number cannot."
+        },
+        {
+          "id": "limbs-q5",
+          "prompt": "What is allowed to cross zero?",
+          "choices": [
+            "A downed state",
+            "The 10% clamp",
+            "GASP",
+            "The camera trace"
+          ],
+          "answer": 0,
+          "why": "The clamp is for a normal hit."
+        },
+        {
+          "id": "limbs-q6",
+          "prompt": "Who calls Any Damage?",
+          "choices": [
+            "The fire graph",
+            "The shoulder camera",
+            "CheckAOI",
+            "The save break"
+          ],
+          "answer": 0,
+          "why": "The shot is the cause."
+        },
+        {
+          "id": "limbs-q7",
+          "prompt": "A heal item uses which path?",
+          "choices": [
+            "The same authority event, still clamped at max",
+            "A client add",
+            "Tick",
+            "The boom"
+          ],
+          "answer": 0,
+          "why": "Healing is a server write."
+        },
+        {
+          "id": "limbs-q8",
+          "prompt": "Health = 90.f is inside HasAuthority. What is still wrong with it?",
+          "choices": [
+            "90 is a literal, not the 10% clamp",
+            "The authority check should be deleted",
+            "OnRep is missing",
+            "The mesh cannot limp"
+          ],
+          "answer": 0,
+          "why": "The gate is correct. The value should be the clamp."
+        }
+      ]
+    },
+    {
+      "id": "gunsmith",
+      "title": "Ten-slot gunsmith on the body",
+      "order": 6,
+      "graph": "gunsmith",
+      "why": "The third-person mesh builds from EquippedId. Ten slots stay in the asset.",
+      "depends": [
+        "IA_Equip",
+        "EquippedId",
+        "Ten slots"
+      ],
+      "reading": [
+        "The third-person body shows the weapon other players see, so the equipped id has to match. The gunsmith record has ten slots. IA_Equip, from a number key or from the radial menu, is the selection. The excerpt assigns EquippedId = IA_Equip inside if (HasAuthority()). The owning client and the proxies build the mesh from the asset. They do not each invent an id.",
+        "Replicating ten socket transforms so the third-person magazine, optic, and barrel match is the expensive version. One id is enough, and the asset says which socket each slot uses. Wear and heat hang off the equipped weapon. A cosmetic slot does not reset heat unless it is the barrel.",
+        "GASP may change the aim pose when the id changes, by reading the asset's anim set. It does not write EquippedId. The camera does not. Inventory holds the item that points at the same asset. Save stores the id. AOI means a non-relevant pawn does not send the id at all.",
+        "A client that writes the id locally shows a weapon the server will replace, and the third-person mesh pops in other players' views. That pop is the bug the authority gate prevents.",
+        "Ten-slot gunsmith on the body closes on Gunsmith. The third-person mesh builds from EquippedId. Ten slots stay in the asset. Line 7 is `if (HasAuthority()) // node:tpl_gunsmith_auth`. Line 9 is `EquippedId = IA_Equip; // node:tpl_gunsmith_set`. IA_Equip stays on its own event and is not written from Ten-slot gunsmith on the body. EquippedId stays on its own event and is not written from Ten-slot gunsmith on the body. Ten slots stays on its own event and is not written from Ten-slot gunsmith on the body. EquippedId = IA_Equip inside HasAuthority. Ten slots stay in the asset. Proxies build the mesh. The assignment names the repair to keep. Ten-slot gunsmith on the body does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Gunsmith already uses."
+      ],
+      "assignment": {
+        "kind": "inefficiency",
+        "prompt": "Ten socket transforms replicate so the third-person weapon matches. What should the excerpt assign instead, and how many slots are in the record?",
+        "accept": [
+          "EquippedId",
+          "ten"
+        ],
+        "model": "EquippedId = IA_Equip inside HasAuthority. Ten slots stay in the asset. Proxies build the mesh."
+      },
+      "quiz": [
+        {
+          "id": "gunsmith-q1",
+          "prompt": "What does the third-person gunsmith excerpt assign?",
+          "choices": [
+            "EquippedId = IA_Equip",
+            "Aiming = true",
+            "Speed = 200.f",
+            "Relevant = bHit"
+          ],
+          "answer": 0,
+          "why": "The action value is the id."
+        },
+        {
+          "id": "gunsmith-q2",
+          "prompt": "How many slots does the record hold?",
+          "choices": [
+            "Ten",
+            "One",
+            "A slot per bone",
+            "Two"
+          ],
+          "answer": 0,
+          "why": "The JOHNO gunsmith is ten records."
+        },
+        {
+          "id": "gunsmith-q3",
+          "prompt": "Who builds the mesh on a proxy?",
+          "choices": [
+            "The client, from the asset the id names",
+            "The server, as ten replicated components",
+            "Tick",
+            "The camera trace"
+          ],
+          "answer": 0,
+          "why": "The id is the replicated piece."
+        },
+        {
+          "id": "gunsmith-q4",
+          "prompt": "True or false: a cosmetic slot should reset Heat.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Heat hangs off the barrel, not off a charm."
+        },
+        {
+          "id": "gunsmith-q5",
+          "prompt": "What writes EquippedId, the radial menu or the authority?",
+          "choices": [
+            "The authority, after the menu sends IA_Equip",
+            "The menu, directly",
+            "GASP",
+            "OnRep, by subtracting"
+          ],
+          "answer": 0,
+          "why": "The menu is an input. The server writes."
+        },
+        {
+          "id": "gunsmith-q6",
+          "prompt": "What does a non-relevant pawn send?",
+          "choices": [
+            "Nothing, including the id",
+            "Only the meshes",
+            "Only Aiming",
+            "The boom"
+          ],
+          "answer": 0,
+          "why": "Relevance gates the actor."
+        },
+        {
+          "id": "gunsmith-q7",
+          "prompt": "What does save store?",
+          "choices": [
+            "EquippedId",
+            "Ten meshes",
+            "The pose",
+            "The mapping context"
+          ],
+          "answer": 0,
+          "why": "The id rebuilds the body weapon."
+        },
+        {
+          "id": "gunsmith-q8",
+          "prompt": "A local write causes what on other screens?",
+          "choices": [
+            "A mesh pop when the server id arrives",
+            "A faster GASP blend",
+            "A limb heal",
+            "A new AOI cell"
+          ],
+          "answer": 0,
+          "why": "Proxies follow the server id."
+        }
+      ]
+    },
+    {
+      "id": "vehicle",
+      "title": "Vehicle throttle",
+      "order": 7,
+      "graph": "vehicle-drive",
+      "why": "IA_Throttle is the axis. The server writes Throttle. The on-foot Speed stays separate.",
+      "depends": [
+        "IA_Throttle",
+        "Has Authority",
+        "Throttle"
+      ],
+      "reading": [
+        "Leaving the third-person pawn for a vehicle is a different component. IA_Throttle is the axis. The excerpt assigns Throttle = IA_Throttle inside if (HasAuthority()). The chaos vehicle reads Throttle. It does not read the on-foot Speed of 600 or 200. Copying Speed into Throttle launches the car at a sprint number that means something else.",
+        "The shoulder camera disables while seated. IA_Aim does not steer. The gunsmith id may name a mounted weapon, and that weapon's heat is not the rifle's Heat. Artillery, if the vehicle is a gun, spends shells on its own event. It does not add 0.05 to the rifle. Wheels are local meshes driven by the simulated throttle. Replicating each wheel transform is the expensive version.",
+        "AOI for a vehicle can use a larger radius, because a truck is visible farther than a person. That is data, not a tick of the suspension. The player pawn's GASP database pauses while seated. It does not keep writing Speed into the vehicle.",
+        "Save stores Throttle only if the mode restores a moving vehicle. More often it stores fuel, which is a sibling of the economy's supplies, and the vehicle id. The on-foot slot and the vehicle slot can share a struct layout. They should not share the Speed field.",
+        "Vehicle throttle closes on Vehicle drive. IA_Throttle is the axis. The server writes Throttle. The on-foot Speed stays separate. Line 7 is `if (HasAuthority()) // node:tpl_vehicle-drive_auth`. Line 9 is `Throttle = IA_Throttle; // node:tpl_vehicle-drive_set`. IA_Throttle stays on its own event and is not written from Vehicle throttle. Has Authority stays on its own event and is not written from Vehicle throttle. Throttle stays on its own event and is not written from Vehicle throttle. Throttle = IA_Throttle inside HasAuthority. Speed stays on the pawn. The shoulder camera disables. The assignment names the repair to keep. Vehicle throttle does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Vehicle drive already uses."
+      ],
+      "assignment": {
+        "kind": "compatibility",
+        "prompt": "The car is using the on-foot Speed. What does the vehicle excerpt assign, and which action owns it?",
+        "accept": [
+          "Throttle",
+          "IA_Throttle"
+        ],
+        "model": "Throttle = IA_Throttle inside HasAuthority. Speed stays on the pawn. The shoulder camera disables."
+      },
+      "quiz": [
+        {
+          "id": "vehicle-q1",
+          "prompt": "What does the vehicle excerpt assign?",
+          "choices": [
+            "Throttle = IA_Throttle",
+            "Speed = 600.f",
+            "Aiming = true",
+            "Heat = Heat + 0.05f"
+          ],
+          "answer": 0,
+          "why": "The axis is the throttle."
+        },
+        {
+          "id": "vehicle-q2",
+          "prompt": "What must not be copied into Throttle?",
+          "choices": [
+            "The on-foot Speed",
+            "The mapping context's axis",
+            "Fuel",
+            "The vehicle id"
+          ],
+          "answer": 0,
+          "why": "600 means a sprint, not a throttle."
+        },
+        {
+          "id": "vehicle-q3",
+          "prompt": "What happens to the shoulder camera when seated?",
+          "choices": [
+            "It disables",
+            "It keeps tracing IA_Aim into the seat",
+            "It writes Throttle",
+            "It replicates"
+          ],
+          "answer": 0,
+          "why": "Driving has its own camera."
+        },
+        {
+          "id": "vehicle-q4",
+          "prompt": "True or false: each wheel transform should replicate.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The simulation reads Throttle. Wheels are local."
+        },
+        {
+          "id": "vehicle-q5",
+          "prompt": "A mounted cannon must not add 0.05 to which float?",
+          "choices": [
+            "The rifle Heat",
+            "Its own heat",
+            "Fuel",
+            "Throttle"
+          ],
+          "answer": 0,
+          "why": "The rifle is a different weapon."
+        },
+        {
+          "id": "vehicle-q6",
+          "prompt": "Why might a truck stay relevant farther than a person?",
+          "choices": [
+            "A larger radius on the vehicle",
+            "Because Speed is 600",
+            "Because Aiming is true",
+            "Because the radial menu is open"
+          ],
+          "answer": 0,
+          "why": "Size is data on the relevance test."
+        },
+        {
+          "id": "vehicle-q7",
+          "prompt": "What does GASP do while the player is seated?",
+          "choices": [
+            "Pause the on-foot database",
+            "Keep writing Speed into the car",
+            "Trace from the muzzle",
+            "Equip a slot"
+          ],
+          "answer": 0,
+          "why": "The gait is not the vehicle."
+        },
+        {
+          "id": "vehicle-q8",
+          "prompt": "Where must Throttle's assignment sit?",
+          "choices": [
+            "Inside HasAuthority",
+            "In the camera graph",
+            "In OnRep of Health",
+            "On Tick"
+          ],
+          "answer": 0,
+          "why": "The server owns velocity."
+        }
+      ]
+    },
+    {
+      "id": "save",
+      "title": "Save the third-person kit",
+      "order": 8,
+      "graph": "save-load",
+      "why": "Begin Play loads limbs, heat, the equipped id, and fuel. Not the pose.",
+      "depends": [
+        "Begin Play",
+        "SlotValue",
+        "LoadSlot"
+      ],
+      "reading": [
+        "The intermediate third-person slot packs the limb floats, Heat, wear, Magazine, Reserve, EquippedId, and vehicle fuel if the mode has a car. It does not pack the GASP pose, the boom transform, or Relevant. Begin Play loads, because the mesh, the camera, and the vehicle component exist. The excerpt assigns SlotValue = 1.f from a vector stand-in and LoadSlot logs Loaded.",
+        "Tick would store a half-applied limp and a throttle from the middle of a gear change. Autosave is an event on a slow timer, using the same struct. The authority writes the limbs and EquippedId before the pack. AOI relevance is recomputed after load from positions, not restored as a bool that has gone stale.",
+        "The on-foot Speed is optional. The pose is not. Clients rebuild the pose from Speed and Aiming once those exist. The ten gunsmith slots are not ten meshes in the file. The id selects the asset that is already in the project.",
+        "Load order matters. Apply EquippedId before the mesh builds, apply Aiming before the boom extends, and start the vehicle simulation after fuel is set. The constructor is too early for all three.",
+        "Save the third-person kit closes on Save / load slot. Begin Play loads limbs, heat, the equipped id, and fuel. Not the pose. Line 8 is `FVector Made_tpl_saveload_make = FVector::ZeroVector; Made_tpl_saveload_make.X = 1.f; Made`. Line 9 is `SlotValue = 1.f; // node:tpl_save-load_store`. Line 14 is `FHitResult Broken_tpl_saveload_break = FHitResult(); // node:tpl_save-load_break`. Begin Play stays on its own event and is not written from Save the third-person kit. SlotValue stays on its own event and is not written from Save the third-person kit. LoadSlot stays on its own event and is not written from Save the third-person kit. Begin Play loads. EquippedId is stored. The pose and the boom are derived. The assignment names the repair to keep. Save the third-person kit does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Save / load slot already uses."
+      ],
+      "assignment": {
+        "kind": "graph",
+        "prompt": "Tick is packing the third-person pose. Which event should load, and which id is actually worth storing?",
+        "accept": [
+          "Begin Play",
+          "EquippedId"
+        ],
+        "model": "Begin Play loads. EquippedId is stored. The pose and the boom are derived."
+      },
+      "quiz": [
+        {
+          "id": "save-q1",
+          "prompt": "What does the third-person save excerpt assign at Begin Play?",
+          "choices": [
+            "SlotValue = 1.f",
+            "Throttle = IA_Throttle",
+            "Aiming = true",
+            "Relevant = bHit"
+          ],
+          "answer": 0,
+          "why": "The sample pack is that assignment."
+        },
+        {
+          "id": "save-q2",
+          "prompt": "Which of these is stored?",
+          "choices": [
+            "EquippedId",
+            "The GASP pose",
+            "The boom transform",
+            "Relevant"
+          ],
+          "answer": 0,
+          "why": "The id rebuilds the weapon. The others are derived or recomputed."
+        },
+        {
+          "id": "save-q3",
+          "prompt": "When does the authority write limbs relative to the pack?",
+          "choices": [
+            "Before it",
+            "After the client draws",
+            "Inside the camera trace",
+            "On the next Tick"
+          ],
+          "answer": 0,
+          "why": "The slot stores the server number."
+        },
+        {
+          "id": "save-q4",
+          "prompt": "True or false: Relevant should be saved so pop-in matches.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "It is recomputed from positions."
+        },
+        {
+          "id": "save-q5",
+          "prompt": "What is wrong with a Tick autosave here?",
+          "choices": [
+            "It stores a half-applied limp and a mid gear-change throttle",
+            "It is too slow",
+            "It cannot write a float",
+            "Begin Play is illegal"
+          ],
+          "answer": 0,
+          "why": "An event stores a finished state."
+        },
+        {
+          "id": "save-q6",
+          "prompt": "What selects the ten slots after load?",
+          "choices": [
+            "EquippedId plus the project asset",
+            "Ten saved meshes",
+            "The pose database",
+            "IA_Aim"
+          ],
+          "answer": 0,
+          "why": "The asset is not in the slot."
+        },
+        {
+          "id": "save-q7",
+          "prompt": "What is the load order for the camera?",
+          "choices": [
+            "Apply Aiming, then let the boom extend",
+            "Extend the boom, then guess Aiming",
+            "Tick the boom",
+            "Restore Relevant first"
+          ],
+          "answer": 0,
+          "why": "The bool drives the boom."
+        },
+        {
+          "id": "save-q8",
+          "prompt": "Why not load in the constructor?",
+          "choices": [
+            "The mesh, camera, and vehicle component do not exist yet",
+            "Constructors cannot read floats",
+            "Begin Play is client-only",
+            "Save games forbid it"
+          ],
+          "answer": 0,
+          "why": "Begin Play is the first safe point."
+        }
+      ]
+    }
+  ],
+  "exam": {
+    "questions": [
+      {
+        "id": "tps-intermediate-e1",
+        "kind": "mc",
+        "prompt": "The intermediate shoulder camera traces from Tick to feed GASP. Which bool should GASP read instead?",
+        "choices": [
+          "Aiming, set by Graph_IA_Aim",
+          "Speed",
+          "Throttle",
+          "Relevant"
+        ],
+        "answer": 0,
+        "why": "The button sets the bool once."
+      },
+      {
+        "id": "tps-intermediate-e2",
+        "kind": "graph-repair",
+        "graph": "camera",
+        "sample": "Tick sets Aiming",
+        "prompt": "The broken shoulder-camera graph sets Aiming from the red Tick node. Which action does the real graph use?",
+        "choices": [
+          "IA_Aim",
+          "IA_Throttle",
+          "IA_Order",
+          "LoadSlot"
+        ],
+        "answer": 0,
+        "why": "Aim is the shoulder button."
+      },
+      {
+        "id": "tps-intermediate-e3",
+        "kind": "tf",
+        "prompt": "True or false: the aim pose may assign Speed while the movement graph also assigns it.",
+        "choices": [
+          "True",
+          "False"
+        ],
+        "answer": 1,
+        "why": "Two writers pop the trajectory."
+      },
+      {
+        "id": "tps-intermediate-e4",
+        "kind": "mc",
+        "prompt": "Under the radial menu the third-person mesh keeps sprinting. Which assignment is still on Tick?",
+        "choices": [
+          "Speed = 600.f",
+          "SlotValue = 1.f",
+          "Visible = true",
+          "Alert = 1.f"
+        ],
+        "answer": 0,
+        "why": "IA_Move should own the gait."
+      },
+      {
+        "id": "tps-intermediate-e5",
+        "kind": "cpp-repair",
+        "graph": "movement",
+        "sample": "void Tick()\n{\n  Speed = 600.f;\n}",
+        "prompt": "Tick writes Speed = 600.f during a third-person menu. Where does the excerpt put the sprint literal?",
+        "choices": [
+          "Inside if ((IA_Move > 0.f))",
+          "Inside Graph_IA_Aim",
+          "Inside CheckAOI",
+          "Inside OnRep_Health"
+        ],
+        "answer": 0,
+        "why": "The axis comparison is the branch."
+      },
+      {
+        "id": "tps-intermediate-e6",
+        "kind": "mc",
+        "prompt": "A proxy receives another player's shoulder camera component. What should have been replicated instead?",
+        "choices": [
+          "The pawn, while Relevant is true",
+          "The boom transform",
+          "Aiming as an actor",
+          "The mapping context"
+        ],
+        "answer": 0,
+        "why": "The camera is local."
+      },
+      {
+        "id": "tps-intermediate-e7",
+        "kind": "mc",
+        "prompt": "Relevant is true on a client that forced it. Where does the real AOI excerpt assign Relevant = bHit?",
+        "choices": [
+          "Inside HasAuthority",
+          "After the check, on the next line",
+          "In Begin Play",
+          "In the shoulder camera"
+        ],
+        "answer": 0,
+        "why": "The write is already inside the authority block."
+      },
+      {
+        "id": "tps-intermediate-e8",
+        "kind": "graph-repair",
+        "graph": "aoi",
+        "sample": "Tick sets Relevant true",
+        "prompt": "The broken third-person relevance graph writes Relevant from Tick. What does the real timer use?",
+        "choices": [
+          "0.5f looping, then Relevant = bHit",
+          "IA_Aim",
+          "Heat + 0.05f",
+          "Throttle"
+        ],
+        "answer": 0,
+        "why": "CheckAOI is the pass."
+      },
+      {
+        "id": "tps-intermediate-e9",
+        "kind": "mc",
+        "prompt": "Aiming down the third-person sights cooks the barrel. Which graph added heat?",
+        "choices": [
+          "The camera graph. Heat belongs in Graph_IA_Fire.",
+          "The fire graph, correctly",
+          "AOI",
+          "The save"
+        ],
+        "answer": 0,
+        "why": "Aiming tunes spread only."
+      },
+      {
+        "id": "tps-intermediate-e10",
+        "kind": "mc",
+        "prompt": "Pellet actors replicate so tracers match. What is the cheap cosmetic?",
+        "choices": [
+          "A local tracer on pawns that are already relevant",
+          "One actor per pellet",
+          "A replicated socket",
+          "A saved pose"
+        ],
+        "answer": 0,
+        "why": "Heat is the replicated weapon state."
+      },
+      {
+        "id": "tps-intermediate-e11",
+        "kind": "cpp-repair",
+        "graph": "ballistics",
+        "sample": "Heat = (Heat + 0.05f); // on Tick while aiming",
+        "prompt": "Heat steps while the third-person player is only aiming. Where does the excerpt add 0.05?",
+        "choices": [
+          "Inside Graph_IA_Fire on a hit",
+          "Inside Graph_IA_Aim",
+          "Inside Begin Play",
+          "Inside LoadSlot"
+        ],
+        "answer": 0,
+        "why": "The shot owns the add."
+      },
+      {
+        "id": "tps-intermediate-e12",
+        "kind": "tf",
+        "prompt": "True or false: a third-person miss should still heat the barrel.",
+        "choices": [
+          "True",
+          "False"
+        ],
+        "answer": 0,
+        "why": "Damage waits for the hit. Heat does not."
+      },
+      {
+        "id": "tps-intermediate-e13",
+        "kind": "mc",
+        "prompt": "A visible limp goes past the knee from a bruise. Max is 40. What is the floor?",
+        "choices": [
+          "4",
+          "0",
+          "10",
+          "90"
+        ],
+        "answer": 0,
+        "why": "Ten percent of 40 is 4."
+      },
+      {
+        "id": "tps-intermediate-e14",
+        "kind": "graph-repair",
+        "graph": "replicated-health",
+        "sample": "Tick assigns Health = 90.f",
+        "prompt": "The broken third-person limb graph writes Health from Tick. Which event starts the real write?",
+        "choices": [
+          "Any Damage, inside HasAuthority",
+          "IA_Aim",
+          "IA_Throttle",
+          "Overlap"
+        ],
+        "answer": 0,
+        "why": "Damage is the cause."
+      },
+      {
+        "id": "tps-intermediate-e15",
+        "kind": "mc",
+        "prompt": "OnRep limps and also subtracts, so proxies fall over twice. What should OnRep stop?",
+        "choices": [
+          "The subtract",
+          "The limp",
+          "Reading the float",
+          "Running at all"
+        ],
+        "answer": 0,
+        "why": "The server already clamped the limb."
+      },
+      {
+        "id": "tps-intermediate-e16",
+        "kind": "mc",
+        "prompt": "Ten sockets replicate when the third-person weapon changes. What is the one assignment?",
+        "choices": [
+          "EquippedId = IA_Equip",
+          "Ten transforms",
+          "Aiming = true",
+          "Throttle = IA_Throttle"
+        ],
+        "answer": 0,
+        "why": "The asset places the sockets."
+      },
+      {
+        "id": "tps-intermediate-e17",
+        "kind": "cpp-repair",
+        "graph": "gunsmith",
+        "sample": "EquippedId = IA_Equip; // client, outside HasAuthority",
+        "prompt": "A proxy pops weapons because EquippedId is written outside HasAuthority. What is the repair?",
+        "choices": [
+          "Nest EquippedId = IA_Equip inside the authority check",
+          "Replicate the sockets",
+          "Write it from GASP",
+          "Write it from the camera"
+        ],
+        "answer": 0,
+        "why": "The server id is what proxies build."
+      },
+      {
+        "id": "tps-intermediate-e18",
+        "kind": "mc",
+        "prompt": "The car uses Speed 600 as a throttle and launches. Which assignment belongs on the vehicle?",
+        "choices": [
+          "Throttle = IA_Throttle",
+          "Speed = 600.f",
+          "Aiming = true",
+          "Heat + 0.05f"
+        ],
+        "answer": 0,
+        "why": "On-foot speed is a different component."
+      },
+      {
+        "id": "tps-intermediate-e19",
+        "kind": "tf",
+        "prompt": "True or false: wheel transforms should replicate from the server.",
+        "choices": [
+          "True",
+          "False"
+        ],
+        "answer": 1,
+        "why": "Throttle replicates. Wheels are simulated locally."
+      },
+      {
+        "id": "tps-intermediate-e20",
+        "kind": "graph-repair",
+        "graph": "vehicle-drive",
+        "sample": "Tick copies Speed into Throttle",
+        "prompt": "The broken vehicle graph copies Speed from Tick. Which action does the real graph read?",
+        "choices": [
+          "IA_Throttle",
+          "IA_Move",
+          "IA_Aim",
+          "IA_Equip"
+        ],
+        "answer": 0,
+        "why": "Throttle is its own axis."
+      },
+      {
+        "id": "tps-intermediate-e21",
+        "kind": "mc",
+        "prompt": "A mounted cannon adds 0.05 to the rifle Heat. What should it write?",
+        "choices": [
+          "Its own heat float",
+          "The rifle Heat",
+          "Aiming",
+          "Relevant"
+        ],
+        "answer": 0,
+        "why": "The weapons are different components."
+      },
+      {
+        "id": "tps-intermediate-e22",
+        "kind": "mc",
+        "prompt": "A truck pops in later than a person standing beside it. What data is missing?",
+        "choices": [
+          "A larger relevance radius on the vehicle",
+          "A faster GASP database",
+          "Aiming forced true",
+          "Ten more gunsmith slots"
+        ],
+        "answer": 0,
+        "why": "Radius follows size."
+      },
+      {
+        "id": "tps-intermediate-e23",
+        "kind": "mc",
+        "prompt": "The save restored a GASP pose and the mesh fought the database. What should have been stored instead?",
+        "choices": [
+          "Speed and Aiming, so the pose can be rebuilt",
+          "The pose itself",
+          "The boom transform",
+          "Relevant"
+        ],
+        "answer": 0,
+        "why": "The pose is derived."
+      },
+      {
+        "id": "tps-intermediate-e24",
+        "kind": "cpp-repair",
+        "graph": "save-load",
+        "sample": "void Tick()\n{\n  SlotValue = Throttle;\n}",
+        "prompt": "Tick writes Throttle into SlotValue mid gear change. What should load a finished slot?",
+        "choices": [
+          "Begin Play, from a struct written on an event",
+          "Graph_IA_Aim",
+          "CheckAOI",
+          "OnRep_Health"
+        ],
+        "answer": 0,
+        "why": "Begin Play is the load."
+      },
+      {
+        "id": "tps-intermediate-e25",
+        "kind": "tf",
+        "prompt": "True or false: EquippedId is enough to rebuild the ten slots after load.",
+        "choices": [
+          "True",
+          "False"
+        ],
+        "answer": 0,
+        "why": "The asset is already in the project."
+      },
+      {
+        "id": "tps-intermediate-e26",
+        "kind": "mc",
+        "prompt": "Apply order after a third-person load is wrong and the boom extends before the bool exists. What is first?",
+        "choices": [
+          "Apply Aiming, then extend the boom",
+          "Extend the boom from the saved transform",
+          "Restore Relevant",
+          "Start GASP from a saved pose"
+        ],
+        "answer": 0,
+        "why": "The bool drives the boom."
+      },
+      {
+        "id": "tps-intermediate-e27",
+        "kind": "mc",
+        "prompt": "Debris from a third-person explosion keeps replicating at the edge of the map. Which bool should drop it?",
+        "choices": [
+          "Relevant",
+          "Aiming",
+          "GoingRight",
+          "IsOpen"
+        ],
+        "answer": 0,
+        "why": "Out of interest, debris stops."
+      },
+      {
+        "id": "tps-intermediate-e28",
+        "kind": "mc",
+        "prompt": "A heavy third-person magazine slows the pawn in both the reload graph and the movement graph. Where is the one multiply?",
+        "choices": [
+          "After the Speed write, in one function",
+          "In both graphs",
+          "In the camera trace",
+          "In OnRep"
+        ],
+        "answer": 0,
+        "why": "One writer for Speed."
+      },
+      {
+        "id": "tps-intermediate-e29",
+        "kind": "mc",
+        "prompt": "The radial menu and a number key both change the third-person weapon. What do they both send?",
+        "choices": [
+          "IA_Equip",
+          "IA_Aim",
+          "IA_Throttle",
+          "A socket transform"
+        ],
+        "answer": 0,
+        "why": "The graph cannot tell the devices apart."
+      },
+      {
+        "id": "tps-intermediate-e30",
+        "kind": "mc",
+        "prompt": "A heal on a third-person limb exceeds max. What still applies?",
+        "choices": [
+          "The same clamp, on the authority",
+          "A client add past max",
+          "GASP",
+          "The boom length"
+        ],
+        "answer": 0,
+        "why": "Heal and damage share the gate."
+      }
+    ]
+  }
+}

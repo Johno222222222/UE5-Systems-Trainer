@@ -1,4 +1,4 @@
-import { baseName, headerClasses } from "./zipExport";
+import { baseName, headerClasses } from "./cppNames.js";
 
 // Blanks comments and string contents but keeps offsets and line numbers intact
 function strip(code) {

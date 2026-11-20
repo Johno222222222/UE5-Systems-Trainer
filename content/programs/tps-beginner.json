@@ -1,0 +1,986 @@
+{
+  "id": "tps-beginner",
+  "genre": "tps",
+  "level": "beginner",
+  "title": "TPS — Beginner",
+  "summary": "A third-person kit in build order: an over-the-shoulder camera, movement, use, the magazine, replicated health, a slot, a squadmate patrol, and a save.",
+  "sections": [
+    {
+      "id": "camera",
+      "title": "Over-the-shoulder camera",
+      "order": 1,
+      "graph": "camera",
+      "why": "IA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+      "depends": [
+        "IA_Aim",
+        "Camera trace",
+        "Aiming"
+      ],
+      "reading": [
+        "A third-person camera sits behind the shoulder. Aiming pulls that camera in. The aim graph is not the interact graph: interact asks an actor to do something, and aim only records that the player is looking down the sights. IA_Aim is the shoulder button. Its Triggered pin starts a line trace. The trace begins at the camera, because a trace from the feet hits the ground and the crosshair lies. A hit sets Aiming true. The boom camera reads that bool and shortens its arm. Tick does not move the boom.",
+        "UE5 spring arms and camera components already interpolate. The graph's job is the bool, not a per-frame offset. The generated function is Graph_IA_Aim. It traces on the visibility channel and, inside if (bHit), assigns Aiming = true. There is no else in the sample, so a later release action has to set Aiming false. Leaving the bool true after the button comes up keeps the camera tight while the player is running.",
+        "The pawn's movement graph writes Speed separately. The camera reads the pawn. It does not write Speed, and movement does not write Aiming. A wall between the camera and the character is the spring arm's own probe. Stuffing that probe into this trace makes one query answer two questions and the aim target drifts off the crosshair.",
+        "Interaction will trace again when the player presses use. That second trace is correct: aim and use are different questions. The weapon will later read Aiming to tighten spread. Health does not. Save may store Aiming if a cinematic needs it. It is not the first value to pack.",
+        "Over-the-shoulder camera closes on Camera aim. IA_Aim traces from the camera and sets Aiming. This is not the interact graph. Line 10 is `FHitResult Hit_tpl_camera_trace; bool bHit_tpl_camera_trace = false; if (UWorld* World_tpl`. Line 13 is `Aiming = true; // node:tpl_camera_set`. IA_Aim stays on its own event and is not written from Over-the-shoulder camera. Camera trace stays on its own event and is not written from Over-the-shoulder camera. Aiming stays on its own event and is not written from Over-the-shoulder camera. IA_Aim starts the camera trace. The excerpt sets Aiming = true on a hit. Execute_Interact is a different graph. The assignment names the repair to keep. Over-the-shoulder camera does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Camera aim already uses."
+      ],
+      "assignment": {
+        "kind": "graph",
+        "prompt": "Someone wired this camera lesson to the interact graph. Which action starts the aim trace, and which bool does the excerpt set?",
+        "accept": [
+          "IA_Aim",
+          "Aiming"
+        ],
+        "model": "IA_Aim starts the camera trace. The excerpt sets Aiming = true on a hit. Execute_Interact is a different graph."
+      },
+      "quiz": [
+        {
+          "id": "camera-q1",
+          "prompt": "Which action starts the third-person aim graph?",
+          "choices": [
+            "IA_Aim",
+            "IA_Interact",
+            "Tick",
+            "Begin Play"
+          ],
+          "answer": 0,
+          "why": "Aim is the shoulder button."
+        },
+        {
+          "id": "camera-q2",
+          "prompt": "What does the camera excerpt assign on a hit?",
+          "choices": [
+            "Aiming = true",
+            "Health = 90.f",
+            "Speed = 600.f",
+            "StackCount = 0.f"
+          ],
+          "answer": 0,
+          "why": "The boom reads Aiming."
+        },
+        {
+          "id": "camera-q3",
+          "prompt": "Where does that trace start?",
+          "choices": [
+            "The camera",
+            "The feet",
+            "The save slot",
+            "The magazine"
+          ],
+          "answer": 0,
+          "why": "A foot trace hits the floor."
+        },
+        {
+          "id": "camera-q4",
+          "prompt": "True or false: this lesson uses the interact preset.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The graph id is camera. Interact is a later section."
+        },
+        {
+          "id": "camera-q5",
+          "prompt": "What is missing from the sample after the button is released?",
+          "choices": [
+            "A write of Aiming false",
+            "Another Tick",
+            "A replicated widget",
+            "A cast to the door"
+          ],
+          "answer": 0,
+          "why": "The sample only sets true."
+        }
+      ]
+    },
+    {
+      "id": "movement",
+      "title": "Third-person movement",
+      "order": 2,
+      "graph": "movement",
+      "why": "IA_Move writes Speed. The camera reads the pawn and does not write it.",
+      "depends": [
+        "IA_Move",
+        "Speed",
+        "Camera"
+      ],
+      "reading": [
+        "Third-person movement is the same speed contract as any pawn, seen from behind. IA_Move is the stick. The graph compares it with zero and writes Speed. The spring arm and the aim bool do not choose the speed. If they did, looking down the sights would slow the pawn inside the camera graph, and a designer tuning the boom would retune the gait.",
+        "The excerpt branches on IA_Move > 0.f. The true body is Speed = 600.f. The else is Speed = 200.f. Character movement reads Speed as the walk speed. Animation, even a simple blend space before GASP, reads the same number. Writing it on Tick stomps a crouch an ability set a moment earlier, and the third-person mesh pops between cycles.",
+        "The camera section's Aiming bool can scale Speed later, as a multiply after this write, owned by one function. Doing that multiply in both graphs writes the value twice. Interaction, the weapon, and the squadmate all follow the pawn this speed moves. They do not assign Speed. Save can store it. The input asset cannot.",
+        "A released stick must take the walk literal. If the false path is empty, the pawn sprints until something else writes Speed. That is the bug to look for in the else of the excerpt.",
+        "Third-person movement closes on Movement. IA_Move writes Speed. The camera reads the pawn and does not write it. Line 9 is `Speed = 600.f; // node:tpl_movement_sprint`. Line 13 is `Speed = 200.f; // node:tpl_movement_walk`. IA_Move stays on its own event and is not written from Third-person movement. Speed stays on its own event and is not written from Third-person movement. Camera stays on its own event and is not written from Third-person movement. if ((IA_Move > 0.f)) sets Speed = 600.f, else Speed = 200.f. The camera does not write Speed. The assignment names the repair to keep. Third-person movement does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Movement already uses."
+      ],
+      "assignment": {
+        "kind": "cpp",
+        "prompt": "Tick assigns Speed on the third-person pawn. Which comparison and which two literals does the excerpt use?",
+        "accept": [
+          "IA_Move",
+          "600"
+        ],
+        "model": "if ((IA_Move > 0.f)) sets Speed = 600.f, else Speed = 200.f. The camera does not write Speed."
+      },
+      "quiz": [
+        {
+          "id": "movement-q1",
+          "prompt": "What does the third-person movement excerpt write?",
+          "choices": [
+            "Speed = 600.f or Speed = 200.f",
+            "Aiming = true",
+            "Health = 90.f",
+            "GoingRight = true"
+          ],
+          "answer": 0,
+          "why": "The axis picks the literal."
+        },
+        {
+          "id": "movement-q2",
+          "prompt": "Which graph must not also assign Speed?",
+          "choices": [
+            "The camera aim graph",
+            "This movement graph",
+            "The input action",
+            "The character movement component"
+          ],
+          "answer": 0,
+          "why": "Aiming is the camera's bool."
+        },
+        {
+          "id": "movement-q3",
+          "prompt": "What does a released stick need from the else?",
+          "choices": [
+            "Speed = 200.f",
+            "An empty body",
+            "A line trace",
+            "OnRep"
+          ],
+          "answer": 0,
+          "why": "Otherwise the sprint sticks."
+        },
+        {
+          "id": "movement-q4",
+          "prompt": "True or false: the spring arm should choose walk versus sprint.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The arm reads the pawn. IA_Move writes Speed."
+        },
+        {
+          "id": "movement-q5",
+          "prompt": "Why is Tick the wrong owner of this write?",
+          "choices": [
+            "It overwrites a crouch or a stance every frame",
+            "Tick cannot assign a float",
+            "The header rejects Speed",
+            "The camera requires Tick"
+          ],
+          "answer": 0,
+          "why": "The axis event is enough."
+        }
+      ]
+    },
+    {
+      "id": "interaction",
+      "title": "Third-person interaction",
+      "order": 3,
+      "graph": "interact",
+      "why": "Use traces from the camera and calls Interact. Aim only set a bool.",
+      "depends": [
+        "IA_Interact",
+        "Line trace",
+        "ProcessEvent"
+      ],
+      "reading": [
+        "Use, in third person, starts at IA_Interact. The trace should still come from the camera, along the crosshair, not from the pawn's chest. A chest trace hits the cover the camera can see past, and the prompt lights up on the wrong actor. The hit bool branches. The true path calls Interact through ProcessEvent. A door, a weapon on the ground, and a switch share that name.",
+        "The excerpt is Graph_IA_Interact. It traces, then if (bHit) looks up Interact on the hit actor. The else logs that there is nothing to use. That log is the miss. It is not a second trace. The aim graph already set Aiming. This graph does not write Aiming, or using a door would pull the camera in.",
+        "A cast to one door class fails the weapon on the ground. The function lookup is the interface. Overlap, used later by inventory, is a different question: something touched the capsule. Use is something the player pointed at.",
+        "The squadmate does not run this trace. Giving the companion the player's interact action makes the companion steal doors. Health does not trace. Save does not. One trace per press is the cost. A Tick trace, so the prompt can hover, is a separate cheaper query if you add it later, and it does not belong in this function.",
+        "Third-person interaction closes on Interact. Use traces from the camera and calls Interact. Aim only set a bool. Line 10 is `FHitResult Hit_tpl_interact_trace; bool bHit_tpl_interact_trace = false; if (UWorld* World`. Line 13 is `if (AActor* Target_tpl_interact_call = Cast<AActor>(Hit_tpl_interact_trace.GetActor())) { `. Line 17 is `UE_LOG(LogTemp, Display, TEXT(\"%s\"), TEXT(\"Nothing to use\")); // node:tpl_interact_miss`. IA_Interact stays on its own event and is not written from Third-person interaction. Line trace stays on its own event and is not written from Third-person interaction. ProcessEvent stays on its own event and is not written from Third-person interaction. IA_Interact starts the trace. ProcessEvent looks up Interact. IA_Aim is the camera, not this graph. The assignment names the repair to keep. Third-person interaction does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Interact already uses."
+      ],
+      "assignment": {
+        "kind": "vocabulary",
+        "prompt": "Name the function ProcessEvent looks up, and the action that must start the third-person use trace.",
+        "accept": [
+          "Interact",
+          "IA_Interact"
+        ],
+        "model": "IA_Interact starts the trace. ProcessEvent looks up Interact. IA_Aim is the camera, not this graph."
+      },
+      "quiz": [
+        {
+          "id": "interaction-q1",
+          "prompt": "What does the third-person interact excerpt call?",
+          "choices": [
+            "ProcessEvent on Interact",
+            "Aiming = true",
+            "Speed = 200.f",
+            "GoingRight = true"
+          ],
+          "answer": 0,
+          "why": "The hit actor answers Interact."
+        },
+        {
+          "id": "interaction-q2",
+          "prompt": "Why must the trace start at the camera in third person?",
+          "choices": [
+            "A chest trace hits cover the crosshair can see past",
+            "The feet are faster",
+            "ProcessEvent requires the chest",
+            "The spring arm is the start"
+          ],
+          "answer": 0,
+          "why": "The prompt should match the crosshair."
+        },
+        {
+          "id": "interaction-q3",
+          "prompt": "What does the else branch log?",
+          "choices": [
+            "Nothing to use",
+            "Died",
+            "Loaded",
+            "Health changed"
+          ],
+          "answer": 0,
+          "why": "A miss is not a second trace."
+        },
+        {
+          "id": "interaction-q4",
+          "prompt": "True or false: this graph should set Aiming.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Aiming belongs to the camera graph."
+        },
+        {
+          "id": "interaction-q5",
+          "prompt": "Why not cast to the door class?",
+          "choices": [
+            "The weapon on the ground would need its own copy",
+            "Casts cannot return actors",
+            "ProcessEvent is illegal",
+            "The camera forbids casts"
+          ],
+          "answer": 0,
+          "why": "One function name serves every usable actor."
+        }
+      ]
+    },
+    {
+      "id": "weapon",
+      "title": "Third-person weapon",
+      "order": 4,
+      "graph": "tactical-ammo",
+      "why": "IA_Reload checks the magazine and the reserve, then clamps.",
+      "depends": [
+        "IA_Reload",
+        "Magazine",
+        "Reserve",
+        "Clamp"
+      ],
+      "reading": [
+        "The third-person weapon carries a magazine the camera can see. Reload is still IA_Reload, not a tick and not the aim button. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. The excerpt branches on (Magazine < MagSize) && (Reserve > 0). Only then does it clamp the reserve into the gap: Needed = FMath::Clamp(Reserve, 0, (MagSize - Magazine)), add that to Magazine, and subtract it from Reserve.",
+        "That clamp is the whole safety. Without it a reload past a full magazine pulls rounds that do not fit. The else logs Cannot reload. Aiming, from the camera graph, may slow the reload animation. It does not change the arithmetic. Doing the arithmetic in the anim blueprint as well desyncs the visible mag and the count.",
+        "Health is not decremented here. A shot later calls damage. Inventory can fill Reserve from a stack, through the slot interface, and this graph consumes Reserve. Save stores both counts. The companion does not reload the player's magazine.",
+        "Spawning one actor per round, so the third-person mesh can show each bullet, replicates noise. The mesh reads Magazine and hides a bullet static mesh locally. The count is the state.",
+        "Third-person weapon closes on Tactical FPS: Ammo & Reload. IA_Reload checks the magazine and the reserve, then clamps. Line 9 is `Needed = FMath::Clamp(Reserve, 0, (MagSize - Magazine)); // node:tpl_tactical-ammo_setneed`. Line 10 is `Magazine = (Magazine + Needed); // node:tpl_tactical-ammo_setmag`. Line 11 is `Reserve = (Reserve - Needed); // node:tpl_tactical-ammo_setres`. IA_Reload stays on its own event and is not written from Third-person weapon. Magazine stays on its own event and is not written from Third-person weapon. Reserve stays on its own event and is not written from Third-person weapon. Clamp stays on its own event and is not written from Third-person weapon. IA_Reload starts it. Needed = FMath::Clamp(Reserve, 0, (MagSize - Magazine)). The mesh hides local bullets from Magazine. The assignment names the repair to keep. Third-person weapon does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Tactical FPS: Ammo & Reload already uses."
+      ],
+      "assignment": {
+        "kind": "efficiency",
+        "prompt": "A third-person reload ticks and spawns a bullet actor per round. Name the action and the clamp call in the excerpt.",
+        "accept": [
+          "IA_Reload",
+          "Clamp"
+        ],
+        "model": "IA_Reload starts it. Needed = FMath::Clamp(Reserve, 0, (MagSize - Magazine)). The mesh hides local bullets from Magazine."
+      },
+      "quiz": [
+        {
+          "id": "weapon-q1",
+          "prompt": "Which condition gates the third-person reload?",
+          "choices": [
+            "Magazine < MagSize and Reserve > 0",
+            "Aiming == true",
+            "Health == 0",
+            "GoingRight"
+          ],
+          "answer": 0,
+          "why": "Both ammo checks must pass."
+        },
+        {
+          "id": "weapon-q2",
+          "prompt": "What does FMath::Clamp limit in the excerpt?",
+          "choices": [
+            "Needed, between 0 and the gap in the magazine",
+            "The camera arm",
+            "Speed",
+            "The patrol timer"
+          ],
+          "answer": 0,
+          "why": "Only the missing rounds move."
+        },
+        {
+          "id": "weapon-q3",
+          "prompt": "What does the else log?",
+          "choices": [
+            "Cannot reload",
+            "Nothing to use",
+            "Died",
+            "Loaded"
+          ],
+          "answer": 0,
+          "why": "A full mag or an empty reserve refuses."
+        },
+        {
+          "id": "weapon-q4",
+          "prompt": "True or false: the aim graph should also add Needed into Magazine.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Aiming is a camera bool. Reload owns the counts."
+        },
+        {
+          "id": "weapon-q5",
+          "prompt": "How should the third-person mesh show fewer bullets?",
+          "choices": [
+            "Read Magazine locally and hide meshes",
+            "Replicate one actor per round",
+            "Tick a spawn",
+            "Store transforms in the save"
+          ],
+          "answer": 0,
+          "why": "The count is the replicated state."
+        }
+      ]
+    },
+    {
+      "id": "health",
+      "title": "Third-person health",
+      "order": 5,
+      "graph": "replicated-health",
+      "why": "Any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+      "depends": [
+        "Any Damage",
+        "Has Authority",
+        "OnRep"
+      ],
+      "reading": [
+        "Third-person health is a replicated float with a body the other players can see. Any Damage is the event. The excerpt assigns Health = 90.f inside if (HasAuthority()). The 90 is a sample literal. A hit reaction on a client must not be a second write, or two players see two different bodies fall. Replace 90 with the computed value. Leave the authority block where the compiler put it.",
+        "OnRep_Health logs that health changed. On a third-person pawn that notify plays the flinch on the mesh everyone can see. It does not subtract again. The camera does not shake from this function. The local client can shake from the notify. The weapon calls the damage event. It does not assign Health.",
+        "The magazine, the aim bool, and the squadmate's patrol are unrelated floats. Save stores Health after the server writes it. A Tick that drains health, so the third-person mesh can bleed, ignores the event and bleeds while the player is standing in a menu.",
+        "A client that predicts the flinch is fine. A client that predicts the number is the snap you see when the server float arrives.",
+        "Third-person health closes on Replicated health. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. Line 9 is `if (HasAuthority()) // node:tpl_replicated-health_auth`. Line 11 is `Health = 90.f; // node:tpl_replicated-health_set`. Line 17 is `UE_LOG(LogTemp, Display, TEXT(\"%s\"), TEXT(\"Health changed\")); // node:tpl_replicated-healt`. Any Damage stays on its own event and is not written from Third-person health. Has Authority stays on its own event and is not written from Third-person health. OnRep stays on its own event and is not written from Third-person health. The write is already inside HasAuthority. Replace 90 with the computed health. OnRep plays the flinch and does not subtract. The assignment names the repair to keep. Third-person health does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Replicated health already uses."
+      ],
+      "assignment": {
+        "kind": "cpp",
+        "prompt": "The third-person excerpt assigns Health = 90.f inside HasAuthority. What should replace 90, and what should OnRep play?",
+        "accept": [
+          "clamp",
+          "OnRep"
+        ],
+        "model": "The write is already inside HasAuthority. Replace 90 with the computed health. OnRep plays the flinch and does not subtract."
+      },
+      "quiz": [
+        {
+          "id": "health-q1",
+          "prompt": "What does the third-person health excerpt assign?",
+          "choices": [
+            "Health = 90.f",
+            "Aiming = true",
+            "Speed = 200.f",
+            "GoingRight = true"
+          ],
+          "answer": 0,
+          "why": "90 is the sample literal."
+        },
+        {
+          "id": "health-q2",
+          "prompt": "What is still a sample in the third-person health excerpt?",
+          "choices": [
+            "Health = 90.f, a literal inside the authority block",
+            "An empty HasAuthority block",
+            "A missing OnRep",
+            "A tick drain"
+          ],
+          "answer": 0,
+          "why": "The gate is real. 90 stands in for the math."
+        },
+        {
+          "id": "health-q3",
+          "prompt": "What should OnRep do on this pawn?",
+          "choices": [
+            "Play the flinch",
+            "Subtract Health again",
+            "Set Aiming",
+            "Reload"
+          ],
+          "answer": 0,
+          "why": "The mesh reaction is local."
+        },
+        {
+          "id": "health-q4",
+          "prompt": "True or false: the weapon graph should assign Health itself.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The weapon calls Any Damage."
+        },
+        {
+          "id": "health-q5",
+          "prompt": "A Tick drain makes the mesh bleed in a menu. Why is that wrong?",
+          "choices": [
+            "No damage event happened",
+            "Tick cannot run in a menu",
+            "Health must be an int",
+            "The camera owns health"
+          ],
+          "answer": 0,
+          "why": "The event is the cause."
+        }
+      ]
+    },
+    {
+      "id": "inventory",
+      "title": "Third-person inventory",
+      "order": 6,
+      "graph": "inventory-slot",
+      "why": "Overlap calls AddToSlot. The use-trace does not count the stack.",
+      "depends": [
+        "Overlap",
+        "StackCount",
+        "AddToSlot"
+      ],
+      "reading": [
+        "A third-person pickup touches the capsule. Overlap is the event, not the aim trace and not IA_Interact. The excerpt tests StackCount > 0.f, then ProcessEvent on AddToSlot of the other actor. The false path stores StackCount = 0.f. The test is a sample. A real slot also compares against the stack size on the item asset before it accepts more.",
+        "The visible backpack is a mesh on the pawn. It reads the count. It is not a replicated actor per item. The use trace can show a prompt when the camera looks at a pickup that has not overlapped yet. The prompt does not increment the count. If it did, looking at a pile would fill the bag.",
+        "The weapon's Reserve is what an ammo stack fills, by a call into the reload component after AddToSlot succeeds. Health items call the damage event with a heal. They do not write Health in this overlap. Save stores StackCount. The companion must not run the player's overlap, or the squadmate loots the bag.",
+        "A Tick that scans for nearby pickups repeats the physics overlap and still needs this interface at the end.",
+        "Third-person inventory closes on Inventory slot. Overlap calls AddToSlot. The use-trace does not count the stack. Line 12 is `if (AActor* Target_tpl_inventoryslot_call = Cast<AActor>(OtherActor)) { if (UFunction* Fn_`. Line 16 is `StackCount = 0.f; // node:tpl_inventory-slot_store`. Line 22 is `Super::BeginPlay();`. Overlap stays on its own event and is not written from Third-person inventory. StackCount stays on its own event and is not written from Third-person inventory. AddToSlot stays on its own event and is not written from Third-person inventory. Overlap calls AddToSlot when StackCount > 0. The aim and use traces only prompt. The assignment names the repair to keep. Third-person inventory does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Inventory slot already uses."
+      ],
+      "assignment": {
+        "kind": "compatibility",
+        "prompt": "The third-person use trace is incrementing StackCount. Which event should call AddToSlot, and which comparison does the excerpt use?",
+        "accept": [
+          "Overlap",
+          "StackCount"
+        ],
+        "model": "Overlap calls AddToSlot when StackCount > 0. The aim and use traces only prompt."
+      },
+      "quiz": [
+        {
+          "id": "inventory-q1",
+          "prompt": "Which event starts the third-person slot graph?",
+          "choices": [
+            "Overlap",
+            "IA_Aim",
+            "IA_Interact",
+            "Tick"
+          ],
+          "answer": 0,
+          "why": "The capsule touch is the event."
+        },
+        {
+          "id": "inventory-q2",
+          "prompt": "What does the excerpt call?",
+          "choices": [
+            "AddToSlot through ProcessEvent",
+            "Interact",
+            "Set Aiming",
+            "AdvancePatrol"
+          ],
+          "answer": 0,
+          "why": "The pickup answers AddToSlot."
+        },
+        {
+          "id": "inventory-q3",
+          "prompt": "What must the use trace not do?",
+          "choices": [
+            "Increment StackCount",
+            "Show a prompt",
+            "Start at the camera",
+            "Miss a wall"
+          ],
+          "answer": 0,
+          "why": "Looking is not looting."
+        },
+        {
+          "id": "inventory-q4",
+          "prompt": "True or false: each item in the backpack should replicate as its own actor.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The count is the state. The mesh is local."
+        },
+        {
+          "id": "inventory-q5",
+          "prompt": "Who must not run the player's overlap?",
+          "choices": [
+            "The squadmate",
+            "The pawn capsule",
+            "The item asset",
+            "Save"
+          ],
+          "answer": 0,
+          "why": "The companion has its own patrol."
+        }
+      ]
+    },
+    {
+      "id": "companion",
+      "title": "Squadmate patrol",
+      "order": 7,
+      "graph": "ai-patrol",
+      "why": "AdvancePatrol runs from a timer. The squadmate does not tick a path.",
+      "depends": [
+        "Begin Play",
+        "AdvancePatrol",
+        "GoingRight"
+      ],
+      "reading": [
+        "The third-person squadmate walks a short route beside the player. Begin Play starts a timer that calls AdvancePatrol. The excerpt sets that timer for 1.f, not looping in this sample, so a finished route has to start the next timer on purpose rather than stacking timers. AdvancePatrol flips a bool and assigns GoingRight = true on the A path. The B path in the sample is empty, which means the return direction is the line you still owe the graph.",
+        "Tick that moves the companion every frame also moves it while the player is in a menu and pays a query the timer already scheduled. The route points are data. The timer only picks the next one. The companion does not run IA_Aim, IA_Interact, or the player's reload. Giving it those actions makes it face the player's camera and steal doors.",
+        "Health on the companion is its own component if it can be shot. It is not the player's Health float. Inventory overlap stays on the player. Save may store the companion's next point. It does not store the player's Aiming in the companion slot.",
+        "The flip-flop is the memory of which way the last step went. Resetting it on Tick loses the route.",
+        "Squadmate patrol closes on AI patrol. AdvancePatrol runs from a timer. The squadmate does not tick a path. Line 8 is `if (UWorld* World = GetWorld()) { FTimerHandle Timer_tpl_aipatrol_timer; World->GetTimerMa`. Line 14 is `Flip_tpl_aipatrol_flip = !Flip_tpl_aipatrol_flip;`. Line 17 is `GoingRight = true; // node:tpl_ai-patrol_set`. Begin Play stays on its own event and is not written from Squadmate patrol. AdvancePatrol stays on its own event and is not written from Squadmate patrol. GoingRight stays on its own event and is not written from Squadmate patrol. SetTimer calls AdvancePatrol. The A path sets GoingRight = true. Tick does not walk the route. The assignment names the repair to keep. Squadmate patrol does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule AI patrol already uses."
+      ],
+      "assignment": {
+        "kind": "efficiency",
+        "prompt": "The squadmate moves on Tick. Which function does the excerpt's timer call, and which bool does the A path set?",
+        "accept": [
+          "AdvancePatrol",
+          "GoingRight"
+        ],
+        "model": "SetTimer calls AdvancePatrol. The A path sets GoingRight = true. Tick does not walk the route."
+      },
+      "quiz": [
+        {
+          "id": "companion-q1",
+          "prompt": "What does Begin Play schedule for the squadmate?",
+          "choices": [
+            "AdvancePatrol after 1 second",
+            "IA_Aim",
+            "A line trace every frame",
+            "OnRep_Health"
+          ],
+          "answer": 0,
+          "why": "The timer is 1.f."
+        },
+        {
+          "id": "companion-q2",
+          "prompt": "What does the A path assign?",
+          "choices": [
+            "GoingRight = true",
+            "Aiming = true",
+            "Speed = 600.f",
+            "Health = 90.f"
+          ],
+          "answer": 0,
+          "why": "Direction is the stored bool."
+        },
+        {
+          "id": "companion-q3",
+          "prompt": "What is wrong with the sample's B path?",
+          "choices": [
+            "It is empty, so the return direction is missing",
+            "It reloads the player",
+            "It sets Aiming",
+            "It saves the game"
+          ],
+          "answer": 0,
+          "why": "A route needs both directions."
+        },
+        {
+          "id": "companion-q4",
+          "prompt": "True or false: the companion should use the player's IA_Interact.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "It would steal doors."
+        },
+        {
+          "id": "companion-q5",
+          "prompt": "Why not move the companion on Tick?",
+          "choices": [
+            "The timer already picks the next point",
+            "Tick cannot move actors",
+            "GoingRight must be a float",
+            "The camera owns the route"
+          ],
+          "answer": 0,
+          "why": "The route is data plus a timer."
+        }
+      ]
+    },
+    {
+      "id": "save",
+      "title": "Third-person save",
+      "order": 8,
+      "graph": "save-load",
+      "why": "Begin Play loads the pawn, the mag, and the companion point.",
+      "depends": [
+        "Begin Play",
+        "SlotValue",
+        "LoadSlot"
+      ],
+      "reading": [
+        "The third-person slot packs Health, Magazine, Reserve, StackCount, Aiming only if a mode needs the camera tight on load, and the companion's next route point. It does not pack the spring-arm mesh or the mapping context. Begin Play is the load, because the camera, the weapon, and the squadmate exist. The excerpt assigns SlotValue = 1.f after building a vector stand-in, and LoadSlot logs Loaded after a break stand-in.",
+        "A Tick write stores a reload that has not finished and a companion halfway between points with GoingRight already flipped. The player comes back to a route that skips a corner. Write the struct when the player asks, or on a slow autosave event, not on Tick.",
+        "The authority must have written Health before the pack, or the slot stores a client guess and the third-person body stands back up wrong. The camera boom length is derived from Aiming. Store the bool if you must. Do not store the boom transform.",
+        "Load runs after Begin Play has created the components. The constructor is too early. The companion timer starts after the loaded point is applied, or it steps from the default before the save arrives.",
+        "Third-person save closes on Save / load slot. Begin Play loads the pawn, the mag, and the companion point. Line 8 is `FVector Made_tpl_saveload_make = FVector::ZeroVector; Made_tpl_saveload_make.X = 1.f; Made`. Line 9 is `SlotValue = 1.f; // node:tpl_save-load_store`. Line 14 is `FHitResult Broken_tpl_saveload_break = FHitResult(); // node:tpl_save-load_break`. Begin Play stays on its own event and is not written from Third-person save. SlotValue stays on its own event and is not written from Third-person save. LoadSlot stays on its own event and is not written from Third-person save. Begin Play loads. GoingRight, or the next route point, is packed. The boom transform is not. The assignment names the repair to keep. Third-person save does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Save / load slot already uses."
+      ],
+      "assignment": {
+        "kind": "graph",
+        "prompt": "The third-person save writes on Tick. Which event loads, and which companion value is worth packing?",
+        "accept": [
+          "Begin Play",
+          "GoingRight"
+        ],
+        "model": "Begin Play loads. GoingRight, or the next route point, is packed. The boom transform is not."
+      },
+      "quiz": [
+        {
+          "id": "save-q1",
+          "prompt": "What does the third-person save excerpt assign?",
+          "choices": [
+            "SlotValue = 1.f",
+            "Aiming = true",
+            "Speed = 600.f",
+            "GoingRight = true"
+          ],
+          "answer": 0,
+          "why": "The pack is the slot write. GoingRight is packed by the game, not by this sample line."
+        },
+        {
+          "id": "save-q2",
+          "prompt": "Which event should load?",
+          "choices": [
+            "Begin Play",
+            "Tick",
+            "IA_Aim",
+            "Overlap"
+          ],
+          "answer": 0,
+          "why": "The camera and the companion exist then."
+        },
+        {
+          "id": "save-q3",
+          "prompt": "What should not be packed?",
+          "choices": [
+            "The spring-arm transform",
+            "Magazine",
+            "Health",
+            "StackCount"
+          ],
+          "answer": 0,
+          "why": "The boom is derived from Aiming."
+        },
+        {
+          "id": "save-q4",
+          "prompt": "True or false: Tick is a safe autosave because it never misses a round.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "It stores a half-finished reload and a mid-corner companion."
+        },
+        {
+          "id": "save-q5",
+          "prompt": "When should the companion timer start relative to the load?",
+          "choices": [
+            "After the saved point is applied",
+            "In the constructor, before the load",
+            "On IA_Aim",
+            "Inside OnRep"
+          ],
+          "answer": 0,
+          "why": "Otherwise it steps from the default."
+        }
+      ]
+    }
+  ],
+  "exam": {
+    "questions": [
+      {
+        "id": "tps-beginner-e1",
+        "kind": "mc",
+        "prompt": "The third-person aim lesson was wired to IA_Interact. Which action belongs on the camera graph?",
+        "choices": [
+          "IA_Aim",
+          "IA_Reload",
+          "AdvancePatrol",
+          "LoadSlot"
+        ],
+        "answer": 0,
+        "why": "Aim is not use."
+      },
+      {
+        "id": "tps-beginner-e2",
+        "kind": "graph-repair",
+        "graph": "camera",
+        "sample": "Tick sets Aiming",
+        "prompt": "The broken camera graph sets Aiming from the red Tick node. What does the real excerpt assign, and from which action?",
+        "choices": [
+          "Aiming = true inside Graph_IA_Aim",
+          "Health = 90.f",
+          "GoingRight = true",
+          "SlotValue = 1.f"
+        ],
+        "answer": 0,
+        "why": "The shoulder button starts the trace."
+      },
+      {
+        "id": "tps-beginner-e3",
+        "kind": "mc",
+        "prompt": "A trace from the feet makes the third-person crosshair miss. Where should the aim trace start?",
+        "choices": [
+          "The camera",
+          "The capsule center only",
+          "The save slot",
+          "The squadmate"
+        ],
+        "answer": 0,
+        "why": "The camera is the aim origin."
+      },
+      {
+        "id": "tps-beginner-e4",
+        "kind": "tf",
+        "prompt": "True or false: the camera graph should also assign Speed.",
+        "choices": [
+          "True",
+          "False"
+        ],
+        "answer": 1,
+        "why": "IA_Move owns Speed."
+      },
+      {
+        "id": "tps-beginner-e5",
+        "kind": "mc",
+        "prompt": "The third-person pawn keeps sprinting after the stick is released. Which else assignment is missing?",
+        "choices": [
+          "Speed = 200.f",
+          "Aiming = true",
+          "StackCount = 0.f",
+          "Health = 90.f"
+        ],
+        "answer": 0,
+        "why": "The false path is the walk."
+      },
+      {
+        "id": "tps-beginner-e6",
+        "kind": "cpp-repair",
+        "graph": "movement",
+        "sample": "void Tick()\n{\n  Speed = 600.f;\n}",
+        "prompt": "Tick forces Speed = 600.f on the third-person pawn. Where does the excerpt put that assignment?",
+        "choices": [
+          "Inside if ((IA_Move > 0.f))",
+          "Inside OnRep_Health",
+          "Inside AdvancePatrol",
+          "Inside LoadSlot"
+        ],
+        "answer": 0,
+        "why": "The axis comparison is the branch."
+      },
+      {
+        "id": "tps-beginner-e7",
+        "kind": "mc",
+        "prompt": "Use hits the cover the crosshair can see past. What is wrong with the trace origin?",
+        "choices": [
+          "It starts at the chest, not the camera",
+          "It uses ProcessEvent",
+          "It calls Interact",
+          "It logs a miss"
+        ],
+        "answer": 0,
+        "why": "Third-person use follows the camera."
+      },
+      {
+        "id": "tps-beginner-e8",
+        "kind": "mc",
+        "prompt": "A cast to the door class drops the rifle on the ground. What should the true pin call?",
+        "choices": [
+          "Interact through ProcessEvent",
+          "Aiming = true",
+          "GoingRight = true",
+          "FMath::Clamp on the door"
+        ],
+        "answer": 0,
+        "why": "One function name covers both actors."
+      },
+      {
+        "id": "tps-beginner-e9",
+        "kind": "graph-repair",
+        "graph": "tactical-ammo",
+        "sample": "Tick adds Needed to Magazine",
+        "prompt": "The broken third-person reload adds Needed from Tick. Which action does the real graph start from?",
+        "choices": [
+          "IA_Reload",
+          "IA_Aim",
+          "IA_Interact",
+          "Begin Play"
+        ],
+        "answer": 0,
+        "why": "Reload is an action."
+      },
+      {
+        "id": "tps-beginner-e10",
+        "kind": "mc",
+        "prompt": "The visible mag shows bullets the count does not have. What should the mesh read?",
+        "choices": [
+          "Magazine, locally",
+          "A replicated bullet actor",
+          "Aiming",
+          "GoingRight"
+        ],
+        "answer": 0,
+        "why": "The count is the state."
+      },
+      {
+        "id": "tps-beginner-e11",
+        "kind": "cpp-repair",
+        "graph": "replicated-health",
+        "sample": "Health = 90.f; // after an empty HasAuthority",
+        "prompt": "This broken sample writes Health after an empty HasAuthority. The real excerpt nests the assignment. What is the repair for the sample?",
+        "choices": [
+          "Nest Health's assignment inside HasAuthority",
+          "Subtract again in OnRep",
+          "Write it from IA_Aim",
+          "Store it only in the camera"
+        ],
+        "answer": 0,
+        "why": "The server owns the float."
+      },
+      {
+        "id": "tps-beginner-e12",
+        "kind": "mc",
+        "prompt": "OnRep plays the flinch and also subtracts. What should it stop doing?",
+        "choices": [
+          "The subtract",
+          "The flinch",
+          "Reading the float",
+          "Existing"
+        ],
+        "answer": 0,
+        "why": "The server already applied the hit."
+      },
+      {
+        "id": "tps-beginner-e13",
+        "kind": "mc",
+        "prompt": "Looking at a pickup fills the third-person bag. Which graph incremented StackCount?",
+        "choices": [
+          "The use trace, which should only prompt",
+          "Overlap, which is correct",
+          "AdvancePatrol",
+          "The camera"
+        ],
+        "answer": 0,
+        "why": "Overlap owns the count."
+      },
+      {
+        "id": "tps-beginner-e14",
+        "kind": "tf",
+        "prompt": "True or false: the squadmate should run the player's overlap so it can loot.",
+        "choices": [
+          "True",
+          "False"
+        ],
+        "answer": 1,
+        "why": "The companion patrols. It does not loot."
+      },
+      {
+        "id": "tps-beginner-e15",
+        "kind": "mc",
+        "prompt": "The companion slides while the game is paused. What is moving it?",
+        "choices": [
+          "Tick, instead of the AdvancePatrol timer",
+          "GoingRight alone",
+          "IA_Aim",
+          "LoadSlot"
+        ],
+        "answer": 0,
+        "why": "The timer is the schedule."
+      },
+      {
+        "id": "tps-beginner-e16",
+        "kind": "graph-repair",
+        "graph": "ai-patrol",
+        "sample": "Tick flips GoingRight",
+        "prompt": "The broken patrol graph flips GoingRight from Tick. What does Begin Play schedule in the real excerpt?",
+        "choices": [
+          "AdvancePatrol after 1.f",
+          "IA_Aim",
+          "A reload",
+          "OnRep_Health"
+        ],
+        "answer": 0,
+        "why": "The timer calls AdvancePatrol."
+      },
+      {
+        "id": "tps-beginner-e17",
+        "kind": "mc",
+        "prompt": "The B path of the squadmate flip is empty. What is missing?",
+        "choices": [
+          "The return direction",
+          "The player's reload",
+          "Aiming",
+          "The save log"
+        ],
+        "answer": 0,
+        "why": "A route has two ways."
+      },
+      {
+        "id": "tps-beginner-e18",
+        "kind": "mc",
+        "prompt": "A crash restores the companion halfway through a corner. What wrote the slot?",
+        "choices": [
+          "Tick, during the step",
+          "Begin Play, after the step finished",
+          "IA_Interact",
+          "The camera trace"
+        ],
+        "answer": 0,
+        "why": "Tick stored a half step."
+      },
+      {
+        "id": "tps-beginner-e19",
+        "kind": "cpp-repair",
+        "graph": "save-load",
+        "sample": "void Tick()\n{\n  SlotValue = Health;\n}",
+        "prompt": "Tick copies Health into SlotValue on the third-person pawn. What should load the slot?",
+        "choices": [
+          "Begin Play, from a struct written on an event",
+          "The aim trace",
+          "AdvancePatrol",
+          "OnRep, subtracting again"
+        ],
+        "answer": 0,
+        "why": "Begin Play loads a finished pack."
+      },
+      {
+        "id": "tps-beginner-e20",
+        "kind": "mc",
+        "prompt": "Which of these is derived and should stay out of the third-person slot?",
+        "choices": [
+          "The spring-arm transform",
+          "Magazine",
+          "Health",
+          "StackCount"
+        ],
+        "answer": 0,
+        "why": "Aiming can rebuild the boom."
+      }
+    ]
+  }
+}

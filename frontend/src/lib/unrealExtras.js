@@ -1,4 +1,4 @@
-import { baseName, headerClasses, moduleName } from "./zipExport";
+import { baseName, headerClasses, moduleName } from "./zipExport.js";
 
 // Unreal Editor clipboard (T3D) text for the Event Graph; UE 5.3–5.5
 const guid = () => Array.from({ length: 32 }, () => "0123456789ABCDEF"[Math.floor(Math.random() * 16)]).join("");

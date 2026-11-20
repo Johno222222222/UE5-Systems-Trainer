@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { api } from "../lib/api";
-import { GLOSSARY_REQUESTS_KEY } from "../lib/glossary.mjs";
+import { filterGlossary, GLOSSARY_REQUESTS_KEY, uniqueTerms } from "../lib/glossary.mjs";
 
 function readRequests() {
   try { return JSON.parse(localStorage.getItem(GLOSSARY_REQUESTS_KEY) || "[]"); }
@@ -25,23 +25,17 @@ export default function Glossary() {
     };
   }, []);
 
+  const listed = useMemo(() => uniqueTerms(terms), [terms]);
+
   const tags = useMemo(() => {
     const set = new Set();
-    terms.forEach((term) => (term.tags || []).forEach((item) => set.add(item)));
+    listed.forEach((term) => (term.tags || []).forEach((item) => set.add(item)));
     return [...set].sort();
-  }, [terms]);
+  }, [listed]);
 
-  const shown = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    return terms.filter((term) => {
-      if (tag && !(term.tags || []).includes(tag)) return false;
-      if (!needle) return true;
-      const blob = `${term.term} ${(term.aliases || []).join(" ")} ${term.summary || term.definition || ""}`.toLowerCase();
-      return blob.includes(needle);
-    });
-  }, [terms, query, tag]);
+  const shown = useMemo(() => filterGlossary(listed, query, tag), [listed, query, tag]);
 
-  const byId = useMemo(() => new Map(terms.map((term) => [term.id, term])), [terms]);
+  const byId = useMemo(() => new Map(listed.map((term) => [term.id, term])), [listed]);
 
   const copyRequests = async () => {
     const text = requests.map((item) => item.word).join("\n");
@@ -73,7 +67,7 @@ export default function Glossary() {
         <div className="mt-4 text-[11px] font-mono text-[var(--text-muted)]" data-testid="glossary-count">{shown.length} terms</div>
         <div className="mt-3 grid gap-2">
           {shown.map((term) => (
-            <article key={term.id} className="panel p-3" data-testid={`glossary-card-${term.id}`}>
+            <article key={term.id} className="panel p-3" data-testid={`glossary-card-${term.id}`} data-term={term.term}>
               <div className="font-sub font-semibold">{term.term}</div>
               <p className="mt-1 text-[13px] text-[var(--text-secondary)]">{term.summary || term.definition}</p>
               {!!term.detail && <p className="mt-1 text-[12px] text-[var(--text-muted)]">{term.detail}</p>}

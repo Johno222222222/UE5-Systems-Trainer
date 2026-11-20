@@ -746,6 +746,8 @@
       "id": "tactical-fps-course",
       "title": "Tactical FPS, first course",
       "summary": "Four short modules. A quiz, a diff, a practical line, and a takeaway in each one.",
+      "level": "intermediate",
+      "genre": "fps",
       "glossary_tags": ["Core", "Networking", "Inventory", "Input", "App"],
       "pass_mark": 70,
       "modules": [

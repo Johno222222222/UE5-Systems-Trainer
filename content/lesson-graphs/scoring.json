@@ -1,0 +1,25 @@
+{
+  "id": "scoring",
+  "title": "Scoring",
+  "summary": "A medal adds score on the authority.",
+  "variables": [{"name": "Score", "type": "float", "default": "0.f"}],
+  "graph": {
+    "kind": "event",
+    "name": "Medal",
+    "nodes": [
+      {"key": "event", "catalog": "custom-event", "x": 40, "y": 80, "data": {"name": "AwardMedal"}, "note": "AwardMedal is the server event for a kill or an objective."},
+      {"key": "auth", "catalog": "has-authority", "x": 320, "y": 80, "note": "Score changes on the authority."},
+      {"key": "get", "catalog": "get-variable", "x": 40, "y": 240, "data": {"variable": "Score", "varType": "float"}, "note": "Current score."},
+      {"key": "one", "catalog": "literal", "x": 40, "y": 360, "data": {"varType": "float", "value": "10"}, "note": "The data asset should own the medal value. Ten is the sample."},
+      {"key": "add", "catalog": "add", "x": 320, "y": 260, "note": "Score plus the medal."},
+      {"key": "set", "catalog": "set-variable", "x": 600, "y": 80, "data": {"variable": "Score", "varType": "float"}, "note": "Write score. The board reads it."}
+    ],
+    "wires": [
+      {"from": "event", "fromPin": "Exec", "to": "auth", "toPin": "Exec"},
+      {"from": "auth", "fromPin": "Exec", "to": "set", "toPin": "Exec"},
+      {"from": "get", "fromPin": "Value", "to": "add", "toPin": "A"},
+      {"from": "one", "fromPin": "Value", "to": "add", "toPin": "B"},
+      {"from": "add", "fromPin": "Result", "to": "set", "toPin": "Value"}
+    ]
+  }
+}
