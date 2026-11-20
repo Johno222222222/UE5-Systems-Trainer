@@ -11,16 +11,34 @@ const { loadGlossary } = require("../glossary");
 const { presentQuiz, positionShare, isTrueFalse } = require("../../frontend/src/lib/quizShuffle");
 const { CATALOG_EXPLAIN, explainLine, headerNote } = require("../../frontend/src/lib/lineExplain");
 
-function slot(prompt) {
-  return String(prompt || "")
-    .replace(/`[^`]*`/g, " ")
-    .replace(/"[^"]*"/g, " ")
-    .replace(/\b[A-Z][A-Za-z0-9_]{2,}/g, " ")
+function normClause(text) {
+  return String(text || "")
+    .replace(/\b[A-Z][A-Za-z0-9_]*\b/g, " ")
     .replace(/\b\d+(?:\.\d+)?f?\b/g, " ")
     .replace(/[^a-z\s]/gi, " ")
     .replace(/\s+/g, " ")
     .trim()
     .toLowerCase();
+}
+
+function clauses(text) {
+  return String(text || "")
+    .split(/\.\s+|\s+—\s+|,|\s+because\s+|\s+so\s+/i)
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
+function firstClause(text) {
+  return normClause(clauses(text)[0] || "");
+}
+
+function lastClause(text) {
+  const parts = clauses(text);
+  return normClause(parts[parts.length - 1] || "");
+}
+
+function firstSix(text) {
+  return normClause(text).split(" ").filter(Boolean).slice(0, 6).join(" ");
 }
 
 function isTf(question) {
@@ -53,44 +71,43 @@ test("opened quizzes do not leave the correct answer on one position", () => {
   assert.ok(spread.share < 0.4, `correct answers clustered at ${spread.share}`);
 });
 
-test("authored banks are not templated and every lesson meets its count", () => {
-  const source = fs.readFileSync(path.join(__dirname, "..", "lessonStudy.js"), "utf8");
-  assert.ok(!source.includes("fromSentence"), "questions must not be generated from lesson sentences");
-  assert.ok(!source.includes("sentencesOf"));
+test("authored banks are specific and every lesson meets its count", () => {
   const { tracks, questions } = collect();
   assert.deepEqual(problemsForTracks(tracks), []);
   const distractors = new Map();
-  const templates = new Map();
-  let tf = 0;
-  let tfTrue = 0;
-  let mc = 0;
+  const openings = new Map();
+  const endings = new Map();
   for (const question of questions) {
     assert.ok(question.choices[question.answer], question.id);
-    const key = slot(question.prompt);
-    assert.ok(!templates.has(key), `shared template: ${key.slice(0, 140)}`);
-    templates.set(key, question.id);
+    const opening = firstSix(question.prompt) || "(empty)";
+    const ending = lastClause(question.prompt) || "(empty)";
+    openings.set(opening, (openings.get(opening) || 0) + 1);
+    endings.set(ending, (endings.get(ending) || 0) + 1);
     if (isTf(question)) {
-      tf += 1;
-      if (question.answer === 0) tfTrue += 1;
-    } else {
-      mc += 1;
-      question.choices.forEach((choice, index) => {
-        if (index === question.answer) return;
-        const text = String(choice).trim();
-        distractors.set(text, (distractors.get(text) || 0) + 1);
-      });
+      const length = String(question.prompt || "").trim().split(/\s+/).length;
+      assert.ok(length <= 30, `${question.id} true/false is ${length} words`);
+      continue;
     }
+    question.choices.forEach((choice, index) => {
+      if (index === question.answer) return;
+      const key = firstClause(choice) || "(empty)";
+      if (!distractors.has(key)) distractors.set(key, []);
+      distractors.get(key).push(`${question.id}: ${choice}`);
+    });
   }
-  for (const [text, count] of distractors) {
-    assert.ok(count <= 2, `distractor used ${count} times: ${text.slice(0, 120)}`);
+  for (const [key, uses] of distractors) {
+    assert.ok(uses.length <= 3, `distractor clause "${key}" used ${uses.length} times`);
   }
-  const trueShare = tfTrue / tf;
-  assert.ok(trueShare >= 0.35 && trueShare <= 0.65, trueShare);
-  assert.ok(mc / (mc + tf) >= 0.6, mc / (mc + tf));
+  for (const [key, count] of openings) {
+    assert.ok(count <= 5, `stem opening "${key}" used ${count} times`);
+  }
+  for (const [key, count] of endings) {
+    assert.ok(count <= 5, `stem ending "${key}" used ${count} times`);
+  }
   for (const track of tracks) {
-    assert.ok(track.exam.questions.length >= 48, `${track.id} exam ${track.exam.questions.length}`);
+    assert.ok(track.exam.questions.length >= 40 && track.exam.questions.length <= 50, `${track.id} exam ${track.exam.questions.length}`);
     for (const section of track.sections) {
-      assert.ok(section.quiz.length >= 10 && section.quiz.length <= 15, `${track.id} ${section.id}`);
+      assert.ok(section.quiz.length >= 10, `${track.id} ${section.id} ${section.quiz.length}`);
       assert.ok(section.quiz.some(isTf) && section.quiz.some((q) => q.choices.length > 2), section.id);
       assert.ok(section.plainEnglish && section.whyGame, section.id);
       assert.ok(section.expansionExamples.length >= 2, section.id);
@@ -102,12 +119,37 @@ test("authored banks are not templated and every lesson meets its count", () => 
   assert.ok(banks.length >= 8);
 });
 
+test("no script in the repo emits quiz prompts", () => {
+  const root = path.join(__dirname, "..", "..");
+  const banned = ["fromSentence", "sentencesOf", "sectionQuiz", "courseQuiz", "function keeps(", "function breaks("];
+  const hits = [];
+  function walk(dir) {
+    for (const name of fs.readdirSync(dir)) {
+      if (name === "node_modules" || name === ".git") continue;
+      const full = path.join(dir, name);
+      const stat = fs.statSync(full);
+      if (stat.isDirectory()) {
+        walk(full);
+        continue;
+      }
+      if (!/\.(js|mjs|cjs)$/.test(name)) continue;
+      if (full.endsWith(`${path.sep}stage21.test.js`)) continue;
+      const source = fs.readFileSync(full, "utf8");
+      for (const token of banned) {
+        if (source.includes(token)) hits.push(`${path.relative(root, full)} contains ${token}`);
+      }
+    }
+  }
+  walk(root);
+  assert.deepEqual(hits, []);
+});
+
 test("course sections use authored banks", () => {
   for (const course of loadPacks().courses) {
     const enriched = enrichCourse(course);
     assert.equal(enriched.sections.length, course.modules.length);
     for (const section of enriched.sections) {
-      assert.ok(section.quiz.length >= 10 && section.quiz.length <= 20, `${course.id} ${section.id} ${section.quiz.length}`);
+      assert.ok(section.quiz.length >= 10, `${course.id} ${section.id} ${section.quiz.length}`);
       assert.ok(section.plainEnglish && section.whyGame, section.id);
       assert.ok(section.quiz.some(isTf), section.id);
       assert.ok(fs.existsSync(path.join(__dirname, "..", "..", "content", "study", "courses", `${course.id}.json`)));

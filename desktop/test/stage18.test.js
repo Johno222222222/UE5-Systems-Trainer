@@ -5,6 +5,7 @@ const assert = require("node:assert/strict");
 const fs = require("fs");
 const path = require("path");
 const { buildTracks } = require("../tracks");
+const { enrichCourse } = require("../lessonStudy");
 const { loadPacks } = require("../packs");
 
 const AFFIRMED = new Set([
@@ -25,6 +26,25 @@ function questionsOf() {
     for (const question of track.exam?.questions || []) found.push([`${track.id} exam`, question]);
   }
   for (const course of loadPacks().courses) {
+    const enriched = enrichCourse(course);
+    for (const section of enriched.sections || []) {
+      for (const question of section.quiz || []) found.push([`${course.id} ${section.id}`, question]);
+    }
+  }
+  return found;
+}
+
+function originalQuestions() {
+  const found = [];
+  const programsDir = path.join(__dirname, "..", "..", "content", "programs");
+  for (const file of fs.readdirSync(programsDir).filter((name) => name.endsWith(".json"))) {
+    const program = JSON.parse(fs.readFileSync(path.join(programsDir, file), "utf8"));
+    for (const section of program.sections || []) {
+      for (const question of section.quiz || []) found.push([`${program.id} ${section.id}`, question]);
+    }
+    for (const question of program.exam?.questions || []) found.push([`${program.id} exam`, question]);
+  }
+  for (const course of loadPacks().courses) {
     for (const mod of course.modules || []) {
       for (const question of mod.quiz || []) found.push([`${course.id} ${mod.id}`, question]);
     }
@@ -34,7 +54,7 @@ function questionsOf() {
 
 test("true/false keys point at the claim's real polarity", () => {
   let seen = 0;
-  for (const [where, question] of questionsOf()) {
+  for (const [where, question] of originalQuestions()) {
     const choices = (question.choices || []).map((item) => String(item).trim().toLowerCase());
     if (choices.length !== 2 || !choices.includes("true") || !choices.includes("false")) continue;
     if (String(question.id || "").startsWith("study-") || /-(s|c)\d/.test(String(question.id || ""))) continue;
