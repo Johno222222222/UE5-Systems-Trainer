@@ -679,22 +679,49 @@ async function startServer(options = {}) {
 
   async function githubListing(settings) {
     const fetchImpl = options.fetchImpl || fetch;
-    const url = `https://api.github.com/repos/${settings.repo}/contents/${encodeURI(settings.path)}`;
-    const response = await fetchImpl(url, { headers: { Accept: "application/vnd.github+json", "User-Agent": "blueprint-builder" } });
-    if (!response.ok) return { packs: [], problems: [`GitHub returned ${response.status} for ${settings.repo}.`] };
-    const listing = await response.json();
-    if (!Array.isArray(listing)) return { packs: [], problems: ["GitHub did not return a folder."] };
-    return {
-      packs: listing.filter((item) => String(item.name || "").endsWith(".bbpack")).map((item) => ({
-        id: String(item.name).replace(/\.bbpack$/i, ""),
-        title: String(item.name).replace(/\.bbpack$/i, ""),
-        author: settings.repo,
-        summary: "Pack file in the community repo.",
-        file: item.name,
-        download_url: item.download_url || "",
-      })),
-      problems: [],
-    };
+    const folder = String(settings.path || "packs").replace(/^\/+|\/+$/g, "");
+    const indexUrl = `https://raw.githubusercontent.com/${settings.repo}/main/${folder}/index.json`;
+    let response;
+    try {
+      response = await fetchImpl(indexUrl, { headers: { Accept: "application/json", "User-Agent": "ue5-systems-trainer" } });
+    } catch (exc) {
+      return { packs: [], problems: [`Couldn't reach GitHub (${exc.message}). Import a .bbpack from this computer.`] };
+    }
+    if (!response || !response.ok) {
+      return { packs: [], problems: [`GitHub returned ${response ? response.status : "no response"} for ${settings.repo}. The list stays empty until the index is reachable.`] };
+    }
+    let parsed;
+    try {
+      parsed = await response.json();
+    } catch {
+      return { packs: [], problems: ["The community index is not valid JSON."] };
+    }
+    if (!parsed || !Array.isArray(parsed.packs)) {
+      return { packs: [], problems: ["The community index has no packs list."] };
+    }
+    const packs = [];
+    const problems = [];
+    for (const pack of parsed.packs) {
+      const id = String(pack.id || "").trim();
+      const file = String(pack.file || "").trim();
+      const title = String(pack.title || pack.name || "").trim();
+      if (!id || !title || !file || file.includes("..") || file.includes("\\") || file.startsWith("/")) {
+        problems.push("A community pack row needs an id, a name, and a safe file.");
+        continue;
+      }
+      packs.push({
+        id,
+        title,
+        file,
+        author: String(pack.author || "Unknown"),
+        summary: String(pack.description || pack.summary || ""),
+        version: String(pack.version || ""),
+        tags: Array.isArray(pack.tags) ? pack.tags.map((tag) => String(tag)) : [],
+        download_url: `https://raw.githubusercontent.com/${settings.repo}/main/${folder}/${file}`,
+      });
+    }
+    if (!packs.length && !problems.length) problems.push("The community index has no packs.");
+    return { packs, problems };
   }
 
   route("GET", "/api/community", async () => {
@@ -732,7 +759,9 @@ async function startServer(options = {}) {
       const response = await fetchImpl(pack.download_url, { headers: { "User-Agent": "blueprint-builder" } });
       if (!response.ok) throw new HttpError(502, "GitHub did not return that pack.");
       const bytes = Buffer.from(await response.arrayBuffer());
-      return { filename: pack.file, base64: bytes.toString("base64") };
+      const decoded = decodePack(bytes);
+      if (!decoded.ok) throw new HttpError(400, decoded.errors[0] || "That pack did not validate.");
+      return { filename: pack.file, base64: bytes.toString("base64"), preview: decoded.preview };
     }
     if (local) return readLocal();
     throw new HttpError(404, "That pack isn't available.");

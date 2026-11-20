@@ -181,6 +181,7 @@ export default function Workspace() {
   const [newExtra, setNewExtra] = useState(() => readDraft("newExtra", ""));
   const [result, setResult] = useState(() => readDraft("result", null));
   const [loading, setLoading] = useState(false);
+  const [synthesizeNote, setSynthesizeNote] = useState(false);
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState(0);
   const [tab, setTab] = useState(() => readDraft("tab", "graph"));
@@ -1571,6 +1572,24 @@ export default function Workspace() {
                          ? (<><PlayCircle size={14} /> Regenerate with {pendingChanges.length} change{pendingChanges.length === 1 ? "" : "s"}</>)
                          : (<><PlayCircle size={14} /> Synthesize System</>)}
             </button>
+            <div className="relative mt-2 text-center">
+              <button
+                type="button"
+                className="glossary-term text-[12px]"
+                data-testid="synthesize-more"
+                aria-expanded={synthesizeNote}
+                onClick={() => setSynthesizeNote((open) => !open)}
+              >
+                More about this
+              </button>
+              {synthesizeNote && (
+                <span className="glossary-pop text-left" style={{ zIndex: 80, left: 0, right: 0, width: "auto" }} data-testid="synthesize-more-pop">
+                  <span className="glossary-pop-term">Synthesize System</span>
+                  <span className="glossary-pop-summary">This is an evolving experimental feature and may not always produce usable, clean code. It's meant to supplement the learning mechanics of customizing systems and getting used to them. Use auto-checks to troubleshoot before relying on anything.</span>
+                  <button type="button" className="glossary-see-link mt-2" data-testid="synthesize-more-close" onClick={() => setSynthesizeNote(false)}>Close</button>
+                </span>
+              )}
+            </div>
           </fieldset>
 
           {/* Templates */}

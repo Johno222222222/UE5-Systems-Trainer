@@ -66,7 +66,7 @@ function settingsPath(dataDir) {
 }
 
 function readSettings(dataDir) {
-  const defaults = { enabled: false, repo: "", path: "packs" };
+  const defaults = { enabled: true, repo: "Johno222222222/ue5-systems-training-tool-packs", path: "packs" };
   try {
     const parsed = JSON.parse(fs.readFileSync(settingsPath(dataDir), "utf8"));
     return {
