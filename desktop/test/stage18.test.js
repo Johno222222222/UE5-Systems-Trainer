@@ -106,12 +106,13 @@ test("broken exam graphs show the question's own sample", () => {
 });
 
 test("program lessons link glossary text and leave the C++ excerpt plain", () => {
-  const source = fs.readFileSync(path.join(__dirname, "..", "..", "frontend", "src", "shell", "Programs.jsx"), "utf8");
+  const source = fs.readFileSync(path.join(__dirname, "..", "..", "frontend", "src", "shell", "LessonStudio.jsx"), "utf8");
   assert.match(source, /GlossaryText text=\{body\}/);
-  assert.match(source, /GlossaryText text=\{section\.assignment\.prompt\}/);
+  assert.match(source, /GlossaryText text=\{task\.prompt\}/);
   assert.match(source, /GlossaryText text=\{question\.prompt\}/);
-  const cpp = source.slice(source.indexOf('data-testid="track-cpp"'), source.indexOf('data-testid="track-cpp"') + 280);
+  const cpp = source.slice(source.indexOf('data-testid="track-cpp"'), source.indexOf('data-testid="track-cpp"') + 500);
   assert.ok(!cpp.includes("GlossaryText"));
+  assert.match(fs.readFileSync(path.join(__dirname, "..", "..", "frontend", "src", "shell", "Programs.jsx"), "utf8"), /LessonStudio/);
   const learn = fs.readFileSync(path.join(__dirname, "..", "..", "frontend", "src", "shell", "Learn.jsx"), "utf8");
   assert.match(learn, /data-testid="learn-thumbs"/);
   assert.ok(!learn.includes('className={`chip ${pane'));

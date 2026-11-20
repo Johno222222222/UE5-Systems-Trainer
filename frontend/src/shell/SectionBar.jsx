@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { openInTargets, visibleSections } from "../lib/shell.mjs";
 import { HELP_LEVELS } from "../lib/learning.mjs";
+import { feedbackUrl } from "../lib/stage0.mjs";
 import { useShell } from "./ShellContext";
 
 export default function SectionBar() {
@@ -43,6 +44,11 @@ export default function SectionBar() {
           );
         })}
       </nav>
+      {shell.appInfo?.update?.version && (
+        <a className="chip shrink-0" href={shell.appInfo.update.url} target="_blank" rel="noreferrer" data-testid="update-available" title="A newer release is on GitHub">New version {shell.appInfo.update.version}</a>
+      )}
+      <button type="button" className="ue-btn !py-1 !px-2 !text-[11px]" data-testid="help-reopen" onClick={() => shell.openWelcome()}>Help</button>
+      <a className="ue-btn !py-1 !px-2 !text-[11px]" data-testid="report-bug" href={feedbackUrl({ version: shell.version, category: "Bug", os: typeof navigator !== "undefined" ? navigator.platform : "" })} target="_blank" rel="noreferrer">Report a bug</a>
       <div className="help-switch" role="group" aria-label="Help level" data-testid="help-level-switch">
         {HELP_LEVELS.map((level) => (
           <button

@@ -203,5 +203,5 @@ test("the installer workflow builds macOS and Linux apart from Windows", () => {
   assert.equal(/windows:[\s\S]*?needs:\s*\[macos/.test(text), false);
   const pkg = require("../../package.json");
   assert.ok(pkg.build.files.some((item) => String(item).includes("content/community")));
-  assert.equal(pkg.version, "1.18.0");
+  assert.equal(pkg.version, "1.19.0");
 });

@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { api } from "../lib/api";
+import { api, errorText } from "../lib/api";
 import { readyChallenge } from "../lib/practice.mjs";
 import { learnQuestions, pictureOf } from "../lib/learnQuiz.mjs";
+import { presentQuiz } from "../lib/quizShuffle.js";
+import { expansionExamples } from "../lib/lineExplain.js";
 import ChoiceButton from "../components/ChoiceButton";
+import GlossaryText from "../components/GlossaryText";
 import { useShell } from "./ShellContext";
 
 function GraphThumb({ nodes, wires, testId }) {
@@ -54,12 +57,23 @@ export default function Learn() {
   const [picked, setPicked] = useState(null);
   const [note, setNote] = useState("");
   useEffect(() => shell.session.subscribe(setDraft), [shell.session]);
+  useEffect(() => {
+    api.get("/settings").then((response) => {
+      setCanExplain(Object.values(response.data?.keys || {}).some(Boolean));
+    }).catch(() => setCanExplain(false));
+  }, []);
   const system = draft?.result;
   const [mode, setMode] = useState("picture");
   const [level, setLevel] = useState("beginner");
   const [pane, setPane] = useState("graph");
+  const [quizSeed, setQuizSeed] = useState(1);
+  const [linePick, setLinePick] = useState(null);
+  const [depPick, setDepPick] = useState("");
+  const [expPick, setExpPick] = useState("");
+  const [more, setMore] = useState("");
+  const [canExplain, setCanExplain] = useState(false);
   const picture = pictureOf(system || {});
-  const challenges = learnQuestions(system, level);
+  const challenges = presentQuiz(learnQuestions(system, level), quizSeed);
   const index = Math.min(shell.learnIndex || 0, Math.max(challenges.length - 1, 0));
   const challenge = readyChallenge(challenges[index], system);
 
@@ -108,25 +122,75 @@ export default function Learn() {
         <h1 className="font-display text-[36px] font-extrabold uppercase tracking-wider leading-none mt-1">{system.system_name || "This system"}</h1>
         <div className="mt-3 flex flex-wrap gap-2" data-testid="learn-modes">
           <button type="button" className={`chip ${mode === "picture" ? "active" : ""}`} data-testid="learn-mode-picture" onClick={() => setMode("picture")}>Big Picture</button>
-          <button type="button" className={`chip ${mode === "quiz" ? "active" : ""}`} data-testid="learn-mode-quiz" onClick={() => setMode("quiz")}>Quiz</button>
+          <button type="button" className={`chip ${mode === "quiz" ? "active" : ""}`} data-testid="learn-mode-quiz" onClick={() => { setQuizSeed(Date.now()); setMode("quiz"); setPicked(null); }}>Quiz</button>
         </div>
         {mode === "picture" && (
           <div className="mt-4" data-testid="learn-picture">
             <div className="panel p-3">
               {pane === "graph" && <GraphThumb nodes={picture.nodes} wires={picture.wires} testId="learn-graph-image" />}
+              {pane === "graph" && (
+                <div className="mt-3" data-testid="learn-why-notes">
+                  {(picture.whyNotes || []).map((item) => (
+                    <p key={item.id || item.label} className="mt-2 text-[13px] text-[var(--text-secondary)]"><GlossaryText text={item.layman} /></p>
+                  ))}
+                  {!picture.whyNotes?.length && <p className="text-[13px] text-[var(--text-secondary)]">This system has no event graph yet, so there are no node notes.</p>}
+                </div>
+              )}
               {pane === "cpp" && (
-                <pre className="text-[13px] font-mono text-[var(--text-secondary)] overflow-auto whitespace-pre" data-testid="learn-cpp">
-                  {picture.lines.map((row) => `${String(row.line).padStart(3, " ")}  ${row.text}`).join("\n") || "No C++ yet."}
-                </pre>
+                <div className="lesson-cpp" data-testid="learn-cpp">
+                  <div className="lesson-cpp-code">
+                    {picture.lines.map((row) => (
+                      <button key={row.line} type="button" className={`lesson-line ${linePick === row.line ? "active" : ""}`} data-testid={`learn-line-${row.line}`} onClick={() => { setLinePick(row.line); setMore(""); }}>
+                        <span className="lesson-line-no">{row.line}</span>
+                        <span className="lesson-line-text">{row.text}</span>
+                      </button>
+                    ))}
+                    {!picture.lines.length && <p className="text-[13px]">No C++ yet.</p>}
+                  </div>
+                  <aside className="lesson-cpp-note" data-testid="learn-line-note">
+                    {picture.lines.find((row) => row.line === linePick) ? (
+                      <>
+                        <p className="text-[13px]">{picture.lines.find((row) => row.line === linePick).note}</p>
+                        {canExplain && (
+                          <button type="button" className="ue-btn mt-3" data-testid="learn-explain-more" onClick={async () => {
+                            const row = picture.lines.find((item) => item.line === linePick);
+                            try {
+                              const { data } = await api.post("/explain-line", { line: row.text, note: row.note });
+                              setMore(data.text || "");
+                            } catch (err) { setMore(errorText(err)); }
+                          }}>Explain more</button>
+                        )}
+                        {!canExplain && <p className="mt-3 text-[12px] text-[var(--text-muted)]" data-testid="learn-explain-off">Explain more needs an API key in Settings.</p>}
+                        {more && <p className="mt-2 text-[13px]" data-testid="learn-explain-text">{more}</p>}
+                      </>
+                    ) : <p className="text-[13px] text-[var(--text-secondary)]">Click a line.</p>}
+                  </aside>
+                </div>
               )}
               {pane === "dependencies" && (
-                <ul data-testid="learn-dependencies">{picture.dependencies.map((item) => <li key={item} className="text-[13px]">{item}</li>)}</ul>
+                <div data-testid="learn-dependencies">
+                  {(picture.dependencyNotes || []).map((item) => (
+                    <button key={item.name} type="button" className="block text-left text-[13px] underline decoration-dotted mt-1" data-testid={`learn-dep-${item.name}`} onClick={() => setDepPick(depPick === item.name ? "" : item.name)}>{item.name}</button>
+                  ))}
+                  {depPick && <p className="mt-2 text-[13px]" data-testid="learn-dep-note">{(picture.dependencyNotes || []).find((item) => item.name === depPick)?.note}</p>}
+                </div>
               )}
               {pane === "expansions" && (
-                <ul data-testid="learn-expansions">{picture.expansions.map((item) => <li key={item} className="text-[13px]">{item}</li>)}</ul>
+                <div data-testid="learn-expansions">
+                  {picture.expansions.map((item) => (
+                    <button key={item} type="button" className="block text-left text-[13px] mt-2" onClick={() => setExpPick(expPick === item ? "" : item)}>{item}</button>
+                  ))}
+                  {expPick && (
+                    <div className="mt-2" data-testid="learn-expansion-examples">
+                      {expansionExamples(expPick).map((example) => (
+                        <p key={example.title} className="mt-1 text-[13px]"><strong>{example.title}.</strong> {example.detail}</p>
+                      ))}
+                    </div>
+                  )}
+                </div>
               )}
               {pane === "properties" && (
-                <ul data-testid="learn-properties">{(picture.properties.length ? picture.properties : ["No UPROPERTY yet."]).map((item) => <li key={item} className="text-[13px]">{item}</li>)}</ul>
+                <ul data-testid="learn-properties">{(picture.properties.length ? picture.properties : ["No UPROPERTY yet."]).map((item) => <li key={item} className="text-[13px]"><GlossaryText text={item} /></li>)}</ul>
               )}
             </div>
             <div className="mt-3 grid grid-cols-2 md:grid-cols-5 gap-2" data-testid="learn-thumbs">
@@ -168,8 +232,8 @@ export default function Learn() {
         {mode === "quiz" && (
           <>
             <div className="mt-3 flex flex-wrap gap-2" data-testid="learn-levels">
-              <button type="button" className={`chip ${level === "beginner" ? "active" : ""}`} data-testid="learn-level-beginner" onClick={() => { setLevel("beginner"); setPicked(null); }}>Beginner</button>
-              <button type="button" className={`chip ${level === "intermediate" ? "active" : ""}`} data-testid="learn-level-intermediate" onClick={() => { setLevel("intermediate"); setPicked(null); }}>Intermediate</button>
+              <button type="button" className={`chip ${level === "beginner" ? "active" : ""}`} data-testid="learn-level-beginner" onClick={() => { setLevel("beginner"); setQuizSeed(Date.now()); setPicked(null); }}>Beginner</button>
+              <button type="button" className={`chip ${level === "intermediate" ? "active" : ""}`} data-testid="learn-level-intermediate" onClick={() => { setLevel("intermediate"); setQuizSeed(Date.now()); setPicked(null); }}>Intermediate</button>
             </div>
             <p className="mt-2 text-[13px] text-[var(--text-secondary)]">Question {challenges.length ? index + 1 : 0} of {challenges.length}. Answering these does not call the model.</p>
           </>

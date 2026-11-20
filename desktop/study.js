@@ -88,7 +88,13 @@ function scoreAttempt(module, attempt, passMark) {
   let correct = 0;
   const wrong = [];
   for (const question of questions) {
-    if (Number(answers[question.id]) === question.answer) correct += 1;
+    const choices = question.choices || [];
+    const given = answers[question.id];
+    const correctText = choices[Number(question.answer)];
+    const hit = typeof given === "string" && choices.includes(given)
+      ? given === correctText
+      : Number(given) === question.answer;
+    if (hit) correct += 1;
     else wrong.push(question);
   }
   const diff = module?.diff;
