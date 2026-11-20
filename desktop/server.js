@@ -56,6 +56,7 @@ const {
 const { knownLocks, checkConstraints } = require("./constraints");
 const { repairCommonCpp } = require("./repair");
 const { stackMap, composeStack } = require("./stackMap");
+const { buildTracks, trackById, scoreQuestions, problemsForTracks } = require("./tracks");
 const { DISPLAY_NAME } = require("./displayName");
 const { detectEngine, compilePlugin } = require("./engine");
 const { moduleName, writePlugin, copyTree, enablePlugin } = require("./pluginFiles");
@@ -1550,6 +1551,8 @@ async function startServer(options = {}) {
       id: course.id,
       title: course.title,
       summary: course.summary,
+      level: course.level || "",
+      genre: course.genre || "general",
       pass_mark: course.pass_mark,
       modules: (course.modules || []).map((mod) => ({
         id: mod.id,
@@ -1667,6 +1670,65 @@ async function startServer(options = {}) {
       state.project_id = project.project_id;
       study.programs[program.id] = state;
       return { ...project, complete: true };
+    });
+  });
+
+  function trackState(study) {
+    if (!study.tracks || typeof study.tracks !== "object" || Array.isArray(study.tracks)) study.tracks = {};
+    return study.tracks;
+  }
+
+  route("GET", "/api/tracks", async () => {
+    const tracks = buildTracks();
+    const saved = trackState(liveStudy());
+    return {
+      problems: problemsForTracks(tracks),
+      tracks: tracks.map((track) => ({
+        id: track.id,
+        title: track.title,
+        genre: track.genre,
+        level: track.level,
+        summary: track.summary,
+        sections: track.sections.map((section) => ({ id: section.id, order: section.order, title: section.title })),
+        progress: saved[track.id] || null,
+      })),
+    };
+  });
+
+  route("GET", "/api/tracks/:id", async (_req, params) => {
+    const track = trackById(params.id);
+    if (!track) throw new HttpError(404, "That track isn't in the programs.");
+    return { track, state: trackState(liveStudy())[track.id] || { sections: {}, exam: null } };
+  });
+
+  route("POST", "/api/tracks/:id/sections/:section_id/attempt", async (req, params) => {
+    const track = trackById(params.id);
+    if (!track) throw new HttpError(404, "That track isn't in the programs.");
+    const section = track.sections.find((item) => item.id === params.section_id);
+    if (!section) throw new HttpError(404, "That section isn't in the track.");
+    const body = await readJson(req);
+    const scored = scoreQuestions(section.quiz, body.answers);
+    const assignment_ok = acceptText(section.assignment.accept, body.assignment);
+    return store.update((data) => {
+      data.progress = ensureStudy(data.progress);
+      const saved = trackState(data.progress.study);
+      if (!saved[track.id]) saved[track.id] = { sections: {}, exam: null };
+      saved[track.id].sections[section.id] = { percent: scored.percent, passed: scored.passed, assignment_ok };
+      return { ...scored, assignment_ok, model: section.assignment.model || "" };
+    });
+  });
+
+  route("POST", "/api/tracks/:id/exam", async (req, params) => {
+    const track = trackById(params.id);
+    if (!track) throw new HttpError(404, "That track isn't in the programs.");
+    const body = await readJson(req);
+    const scored = scoreQuestions(track.exam.questions, body.answers);
+    return store.update((data) => {
+      data.progress = ensureStudy(data.progress);
+      const saved = trackState(data.progress.study);
+      if (!saved[track.id]) saved[track.id] = { sections: {}, exam: null };
+      saved[track.id].exam = { percent: scored.percent, passed: scored.passed };
+      return scored;
     });
   });
 

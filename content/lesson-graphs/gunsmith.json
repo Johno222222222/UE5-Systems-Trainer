@@ -1,0 +1,20 @@
+{
+  "id": "gunsmith",
+  "title": "Gunsmith",
+  "summary": "Ten slots live in data. The equipped id is what replicates.",
+  "variables": [{"name": "EquippedId", "type": "float", "default": "0.f"}],
+  "graph": {
+    "kind": "event",
+    "name": "Gunsmith",
+    "nodes": [
+      {"key": "input", "catalog": "enhanced-input", "x": 40, "y": 80, "data": {"action": "IA_Equip"}, "note": "IA_Equip picks a slot. The radial menu can send the same action."},
+      {"key": "auth", "catalog": "has-authority", "x": 320, "y": 80, "note": "The server decides the equipped id."},
+      {"key": "set", "catalog": "set-variable", "x": 600, "y": 80, "data": {"variable": "EquippedId", "varType": "float"}, "note": "Replicate EquippedId. The client builds the mesh from the data asset."}
+    ],
+    "wires": [
+      {"from": "input", "fromPin": "Triggered", "to": "auth", "toPin": "Exec"},
+      {"from": "auth", "fromPin": "Exec", "to": "set", "toPin": "Exec"},
+      {"from": "input", "fromPin": "Value", "to": "set", "toPin": "Value"}
+    ]
+  }
+}

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import GlossaryText from "./GlossaryText";
 import { api } from "../lib/api";
 import { exportBlueprintText, importBlueprintText } from "../lib/blueprint-text.mjs";
@@ -853,7 +854,10 @@ export default function EventGraph({
           {(menu.nodeId || menu.wireId) && <button type="button" className="graph-menu-item" onClick={() => { commit(removeParts(graph, { nodes: menu.nodeId ? [menu.nodeId] : [], wires: menu.wireId ? [menu.wireId] : [] })); setMenu(null); }}>Delete</button>}
         </div>
       )}
-      {hint && <div className="graph-hint" style={{ left: hint.x, top: hint.y }} data-testid="graph-wire-hint">{hint.text}</div>}
+      {hint && createPortal(
+        <div className="graph-hint" style={{ left: hint.x, top: hint.y, zIndex: 80 }} data-testid="graph-wire-hint">{hint.text}</div>,
+        document.body,
+      )}
     </div>
   );
 }

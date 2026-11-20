@@ -21,6 +21,7 @@ export function ShellProvider({ children }) {
   });
   const [memory, setMemory] = useState({});
   const [homeFocus, setHomeFocus] = useState(null);
+  const [stackTick, setStackTick] = useState(0);
   const [draftTick, setDraftTick] = useState(0);
   const [reveal, setReveal] = useState(() => loadWorkspace(window.localStorage)?.reveal || null);
   const [learnIndex, setLearnIndex] = useState(() => Number(loadWorkspace(window.localStorage)?.learnIndex) || 0);
@@ -152,6 +153,11 @@ export function ShellProvider({ children }) {
       setHomeFocus(target);
       setSection("home");
     },
+    stackTick,
+    focusStack: () => {
+      setSection("tools");
+      setStackTick((n) => n + 1);
+    },
     draftTick,
     helpLevel,
     setHelpLevel,
@@ -166,7 +172,7 @@ export function ShellProvider({ children }) {
     setReferencesView,
     openConcept,
     openExample,
-  }), [session, section, memory, toolsOpen, homeFocus, appInfo, chip, commandNonce, go, issue, takeCommand, sendToSection, draftTick, helpLevel, reveal, learnIndex, conceptId, exampleId, exampleTick, referencesView, openConcept, openExample]);
+  }), [session, section, memory, toolsOpen, homeFocus, stackTick, appInfo, chip, commandNonce, go, issue, takeCommand, sendToSection, draftTick, helpLevel, reveal, learnIndex, conceptId, exampleId, exampleTick, referencesView, openConcept, openExample]);
 
   return <ShellContext.Provider value={value}>{children}</ShellContext.Provider>;
 }

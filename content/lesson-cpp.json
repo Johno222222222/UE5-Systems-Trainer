@@ -1,0 +1,1546 @@
+{
+  "ai-patrol": {
+    "lines": [
+      {
+        "line": 5,
+        "text": "// graph:begin event"
+      },
+      {
+        "line": 6,
+        "text": "void UKitComponent::Graph_BeginPlay_tpl_aipatrol_begin() // node:tpl_ai-patrol_begin"
+      },
+      {
+        "line": 7,
+        "text": "{"
+      },
+      {
+        "line": 8,
+        "text": "\tif (UWorld* World = GetWorld()) { FTimerHandle Timer_tpl_aipatrol_timer; World->GetTimerManager().SetTimer(Timer_tpl_aipatrol_timer, this, &UKitComponent::Graph_AdvancePatrol_tpl_aipatrol_advance, 1.f, false); } // node:tpl_ai-patrol_timer"
+      },
+      {
+        "line": 9,
+        "text": "}"
+      },
+      {
+        "line": 11,
+        "text": "void UKitComponent::Graph_AdvancePatrol_tpl_aipatrol_advance() // node:tpl_ai-patrol_advance"
+      },
+      {
+        "line": 12,
+        "text": "{"
+      },
+      {
+        "line": 13,
+        "text": "\t// node:tpl_ai-patrol_flip"
+      },
+      {
+        "line": 14,
+        "text": "\tFlip_tpl_aipatrol_flip = !Flip_tpl_aipatrol_flip;"
+      },
+      {
+        "line": 15,
+        "text": "\t// A"
+      },
+      {
+        "line": 16,
+        "text": "\t{"
+      },
+      {
+        "line": 17,
+        "text": "\t\tGoingRight = true; // node:tpl_ai-patrol_set"
+      },
+      {
+        "line": 18,
+        "text": "\t}"
+      },
+      {
+        "line": 19,
+        "text": "\t// B"
+      },
+      {
+        "line": 20,
+        "text": "\t{"
+      },
+      {
+        "line": 21,
+        "text": "\t}"
+      }
+    ]
+  },
+  "door": {
+    "lines": [
+      {
+        "line": 9,
+        "text": "// graph:begin event"
+      },
+      {
+        "line": 10,
+        "text": "void UKitComponent::Graph_OnComponentBeginOverlap_tpl_door_overlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) // node:tpl_door_overlap"
+      },
+      {
+        "line": 11,
+        "text": "{"
+      },
+      {
+        "line": 12,
+        "text": "\tif (!Timeline_tpl_door_timeline) { AActor* TimelineOwner_tpl_door_timeline = GetOwner(); Timeline_tpl_door_timeline = NewObject<UTimelineComponent>(TimelineOwner_tpl_door_timeline ? static_cast<UObject*>(TimelineOwner_tpl_door_timeline) : static_cast<UObject*>(this)); Timeline_tpl_door_timeline->PrimaryComponentTick.bCanEverTick = true; Timeline_tpl_door_timeline->SetComponentTickEnabled(true); if (TimelineOwner_tpl_door_timeline) { Timeline_tpl_door_timeline->RegisterComponent(); } UCurveFloat* Curve_tpl_door_timeline = NewObject<UCurveFloat>(this); Curve_tpl_door_timeline->FloatCurve.AddKey(0.f, 0.f); Curve_tpl_door_timeline->FloatCurve.AddKey(1.f, 1.f); FOnTimelineFloat Update_tpl_door_timeline; Update_tpl_door_timeline.BindDynamic(this, &UKitComponent::OnTimelineUpdate_tpl_door_timeline); Timeline_tpl_door_timeline->AddInterpFloat(Curve_tpl_door_timeline, Update_tpl_door_timeline); FOnTimelineEvent Finished_tpl_door_timeline; Finished_tpl_door_timeline.BindDynamic(this, &UKitComponent::OnTimelineFinished_tpl_door_timeline); Timeline_tpl_door_timeline->SetTimelineFinishedFunc(Finished_tpl_door_timeline); } Timeline_tpl_door_timeline->PlayFromStart(); // node:tpl_door_timeline"
+      },
+      {
+        "line": 13,
+        "text": "}"
+      },
+      {
+        "line": 15,
+        "text": "void UKitComponent::BeginPlay()"
+      },
+      {
+        "line": 16,
+        "text": "{"
+      },
+      {
+        "line": 17,
+        "text": "\tSuper::BeginPlay();"
+      },
+      {
+        "line": 18,
+        "text": "\tif (AActor* Owner = GetOwner())"
+      },
+      {
+        "line": 19,
+        "text": "\t{"
+      },
+      {
+        "line": 20,
+        "text": "\t\tTArray<UPrimitiveComponent*> Prims;"
+      },
+      {
+        "line": 21,
+        "text": "\t\tOwner->GetComponents<UPrimitiveComponent>(Prims);"
+      },
+      {
+        "line": 22,
+        "text": "\t\tfor (UPrimitiveComponent* Prim : Prims)"
+      },
+      {
+        "line": 23,
+        "text": "\t\t{"
+      },
+      {
+        "line": 24,
+        "text": "\t\t\tPrim->OnComponentBeginOverlap.AddDynamic(this, &UKitComponent::Graph_OnComponentBeginOverlap_tpl_door_overlap);"
+      },
+      {
+        "line": 25,
+        "text": "\t\t}"
+      }
+    ]
+  },
+  "gas-effect": {
+    "lines": [
+      {
+        "line": 5,
+        "text": "// graph:begin event"
+      },
+      {
+        "line": 6,
+        "text": "void UKitComponent::Graph_BeginPlay_tpl_gaseffect_begin() // node:tpl_gas-effect_begin"
+      },
+      {
+        "line": 7,
+        "text": "{"
+      },
+      {
+        "line": 8,
+        "text": "\tOnEffect.AddDynamic(this, &UKitComponent::OnOnEffectBound_tpl_gaseffect_bind); // node:tpl_gas-effect_bind"
+      },
+      {
+        "line": 9,
+        "text": "\tif (UWorld* World = GetWorld()) { FTimerHandle Timer_tpl_gaseffect_timer; World->GetTimerManager().SetTimer(Timer_tpl_gaseffect_timer, this, &UKitComponent::Graph_ApplyEffect_tpl_gaseffect_apply, 1.f, true); } // node:tpl_gas-effect_timer"
+      },
+      {
+        "line": 10,
+        "text": "}"
+      },
+      {
+        "line": 12,
+        "text": "void UKitComponent::Graph_ApplyEffect_tpl_gaseffect_apply() // node:tpl_gas-effect_apply"
+      },
+      {
+        "line": 13,
+        "text": "{"
+      },
+      {
+        "line": 14,
+        "text": "\tOnEffect.Broadcast(); // node:tpl_gas-effect_call"
+      },
+      {
+        "line": 15,
+        "text": "}"
+      },
+      {
+        "line": 17,
+        "text": "void UKitComponent::BeginPlay()"
+      },
+      {
+        "line": 18,
+        "text": "{"
+      },
+      {
+        "line": 19,
+        "text": "\tSuper::BeginPlay();"
+      },
+      {
+        "line": 20,
+        "text": "\tGraph_BeginPlay_tpl_gaseffect_begin();"
+      },
+      {
+        "line": 21,
+        "text": "}"
+      },
+      {
+        "line": 23,
+        "text": "void UKitComponent::OnOnEffectBound_tpl_gaseffect_bind()"
+      }
+    ]
+  },
+  "health": {
+    "lines": [
+      {
+        "line": 6,
+        "text": "// graph:begin event"
+      },
+      {
+        "line": 7,
+        "text": "void UKitComponent::Graph_AnyDamage_tpl_health_dmg(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser) // node:tpl_health_dmg"
+      },
+      {
+        "line": 8,
+        "text": "{"
+      },
+      {
+        "line": 9,
+        "text": "\tHealth = FMath::Clamp((Health - Damage), 0.f, MaxHealth); // node:tpl_health_set"
+      },
+      {
+        "line": 10,
+        "text": "\tif ((Health == 0.f)) // node:tpl_health_branch"
+      },
+      {
+        "line": 11,
+        "text": "\t{"
+      },
+      {
+        "line": 12,
+        "text": "\t\tUE_LOG(LogTemp, Display, TEXT(\"%s\"), TEXT(\"Died\")); // node:tpl_health_die"
+      },
+      {
+        "line": 13,
+        "text": "\t}"
+      },
+      {
+        "line": 14,
+        "text": "\telse"
+      },
+      {
+        "line": 15,
+        "text": "\t{"
+      },
+      {
+        "line": 16,
+        "text": "\t}"
+      },
+      {
+        "line": 17,
+        "text": "}"
+      },
+      {
+        "line": 19,
+        "text": "void UKitComponent::BeginPlay()"
+      },
+      {
+        "line": 20,
+        "text": "{"
+      },
+      {
+        "line": 21,
+        "text": "\tSuper::BeginPlay();"
+      },
+      {
+        "line": 22,
+        "text": "\tif (AActor* Owner = GetOwner())"
+      }
+    ]
+  },
+  "interact": {
+    "lines": [
+      {
+        "line": 7,
+        "text": "// graph:begin event"
+      },
+      {
+        "line": 8,
+        "text": "void UKitComponent::Graph_IA_Interact_tpl_interact_input() // node:tpl_interact_input"
+      },
+      {
+        "line": 9,
+        "text": "{"
+      },
+      {
+        "line": 10,
+        "text": "\tFHitResult Hit_tpl_interact_trace; bool bHit_tpl_interact_trace = false; if (UWorld* World_tpl_interact_trace = GetWorld()) { const FVector Start_tpl_interact_trace = GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector; bHit_tpl_interact_trace = World_tpl_interact_trace->LineTraceSingleByChannel(Hit_tpl_interact_trace, Start_tpl_interact_trace, Start_tpl_interact_trace + FVector(200.f, 0.f, 0.f), ECC_Visibility); } // node:tpl_interact_trace"
+      },
+      {
+        "line": 11,
+        "text": "\tif (bHit_tpl_interact_trace) // node:tpl_interact_branch"
+      },
+      {
+        "line": 12,
+        "text": "\t{"
+      },
+      {
+        "line": 13,
+        "text": "\t\tif (AActor* Target_tpl_interact_call = Cast<AActor>(Hit_tpl_interact_trace.GetActor())) { if (UFunction* Fn_tpl_interact_call = Target_tpl_interact_call->FindFunction(TEXT(\"Interact\"))) { Target_tpl_interact_call->ProcessEvent(Fn_tpl_interact_call, nullptr); } } // node:tpl_interact_call"
+      },
+      {
+        "line": 14,
+        "text": "\t}"
+      },
+      {
+        "line": 15,
+        "text": "\telse"
+      },
+      {
+        "line": 16,
+        "text": "\t{"
+      },
+      {
+        "line": 17,
+        "text": "\t\tUE_LOG(LogTemp, Display, TEXT(\"%s\"), TEXT(\"Nothing to use\")); // node:tpl_interact_miss"
+      },
+      {
+        "line": 18,
+        "text": "\t}"
+      },
+      {
+        "line": 19,
+        "text": "}"
+      },
+      {
+        "line": 20,
+        "text": "// graph:end event"
+      },
+      {
+        "line": 22,
+        "text": "// graph:begin variables"
+      },
+      {
+        "line": 23,
+        "text": "// No graph variables."
+      }
+    ]
+  },
+  "inventory-slot": {
+    "lines": [
+      {
+        "line": 7,
+        "text": "// graph:begin event"
+      },
+      {
+        "line": 8,
+        "text": "void UKitComponent::Graph_OnComponentBeginOverlap_tpl_inventoryslot_overlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) // node:tpl_inventory-slot_overlap"
+      },
+      {
+        "line": 9,
+        "text": "{"
+      },
+      {
+        "line": 10,
+        "text": "\tif ((StackCount > 0.f)) // node:tpl_inventory-slot_branch"
+      },
+      {
+        "line": 11,
+        "text": "\t{"
+      },
+      {
+        "line": 12,
+        "text": "\t\tif (AActor* Target_tpl_inventoryslot_call = Cast<AActor>(OtherActor)) { if (UFunction* Fn_tpl_inventoryslot_call = Target_tpl_inventoryslot_call->FindFunction(TEXT(\"AddToSlot\"))) { Target_tpl_inventoryslot_call->ProcessEvent(Fn_tpl_inventoryslot_call, nullptr); } } // node:tpl_inventory-slot_call"
+      },
+      {
+        "line": 13,
+        "text": "\t}"
+      },
+      {
+        "line": 14,
+        "text": "\telse"
+      },
+      {
+        "line": 15,
+        "text": "\t{"
+      },
+      {
+        "line": 16,
+        "text": "\t\tStackCount = 0.f; // node:tpl_inventory-slot_store"
+      },
+      {
+        "line": 17,
+        "text": "\t}"
+      },
+      {
+        "line": 18,
+        "text": "}"
+      },
+      {
+        "line": 20,
+        "text": "void UKitComponent::BeginPlay()"
+      },
+      {
+        "line": 21,
+        "text": "{"
+      },
+      {
+        "line": 22,
+        "text": "\tSuper::BeginPlay();"
+      },
+      {
+        "line": 23,
+        "text": "\tif (AActor* Owner = GetOwner())"
+      }
+    ]
+  },
+  "pickup-wait": {
+    "lines": [
+      {
+        "line": 5,
+        "text": "// graph:begin event"
+      },
+      {
+        "line": 6,
+        "text": "void UKitComponent::Graph_IA_Interact_tpl_pickupwait_input() // node:tpl_pickup-wait_input"
+      },
+      {
+        "line": 7,
+        "text": "{"
+      },
+      {
+        "line": 8,
+        "text": "\tif (UWorld* World = GetWorld()) { FTimerHandle Delay_tpl_pickupwait_delay; World->GetTimerManager().SetTimer(Delay_tpl_pickupwait_delay, FTimerDelegate(), 0.2f, false); } // node:tpl_pickup-wait_delay"
+      },
+      {
+        "line": 9,
+        "text": "\tAActor* Cast_tpl_pickupwait_cast = Cast<AActor>(nullptr); // node:tpl_pickup-wait_cast"
+      },
+      {
+        "line": 10,
+        "text": "\tif (Cast_tpl_pickupwait_cast)"
+      },
+      {
+        "line": 11,
+        "text": "\t{"
+      },
+      {
+        "line": 12,
+        "text": "\t\tif (AActor* Target_tpl_pickupwait_call = Cast<AActor>(Cast_tpl_pickupwait_cast)) { if (UFunction* Fn_tpl_pickupwait_call = Target_tpl_pickupwait_call->FindFunction(TEXT(\"Interact\"))) { Target_tpl_pickupwait_call->ProcessEvent(Fn_tpl_pickupwait_call, nullptr); } } // node:tpl_pickup-wait_call"
+      },
+      {
+        "line": 13,
+        "text": "\t}"
+      },
+      {
+        "line": 14,
+        "text": "}"
+      },
+      {
+        "line": 15,
+        "text": "// graph:end event"
+      },
+      {
+        "line": 17,
+        "text": "// graph:begin variables"
+      },
+      {
+        "line": 18,
+        "text": "// No graph variables."
+      },
+      {
+        "line": 19,
+        "text": "// graph:end variables"
+      }
+    ]
+  },
+  "pickup": {
+    "lines": [
+      {
+        "line": 7,
+        "text": "// graph:begin event"
+      },
+      {
+        "line": 8,
+        "text": "void UKitComponent::Graph_OnComponentBeginOverlap_tpl_pickup_overlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) // node:tpl_pickup_overlap"
+      },
+      {
+        "line": 9,
+        "text": "{"
+      },
+      {
+        "line": 10,
+        "text": "\tAmmo = (Ammo + 1); // node:tpl_pickup_set"
+      },
+      {
+        "line": 11,
+        "text": "\tif (AActor* GraphOwner = GetOwner()) { GraphOwner->Destroy(); } // node:tpl_pickup_destroy"
+      },
+      {
+        "line": 12,
+        "text": "}"
+      },
+      {
+        "line": 14,
+        "text": "void UKitComponent::BeginPlay()"
+      },
+      {
+        "line": 15,
+        "text": "{"
+      },
+      {
+        "line": 16,
+        "text": "\tSuper::BeginPlay();"
+      },
+      {
+        "line": 17,
+        "text": "\tif (AActor* Owner = GetOwner())"
+      },
+      {
+        "line": 18,
+        "text": "\t{"
+      },
+      {
+        "line": 19,
+        "text": "\t\tTArray<UPrimitiveComponent*> Prims;"
+      },
+      {
+        "line": 20,
+        "text": "\t\tOwner->GetComponents<UPrimitiveComponent>(Prims);"
+      },
+      {
+        "line": 21,
+        "text": "\t\tfor (UPrimitiveComponent* Prim : Prims)"
+      },
+      {
+        "line": 22,
+        "text": "\t\t{"
+      },
+      {
+        "line": 23,
+        "text": "\t\t\tPrim->OnComponentBeginOverlap.AddDynamic(this, &UKitComponent::Graph_OnComponentBeginOverlap_tpl_pickup_overlap);"
+      }
+    ]
+  },
+  "replicated-health": {
+    "lines": [
+      {
+        "line": 6,
+        "text": "// graph:begin event"
+      },
+      {
+        "line": 7,
+        "text": "void UKitComponent::Graph_AnyDamage_tpl_replicatedhealth_damage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser) // node:tpl_replicated-health_damage"
+      },
+      {
+        "line": 8,
+        "text": "{"
+      },
+      {
+        "line": 9,
+        "text": "\tif (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_replicated-health_auth"
+      },
+      {
+        "line": 10,
+        "text": "\t{"
+      },
+      {
+        "line": 11,
+        "text": "\t\tHealth = 90.f; // node:tpl_replicated-health_set"
+      },
+      {
+        "line": 12,
+        "text": "\t}"
+      },
+      {
+        "line": 13,
+        "text": "}"
+      },
+      {
+        "line": 15,
+        "text": "void UKitComponent::OnRep_Health() // node:tpl_replicated-health_rep"
+      },
+      {
+        "line": 16,
+        "text": "{"
+      },
+      {
+        "line": 17,
+        "text": "\tUE_LOG(LogTemp, Display, TEXT(\"%s\"), TEXT(\"Health changed\")); // node:tpl_replicated-health_show"
+      },
+      {
+        "line": 18,
+        "text": "}"
+      },
+      {
+        "line": 20,
+        "text": "void UKitComponent::BeginPlay()"
+      },
+      {
+        "line": 21,
+        "text": "{"
+      },
+      {
+        "line": 22,
+        "text": "\tSuper::BeginPlay();"
+      },
+      {
+        "line": 23,
+        "text": "\tif (AActor* Owner = GetOwner())"
+      }
+    ]
+  },
+  "save-load": {
+    "lines": [
+      {
+        "line": 5,
+        "text": "// graph:begin event"
+      },
+      {
+        "line": 6,
+        "text": "void UKitComponent::Graph_BeginPlay_tpl_saveload_begin() // node:tpl_save-load_begin"
+      },
+      {
+        "line": 7,
+        "text": "{"
+      },
+      {
+        "line": 8,
+        "text": "\tFVector Made_tpl_saveload_make = FVector::ZeroVector; Made_tpl_saveload_make.X = 1.f; Made_tpl_saveload_make.Y = 0.f; Made_tpl_saveload_make.Z = 0.f; // node:tpl_save-load_make"
+      },
+      {
+        "line": 9,
+        "text": "\tSlotValue = 1.f; // node:tpl_save-load_store"
+      },
+      {
+        "line": 10,
+        "text": "}"
+      },
+      {
+        "line": 12,
+        "text": "void UKitComponent::Graph_LoadSlot_tpl_saveload_load() // node:tpl_save-load_load"
+      },
+      {
+        "line": 13,
+        "text": "{"
+      },
+      {
+        "line": 14,
+        "text": "\tFHitResult Broken_tpl_saveload_break = FHitResult(); // node:tpl_save-load_break"
+      },
+      {
+        "line": 15,
+        "text": "\tUE_LOG(LogTemp, Display, TEXT(\"%s\"), TEXT(\"Loaded\")); // node:tpl_save-load_show"
+      },
+      {
+        "line": 16,
+        "text": "}"
+      },
+      {
+        "line": 18,
+        "text": "void UKitComponent::BeginPlay()"
+      },
+      {
+        "line": 19,
+        "text": "{"
+      },
+      {
+        "line": 20,
+        "text": "\tSuper::BeginPlay();"
+      },
+      {
+        "line": 21,
+        "text": "\tGraph_BeginPlay_tpl_saveload_begin();"
+      },
+      {
+        "line": 22,
+        "text": "}"
+      }
+    ]
+  },
+  "tactical-ammo": {
+    "lines": [
+      {
+        "line": 4,
+        "text": "// graph:begin event"
+      },
+      {
+        "line": 5,
+        "text": "void UKitComponent::Graph_IA_Reload_tpl_tacticalammo_input() // node:tpl_tactical-ammo_input"
+      },
+      {
+        "line": 6,
+        "text": "{"
+      },
+      {
+        "line": 7,
+        "text": "\tif (((Magazine < MagSize) && (Reserve > 0))) // node:tpl_tactical-ammo_branch"
+      },
+      {
+        "line": 8,
+        "text": "\t{"
+      },
+      {
+        "line": 9,
+        "text": "\t\tNeeded = FMath::Clamp(Reserve, 0, (MagSize - Magazine)); // node:tpl_tactical-ammo_setneed"
+      },
+      {
+        "line": 10,
+        "text": "\t\tMagazine = (Magazine + Needed); // node:tpl_tactical-ammo_setmag"
+      },
+      {
+        "line": 11,
+        "text": "\t\tReserve = (Reserve - Needed); // node:tpl_tactical-ammo_setres"
+      },
+      {
+        "line": 12,
+        "text": "\t}"
+      },
+      {
+        "line": 13,
+        "text": "\telse"
+      },
+      {
+        "line": 14,
+        "text": "\t{"
+      },
+      {
+        "line": 15,
+        "text": "\t\tUE_LOG(LogTemp, Display, TEXT(\"%s\"), TEXT(\"Cannot reload\")); // node:tpl_tactical-ammo_nope"
+      },
+      {
+        "line": 16,
+        "text": "\t}"
+      },
+      {
+        "line": 17,
+        "text": "}"
+      },
+      {
+        "line": 18,
+        "text": "// graph:end event"
+      },
+      {
+        "line": 20,
+        "text": "// graph:begin variables"
+      }
+    ]
+  },
+  "timer": {
+    "lines": [
+      {
+        "line": 5,
+        "text": "// graph:begin event"
+      },
+      {
+        "line": 6,
+        "text": "void UKitComponent::Graph_BeginPlay_tpl_timer_begin() // node:tpl_timer_begin"
+      },
+      {
+        "line": 7,
+        "text": "{"
+      },
+      {
+        "line": 8,
+        "text": "\tif (UWorld* World = GetWorld()) { FTimerHandle Timer_tpl_timer_arm; World->GetTimerManager().SetTimer(Timer_tpl_timer_arm, this, &UKitComponent::Graph_TimerTick_tpl_timer_tick, 0.5f, true); } // node:tpl_timer_arm"
+      },
+      {
+        "line": 9,
+        "text": "}"
+      },
+      {
+        "line": 11,
+        "text": "void UKitComponent::Graph_TimerTick_tpl_timer_tick() // node:tpl_timer_tick"
+      },
+      {
+        "line": 12,
+        "text": "{"
+      },
+      {
+        "line": 13,
+        "text": "\tUE_LOG(LogTemp, Display, TEXT(\"%s\"), TEXT(\"Tick\")); // node:tpl_timer_print"
+      },
+      {
+        "line": 14,
+        "text": "\tif (UWorld* World = GetWorld()) { FTimerHandle Timer_tpl_timer_again; World->GetTimerManager().SetTimer(Timer_tpl_timer_again, this, &UKitComponent::Graph_TimerTick_tpl_timer_tick, 0.5f, true); } // node:tpl_timer_again"
+      },
+      {
+        "line": 15,
+        "text": "}"
+      },
+      {
+        "line": 17,
+        "text": "void UKitComponent::BeginPlay()"
+      },
+      {
+        "line": 18,
+        "text": "{"
+      },
+      {
+        "line": 19,
+        "text": "\tSuper::BeginPlay();"
+      },
+      {
+        "line": 20,
+        "text": "\tGraph_BeginPlay_tpl_timer_begin();"
+      },
+      {
+        "line": 21,
+        "text": "}"
+      },
+      {
+        "line": 22,
+        "text": "// graph:end event"
+      }
+    ]
+  },
+  "aoi": {
+    "lines": [
+      {
+        "line": 7,
+        "text": "// graph:begin event"
+      },
+      {
+        "line": 8,
+        "text": "void UKitComponent::Graph_BeginPlay_tpl_aoi_begin() // node:tpl_aoi_begin"
+      },
+      {
+        "line": 9,
+        "text": "{"
+      },
+      {
+        "line": 10,
+        "text": "\tif (UWorld* World = GetWorld()) { FTimerHandle Timer_tpl_aoi_timer; World->GetTimerManager().SetTimer(Timer_tpl_aoi_timer, this, &UKitComponent::Graph_CheckAOI_tpl_aoi_check, 0.5f, true); } // node:tpl_aoi_timer"
+      },
+      {
+        "line": 11,
+        "text": "}"
+      },
+      {
+        "line": 13,
+        "text": "void UKitComponent::Graph_CheckAOI_tpl_aoi_check() // node:tpl_aoi_check"
+      },
+      {
+        "line": 14,
+        "text": "{"
+      },
+      {
+        "line": 15,
+        "text": "\tif (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_aoi_auth"
+      },
+      {
+        "line": 16,
+        "text": "\t{"
+      },
+      {
+        "line": 17,
+        "text": "\t\tFHitResult Hit_tpl_aoi_trace; bool bHit_tpl_aoi_trace = false; if (UWorld* World_tpl_aoi_trace = GetWorld()) { const FVector Start_tpl_aoi_trace = GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector; bHit_tpl_aoi_trace = World_tpl_aoi_trace->LineTraceSingleByChannel(Hit_tpl_aoi_trace, Start_tpl_aoi_trace, Start_tpl_aoi_trace + FVector(200.f, 0.f, 0.f), ECC_Visibility); } // node:tpl_aoi_trace"
+      },
+      {
+        "line": 18,
+        "text": "\t\tRelevant = bHit_tpl_aoi_trace; // node:tpl_aoi_set"
+      },
+      {
+        "line": 19,
+        "text": "\t}"
+      },
+      {
+        "line": 20,
+        "text": "}"
+      },
+      {
+        "line": 22,
+        "text": "void UKitComponent::BeginPlay()"
+      },
+      {
+        "line": 23,
+        "text": "{"
+      },
+      {
+        "line": 24,
+        "text": "\tSuper::BeginPlay();"
+      }
+    ]
+  },
+  "artillery": {
+    "lines": [
+      {
+        "line": 7,
+        "text": "// graph:begin event"
+      },
+      {
+        "line": 8,
+        "text": "void UKitComponent::Graph_FireMission_tpl_artillery_event() // node:tpl_artillery_event"
+      },
+      {
+        "line": 9,
+        "text": "{"
+      },
+      {
+        "line": 10,
+        "text": "\tif (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_artillery_auth"
+      },
+      {
+        "line": 11,
+        "text": "\t{"
+      },
+      {
+        "line": 12,
+        "text": "\t\tFHitResult Hit_tpl_artillery_trace; bool bHit_tpl_artillery_trace = false; if (UWorld* World_tpl_artillery_trace = GetWorld()) { const FVector Start_tpl_artillery_trace = GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector; bHit_tpl_artillery_trace = World_tpl_artillery_trace->LineTraceSingleByChannel(Hit_tpl_artillery_trace, Start_tpl_artillery_trace, Start_tpl_artillery_trace + FVector(200.f, 0.f, 0.f), ECC_Visibility); } // node:tpl_artillery_trace"
+      },
+      {
+        "line": 13,
+        "text": "\t\tShells = (Shells - 1.f); // node:tpl_artillery_set"
+      },
+      {
+        "line": 14,
+        "text": "\t}"
+      },
+      {
+        "line": 15,
+        "text": "}"
+      },
+      {
+        "line": 16,
+        "text": "// graph:end event"
+      },
+      {
+        "line": 18,
+        "text": "// graph:begin variables"
+      },
+      {
+        "line": 19,
+        "text": "// No graph variables."
+      },
+      {
+        "line": 20,
+        "text": "// graph:end variables"
+      }
+    ]
+  },
+  "ballistics": {
+    "lines": [
+      {
+        "line": 7,
+        "text": "// graph:begin event"
+      },
+      {
+        "line": 8,
+        "text": "void UKitComponent::Graph_IA_Fire_tpl_ballistics_input() // node:tpl_ballistics_input"
+      },
+      {
+        "line": 9,
+        "text": "{"
+      },
+      {
+        "line": 10,
+        "text": "\tFHitResult Hit_tpl_ballistics_trace; bool bHit_tpl_ballistics_trace = false; if (UWorld* World_tpl_ballistics_trace = GetWorld()) { const FVector Start_tpl_ballistics_trace = GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector; bHit_tpl_ballistics_trace = World_tpl_ballistics_trace->LineTraceSingleByChannel(Hit_tpl_ballistics_trace, Start_tpl_ballistics_trace, Start_tpl_ballistics_trace + FVector(200.f, 0.f, 0.f), ECC_Visibility); } // node:tpl_ballistics_trace"
+      },
+      {
+        "line": 11,
+        "text": "\tif (bHit_tpl_ballistics_trace) // node:tpl_ballistics_branch"
+      },
+      {
+        "line": 12,
+        "text": "\t{"
+      },
+      {
+        "line": 13,
+        "text": "\t\tHeat = (Heat + 0.05f); // node:tpl_ballistics_set"
+      },
+      {
+        "line": 14,
+        "text": "\t}"
+      },
+      {
+        "line": 15,
+        "text": "\telse"
+      },
+      {
+        "line": 16,
+        "text": "\t{"
+      },
+      {
+        "line": 17,
+        "text": "\t}"
+      },
+      {
+        "line": 18,
+        "text": "}"
+      },
+      {
+        "line": 19,
+        "text": "// graph:end event"
+      },
+      {
+        "line": 21,
+        "text": "// graph:begin variables"
+      },
+      {
+        "line": 22,
+        "text": "// No graph variables."
+      },
+      {
+        "line": 23,
+        "text": "// graph:end variables"
+      }
+    ]
+  },
+  "camera": {
+    "lines": [
+      {
+        "line": 7,
+        "text": "// graph:begin event"
+      },
+      {
+        "line": 8,
+        "text": "void UKitComponent::Graph_IA_Aim_tpl_camera_input() // node:tpl_camera_input"
+      },
+      {
+        "line": 9,
+        "text": "{"
+      },
+      {
+        "line": 10,
+        "text": "\tFHitResult Hit_tpl_camera_trace; bool bHit_tpl_camera_trace = false; if (UWorld* World_tpl_camera_trace = GetWorld()) { const FVector Start_tpl_camera_trace = GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector; bHit_tpl_camera_trace = World_tpl_camera_trace->LineTraceSingleByChannel(Hit_tpl_camera_trace, Start_tpl_camera_trace, Start_tpl_camera_trace + FVector(200.f, 0.f, 0.f), ECC_Visibility); } // node:tpl_camera_trace"
+      },
+      {
+        "line": 11,
+        "text": "\tif (bHit_tpl_camera_trace) // node:tpl_camera_branch"
+      },
+      {
+        "line": 12,
+        "text": "\t{"
+      },
+      {
+        "line": 13,
+        "text": "\t\tAiming = true; // node:tpl_camera_set"
+      },
+      {
+        "line": 14,
+        "text": "\t}"
+      },
+      {
+        "line": 15,
+        "text": "\telse"
+      },
+      {
+        "line": 16,
+        "text": "\t{"
+      },
+      {
+        "line": 17,
+        "text": "\t}"
+      },
+      {
+        "line": 18,
+        "text": "}"
+      },
+      {
+        "line": 19,
+        "text": "// graph:end event"
+      },
+      {
+        "line": 21,
+        "text": "// graph:begin variables"
+      },
+      {
+        "line": 22,
+        "text": "// No graph variables."
+      },
+      {
+        "line": 23,
+        "text": "// graph:end variables"
+      }
+    ]
+  },
+  "economy": {
+    "lines": [
+      {
+        "line": 4,
+        "text": "// graph:begin event"
+      },
+      {
+        "line": 5,
+        "text": "void UKitComponent::Graph_Spend_tpl_economy_event() // node:tpl_economy_event"
+      },
+      {
+        "line": 6,
+        "text": "{"
+      },
+      {
+        "line": 7,
+        "text": "\tif (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_economy_auth"
+      },
+      {
+        "line": 8,
+        "text": "\t{"
+      },
+      {
+        "line": 9,
+        "text": "\t\tSupplies = (Supplies - 25.f); // node:tpl_economy_set"
+      },
+      {
+        "line": 10,
+        "text": "\t}"
+      },
+      {
+        "line": 11,
+        "text": "}"
+      },
+      {
+        "line": 12,
+        "text": "// graph:end event"
+      },
+      {
+        "line": 14,
+        "text": "// graph:begin variables"
+      },
+      {
+        "line": 15,
+        "text": "// No graph variables."
+      },
+      {
+        "line": 16,
+        "text": "// graph:end variables"
+      }
+    ]
+  },
+  "fog": {
+    "lines": [
+      {
+        "line": 7,
+        "text": "// graph:begin event"
+      },
+      {
+        "line": 8,
+        "text": "void UKitComponent::Graph_BeginPlay_tpl_fog_begin() // node:tpl_fog_begin"
+      },
+      {
+        "line": 9,
+        "text": "{"
+      },
+      {
+        "line": 10,
+        "text": "\tif (UWorld* World = GetWorld()) { FTimerHandle Timer_tpl_fog_timer; World->GetTimerManager().SetTimer(Timer_tpl_fog_timer, this, &UKitComponent::Graph_Reveal_tpl_fog_reveal, 0.25f, true); } // node:tpl_fog_timer"
+      },
+      {
+        "line": 11,
+        "text": "}"
+      },
+      {
+        "line": 13,
+        "text": "void UKitComponent::Graph_Reveal_tpl_fog_reveal() // node:tpl_fog_reveal"
+      },
+      {
+        "line": 14,
+        "text": "{"
+      },
+      {
+        "line": 15,
+        "text": "\tFHitResult Hit_tpl_fog_trace; bool bHit_tpl_fog_trace = false; if (UWorld* World_tpl_fog_trace = GetWorld()) { const FVector Start_tpl_fog_trace = GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector; bHit_tpl_fog_trace = World_tpl_fog_trace->LineTraceSingleByChannel(Hit_tpl_fog_trace, Start_tpl_fog_trace, Start_tpl_fog_trace + FVector(200.f, 0.f, 0.f), ECC_Visibility); } // node:tpl_fog_trace"
+      },
+      {
+        "line": 16,
+        "text": "\tif (bHit_tpl_fog_trace) // node:tpl_fog_branch"
+      },
+      {
+        "line": 17,
+        "text": "\t{"
+      },
+      {
+        "line": 18,
+        "text": "\t\tVisible = true; // node:tpl_fog_set"
+      },
+      {
+        "line": 19,
+        "text": "\t}"
+      },
+      {
+        "line": 20,
+        "text": "\telse"
+      },
+      {
+        "line": 21,
+        "text": "\t{"
+      },
+      {
+        "line": 22,
+        "text": "\t}"
+      },
+      {
+        "line": 23,
+        "text": "}"
+      }
+    ]
+  },
+  "gunsmith": {
+    "lines": [
+      {
+        "line": 4,
+        "text": "// graph:begin event"
+      },
+      {
+        "line": 5,
+        "text": "void UKitComponent::Graph_IA_Equip_tpl_gunsmith_input() // node:tpl_gunsmith_input"
+      },
+      {
+        "line": 6,
+        "text": "{"
+      },
+      {
+        "line": 7,
+        "text": "\tif (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_gunsmith_auth"
+      },
+      {
+        "line": 8,
+        "text": "\t{"
+      },
+      {
+        "line": 9,
+        "text": "\t\tEquippedId = IA_Equip; // node:tpl_gunsmith_set"
+      },
+      {
+        "line": 10,
+        "text": "\t}"
+      },
+      {
+        "line": 11,
+        "text": "}"
+      },
+      {
+        "line": 12,
+        "text": "// graph:end event"
+      },
+      {
+        "line": 14,
+        "text": "// graph:begin variables"
+      },
+      {
+        "line": 15,
+        "text": "// No graph variables."
+      },
+      {
+        "line": 16,
+        "text": "// graph:end variables"
+      }
+    ]
+  },
+  "movement": {
+    "lines": [
+      {
+        "line": 4,
+        "text": "// graph:begin event"
+      },
+      {
+        "line": 5,
+        "text": "void UKitComponent::Graph_IA_Move_tpl_movement_input() // node:tpl_movement_input"
+      },
+      {
+        "line": 6,
+        "text": "{"
+      },
+      {
+        "line": 7,
+        "text": "\tif ((IA_Move > 0.f)) // node:tpl_movement_branch"
+      },
+      {
+        "line": 8,
+        "text": "\t{"
+      },
+      {
+        "line": 9,
+        "text": "\t\tSpeed = 600.f; // node:tpl_movement_sprint"
+      },
+      {
+        "line": 10,
+        "text": "\t}"
+      },
+      {
+        "line": 11,
+        "text": "\telse"
+      },
+      {
+        "line": 12,
+        "text": "\t{"
+      },
+      {
+        "line": 13,
+        "text": "\t\tSpeed = 200.f; // node:tpl_movement_walk"
+      },
+      {
+        "line": 14,
+        "text": "\t}"
+      },
+      {
+        "line": 15,
+        "text": "}"
+      },
+      {
+        "line": 16,
+        "text": "// graph:end event"
+      },
+      {
+        "line": 18,
+        "text": "// graph:begin variables"
+      },
+      {
+        "line": 19,
+        "text": "// No graph variables."
+      },
+      {
+        "line": 20,
+        "text": "// graph:end variables"
+      }
+    ]
+  },
+  "orders": {
+    "lines": [
+      {
+        "line": 4,
+        "text": "// graph:begin event"
+      },
+      {
+        "line": 5,
+        "text": "void UKitComponent::Graph_IA_Order_tpl_orders_input() // node:tpl_orders_input"
+      },
+      {
+        "line": 6,
+        "text": "{"
+      },
+      {
+        "line": 7,
+        "text": "\tif (Selected) // node:tpl_orders_branch"
+      },
+      {
+        "line": 8,
+        "text": "\t{"
+      },
+      {
+        "line": 9,
+        "text": "\t\tif (AActor* Target_tpl_orders_call = Cast<AActor>(nullptr)) { if (UFunction* Fn_tpl_orders_call = Target_tpl_orders_call->FindFunction(TEXT(\"ReceiveOrder\"))) { Target_tpl_orders_call->ProcessEvent(Fn_tpl_orders_call, nullptr); } } // node:tpl_orders_call"
+      },
+      {
+        "line": 10,
+        "text": "\t}"
+      },
+      {
+        "line": 11,
+        "text": "\telse"
+      },
+      {
+        "line": 12,
+        "text": "\t{"
+      },
+      {
+        "line": 13,
+        "text": "\t}"
+      },
+      {
+        "line": 14,
+        "text": "}"
+      },
+      {
+        "line": 15,
+        "text": "// graph:end event"
+      },
+      {
+        "line": 17,
+        "text": "// graph:begin variables"
+      },
+      {
+        "line": 18,
+        "text": "// No graph variables."
+      },
+      {
+        "line": 19,
+        "text": "// graph:end variables"
+      }
+    ]
+  },
+  "perception": {
+    "lines": [
+      {
+        "line": 7,
+        "text": "// graph:begin event"
+      },
+      {
+        "line": 8,
+        "text": "void UKitComponent::Graph_BeginPlay_tpl_perception_begin() // node:tpl_perception_begin"
+      },
+      {
+        "line": 9,
+        "text": "{"
+      },
+      {
+        "line": 10,
+        "text": "\tif (UWorld* World = GetWorld()) { FTimerHandle Timer_tpl_perception_timer; World->GetTimerManager().SetTimer(Timer_tpl_perception_timer, this, &UKitComponent::Graph_Sense_tpl_perception_sense, 0.2f, true); } // node:tpl_perception_timer"
+      },
+      {
+        "line": 11,
+        "text": "}"
+      },
+      {
+        "line": 13,
+        "text": "void UKitComponent::Graph_Sense_tpl_perception_sense() // node:tpl_perception_sense"
+      },
+      {
+        "line": 14,
+        "text": "{"
+      },
+      {
+        "line": 15,
+        "text": "\tFHitResult Hit_tpl_perception_trace; bool bHit_tpl_perception_trace = false; if (UWorld* World_tpl_perception_trace = GetWorld()) { const FVector Start_tpl_perception_trace = GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector; bHit_tpl_perception_trace = World_tpl_perception_trace->LineTraceSingleByChannel(Hit_tpl_perception_trace, Start_tpl_perception_trace, Start_tpl_perception_trace + FVector(200.f, 0.f, 0.f), ECC_Visibility); } // node:tpl_perception_trace"
+      },
+      {
+        "line": 16,
+        "text": "\tif (bHit_tpl_perception_trace) // node:tpl_perception_branch"
+      },
+      {
+        "line": 17,
+        "text": "\t{"
+      },
+      {
+        "line": 18,
+        "text": "\t\tAlert = 1.f; // node:tpl_perception_set"
+      },
+      {
+        "line": 19,
+        "text": "\t}"
+      },
+      {
+        "line": 20,
+        "text": "\telse"
+      },
+      {
+        "line": 21,
+        "text": "\t{"
+      },
+      {
+        "line": 22,
+        "text": "\t}"
+      },
+      {
+        "line": 23,
+        "text": "}"
+      }
+    ]
+  },
+  "scoring": {
+    "lines": [
+      {
+        "line": 4,
+        "text": "// graph:begin event"
+      },
+      {
+        "line": 5,
+        "text": "void UKitComponent::Graph_AwardMedal_tpl_scoring_event() // node:tpl_scoring_event"
+      },
+      {
+        "line": 6,
+        "text": "{"
+      },
+      {
+        "line": 7,
+        "text": "\tif (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_scoring_auth"
+      },
+      {
+        "line": 8,
+        "text": "\t{"
+      },
+      {
+        "line": 9,
+        "text": "\t\tScore = (Score + 10.f); // node:tpl_scoring_set"
+      },
+      {
+        "line": 10,
+        "text": "\t}"
+      },
+      {
+        "line": 11,
+        "text": "}"
+      },
+      {
+        "line": 12,
+        "text": "// graph:end event"
+      },
+      {
+        "line": 14,
+        "text": "// graph:begin variables"
+      },
+      {
+        "line": 15,
+        "text": "// No graph variables."
+      },
+      {
+        "line": 16,
+        "text": "// graph:end variables"
+      }
+    ]
+  },
+  "vehicle-drive": {
+    "lines": [
+      {
+        "line": 4,
+        "text": "// graph:begin event"
+      },
+      {
+        "line": 5,
+        "text": "void UKitComponent::Graph_IA_Throttle_tpl_vehicledrive_input() // node:tpl_vehicle-drive_input"
+      },
+      {
+        "line": 6,
+        "text": "{"
+      },
+      {
+        "line": 7,
+        "text": "\tif (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_vehicle-drive_auth"
+      },
+      {
+        "line": 8,
+        "text": "\t{"
+      },
+      {
+        "line": 9,
+        "text": "\t\tThrottle = IA_Throttle; // node:tpl_vehicle-drive_set"
+      },
+      {
+        "line": 10,
+        "text": "\t}"
+      },
+      {
+        "line": 11,
+        "text": "}"
+      },
+      {
+        "line": 12,
+        "text": "// graph:end event"
+      },
+      {
+        "line": 14,
+        "text": "// graph:begin variables"
+      },
+      {
+        "line": 15,
+        "text": "// No graph variables."
+      },
+      {
+        "line": 16,
+        "text": "// graph:end variables"
+      }
+    ]
+  }
+}

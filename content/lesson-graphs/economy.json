@@ -1,0 +1,25 @@
+{
+  "id": "economy",
+  "title": "Economy",
+  "summary": "Spend supplies from a stored count, on the authority.",
+  "variables": [{"name": "Supplies", "type": "float", "default": "100.f"}],
+  "graph": {
+    "kind": "event",
+    "name": "Spend",
+    "nodes": [
+      {"key": "event", "catalog": "custom-event", "x": 40, "y": 80, "data": {"name": "Spend"}, "note": "Spend is the order to build. It is not Tick."},
+      {"key": "auth", "catalog": "has-authority", "x": 320, "y": 80, "note": "Only the authority changes supplies."},
+      {"key": "get", "catalog": "get-variable", "x": 40, "y": 240, "data": {"variable": "Supplies", "varType": "float"}, "note": "Read the stock before you subtract."},
+      {"key": "cost", "catalog": "literal", "x": 40, "y": 360, "data": {"varType": "float", "value": "25"}, "note": "The data row should own this cost. Twenty five is the sample."},
+      {"key": "sub", "catalog": "subtract", "x": 320, "y": 260, "note": "Stock minus cost."},
+      {"key": "set", "catalog": "set-variable", "x": 620, "y": 80, "data": {"variable": "Supplies", "varType": "float"}, "note": "Write the new stock. Replicate the number, not the icon."}
+    ],
+    "wires": [
+      {"from": "event", "fromPin": "Exec", "to": "auth", "toPin": "Exec"},
+      {"from": "auth", "fromPin": "Exec", "to": "set", "toPin": "Exec"},
+      {"from": "get", "fromPin": "Value", "to": "sub", "toPin": "A"},
+      {"from": "cost", "fromPin": "Value", "to": "sub", "toPin": "B"},
+      {"from": "sub", "fromPin": "Result", "to": "set", "toPin": "Value"}
+    ]
+  }
+}

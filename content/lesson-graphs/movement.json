@@ -1,0 +1,30 @@
+{
+  "id": "movement",
+  "title": "Movement",
+  "summary": "Move input sets a speed. Tick does not.",
+  "variables": [{"name": "Speed", "type": "float", "default": "0.f"}],
+  "graph": {
+    "kind": "event",
+    "name": "Move",
+    "nodes": [
+      {"key": "input", "catalog": "enhanced-input", "x": 40, "y": 80, "data": {"action": "IA_Move"}, "note": "IA_Move is the axis. The character movement component consumes Speed."},
+      {"key": "zero", "catalog": "literal", "x": 40, "y": 240, "data": {"varType": "float", "value": "0"}, "note": "Zero axis means the stick is released."},
+      {"key": "moving", "catalog": "greater", "x": 200, "y": 200, "note": "Greater than zero means the player is pushing move."},
+      {"key": "branch", "catalog": "branch", "x": 420, "y": 80, "note": "A live axis takes the fast path. A released axis walks."},
+      {"key": "fast", "catalog": "literal", "x": 340, "y": 240, "data": {"varType": "float", "value": "600"}, "note": "Sprint speed."},
+      {"key": "slow", "catalog": "literal", "x": 340, "y": 360, "data": {"varType": "float", "value": "200"}, "note": "Walk speed."},
+      {"key": "sprint", "catalog": "set-variable", "x": 640, "y": 20, "data": {"variable": "Speed", "varType": "float"}, "note": "Write sprint speed."},
+      {"key": "walk", "catalog": "set-variable", "x": 640, "y": 180, "data": {"variable": "Speed", "varType": "float"}, "note": "Write walk speed."}
+    ],
+    "wires": [
+      {"from": "input", "fromPin": "Triggered", "to": "branch", "toPin": "Exec"},
+      {"from": "input", "fromPin": "Value", "to": "moving", "toPin": "A"},
+      {"from": "zero", "fromPin": "Value", "to": "moving", "toPin": "B"},
+      {"from": "moving", "fromPin": "Result", "to": "branch", "toPin": "Condition"},
+      {"from": "branch", "fromPin": "Then", "to": "sprint", "toPin": "Exec"},
+      {"from": "fast", "fromPin": "Value", "to": "sprint", "toPin": "Value"},
+      {"from": "branch", "fromPin": "Else", "to": "walk", "toPin": "Exec"},
+      {"from": "slow", "fromPin": "Value", "to": "walk", "toPin": "Value"}
+    ]
+  }
+}

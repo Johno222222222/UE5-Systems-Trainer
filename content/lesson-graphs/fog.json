@@ -1,0 +1,27 @@
+{
+  "id": "fog",
+  "title": "Fog of war",
+  "summary": "A timer reveals what this team can see.",
+  "variables": [{"name": "Visible", "type": "bool", "default": "false"}],
+  "graph": {
+    "kind": "event",
+    "name": "Fog",
+    "nodes": [
+      {"key": "begin", "catalog": "begin-play", "x": 40, "y": 40, "note": "Begin Play starts the vision timer."},
+      {"key": "timer", "catalog": "set-timer-event", "x": 300, "y": 40, "data": {"seconds": 0.25, "event": "Reveal"}, "note": "Vision updates four times a second."},
+      {"key": "reveal", "catalog": "custom-event", "x": 40, "y": 200, "data": {"name": "Reveal"}, "note": "Reveal is the vision pass."},
+      {"key": "trace", "catalog": "line-trace", "x": 300, "y": 200, "note": "Line of sight from the unit."},
+      {"key": "branch", "catalog": "branch", "x": 560, "y": 200, "note": "A clear trace marks the cell visible."},
+      {"key": "yes", "catalog": "literal", "x": 560, "y": 360, "data": {"varType": "bool", "value": "true"}, "pinType": "bool", "note": "True means this team can see the cell."},
+      {"key": "set", "catalog": "set-variable", "x": 840, "y": 160, "data": {"variable": "Visible", "varType": "bool"}, "pinType": "bool", "note": "Visible is replicated as a team fact, not per spectator widget."}
+    ],
+    "wires": [
+      {"from": "begin", "fromPin": "Exec", "to": "timer", "toPin": "Exec"},
+      {"from": "reveal", "fromPin": "Exec", "to": "trace", "toPin": "Exec"},
+      {"from": "trace", "fromPin": "Exec", "to": "branch", "toPin": "Exec"},
+      {"from": "trace", "fromPin": "Hit", "to": "branch", "toPin": "Condition"},
+      {"from": "branch", "fromPin": "Then", "to": "set", "toPin": "Exec"},
+      {"from": "yes", "fromPin": "Value", "to": "set", "toPin": "Value"}
+    ]
+  }
+}

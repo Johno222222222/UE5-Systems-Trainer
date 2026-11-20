@@ -1,0 +1,24 @@
+{
+  "id": "camera",
+  "title": "Camera aim",
+  "summary": "Aim input traces. The camera does not tick a second trace.",
+  "variables": [{"name": "Aiming", "type": "bool", "default": "false"}],
+  "graph": {
+    "kind": "event",
+    "name": "Aim",
+    "nodes": [
+      {"key": "input", "catalog": "enhanced-input", "x": 40, "y": 80, "data": {"action": "IA_Aim"}, "note": "IA_Aim is the shoulder button. The boom camera reads Aiming."},
+      {"key": "trace", "catalog": "line-trace", "x": 340, "y": 80, "note": "The aim trace starts at the camera, not at the feet."},
+      {"key": "branch", "catalog": "branch", "x": 620, "y": 80, "note": "A hit means we are aiming at a target."},
+      {"key": "yes", "catalog": "literal", "x": 620, "y": 240, "data": {"varType": "bool", "value": "true"}, "pinType": "bool", "note": "True pulls the camera in."},
+      {"key": "set", "catalog": "set-variable", "x": 900, "y": 40, "data": {"variable": "Aiming", "varType": "bool"}, "pinType": "bool", "note": "The camera component reads this. Do not move the boom on Tick."}
+    ],
+    "wires": [
+      {"from": "input", "fromPin": "Triggered", "to": "trace", "toPin": "Exec"},
+      {"from": "trace", "fromPin": "Exec", "to": "branch", "toPin": "Exec"},
+      {"from": "trace", "fromPin": "Hit", "to": "branch", "toPin": "Condition"},
+      {"from": "branch", "fromPin": "Then", "to": "set", "toPin": "Exec"},
+      {"from": "yes", "fromPin": "Value", "to": "set", "toPin": "Value"}
+    ]
+  }
+}

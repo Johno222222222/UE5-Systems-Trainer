@@ -1,0 +1,1403 @@
+{
+  "id": "strategy-intermediate",
+  "genre": "strategy",
+  "level": "intermediate",
+  "title": "Strategy — Intermediate",
+  "summary": "A networked RTS: formations, a supplies stock, fog that clients cannot write, medals, area of interest, transports, artillery budgets, and a save that recomputes vision.",
+  "sections": [
+    {
+      "id": "orders",
+      "title": "Formations and orders",
+      "order": 1,
+      "graph": "orders",
+      "why": "IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+      "depends": [
+        "IA_Order",
+        "Selected",
+        "ReceiveOrder"
+      ],
+      "reading": [
+        "Intermediate strategy orders still start at IA_Order. The excerpt branches if (Selected) and ProcessEvent on ReceiveOrder. A formation is not a tick that writes an offset on every member. The squad data names the shape. Each member reads its slot in that shape when it accepts the order. A vehicle in the formation is a member with a throttle, not a special case inside this branch.",
+        "The click that selects is a box trace once. Polling every unit against the mouse on Tick is the search the selection bool already replaced. An artillery order is still ReceiveOrder. The gun's fire mission is the unit's implementation, which then spends a shell. The order graph does not subtract shells, or every move would fire.",
+        "Fog must not flip because an order was issued into a hidden cell. The unit can be told to go. It cannot grant vision. Scoring hears the result if the order was an objective. A plain move does not award a medal. Netcode relevance, later, decides which of these units even exist on a client. The order still runs on the server for units the client cannot see.",
+        "Save stores the order id and the target, plus the formation id. It does not store every offset. Load must not replay IA_Order, or the formation steps twice.",
+        "Formations and orders closes on Orders. IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. Line 9 is `if (AActor* Target_tpl_orders_call = Cast<AActor>(nullptr)) { if (UFunction* Fn_tpl_orders`. IA_Order stays on its own event and is not written from Formations and orders. Selected stays on its own event and is not written from Formations and orders. ReceiveOrder stays on its own event and is not written from Formations and orders. if (Selected) calls ReceiveOrder. Save the formation id. Offsets are data. A move does not spend shells. The assignment names the repair to keep. Formations and orders does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Orders already uses."
+      ],
+      "assignment": {
+        "kind": "vocabulary",
+        "prompt": "A formation tick writes offsets. What does the excerpt branch on, and what id should the save store instead of the offsets?",
+        "accept": [
+          "Selected",
+          "formation"
+        ],
+        "model": "if (Selected) calls ReceiveOrder. Save the formation id. Offsets are data. A move does not spend shells."
+      },
+      "quiz": [
+        {
+          "id": "orders-q1",
+          "prompt": "What gates ReceiveOrder in the formation excerpt?",
+          "choices": [
+            "Selected",
+            "Shells",
+            "Relevant",
+            "Score"
+          ],
+          "answer": 0,
+          "why": "The click already selected."
+        },
+        {
+          "id": "orders-q2",
+          "prompt": "Where do formation offsets live?",
+          "choices": [
+            "On the squad data",
+            "In Tick",
+            "In the fog bool",
+            "In each replicated wheel"
+          ],
+          "answer": 0,
+          "why": "The member reads its slot."
+        },
+        {
+          "id": "orders-q3",
+          "prompt": "What must a move order not do?",
+          "choices": [
+            "Spend a shell or reveal fog",
+            "Call ReceiveOrder",
+            "Read Selected",
+            "Store an order id"
+          ],
+          "answer": 0,
+          "why": "Fire and vision are other graphs."
+        },
+        {
+          "id": "orders-q4",
+          "prompt": "True or false: a hidden unit should skip its server order.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The client may not see it. The server still marches it."
+        },
+        {
+          "id": "orders-q5",
+          "prompt": "What does load fail if it replays IA_Order?",
+          "choices": [
+            "The formation steps twice",
+            "Selected stays false",
+            "Nothing",
+            "Fog clears"
+          ],
+          "answer": 0,
+          "why": "Store the order. Do not reissue it."
+        },
+        {
+          "id": "orders-q6",
+          "prompt": "An artillery piece receives the order and then does what itself?",
+          "choices": [
+            "Starts a fire mission",
+            "Subtracts shells inside this branch",
+            "Sets Visible",
+            "Awards a medal for the click"
+          ],
+          "answer": 0,
+          "why": "The unit implements the order."
+        },
+        {
+          "id": "orders-q7",
+          "prompt": "What replaces a per-frame mouse test?",
+          "choices": [
+            "One box trace on the press, writing Selected",
+            "Tick",
+            "The replication graph",
+            "AwardMedal"
+          ],
+          "answer": 0,
+          "why": "Selection is an event."
+        },
+        {
+          "id": "orders-q8",
+          "prompt": "A transport is which kind of member?",
+          "choices": [
+            "A formation member with its own throttle",
+            "A special branch in this graph",
+            "A fog cell",
+            "A medal"
+          ],
+          "answer": 0,
+          "why": "Throttle is the vehicle graph."
+        }
+      ]
+    },
+    {
+      "id": "economy",
+      "title": "The stock and the bill",
+      "order": 2,
+      "graph": "economy",
+      "why": "Spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+      "depends": [
+        "Spend",
+        "Supplies",
+        "Has Authority"
+      ],
+      "reading": [
+        "The stock is Supplies. Spend is the event. The excerpt assigns Supplies = (Supplies - 25.f) inside if (GetOwner() && GetOwner()->HasAuthority()). Replace 25 with the data row for that building or that unit. A fire mission does not use this float. Shells are the artillery budget. Sharing the float makes a barrage bankrupt the base, or a barracks consume ammunition.",
+        "Scoring reads nothing here. A medal is not a refund. A refund is Spend with a negative cost from the same row, still on the authority. Income is a slow timer calling that path. Tick income runs through a pause and never checks that the refinery still exists.",
+        "The UI binds to the float. Replicating the icon is waste. Relevance does not change the stock: a player who cannot see the enemy still has a stock, because the stock is the player's, not a world actor in a cell. Orders call Spend only for purchases.",
+        "Save stores Supplies after the server write. Begin Play must not call Spend. A vehicle's fuel can be a second stock with the same pattern, not a reuse of Supplies, or driving drains the build money.",
+        "The stock and the bill closes on Economy. Spend subtracts a data cost on the authority. Artillery shells are a different budget. Line 7 is `if (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_economy_auth`. Line 9 is `Supplies = (Supplies - 25.f); // node:tpl_economy_set`. Spend stays on its own event and is not written from The stock and the bill. Supplies stays on its own event and is not written from The stock and the bill. Has Authority stays on its own event and is not written from The stock and the bill. Supplies = (Supplies - 25.f) inside HasAuthority, cost from data. Shells are the artillery budget. Fuel is a third stock if the mode has vehicles. The assignment names the repair to keep. The stock and the bill does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Economy already uses."
+      ],
+      "assignment": {
+        "kind": "cpp",
+        "prompt": "A barrage subtracts Supplies. What does the excerpt assign, and which budget should a shell use instead?",
+        "accept": [
+          "Supplies",
+          "Shells"
+        ],
+        "model": "Supplies = (Supplies - 25.f) inside HasAuthority, cost from data. Shells are the artillery budget. Fuel is a third stock if the mode has vehicles."
+      },
+      "quiz": [
+        {
+          "id": "economy-q1",
+          "prompt": "What does the stock excerpt assign?",
+          "choices": [
+            "Supplies = (Supplies - 25.f)",
+            "Shells = (Shells - 1.f)",
+            "Score + 10",
+            "Throttle = IA_Throttle"
+          ],
+          "answer": 0,
+          "why": "25 is the sample building cost."
+        },
+        {
+          "id": "economy-q2",
+          "prompt": "What already wraps the supplies subtract?",
+          "choices": [
+            "HasAuthority",
+            "Tick",
+            "Reveal",
+            "The vehicle"
+          ],
+          "answer": 0,
+          "why": "The subtract sits inside the authority block."
+        },
+        {
+          "id": "economy-q3",
+          "prompt": "What budget does a shell use?",
+          "choices": [
+            "Shells",
+            "Supplies",
+            "Score",
+            "Fuel, always"
+          ],
+          "answer": 0,
+          "why": "A barrage is not a building purchase."
+        },
+        {
+          "id": "economy-q4",
+          "prompt": "True or false: driving should drain Supplies.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Fuel is its own stock if driving costs anything."
+        },
+        {
+          "id": "economy-q5",
+          "prompt": "How does income arrive?",
+          "choices": [
+            "A slow timer calls Spend with a negative cost",
+            "Tick",
+            "Reveal",
+            "A client widget"
+          ],
+          "answer": 0,
+          "why": "The refinery has to exist."
+        },
+        {
+          "id": "economy-q6",
+          "prompt": "Does area of interest hide the stock?",
+          "choices": [
+            "No. The stock is the player's, not a cell actor.",
+            "Yes",
+            "Only the icon",
+            "Only when Score is zero"
+          ],
+          "answer": 0,
+          "why": "Culling actors is not culling the wallet."
+        },
+        {
+          "id": "economy-q7",
+          "prompt": "What must Begin Play not do with this graph?",
+          "choices": [
+            "Call Spend",
+            "Read Supplies",
+            "Bind the UI after the value exists",
+            "Load the float"
+          ],
+          "answer": 0,
+          "why": "Load reads. It does not spend."
+        },
+        {
+          "id": "economy-q8",
+          "prompt": "A refund is which call?",
+          "choices": [
+            "Spend with a negative data cost, on the authority",
+            "AwardMedal",
+            "A client add",
+            "Visible = true"
+          ],
+          "answer": 0,
+          "why": "Same event, opposite sign."
+        }
+      ]
+    },
+    {
+      "id": "fog",
+      "title": "Fog and the cheat",
+      "order": 3,
+      "graph": "fog",
+      "why": "Reveal at 0.25s sets Visible. Clients do not write it.",
+      "depends": [
+        "Reveal",
+        "Visible",
+        "Authority"
+      ],
+      "reading": [
+        "Fog stays a vision pass. The excerpt starts Reveal every 0.25 seconds and assigns Visible = true on a hit. The sample still has no authority check. In a networked match that check is the anti-cheat: a client that writes Visible sees the enemy base. Nest a HasAuthority around the write before you ship the mode. The widget per spectator is not the replicated object. The bit is.",
+        "Orders into fog do not set the bit. Artillery that fires blind does not either, unless a spotter's trace is what Reveal already does. A barrage is not vision. Relevance is not vision either. A unit can be relevant to the server simulation and still invisible to a team. Do not collapse those two bools, or culling the actor deletes it from the other team's possible sight forever.",
+        "Hidden camps keep patrolling. The client skips the draw. Tick that walks every cell pays for cells where nothing moved. The 0.25 second pass is enough for a strategy map. Shortening it toward a frame is how the server falls over in a large match.",
+        "Save does not store Visible. After load, place units, then let Reveal run. A stored bit shows a ghost of where a truck was.",
+        "Fog and the cheat closes on Fog of war. Reveal at 0.25s sets Visible. Clients do not write it. Line 10 is `if (UWorld* World = GetWorld()) { FTimerHandle Timer_tpl_fog_timer; World->GetTimerManager`. Line 15 is `FHitResult Hit_tpl_fog_trace; bool bHit_tpl_fog_trace = false; if (UWorld* World_tpl_fog_t`. Line 18 is `Visible = true; // node:tpl_fog_set`. Reveal stays on its own event and is not written from Fog and the cheat. Visible stays on its own event and is not written from Fog and the cheat. Authority stays on its own event and is not written from Fog and the cheat. Reveal runs at 0.25f and sets Visible = true. HasAuthority is the missing gate. Relevant is a different bool. The assignment names the repair to keep. Fog and the cheat does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Fog of war already uses."
+      ],
+      "assignment": {
+        "kind": "efficiency",
+        "prompt": "A strategy client writes Visible and sees the base. What timer does the excerpt use, and what check is missing around the write?",
+        "accept": [
+          "0.25",
+          "authority"
+        ],
+        "model": "Reveal runs at 0.25f and sets Visible = true. HasAuthority is the missing gate. Relevant is a different bool."
+      },
+      "quiz": [
+        {
+          "id": "fog-q1",
+          "prompt": "What period does the strategy fog excerpt use?",
+          "choices": [
+            "0.25f",
+            "Every frame",
+            "0.5f",
+            "1.f once"
+          ],
+          "answer": 0,
+          "why": "Reveal is four times a second."
+        },
+        {
+          "id": "fog-q2",
+          "prompt": "What is missing before Visible = true in a net match?",
+          "choices": [
+            "HasAuthority",
+            "A widget",
+            "IA_Order",
+            "A shell subtract"
+          ],
+          "answer": 0,
+          "why": "The sample has no gate."
+        },
+        {
+          "id": "fog-q3",
+          "prompt": "Why not reuse Relevant as Visible?",
+          "choices": [
+            "Culling the actor would delete it from the other team's sight",
+            "They are the same fact",
+            "Relevant is a float",
+            "Fog cannot be a bool"
+          ],
+          "answer": 0,
+          "why": "Simulation and team vision differ."
+        },
+        {
+          "id": "fog-q4",
+          "prompt": "True or false: a blind barrage should set Visible.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "A spotter's trace is Reveal. The gun is not."
+        },
+        {
+          "id": "fog-q5",
+          "prompt": "What keeps running while a camp is hidden?",
+          "choices": [
+            "Its patrol, on the server",
+            "Nothing",
+            "The client's draw",
+            "Spend"
+          ],
+          "answer": 0,
+          "why": "Hidden is not frozen."
+        },
+        {
+          "id": "fog-q6",
+          "prompt": "What does a saved Visible bit show?",
+          "choices": [
+            "A ghost of where a unit was",
+            "The truth",
+            "The stock",
+            "The medal"
+          ],
+          "answer": 0,
+          "why": "Recompute after load."
+        },
+        {
+          "id": "fog-q7",
+          "prompt": "Who draws the fog?",
+          "choices": [
+            "The local UI, from the bit",
+            "A replicated widget per cell",
+            "Tick on every client",
+            "The vehicle wheels"
+          ],
+          "answer": 0,
+          "why": "The bit is the state."
+        },
+        {
+          "id": "fog-q8",
+          "prompt": "Moving the period to 0.01 does what to a large match?",
+          "choices": [
+            "Turns vision into a tick and the server falls over",
+            "Makes fog safer",
+            "Awards medals",
+            "Saves bandwidth"
+          ],
+          "answer": 0,
+          "why": "0.25 is the budget."
+        }
+      ]
+    },
+    {
+      "id": "scoring",
+      "title": "Medals and the board",
+      "order": 4,
+      "graph": "scoring",
+      "why": "AwardMedal adds a data value on the authority. The board is local.",
+      "depends": [
+        "AwardMedal",
+        "Score",
+        "Has Authority"
+      ],
+      "reading": [
+        "Medals stay a server add. The excerpt assigns Score = (Score + 10.f) inside if (GetOwner() && GetOwner()->HasAuthority()). The 10 is a sample. A kill, a capture, and a fire mission that hits a marked target can be different rows. A miss does not award. Fog revealing a unit does not award. Spending supplies does not award, and it must not share this float. The board reads the server total.",
+        "The board is a widget. It reads Score. Replicating the board actor, with its fonts and its rows, is the expensive version. Artillery's shell count is not the score. A successful mission may call AwardMedal after the impact, with the row's value. The impact itself is the gun's graph.",
+        "Vehicles destroyed call the same event. They do not add a literal in the throttle function, or every bump scores. Begin Play on load must not call AwardMedal. The stored score is the total. Calling the event again double-counts.",
+        "A client prediction of the number pops the board when the server add arrives. The widget can punch locally. The float waits.",
+        "Medals and the board closes on Scoring. AwardMedal adds a data value on the authority. The board is local. Line 7 is `if (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_scoring_auth`. Line 9 is `Score = (Score + 10.f); // node:tpl_scoring_set`. AwardMedal stays on its own event and is not written from Medals and the board. Score stays on its own event and is not written from Medals and the board. Has Authority stays on its own event and is not written from Medals and the board. Score = (Score + 10.f) inside HasAuthority in AwardMedal. The row owns the value. Throttle does not score. The assignment names the repair to keep. Medals and the board does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Scoring already uses."
+      ],
+      "assignment": {
+        "kind": "cpp",
+        "prompt": "A vehicle bump adds 10 inside the throttle function. Where should the excerpt's add live, and what owns the 10?",
+        "accept": [
+          "AwardMedal",
+          "data"
+        ],
+        "model": "Score = (Score + 10.f) inside HasAuthority in AwardMedal. The row owns the value. Throttle does not score."
+      },
+      "quiz": [
+        {
+          "id": "scoring-q1",
+          "prompt": "What does the board excerpt assign?",
+          "choices": [
+            "Score = (Score + 10.f)",
+            "Supplies - 25.f",
+            "Shells - 1.f",
+            "Visible = true"
+          ],
+          "answer": 0,
+          "why": "10 is the sample medal."
+        },
+        {
+          "id": "scoring-q2",
+          "prompt": "What must not share Score's float?",
+          "choices": [
+            "Supplies",
+            "The board widget, as a reader",
+            "The authority",
+            "A kill event"
+          ],
+          "answer": 0,
+          "why": "A purchase is not a point."
+        },
+        {
+          "id": "scoring-q3",
+          "prompt": "When does a fire mission score?",
+          "choices": [
+            "After a marked impact, via AwardMedal",
+            "When the shell is spent",
+            "When the gun is ordered",
+            "On Tick"
+          ],
+          "answer": 0,
+          "why": "Spending a shell is not a medal."
+        },
+        {
+          "id": "scoring-q4",
+          "prompt": "True or false: destroying a truck should add points inside Throttle's assignment.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The destruction calls AwardMedal."
+        },
+        {
+          "id": "scoring-q5",
+          "prompt": "What double-counts on load?",
+          "choices": [
+            "Begin Play calling AwardMedal",
+            "Storing Score",
+            "A data row",
+            "The widget"
+          ],
+          "answer": 0,
+          "why": "Read the total."
+        },
+        {
+          "id": "scoring-q6",
+          "prompt": "What replicates?",
+          "choices": [
+            "Score",
+            "The board actor",
+            "The font",
+            "Each row's widget"
+          ],
+          "answer": 0,
+          "why": "The widget is local."
+        },
+        {
+          "id": "scoring-q7",
+          "prompt": "A miss of an artillery shot awards nothing. Why?",
+          "choices": [
+            "The row is for a marked hit, not for the spend",
+            "Shells cannot be zero",
+            "Fog blocks medals",
+            "Throttle ate the event"
+          ],
+          "answer": 0,
+          "why": "The impact is the result."
+        },
+        {
+          "id": "scoring-q8",
+          "prompt": "May the widget punch before the float arrives?",
+          "choices": [
+            "Yes. It may not write Score.",
+            "No",
+            "Only on the server",
+            "Only if Visible"
+          ],
+          "answer": 0,
+          "why": "Prediction is cosmetic."
+        }
+      ]
+    },
+    {
+      "id": "aoi",
+      "title": "Relevance for a large map",
+      "order": 5,
+      "graph": "aoi",
+      "why": "CheckAOI at 0.5s writes Relevant. It is not the fog bit.",
+      "depends": [
+        "CheckAOI",
+        "Relevant",
+        "Replication graph"
+      ],
+      "reading": [
+        "A strategy map has more units than an FPS has players. The excerpt starts CheckAOI at 0.5 seconds, looping. if (GetOwner() && GetOwner()->HasAuthority()) then traces and assigns Relevant = bHit. This bool is who receives the actor. Fog's Visible is who on a team may see it. A unit can be relevant to the simulation host and invisible to the enemy. Collapsing them culls a unit the spotter was about to reveal.",
+        "The production system is the replication graph, with cells. The trace is the sample. Widgets, selection decals, and health bars are not replicated. The unit actor is, while Relevant. A truck can use a larger radius than a soldier. That radius is data. Ticking every wheel to decide relevance is the cost this timer removes.",
+        "Orders still execute on the server when the client does not have the actor. The client's first packet, when the unit becomes relevant, is a state: position, order id, supplies are not per unit. Artillery impacts the client cannot see still resolve on the server. Debris leaves relevance quickly.",
+        "Save does not store Relevant. After load the timer runs again from positions.",
+        "Relevance for a large map closes on Area of interest. CheckAOI at 0.5s writes Relevant. It is not the fog bit. Line 10 is `if (UWorld* World = GetWorld()) { FTimerHandle Timer_tpl_aoi_timer; World->GetTimerManager`. Line 15 is `if (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_aoi_auth`. Line 17 is `FHitResult Hit_tpl_aoi_trace; bool bHit_tpl_aoi_trace = false; if (UWorld* World_tpl_aoi_t`. CheckAOI stays on its own event and is not written from Relevance for a large map. Relevant stays on its own event and is not written from Relevance for a large map. Replication graph stays on its own event and is not written from Relevance for a large map. CheckAOI at 0.5f sets Relevant = bHit inside HasAuthority. Visible stays the team vision bit. The assignment names the repair to keep. Relevance for a large map does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Area of interest already uses."
+      ],
+      "assignment": {
+        "kind": "compatibility",
+        "prompt": "Fog's Visible was reused as Relevant and enemy units vanished forever. What interval does CheckAOI use, and which assignment must stay a different bool?",
+        "accept": [
+          "0.5",
+          "Relevant"
+        ],
+        "model": "CheckAOI at 0.5f sets Relevant = bHit inside HasAuthority. Visible stays the team vision bit."
+      },
+      "quiz": [
+        {
+          "id": "aoi-q1",
+          "prompt": "What does the strategy AOI excerpt assign?",
+          "choices": [
+            "Relevant = bHit",
+            "Visible = true",
+            "Supplies - 25",
+            "Shells - 1"
+          ],
+          "answer": 0,
+          "why": "The trace is the stand-in for the cell."
+        },
+        {
+          "id": "aoi-q2",
+          "prompt": "What is the timer?",
+          "choices": [
+            "0.5f looping",
+            "0.25f",
+            "Every frame",
+            "1.f once"
+          ],
+          "answer": 0,
+          "why": "Relevance is twice a second in the sample."
+        },
+        {
+          "id": "aoi-q3",
+          "prompt": "Why not use Visible for this?",
+          "choices": [
+            "Culling would remove a unit a spotter might reveal",
+            "They are spelled the same",
+            "Relevant cannot be a bool",
+            "Fog is faster"
+          ],
+          "answer": 0,
+          "why": "Two facts."
+        },
+        {
+          "id": "aoi-q4",
+          "prompt": "True or false: a hidden-but-relevant unit skips its server order.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The client may lack the actor. The server still orders it."
+        },
+        {
+          "id": "aoi-q5",
+          "prompt": "What is not replicated?",
+          "choices": [
+            "The selection decal",
+            "The unit, while relevant",
+            "The order id, with the unit",
+            "Position"
+          ],
+          "answer": 0,
+          "why": "Decals are local."
+        },
+        {
+          "id": "aoi-q6",
+          "prompt": "A truck's radius should be what, relative to a soldier?",
+          "choices": [
+            "Larger, as data",
+            "The same tick",
+            "Zero, trucks do not replicate",
+            "Tied to Score"
+          ],
+          "answer": 0,
+          "why": "Size is data."
+        },
+        {
+          "id": "aoi-q7",
+          "prompt": "When does debris drop?",
+          "choices": [
+            "As soon as it leaves interest",
+            "Never",
+            "When Visible is true",
+            "When a medal is awarded"
+          ],
+          "answer": 0,
+          "why": "Debris is noise."
+        },
+        {
+          "id": "aoi-q8",
+          "prompt": "Is Relevant saved?",
+          "choices": [
+            "No. The timer recomputes it.",
+            "Yes",
+            "Only for trucks",
+            "Only with Score"
+          ],
+          "answer": 0,
+          "why": "Positions are enough."
+        }
+      ]
+    },
+    {
+      "id": "vehicles",
+      "title": "Transports",
+      "order": 6,
+      "graph": "vehicle-drive",
+      "why": "IA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+      "depends": [
+        "IA_Throttle",
+        "Throttle",
+        "ReceiveOrder"
+      ],
+      "reading": [
+        "A transport is a unit the order system can command and a vehicle the driver can throttle. The excerpt assigns Throttle = IA_Throttle inside if (GetOwner() && GetOwner()->HasAuthority()). ReceiveOrder on the same actor tells an AI driver where to go. The order does not write Throttle directly, or a formation click would stomp the driver's axis. The AI driver writes Throttle the way the input does, inside the same authority check.",
+        "On-foot speed, if any infantry graph exists, stays off this component. Wheels are local. Replicating each wheel so distant players see the suspension is the expensive version, and relevance should have dropped that truck before the wheels mattered. Fuel, if driving costs it, is its own stock, not Supplies and not Shells.",
+        "Fog draws the truck when Visible is true. Relevance decides whether the actor exists on the client at all. A truck can be heard by a larger radius. Artillery mounted on it uses the shell budget, not Throttle. Scoring hears a kill of the truck through AwardMedal, not through this assignment.",
+        "Save stores fuel and the current order. It rarely stores Throttle, which is a moment. Begin Play applies fuel before the simulation starts, or the truck lurches on an empty tank that has not loaded.",
+        "Transports closes on Vehicle drive. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. Line 7 is `if (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_vehicle-drive_auth`. Line 9 is `Throttle = IA_Throttle; // node:tpl_vehicle-drive_set`. IA_Throttle stays on its own event and is not written from Transports. Throttle stays on its own event and is not written from Transports. ReceiveOrder stays on its own event and is not written from Transports. Throttle = IA_Throttle inside HasAuthority. The order calls ReceiveOrder. An AI driver then writes Throttle. Wheels stay local. The assignment names the repair to keep. Transports does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Vehicle drive already uses."
+      ],
+      "assignment": {
+        "kind": "compatibility",
+        "prompt": "A formation click writes Throttle. What should the excerpt assign from the axis, and what should the order call instead?",
+        "accept": [
+          "Throttle",
+          "ReceiveOrder"
+        ],
+        "model": "Throttle = IA_Throttle inside HasAuthority. The order calls ReceiveOrder. An AI driver then writes Throttle. Wheels stay local."
+      },
+      "quiz": [
+        {
+          "id": "vehicles-q1",
+          "prompt": "What does the transport excerpt assign?",
+          "choices": [
+            "Throttle = IA_Throttle",
+            "Supplies - 25",
+            "Shells - 1",
+            "Score + 10"
+          ],
+          "answer": 0,
+          "why": "The axis is the throttle."
+        },
+        {
+          "id": "vehicles-q2",
+          "prompt": "What should a formation click call?",
+          "choices": [
+            "ReceiveOrder",
+            "Throttle = IA_Order",
+            "Visible = true",
+            "AwardMedal"
+          ],
+          "answer": 0,
+          "why": "The driver writes throttle afterwards."
+        },
+        {
+          "id": "vehicles-q3",
+          "prompt": "What must not replicate per wheel?",
+          "choices": [
+            "The wheel transform",
+            "The actor, while relevant",
+            "Fuel",
+            "The order id"
+          ],
+          "answer": 0,
+          "why": "The simulation owns the wheels."
+        },
+        {
+          "id": "vehicles-q4",
+          "prompt": "True or false: fuel should subtract Supplies.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Fuel is its own stock."
+        },
+        {
+          "id": "vehicles-q5",
+          "prompt": "Who scores a destroyed truck?",
+          "choices": [
+            "AwardMedal, not the throttle assignment",
+            "Throttle",
+            "Fog",
+            "The formation offset"
+          ],
+          "answer": 0,
+          "why": "A kill is a medal."
+        },
+        {
+          "id": "vehicles-q6",
+          "prompt": "When does a larger radius apply?",
+          "choices": [
+            "When the truck can be heard farther than a soldier",
+            "Always, for every shell",
+            "When Score is high",
+            "When the radial menu is open"
+          ],
+          "answer": 0,
+          "why": "Radius is data on the vehicle."
+        },
+        {
+          "id": "vehicles-q7",
+          "prompt": "What does save keep for the truck?",
+          "choices": [
+            "Fuel and the order",
+            "Every wheel transform",
+            "Throttle as a permanent fact",
+            "Visible"
+          ],
+          "answer": 0,
+          "why": "Throttle is a moment."
+        },
+        {
+          "id": "vehicles-q8",
+          "prompt": "When is fuel applied on load?",
+          "choices": [
+            "Before the simulation starts",
+            "After the first bump",
+            "Inside Reveal",
+            "On Tick"
+          ],
+          "answer": 0,
+          "why": "Otherwise it lurches empty."
+        }
+      ]
+    },
+    {
+      "id": "artillery",
+      "title": "Fire missions",
+      "order": 7,
+      "graph": "artillery",
+      "why": "FireMission traces an impact and subtracts one shell on the authority.",
+      "depends": [
+        "FireMission",
+        "Shells",
+        "Has Authority"
+      ],
+      "reading": [
+        "A fire mission is an order the gun implements. The excerpt's FireMission traces and assigns Shells = (Shells - 1.f) inside if (GetOwner() && GetOwner()->HasAuthority()). The shell budget is the anti-spam. Without it a click streams impacts. The trace is the impact. Supplies are not decremented here. If a shell also costs money, the gun calls Spend with the row's cost as a second step. One float cannot be both budgets.",
+        "Blind fire does not set Visible. A spotter's Reveal is what lifts fog. Scoring runs only if the impact is a marked hit, through AwardMedal, not inside this subtract. A miss still spends the shell. That is the point of the budget.",
+        "The gun can be a vehicle. Throttle does not call FireMission. The order does. Relevance means a client who cannot see the gun still receives the impact if the impact is relevant, or not, by the impact's own radius. Spawning a shell actor per frame of flight replicates the arc. A delayed impact from the mission event is the cheap version.",
+        "Save stores Shells. Begin Play must not fire a mission because the gun had shells. Load the count. Do not spend one to prove the gun works.",
+        "Fire missions closes on Artillery. FireMission traces an impact and subtracts one shell on the authority. Line 10 is `if (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_artillery_auth`. Line 12 is `FHitResult Hit_tpl_artillery_trace; bool bHit_tpl_artillery_trace = false; if (UWorld* Wor`. Line 13 is `Shells = (Shells - 1.f); // node:tpl_artillery_set`. FireMission stays on its own event and is not written from Fire missions. Shells stays on its own event and is not written from Fire missions. Has Authority stays on its own event and is not written from Fire missions. FireMission subtracts Shells by 1 inside HasAuthority. Supplies stay on Spend. Visible stays on Reveal. The assignment names the repair to keep. Fire missions does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Artillery already uses."
+      ],
+      "assignment": {
+        "kind": "inefficiency",
+        "prompt": "A click streams impacts and also drains Supplies. What does the excerpt subtract, and what event should start the mission?",
+        "accept": [
+          "Shells",
+          "FireMission"
+        ],
+        "model": "FireMission subtracts Shells by 1 inside HasAuthority. Supplies stay on Spend. Visible stays on Reveal."
+      },
+      "quiz": [
+        {
+          "id": "artillery-q1",
+          "prompt": "What does the fire-mission excerpt assign?",
+          "choices": [
+            "Shells = (Shells - 1.f)",
+            "Supplies - 25.f",
+            "Score + 10.f",
+            "Throttle = IA_Throttle"
+          ],
+          "answer": 0,
+          "why": "One shell per mission."
+        },
+        {
+          "id": "artillery-q2",
+          "prompt": "What stops a stream of clicks?",
+          "choices": [
+            "The shell budget",
+            "Tick",
+            "Fog",
+            "The board widget"
+          ],
+          "answer": 0,
+          "why": "No shells, no mission."
+        },
+        {
+          "id": "artillery-q3",
+          "prompt": "Does a miss spend a shell?",
+          "choices": [
+            "Yes",
+            "No",
+            "Only if Visible",
+            "Only if Score is zero"
+          ],
+          "answer": 0,
+          "why": "The budget is the shot, not the hit."
+        },
+        {
+          "id": "artillery-q4",
+          "prompt": "True or false: the impact should set Visible.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "A spotter's Reveal lifts fog."
+        },
+        {
+          "id": "artillery-q5",
+          "prompt": "When does AwardMedal run?",
+          "choices": [
+            "On a marked hit, not inside the subtract",
+            "On every mission",
+            "On Throttle",
+            "On load"
+          ],
+          "answer": 0,
+          "why": "A spend is not a medal."
+        },
+        {
+          "id": "artillery-q6",
+          "prompt": "What is the cheap arc?",
+          "choices": [
+            "A delayed impact from the mission",
+            "A shell actor every frame of flight",
+            "A replicated wheel",
+            "Tick"
+          ],
+          "answer": 0,
+          "why": "The event is enough."
+        },
+        {
+          "id": "artillery-q7",
+          "prompt": "If a shell also costs money, what second call is made?",
+          "choices": [
+            "Spend, with the row's cost",
+            "Another Shells subtract named Supplies",
+            "Visible = true",
+            "Throttle = 0"
+          ],
+          "answer": 0,
+          "why": "Two budgets, two events."
+        },
+        {
+          "id": "artillery-q8",
+          "prompt": "What must load not do?",
+          "choices": [
+            "Fire a mission to test the gun",
+            "Restore Shells",
+            "Place the gun",
+            "Let Reveal run"
+          ],
+          "answer": 0,
+          "why": "The count is the state."
+        }
+      ]
+    },
+    {
+      "id": "save",
+      "title": "Save the battle",
+      "order": 8,
+      "graph": "save-load",
+      "why": "Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+      "depends": [
+        "Begin Play",
+        "SlotValue",
+        "Supplies"
+      ],
+      "reading": [
+        "The battle slot packs Supplies, Score, Shells, fuel, formation ids, and the orders still running. It does not pack Visible or Relevant. The excerpt assigns SlotValue = 1.f at Begin Play and LoadSlot logs Loaded. Replace the stand-in with that struct. Begin Play must not call Spend, AwardMedal, or FireMission. Those would apply the battle a second time.",
+        "Tick saves a half-spent stock and a truck mid-bump. Write when the player asks, or on a slow match timer. Apply fuel before the vehicle simulates. Apply Shells before any gun can take an order. Start Reveal after units are placed. Start CheckAOI after positions exist. Starting vision first traces an empty map and then shows ghosts.",
+        "Offsets, wheel transforms, board widgets, and selection decals stay out. The formation id, the unit id, and the floats are enough. A destroyed building is an id in a list, the same way a destroyed wall was in the FPS slot. The mesh is the project's.",
+        "Two clients loading must read the server's struct. A client slot that spent locally is the desync the authority gate was meant to prevent, saved into a file.",
+        "Save the battle closes on Save / load slot. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute. Line 8 is `FVector Made_tpl_saveload_make = FVector::ZeroVector; Made_tpl_saveload_make.X = 1.f; Made`. Line 9 is `SlotValue = 1.f; // node:tpl_save-load_store`. Line 14 is `FHitResult Broken_tpl_saveload_break = FHitResult(); // node:tpl_save-load_break`. Begin Play stays on its own event and is not written from Save the battle. SlotValue stays on its own event and is not written from Save the battle. Supplies stays on its own event and is not written from Save the battle. Reveal recomputes Visible. Begin Play must not call FireMission, Spend, or AwardMedal. Shells and Supplies are packed. The assignment names the repair to keep. Save the battle does not borrow a write from a neighbor graph, and a Tick stand-in is the broken sample rather than the schedule Save / load slot already uses."
+      ],
+      "assignment": {
+        "kind": "graph",
+        "prompt": "The battle save stored Visible and fired a mission on load. What should recompute vision, and which event must Begin Play not call?",
+        "accept": [
+          "Reveal",
+          "FireMission"
+        ],
+        "model": "Reveal recomputes Visible. Begin Play must not call FireMission, Spend, or AwardMedal. Shells and Supplies are packed."
+      },
+      "quiz": [
+        {
+          "id": "save-q1",
+          "prompt": "What does the battle-save excerpt assign?",
+          "choices": [
+            "SlotValue = 1.f",
+            "Shells - 1",
+            "Supplies - 25",
+            "Relevant = bHit"
+          ],
+          "answer": 0,
+          "why": "The sample is the pack shape."
+        },
+        {
+          "id": "save-q2",
+          "prompt": "What is left out on purpose?",
+          "choices": [
+            "Visible and Relevant",
+            "Supplies",
+            "Shells",
+            "The order id"
+          ],
+          "answer": 0,
+          "why": "Both bools are recomputed."
+        },
+        {
+          "id": "save-q3",
+          "prompt": "What must Begin Play not call?",
+          "choices": [
+            "FireMission, Spend, or AwardMedal",
+            "LoadSlot",
+            "Reveal, after units exist",
+            "CheckAOI, after positions exist"
+          ],
+          "answer": 0,
+          "why": "Those events apply the battle again."
+        },
+        {
+          "id": "save-q4",
+          "prompt": "True or false: wheel transforms belong in the slot.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "The simulation rebuilds them from Throttle and fuel."
+        },
+        {
+          "id": "save-q5",
+          "prompt": "When is fuel applied?",
+          "choices": [
+            "Before the vehicle simulates",
+            "After the first order",
+            "Inside AwardMedal",
+            "When fog lifts"
+          ],
+          "answer": 0,
+          "why": "An empty tank should not lurch."
+        },
+        {
+          "id": "save-q6",
+          "prompt": "When does Reveal run?",
+          "choices": [
+            "After units are placed",
+            "Before the load",
+            "Inside the constructor",
+            "On every FireMission"
+          ],
+          "answer": 0,
+          "why": "The trace needs the loaded map."
+        },
+        {
+          "id": "save-q7",
+          "prompt": "A destroyed building is stored as what?",
+          "choices": [
+            "An id",
+            "A mesh",
+            "A widget",
+            "A throttle"
+          ],
+          "answer": 0,
+          "why": "The project still has the mesh."
+        },
+        {
+          "id": "save-q8",
+          "prompt": "Whose struct do two clients load?",
+          "choices": [
+            "The server's",
+            "Each client's local spend",
+            "The board widget's",
+            "The fog bit's"
+          ],
+          "answer": 0,
+          "why": "A local spend is the desync, filed."
+        }
+      ]
+    }
+  ],
+  "exam": {
+    "questions": [
+      {
+        "id": "strategy-intermediate-e1",
+        "kind": "mc",
+        "prompt": "A strategy formation writes an offset on every member each frame. What should the member read instead?",
+        "choices": [
+          "Its slot in the squad data, when it accepts ReceiveOrder",
+          "Tick",
+          "Visible",
+          "Throttle"
+        ],
+        "answer": 0,
+        "why": "The shape is data."
+      },
+      {
+        "id": "strategy-intermediate-e2",
+        "kind": "graph-repair",
+        "graph": "orders",
+        "sample": "Tick writes formation offsets",
+        "prompt": "The broken formation graph writes offsets from the red Tick node. What does the real excerpt branch on?",
+        "choices": [
+          "Selected",
+          "Shells",
+          "Relevant",
+          "Score"
+        ],
+        "answer": 0,
+        "why": "IA_Order is the click."
+      },
+      {
+        "id": "strategy-intermediate-e3",
+        "kind": "tf",
+        "prompt": "True or false: a move order should subtract a shell.",
+        "choices": [
+          "True",
+          "False"
+        ],
+        "answer": 1,
+        "why": "FireMission spends shells. A move does not."
+      },
+      {
+        "id": "strategy-intermediate-e4",
+        "kind": "mc",
+        "prompt": "Load replays IA_Order and the formation steps twice. What should have been stored?",
+        "choices": [
+          "The order id and the target, not a second click",
+          "Visible",
+          "Every offset",
+          "The board widget"
+        ],
+        "answer": 0,
+        "why": "Do not reissue the order."
+      },
+      {
+        "id": "strategy-intermediate-e5",
+        "kind": "mc",
+        "prompt": "A barracks and a turret share the literal 25. Where does the cost belong?",
+        "choices": [
+          "A data row",
+          "Tick",
+          "The fog timer",
+          "The wheel mesh"
+        ],
+        "answer": 0,
+        "why": "Spend reads the row."
+      },
+      {
+        "id": "strategy-intermediate-e6",
+        "kind": "cpp-repair",
+        "graph": "economy",
+        "sample": "Supplies = (Supplies - 25.f); // each client, and also per shell",
+        "prompt": "Clients subtract Supplies, and shells use the same float. What is the repair?",
+        "choices": [
+          "Nest the supplies write in HasAuthority, and keep Shells as a separate budget",
+          "One float for both",
+          "Subtract on Tick",
+          "Award a medal per shell"
+        ],
+        "answer": 0,
+        "why": "Two budgets."
+      },
+      {
+        "id": "strategy-intermediate-e7",
+        "kind": "mc",
+        "prompt": "Income drips while the strategy match is paused. What should call Spend?",
+        "choices": [
+          "A slow timer, and only if the refinery exists",
+          "Tick",
+          "Reveal",
+          "Throttle"
+        ],
+        "answer": 0,
+        "why": "Income is a negative cost on a timer."
+      },
+      {
+        "id": "strategy-intermediate-e8",
+        "kind": "mc",
+        "prompt": "Driving drains the build money. What stock should fuel be?",
+        "choices": [
+          "Its own",
+          "Supplies",
+          "Score",
+          "Visible"
+        ],
+        "answer": 0,
+        "why": "Driving is not construction."
+      },
+      {
+        "id": "strategy-intermediate-e9",
+        "kind": "mc",
+        "prompt": "A client writes Visible and sees the enemy strategy base. What gate is missing on the sample?",
+        "choices": [
+          "HasAuthority around Visible = true",
+          "A widget",
+          "IA_Throttle",
+          "A medal row"
+        ],
+        "answer": 0,
+        "why": "Vision is a server write."
+      },
+      {
+        "id": "strategy-intermediate-e10",
+        "kind": "graph-repair",
+        "graph": "fog",
+        "sample": "Tick sets Visible",
+        "prompt": "The broken strategy fog graph writes Visible from Tick. What does the real timer use?",
+        "choices": [
+          "0.25f, then Visible = true on a hit",
+          "0.5f Relevant",
+          "Shells - 1",
+          "Throttle"
+        ],
+        "answer": 0,
+        "why": "Reveal is the pass."
+      },
+      {
+        "id": "strategy-intermediate-e11",
+        "kind": "tf",
+        "prompt": "True or false: Relevant and Visible should be the same bool so culling hides the enemy.",
+        "choices": [
+          "True",
+          "False"
+        ],
+        "answer": 1,
+        "why": "Culling would delete a unit a spotter might reveal."
+      },
+      {
+        "id": "strategy-intermediate-e12",
+        "kind": "mc",
+        "prompt": "A blind barrage lifts fog. What should lift it?",
+        "choices": [
+          "A spotter's Reveal trace",
+          "FireMission",
+          "Throttle",
+          "AwardMedal"
+        ],
+        "answer": 0,
+        "why": "The gun is not vision."
+      },
+      {
+        "id": "strategy-intermediate-e13",
+        "kind": "mc",
+        "prompt": "A bump of a strategy truck adds 10 inside Throttle. Where does the add belong?",
+        "choices": [
+          "AwardMedal, from the destruction, inside HasAuthority",
+          "Throttle",
+          "Spend",
+          "Reveal"
+        ],
+        "answer": 0,
+        "why": "A kill is a medal."
+      },
+      {
+        "id": "strategy-intermediate-e14",
+        "kind": "cpp-repair",
+        "graph": "scoring",
+        "sample": "void OnRep_Score()\n{\n  Score = Score + 10.f;\n}",
+        "prompt": "The board's notify adds another 10. What should it do?",
+        "choices": [
+          "Read Score and refresh the widget",
+          "Add 10",
+          "Spend supplies",
+          "Set Visible"
+        ],
+        "answer": 0,
+        "why": "The server already added the medal."
+      },
+      {
+        "id": "strategy-intermediate-e15",
+        "kind": "mc",
+        "prompt": "Load calls AwardMedal and the strategy board jumps. What should Begin Play do with Score?",
+        "choices": [
+          "Read the stored total",
+          "Award it",
+          "Add Supplies to it",
+          "Derive it from Visible"
+        ],
+        "answer": 0,
+        "why": "The total is the result."
+      },
+      {
+        "id": "strategy-intermediate-e16",
+        "kind": "mc",
+        "prompt": "Enemy units vanish forever after a fog lift because Relevant was cleared with Visible. What are the two bools?",
+        "choices": [
+          "Relevant is replication. Visible is team vision.",
+          "They are aliases",
+          "Both are throttle",
+          "Both are medals"
+        ],
+        "answer": 0,
+        "why": "Do not collapse them."
+      },
+      {
+        "id": "strategy-intermediate-e17",
+        "kind": "graph-repair",
+        "graph": "aoi",
+        "sample": "Tick sets Relevant from Visible",
+        "prompt": "The broken relevance graph copies Visible from Tick. What does CheckAOI assign in the excerpt?",
+        "choices": [
+          "Relevant = bHit on a 0.5f timer",
+          "Visible = true",
+          "Shells - 1",
+          "Score + 10"
+        ],
+        "answer": 0,
+        "why": "The trace is the cell stand-in."
+      },
+      {
+        "id": "strategy-intermediate-e18",
+        "kind": "mc",
+        "prompt": "A formation click sets Throttle and the driver loses the axis. What should the click call?",
+        "choices": [
+          "ReceiveOrder",
+          "Throttle = IA_Order",
+          "FireMission",
+          "Spend"
+        ],
+        "answer": 0,
+        "why": "The driver writes throttle."
+      },
+      {
+        "id": "strategy-intermediate-e19",
+        "kind": "cpp-repair",
+        "graph": "vehicle-drive",
+        "sample": "Throttle = Speed; // on-foot sprint",
+        "prompt": "Throttle copies an on-foot Speed. What does the vehicle excerpt assign?",
+        "choices": [
+          "Throttle = IA_Throttle, inside HasAuthority",
+          "Supplies - 25",
+          "Visible = true",
+          "Score + 10"
+        ],
+        "answer": 0,
+        "why": "The axis is the throttle."
+      },
+      {
+        "id": "strategy-intermediate-e20",
+        "kind": "tf",
+        "prompt": "True or false: each wheel transform of a strategy truck should replicate.",
+        "choices": [
+          "True",
+          "False"
+        ],
+        "answer": 1,
+        "why": "Relevance should have dropped the detail. Wheels are local."
+      },
+      {
+        "id": "strategy-intermediate-e21",
+        "kind": "mc",
+        "prompt": "Clicks stream artillery impacts. What budget stops them?",
+        "choices": [
+          "Shells",
+          "Score",
+          "Visible",
+          "The board font"
+        ],
+        "answer": 0,
+        "why": "One mission, one shell."
+      },
+      {
+        "id": "strategy-intermediate-e22",
+        "kind": "graph-repair",
+        "graph": "artillery",
+        "sample": "Tick subtracts Shells and sets Visible",
+        "prompt": "The broken gun graph spends shells from Tick and lifts fog. What event should spend the shell?",
+        "choices": [
+          "FireMission, without writing Visible",
+          "Reveal",
+          "AwardMedal",
+          "IA_Throttle"
+        ],
+        "answer": 0,
+        "why": "The mission is the spend. The spotter is the vision."
+      },
+      {
+        "id": "strategy-intermediate-e23",
+        "kind": "mc",
+        "prompt": "A missed barrage still spends a shell and also awards 10. Which of those is wrong?",
+        "choices": [
+          "The medal. The spend is correct.",
+          "The spend",
+          "Both",
+          "Neither"
+        ],
+        "answer": 0,
+        "why": "A miss is not a marked hit."
+      },
+      {
+        "id": "strategy-intermediate-e24",
+        "kind": "cpp-repair",
+        "graph": "artillery",
+        "sample": "Supplies = (Supplies - 1.f); // labeled as a shell",
+        "prompt": "A shell subtracts Supplies. What does the excerpt assign for a mission?",
+        "choices": [
+          "Shells = (Shells - 1.f)",
+          "Score + 10",
+          "Visible = true",
+          "Throttle = 0"
+        ],
+        "answer": 0,
+        "why": "Call Spend only if the shell also costs money."
+      },
+      {
+        "id": "strategy-intermediate-e25",
+        "kind": "mc",
+        "prompt": "The saved battle shows a truck where it used to be, under old fog. What was stored?",
+        "choices": [
+          "Visible, which should have been recomputed",
+          "Shells",
+          "The order id",
+          "Fuel"
+        ],
+        "answer": 0,
+        "why": "Reveal runs after placement."
+      },
+      {
+        "id": "strategy-intermediate-e26",
+        "kind": "mc",
+        "prompt": "Begin Play fires a mission because the gun had shells. What should it do instead?",
+        "choices": [
+          "Restore the count and wait for an order",
+          "Prove the gun by spending one",
+          "Award a medal",
+          "Set Relevant from Visible"
+        ],
+        "answer": 0,
+        "why": "Load does not fire."
+      },
+      {
+        "id": "strategy-intermediate-e27",
+        "kind": "tf",
+        "prompt": "True or false: the server struct is what both strategy clients load.",
+        "choices": [
+          "True",
+          "False"
+        ],
+        "answer": 0,
+        "why": "A local spend is a desync."
+      },
+      {
+        "id": "strategy-intermediate-e28",
+        "kind": "mc",
+        "prompt": "Debris from a barrage keeps replicating at the map edge. Which bool drops it?",
+        "choices": [
+          "Relevant",
+          "Visible",
+          "Selected",
+          "Score"
+        ],
+        "answer": 0,
+        "why": "Interest, not team vision."
+      },
+      {
+        "id": "strategy-intermediate-e29",
+        "kind": "mc",
+        "prompt": "Fuel is applied after the truck simulates and it lurches empty. When should fuel apply?",
+        "choices": [
+          "Before simulation starts",
+          "After the first order",
+          "Inside Reveal",
+          "Inside AwardMedal"
+        ],
+        "answer": 0,
+        "why": "The tank has to exist as a number first."
+      },
+      {
+        "id": "strategy-intermediate-e30",
+        "kind": "mc",
+        "prompt": "Selection decals were saved and the file ballooned. What is enough?",
+        "choices": [
+          "The order id, the formation id, and the floats",
+          "Every decal",
+          "Every wheel",
+          "Visible and Relevant"
+        ],
+        "answer": 0,
+        "why": "Decals are local. The bools recompute."
+      }
+    ]
+  }
+}

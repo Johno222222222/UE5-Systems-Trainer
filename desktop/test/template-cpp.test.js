@@ -92,6 +92,64 @@ test("every template keeps its header first and avoids bare float suffixes", asy
   assert.match(system.cpp_source, /^#include "Kit\.h"/);
 });
 
+function assertAuthorityGuards(source, label, { component = true } = {}) {
+  const call = component
+    ? /if\s*\(\s*GetOwner\(\)\s*&&\s*GetOwner\(\)->HasAuthority\(\)\s*\)/
+    : /if\s*\(\s*HasAuthority\(\)\s*\)/;
+  if (component) assert.doesNotMatch(source, /if\s*\(\s*HasAuthority\(\)\s*\)/, `${label} calls HasAuthority on a component`);
+  const empty = new RegExp(`${call.source}\\s*\\{\\s*(?:\\/\\*[^*]*\\*\\/\\s*)?\\}`);
+  assert.equal(empty.test(source), false, `${label} has an empty authority block`);
+  const lines = source.split("\n");
+  for (let i = 0; i < lines.length; i += 1) {
+    if (!call.test(lines[i])) continue;
+    const rest = lines.slice(i).join("\n");
+    const block = rest.match(new RegExp(`${call.source}[^{]*\\{([\\s\\S]*?)\\n[ \\t]*\\}`));
+    assert.ok(block, `${label} authority check at line ${i + 1} has no block`);
+    assert.ok(block[1].trim().length > 0, `${label} authority block is empty`);
+  }
+}
+
+test("no generated function leaves HasAuthority empty and assigns on the next line", async () => {
+  const { graph } = await libs();
+  const dirs = ["templates", "lesson-graphs"];
+  for (const dir of dirs) {
+    const folder = path.join(__dirname, "..", "..", "content", dir);
+    for (const name of fs.readdirSync(folder).filter((item) => item.endsWith(".json"))) {
+      const { source } = await emit(fresh(), JSON.parse(fs.readFileSync(path.join(folder, name), "utf8")), "insert", "event");
+      assertAuthorityGuards(source, `${dir}/${name}`);
+    }
+  }
+  const begin = graph.createNode("custom-event", 0, 0, { id: "evt", data: { name: "Apply" } });
+  const auth = graph.createNode("has-authority", 220, 0, { id: "auth" });
+  const set = graph.createNode("set-variable", 440, 0, { id: "set", data: { variable: "Health", varType: "float" } });
+  const literal = graph.createNode("literal", 220, 140, { id: "lit", data: { varType: "float", value: "90" } });
+  const pin = (node, dir, type) => node.pins.find((item) => item.dir === dir && item.type === type).id;
+  const doc = {
+    variables: [{ id: "health", name: "Health", type: "float", default: "100.f" }],
+    items: [{
+      id: "event",
+      kind: "event",
+      name: "Event Graph",
+      nodes: [begin, auth, set, literal],
+      wires: [
+        { id: "a", from: { node: "evt", pin: pin(begin, "out", "exec") }, to: { node: "auth", pin: pin(auth, "in", "exec") } },
+        { id: "e", from: { node: "auth", pin: pin(auth, "out", "exec") }, to: { node: "set", pin: pin(set, "in", "exec") } },
+        { id: "d", from: { node: "lit", pin: pin(literal, "out", "float") }, to: { node: "set", pin: pin(set, "in", "float") } },
+      ],
+      comments: [],
+    }],
+  };
+  const system = graph.commitDocument({ cpp_header: HEADER, cpp_source: SOURCE }, doc).system;
+  assert.match(system.cpp_source, /if \(GetOwner\(\) && GetOwner\(\)->HasAuthority\(\)\)[^{]*\{\s*Health = 90\.f;/);
+  assertAuthorityGuards(system.cpp_source, "hand graph");
+  const actorHeader = HEADER.replace("class KIT_API UKitComponent : public UActorComponent", "class KIT_API AKitActor : public AActor");
+  const actorSource = SOURCE.replaceAll("UKitComponent", "AKitActor");
+  const actor = graph.commitDocument({ cpp_header: actorHeader, cpp_source: actorSource }, doc).system;
+  assert.match(actor.cpp_source, /if \(HasAuthority\(\)\)[^{]*\{\s*Health = 90\.f;/);
+  assert.doesNotMatch(actor.cpp_source, /GetOwner\(\)->HasAuthority/);
+  assertAuthorityGuards(actor.cpp_source, "actor graph", { component: false });
+});
+
 test("pickup adds one ammo, declares it, and binds a real overlap signature", async () => {
   const { source, header } = await emit(fresh(), loadTemplate("pickup"), "insert", "event");
   assert.match(source, /Ammo = \(Ammo \+ 1\);/);

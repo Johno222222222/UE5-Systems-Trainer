@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.17.0
+
+- Learn has Big Picture and Quiz. Big Picture starts on the event graph and swaps in the C++ lines, dependencies, expansions, and properties. Quiz has Beginner and Intermediate.
+- Programs add FPS, TPS, Horror, and Strategy tracks at both levels. Each section has a reading lesson, a generated diagram, an assignment, and a quiz, and each track ends with a final exam that includes a broken graph and broken C++ repair.
+- Courses add shorter general beginner and intermediate paths that mix those genres. The existing quizzes, scores, and reviews stay.
+- The event-graph wire hint renders above the nodes. A compile check that passes clears the Outcome Check list.
+- Version is 1.17.0. Glossary and node expansion wait for 1.18.0.
+
 ## 1.16.0
 
 - The window title, About box, header, and Start menu say UE5 Systems Training Tool/Generator. Installer files are named UE5-Systems-Training-Tool-Generator. The data folder name is unchanged so saved projects stay put.

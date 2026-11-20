@@ -1,0 +1,2479 @@
+{
+  "format": "ue5-architect-pack",
+  "version": 1,
+  "courses": [
+    {
+      "id": "fps-beginner",
+      "title": "FPS, beginner",
+      "summary": "A short first-person course: the press that starts a look, a magazine that clamps, a pickup that counts, and health that only the authority writes.",
+      "level": "beginner",
+      "genre": "fps",
+      "glossary_tags": [
+        "Core",
+        "Networking",
+        "Data"
+      ],
+      "pass_mark": 70,
+      "modules": [
+        {
+          "id": "press",
+          "title": "The press, not the frame",
+          "takeaway": "A first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace.\n\nTick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named.\n\nOne query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health.",
+          "assignment": {
+            "prompt": "Name the action that starts the look, and the call a hit makes.",
+            "accept": [
+              "IA_Interact",
+              "Interact"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "press-1",
+              "prompt": "What starts the first-person look?",
+              "choices": [
+                "IA_Interact",
+                "Tick",
+                "Begin Play",
+                "OnRep"
+              ],
+              "answer": 0,
+              "why": "The action is the press.",
+              "review_prompt": "Which action traces?"
+            },
+            {
+              "id": "press-2",
+              "prompt": "Where does the trace start?",
+              "choices": [
+                "The camera",
+                "The feet",
+                "The save slot",
+                "The magazine"
+              ],
+              "answer": 0,
+              "why": "The crosshair is the aim.",
+              "review_prompt": "Where is the trace origin?"
+            },
+            {
+              "id": "press-3",
+              "prompt": "A miss should do what?",
+              "choices": [
+                "Stop",
+                "Open the door",
+                "Subtract health",
+                "Save the slot"
+              ],
+              "answer": 0,
+              "why": "The false pin ends.",
+              "review_prompt": "What does a miss do?"
+            },
+            {
+              "id": "press-4",
+              "prompt": "True or false: the interact graph should trace on Tick so the prompt stays fresh.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "The press owns the query.",
+              "review_prompt": "Does the look trace on Tick?"
+            }
+          ],
+          "diff": {
+            "id": "press-diff",
+            "prompt": "Which look is broken?",
+            "review_prompt": "Which schedule queries while nothing changed?",
+            "why": "The right-hand version is Tick.",
+            "bug": "right",
+            "left": {
+              "label": "Press",
+              "code": "void Graph_IA_Interact() { LineTrace(); }"
+            },
+            "right": {
+              "label": "Tick",
+              "code": "void Tick() { LineTrace(); }"
+            }
+          }
+        },
+        {
+          "id": "magazine",
+          "title": "Rounds in the gun",
+          "takeaway": "IA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize.\n\nThose three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes.\n\nHealth does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add.",
+          "assignment": {
+            "prompt": "Name the action and the call that keeps the magazine inside its cap.",
+            "accept": [
+              "IA_Reload",
+              "Clamp"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "mag-1",
+              "prompt": "What starts a reload?",
+              "choices": [
+                "IA_Reload",
+                "Tick",
+                "Overlap",
+                "OnRep_Health"
+              ],
+              "answer": 0,
+              "why": "Reload is an action.",
+              "review_prompt": "Which action reloads?"
+            },
+            {
+              "id": "mag-2",
+              "prompt": "What refuses a full magazine?",
+              "choices": [
+                "And of the two comparisons",
+                "Tick",
+                "The camera",
+                "Alert"
+              ],
+              "answer": 0,
+              "why": "Both checks have to pass.",
+              "review_prompt": "What gates the add?"
+            },
+            {
+              "id": "mag-3",
+              "prompt": "Where should MagSize live once designers tune it?",
+              "choices": [
+                "A data row",
+                "A Tick literal",
+                "The mapping context",
+                "The widget"
+              ],
+              "answer": 0,
+              "why": "The cap is data.",
+              "review_prompt": "Where is the cap?"
+            },
+            {
+              "id": "mag-4",
+              "prompt": "True or false: each round should replicate as its own actor.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "The counts are the state.",
+              "review_prompt": "Do bullets replicate as actors?"
+            }
+          ],
+          "diff": {
+            "id": "magazine-diff",
+            "prompt": "Which reload is broken?",
+            "review_prompt": "Which version reloads without a press?",
+            "why": "The right-hand version is Tick.",
+            "bug": "right",
+            "left": {
+              "label": "Action",
+              "code": "void Graph_IA_Reload() { Magazine = Clamp(...); }"
+            },
+            "right": {
+              "label": "Tick",
+              "code": "void Tick() { Magazine += 1.f; }"
+            }
+          }
+        },
+        {
+          "id": "pickup",
+          "title": "A stack, not a scan",
+          "takeaway": "Overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other.\n\nThe trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph.\n\nScanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh.",
+          "assignment": {
+            "prompt": "Name the event that counts, and the call it makes.",
+            "accept": [
+              "Overlap",
+              "AddToSlot"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "pick-1",
+              "prompt": "What increments a stack?",
+              "choices": [
+                "Overlap, then AddToSlot",
+                "The interact trace",
+                "Tick",
+                "OnRep"
+              ],
+              "answer": 0,
+              "why": "Overlap owns the count.",
+              "review_prompt": "Which event counts?"
+            },
+            {
+              "id": "pick-2",
+              "prompt": "Why an interface instead of a cast?",
+              "choices": [
+                "A rifle and a medkit share the call",
+                "Casts are faster",
+                "Tick requires an interface",
+                "Save forbids casts"
+              ],
+              "answer": 0,
+              "why": "The contract is one function.",
+              "review_prompt": "Why not a cast?"
+            },
+            {
+              "id": "pick-3",
+              "prompt": "Where does the stack cap belong?",
+              "choices": [
+                "On the item asset",
+                "In the trace",
+                "On Tick",
+                "In the camera"
+              ],
+              "answer": 0,
+              "why": "Items differ.",
+              "review_prompt": "Where is the cap?"
+            },
+            {
+              "id": "pick-4",
+              "prompt": "True or false: the interact trace should increment StackCount.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "The trace highlights. Overlap counts.",
+              "review_prompt": "Does the look count items?"
+            }
+          ],
+          "diff": {
+            "id": "pickup-diff",
+            "prompt": "Which pickup is broken?",
+            "review_prompt": "Which version counts because the player looked?",
+            "why": "The right-hand version counts from the trace.",
+            "bug": "right",
+            "left": {
+              "label": "Overlap",
+              "code": "void OnOverlap() { AddToSlot(); }"
+            },
+            "right": {
+              "label": "Trace",
+              "code": "void Graph_IA_Interact() { StackCount += 1.f; }"
+            }
+          }
+        },
+        {
+          "id": "authority",
+          "title": "One writer for health",
+          "takeaway": "Damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout.\n\nThe generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max.\n\nThe weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
+          "assignment": {
+            "prompt": "Name the check that wraps the write, and the notify that must not subtract again.",
+            "accept": [
+              "HasAuthority",
+              "OnRep"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "auth-1",
+              "prompt": "Where does the generated health assignment sit?",
+              "choices": [
+                "Inside if (GetOwner() && GetOwner()->HasAuthority())",
+                "After an empty check",
+                "Inside Tick",
+                "Inside the widget"
+              ],
+              "answer": 0,
+              "why": "The server writes.",
+              "review_prompt": "What wraps the write?"
+            },
+            {
+              "id": "auth-2",
+              "prompt": "What should OnRep do?",
+              "choices": [
+                "Play the feedback",
+                "Subtract again",
+                "Call AddToSlot",
+                "Trace"
+              ],
+              "answer": 0,
+              "why": "The float is already new.",
+              "review_prompt": "What is OnRep for?"
+            },
+            {
+              "id": "auth-3",
+              "prompt": "What replicates?",
+              "choices": [
+                "The float",
+                "The health widget",
+                "The blood actor",
+                "The mapping context"
+              ],
+              "answer": 0,
+              "why": "One number.",
+              "review_prompt": "What crosses the network?"
+            },
+            {
+              "id": "auth-4",
+              "prompt": "True or false: the owning client may subtract Health so the bar moves early.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "The server float snaps the prediction.",
+              "review_prompt": "May the client write health?"
+            }
+          ],
+          "diff": {
+            "id": "authority-diff",
+            "prompt": "Which write is broken?",
+            "review_prompt": "Which assignment can run on every machine?",
+            "why": "The right-hand write is unguarded.",
+            "bug": "right",
+            "left": {
+              "label": "Authority",
+              "code": "if (GetOwner() && GetOwner()->HasAuthority()) { Health = Clamped; }"
+            },
+            "right": {
+              "label": "Client",
+              "code": "Health = Health - Amount;"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "tps-beginner",
+      "title": "TPS, beginner",
+      "summary": "A short third-person course: the shoulder aim, speed from the stick, a companion that does not loot, and a save that skips the camera.",
+      "level": "beginner",
+      "genre": "tps",
+      "glossary_tags": [
+        "Core",
+        "Networking",
+        "Data"
+      ],
+      "pass_mark": 70,
+      "modules": [
+        {
+          "id": "aim",
+          "title": "The shoulder button",
+          "takeaway": "The third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions.\n\nThe trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool.\n\nThe companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed.",
+          "assignment": {
+            "prompt": "Name the action that starts the aim, and the bool the excerpt sets.",
+            "accept": [
+              "IA_Aim",
+              "Aiming"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "aim-1",
+              "prompt": "Which graph is the third-person aim?",
+              "choices": [
+                "The camera graph",
+                "The interact preset",
+                "The save graph",
+                "The patrol"
+              ],
+              "answer": 0,
+              "why": "Aim is the camera.",
+              "review_prompt": "Which graph aims?"
+            },
+            {
+              "id": "aim-2",
+              "prompt": "What does a hit assign?",
+              "choices": [
+                "Aiming = true",
+                "Speed = 600",
+                "StackCount",
+                "Health"
+              ],
+              "answer": 0,
+              "why": "The bool is the stance.",
+              "review_prompt": "What does the trace write?"
+            },
+            {
+              "id": "aim-3",
+              "prompt": "What should the spring arm avoid writing?",
+              "choices": [
+                "Speed",
+                "Nothing",
+                "Aiming",
+                "The button"
+              ],
+              "answer": 0,
+              "why": "IA_Move owns Speed.",
+              "review_prompt": "What does the arm not write?"
+            },
+            {
+              "id": "aim-4",
+              "prompt": "True or false: this lesson uses the interact preset.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "The graph id is camera.",
+              "review_prompt": "Is aim the interact graph?"
+            }
+          ],
+          "diff": {
+            "id": "aim-diff",
+            "prompt": "Which aim is broken?",
+            "review_prompt": "Which version aims without the button?",
+            "why": "The right-hand version is Tick.",
+            "bug": "right",
+            "left": {
+              "label": "Button",
+              "code": "void Graph_IA_Aim() { Aiming = true; }"
+            },
+            "right": {
+              "label": "Tick",
+              "code": "void Tick() { Aiming = true; }"
+            }
+          }
+        },
+        {
+          "id": "gait",
+          "title": "Speed from the stick",
+          "takeaway": "IA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick.\n\nThe spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote.\n\nThe camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set.",
+          "assignment": {
+            "prompt": "Name the comparison and one of the two speed literals.",
+            "accept": [
+              "IA_Move",
+              "600"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "gait-1",
+              "prompt": "What writes Speed?",
+              "choices": [
+                "IA_Move",
+                "The spring arm",
+                "IA_Aim",
+                "Tick"
+              ],
+              "answer": 0,
+              "why": "The axis is the gait.",
+              "review_prompt": "Which action writes Speed?"
+            },
+            {
+              "id": "gait-2",
+              "prompt": "What are the sample speeds?",
+              "choices": [
+                "600 and 200",
+                "0 and 1",
+                "Aiming",
+                "The boom length"
+              ],
+              "answer": 0,
+              "why": "Sprint and walk.",
+              "review_prompt": "Which literals?"
+            },
+            {
+              "id": "gait-3",
+              "prompt": "What should motion matching read?",
+              "choices": [
+                "Speed",
+                "A new line trace",
+                "The mapping context",
+                "Health"
+              ],
+              "answer": 0,
+              "why": "The number is already there.",
+              "review_prompt": "What is the gait?"
+            },
+            {
+              "id": "gait-4",
+              "prompt": "True or false: the spring arm should choose walk versus sprint.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "The arm reads the pawn.",
+              "review_prompt": "Does the camera pick the gait?"
+            }
+          ],
+          "diff": {
+            "id": "gait-diff",
+            "prompt": "Which gait is broken?",
+            "review_prompt": "Which version writes Speed every frame?",
+            "why": "The right-hand version is Tick.",
+            "bug": "right",
+            "left": {
+              "label": "Axis",
+              "code": "if (IA_Move > 0.f) Speed = 600.f; else Speed = 200.f;"
+            },
+            "right": {
+              "label": "Tick",
+              "code": "void Tick() { Speed = 600.f; }"
+            }
+          }
+        },
+        {
+          "id": "companion",
+          "title": "The companion does not loot",
+          "takeaway": "The companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors.\n\nOverlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health.\n\nStacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction.",
+          "assignment": {
+            "prompt": "Name the timer function, and the player action the companion must not run.",
+            "accept": [
+              "AdvancePatrol",
+              "IA_Interact"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "comp-1",
+              "prompt": "What steps the companion?",
+              "choices": [
+                "AdvancePatrol on a timer",
+                "The player's IA_Interact",
+                "Overlap",
+                "IA_Aim"
+              ],
+              "answer": 0,
+              "why": "The route is a timer.",
+              "review_prompt": "What steps the route?"
+            },
+            {
+              "id": "comp-2",
+              "prompt": "What is wrong with an empty B path?",
+              "choices": [
+                "The companion never returns",
+                "The aim breaks",
+                "Health replicates",
+                "Nothing"
+              ],
+              "answer": 0,
+              "why": "FlipFlop needs both sides.",
+              "review_prompt": "What does the return owe?"
+            },
+            {
+              "id": "comp-3",
+              "prompt": "What must the companion not run?",
+              "choices": [
+                "The player's overlap",
+                "Its own timer",
+                "Begin Play",
+                "The direction store"
+              ],
+              "answer": 0,
+              "why": "It would loot.",
+              "review_prompt": "What loot path is forbidden?"
+            },
+            {
+              "id": "comp-4",
+              "prompt": "True or false: the companion should use the player's IA_Interact.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "It would steal doors.",
+              "review_prompt": "Should the companion press interact?"
+            }
+          ],
+          "diff": {
+            "id": "companion-diff",
+            "prompt": "Which companion is broken?",
+            "review_prompt": "Which version loots for the player?",
+            "why": "The right-hand version runs the player's overlap.",
+            "bug": "right",
+            "left": {
+              "label": "Patrol",
+              "code": "SetTimer(AdvancePatrol, 1.f, true);"
+            },
+            "right": {
+              "label": "Loot",
+              "code": "void OnOverlap() { AddToSlot(); }"
+            }
+          }
+        },
+        {
+          "id": "slot",
+          "title": "Save the counts",
+          "takeaway": "Begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild.\n\nTick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue.\n\nTwo slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame.",
+          "assignment": {
+            "prompt": "Name two values that stay out of the slot: the boom, and the companion mesh.",
+            "accept": [
+              "boom",
+              "mesh"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "slot-1",
+              "prompt": "When does a third-person load run?",
+              "choices": [
+                "Begin Play",
+                "Tick",
+                "IA_Aim",
+                "Overlap"
+              ],
+              "answer": 0,
+              "why": "The pawn exists.",
+              "review_prompt": "When is the struct read?"
+            },
+            {
+              "id": "slot-2",
+              "prompt": "What is worth packing?",
+              "choices": [
+                "Magazine and Health",
+                "The boom transform",
+                "The mapping context",
+                "The mesh"
+              ],
+              "answer": 0,
+              "why": "The numbers, not the derived pose.",
+              "review_prompt": "What goes in the slot?"
+            },
+            {
+              "id": "slot-3",
+              "prompt": "What must load avoid calling?",
+              "choices": [
+                "IA_Reload again",
+                "The struct read",
+                "Begin Play",
+                "Nothing"
+              ],
+              "answer": 0,
+              "why": "Do not replay the action.",
+              "review_prompt": "What would a replay do?"
+            },
+            {
+              "id": "slot-4",
+              "prompt": "True or false: Tick is a safe autosave because it never misses a round.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "It stores a half-finished reload.",
+              "review_prompt": "Is Tick a safe pack?"
+            }
+          ],
+          "diff": {
+            "id": "slot-diff",
+            "prompt": "Which save is broken?",
+            "review_prompt": "Which version writes the slot every frame?",
+            "why": "The right-hand version is Tick.",
+            "bug": "right",
+            "left": {
+              "label": "Event",
+              "code": "void BeginPlay() { Load(Slot); }"
+            },
+            "right": {
+              "label": "Tick",
+              "code": "void Tick() { SlotValue = Magazine; }"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "tps-intermediate",
+      "title": "TPS, intermediate",
+      "summary": "A short third-person course for the Project JOHNO rules: a second mapping context, a limb floor, interest versus the camera, and a throttle that is not a sprint.",
+      "level": "intermediate",
+      "genre": "tps",
+      "glossary_tags": [
+        "Core",
+        "Networking",
+        "Data"
+      ],
+      "pass_mark": 70,
+      "modules": [
+        {
+          "id": "layer",
+          "title": "The modifier layer",
+          "takeaway": "Enhanced Input resolves the device before the graph runs. The base context holds move, look, aim, and interact. Project JOHNO pushes a second context, the L2 modifier layer, while the left trigger is held. A face button that reloads on the base layer can open a radial slot on the modifier layer. The radial menu sends IA_Equip and a slot value. It does not line-trace to discover the stick. The stick is an axis. The sector is math on that axis.\n\nThe layer adds actions. It does not remove IA_Move, or the pawn stops walking while the player holds the trigger. GASP reads Speed. It does not care which context was active. The shoulder camera still belongs to IA_Aim on the base layer.\n\nPossession is when the contexts are added. The trace does not add them. A Tick that polls the trigger and rebinds keys fights the mapping context the engine already pushed.",
+          "assignment": {
+            "prompt": "Name the layer the left trigger pushes, and the action a radial menu sends.",
+            "accept": [
+              "modifier",
+              "IA_Equip"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "layer-1",
+              "prompt": "What is the L2 modifier layer?",
+              "choices": [
+                "A mapping context pushed while the trigger is held",
+                "A Tick of the trigger",
+                "A line trace",
+                "The save slot"
+              ],
+              "answer": 0,
+              "why": "Enhanced Input pushes it.",
+              "review_prompt": "What does the trigger push?"
+            },
+            {
+              "id": "layer-2",
+              "prompt": "What does the radial menu send?",
+              "choices": [
+                "IA_Equip from the stick axis",
+                "A hit result",
+                "OnRep",
+                "Throttle"
+              ],
+              "answer": 0,
+              "why": "The sector is math.",
+              "review_prompt": "What does the wheel send?"
+            },
+            {
+              "id": "layer-3",
+              "prompt": "What must the layer not remove?",
+              "choices": [
+                "IA_Move",
+                "The trigger",
+                "Nothing",
+                "The camera"
+              ],
+              "answer": 0,
+              "why": "The pawn has to keep walking.",
+              "review_prompt": "What stays on the base context?"
+            },
+            {
+              "id": "layer-4",
+              "prompt": "Why does the aim graph survive a rebind from a key to a pad?",
+              "choices": [
+                "The graph starts at the action",
+                "Tick rebinds it",
+                "OnRep retargets keys",
+                "The trace reads the context"
+              ],
+              "answer": 0,
+              "why": "The context resolves the device.",
+              "review_prompt": "Why does the graph stay valid?"
+            },
+            {
+              "id": "layer-5",
+              "prompt": "True or false: holding L2 should remove IA_Move.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "The layer adds actions. Move stays.",
+              "review_prompt": "Does L2 delete move?"
+            }
+          ],
+          "diff": {
+            "id": "layer-diff",
+            "prompt": "Which input poll is broken?",
+            "review_prompt": "Which version reads the trigger every frame?",
+            "why": "The right-hand version is Tick.",
+            "bug": "right",
+            "left": {
+              "label": "Context",
+              "code": "AddMappingContext(L2Layer);"
+            },
+            "right": {
+              "label": "Poll",
+              "code": "void Tick() { if (Trigger) Rebind(); }"
+            }
+          }
+        },
+        {
+          "id": "limb",
+          "title": "The ten percent floor",
+          "takeaway": "A limb is a replicated float with a floor. Any Damage starts the write. Has Authority gates it. The clamp refuses to drop a normal hit below 10 percent of that limb's max. A limb that maxes at 80 floors at 8. The sample literal 90 is a stand-in for the clamped result.\n\nOnRep plays the limp. It does not subtract again. A medkit that writes the limb on the owning client snaps when the server float arrives. Prediction is allowed for the flinch. It is not allowed for the number.\n\nThe aim graph does not assign Health. The vehicle does not. Single-player can omit OnRep only while there is no other machine. A listen server is still another machine for the remote client. The gate stays.",
+          "assignment": {
+            "prompt": "For a limb max of 80, what is the floor, and which notify must not subtract?",
+            "accept": [
+              "8",
+              "OnRep"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "limb-1",
+              "prompt": "A limb maxes at 80. What floor was skipped if a bruise empties it?",
+              "choices": [
+                "8",
+                "0",
+                "90",
+                "10"
+              ],
+              "answer": 0,
+              "why": "Ten percent of 80.",
+              "review_prompt": "What is 10% of 80?"
+            },
+            {
+              "id": "limb-2",
+              "prompt": "Where does the generated assignment sit?",
+              "choices": [
+                "Inside if (GetOwner() && GetOwner()->HasAuthority())",
+                "After an empty check",
+                "Inside IA_Aim",
+                "Inside OnRep"
+              ],
+              "answer": 0,
+              "why": "The server writes.",
+              "review_prompt": "What wraps the limb write?"
+            },
+            {
+              "id": "limb-3",
+              "prompt": "What may a client predict?",
+              "choices": [
+                "The flinch",
+                "The limb number",
+                "EquippedId",
+                "Supplies"
+              ],
+              "answer": 0,
+              "why": "The reaction is local.",
+              "review_prompt": "What can be early?"
+            },
+            {
+              "id": "limb-4",
+              "prompt": "What replaces the literal 90?",
+              "choices": [
+                "The clamped result",
+                "Another literal",
+                "Aiming",
+                "Throttle"
+              ],
+              "answer": 0,
+              "why": "90 is a stand-in.",
+              "review_prompt": "What replaces 90?"
+            },
+            {
+              "id": "limb-5",
+              "prompt": "True or false: the owning client should write the limb so the body reacts early.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "The server float snaps that write.",
+              "review_prompt": "May the client write the limb?"
+            }
+          ],
+          "diff": {
+            "id": "limb-diff",
+            "prompt": "Which notify is broken?",
+            "review_prompt": "Which OnRep writes the number again?",
+            "why": "The right-hand notify subtracts.",
+            "bug": "right",
+            "left": {
+              "label": "Notify",
+              "code": "void OnRep_Health() { PlayLimp(); }"
+            },
+            "right": {
+              "label": "Double",
+              "code": "void OnRep_Health() { Health -= Amount; }"
+            }
+          }
+        },
+        {
+          "id": "interest",
+          "title": "The camera is not interest",
+          "takeaway": "Relevant answers whether a client receives the actor. CheckAOI runs every 0.5 seconds and assigns Relevant from a trace, inside HasAuthority. Visible, on a strategy map, is a different bool. A third-person pawn can be relevant and still hide its shoulder camera, because the camera is local.\n\nA client that sets Relevant pulls actors the server culled. Debris leaves interest. The pawn stays while it is near someone. The shoulder camera, the selection decal, and the wheel transforms do not replicate with the pawn.\n\nNeither bool belongs in the save. After load, place the pawn and let the timer run. Saving Relevant so pop-in matches freezes a culling decision that the next trace would have changed. A truck can use a larger radius than a soldier because it can be heard farther, and that radius is a row, not a literal in the timer.",
+          "assignment": {
+            "prompt": "Name the bool CheckAOI assigns, and the period.",
+            "accept": [
+              "Relevant",
+              "0.5"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "int-1",
+              "prompt": "What does CheckAOI assign, and how often?",
+              "choices": [
+                "Relevant every 0.5 seconds",
+                "Aiming every frame",
+                "Speed",
+                "Throttle"
+              ],
+              "answer": 0,
+              "why": "Interest is the 0.5s pass.",
+              "review_prompt": "What does the AOI timer write?"
+            },
+            {
+              "id": "int-2",
+              "prompt": "What stays local on a third-person pawn?",
+              "choices": [
+                "The shoulder camera",
+                "The pawn, while relevant",
+                "The limb float",
+                "EquippedId"
+              ],
+              "answer": 0,
+              "why": "The camera is the player's.",
+              "review_prompt": "What does not replicate?"
+            },
+            {
+              "id": "int-3",
+              "prompt": "Who may write Relevant?",
+              "choices": [
+                "The authority",
+                "Every client",
+                "The widget",
+                "IA_Aim"
+              ],
+              "answer": 0,
+              "why": "Culling is a server decision.",
+              "review_prompt": "Who writes interest?"
+            },
+            {
+              "id": "int-4",
+              "prompt": "Are these bools saved?",
+              "choices": [
+                "No. The timer recomputes them.",
+                "Yes",
+                "Only the camera",
+                "Only on a truck"
+              ],
+              "answer": 0,
+              "why": "Positions are enough.",
+              "review_prompt": "Do you save interest?"
+            },
+            {
+              "id": "int-5",
+              "prompt": "True or false: Relevant should be saved so pop-in matches.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "The timer recomputes it.",
+              "review_prompt": "Do you pack Relevant?"
+            }
+          ],
+          "diff": {
+            "id": "interest-diff",
+            "prompt": "Which relevance test is broken?",
+            "review_prompt": "Which version writes interest from Tick?",
+            "why": "The right-hand version is Tick.",
+            "bug": "right",
+            "left": {
+              "label": "Timer",
+              "code": "SetTimer(CheckAOI, 0.5f, true);"
+            },
+            "right": {
+              "label": "Tick",
+              "code": "void Tick() { Relevant = true; }"
+            }
+          }
+        },
+        {
+          "id": "throttle",
+          "title": "A car is not a sprint",
+          "takeaway": "IA_Throttle is a different action on a different component. Copying the on-foot Speed of 600 into Throttle launches the car at a sprint number. The shoulder camera disables while the player is seated. It does not keep feeding IA_Aim into the seat, and it does not write Throttle.\n\nWheels are a simulation. Their transforms rebuild from Throttle and fuel. Replicating each wheel transform is the expensive reading of a number the client can integrate. Fuel, if driving costs anything, is its own stock. It does not subtract Supplies unless the design said the car spends the team's stock.\n\nHas Authority still wraps a replicated fuel write. OnRep updates the gauge. It does not spend again. Save packs fuel and the equipped seat id. It does not pack wheel transforms.",
+          "assignment": {
+            "prompt": "Name the action that drives, and the on-foot number it must not copy.",
+            "accept": [
+              "IA_Throttle",
+              "600"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "thr-1",
+              "prompt": "What should the vehicle graph read?",
+              "choices": [
+                "IA_Throttle",
+                "Speed 600",
+                "IA_Aim",
+                "IA_Move"
+              ],
+              "answer": 0,
+              "why": "Throttle is its own axis.",
+              "review_prompt": "Which action drives?"
+            },
+            {
+              "id": "thr-2",
+              "prompt": "What happens to the shoulder camera when the player sits down?",
+              "choices": [
+                "It disables",
+                "It writes Throttle",
+                "It keeps aiming the car",
+                "It replicates"
+              ],
+              "answer": 0,
+              "why": "Driving has its own camera.",
+              "review_prompt": "What does the boom do when seated?"
+            },
+            {
+              "id": "thr-3",
+              "prompt": "What should not replicate?",
+              "choices": [
+                "Each wheel transform",
+                "Fuel, if it is shared",
+                "The pawn, while relevant",
+                "The seat id"
+              ],
+              "answer": 0,
+              "why": "Wheels are local.",
+              "review_prompt": "What stays simulated?"
+            },
+            {
+              "id": "thr-4",
+              "prompt": "What does OnRep of fuel do?",
+              "choices": [
+                "Move the gauge",
+                "Spend again",
+                "Set Aiming",
+                "Trace"
+              ],
+              "answer": 0,
+              "why": "The server already spent.",
+              "review_prompt": "What is the fuel notify?"
+            },
+            {
+              "id": "thr-5",
+              "prompt": "True or false: Throttle should copy Speed 600.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "A sprint number is not a throttle.",
+              "review_prompt": "Should the car reuse on-foot speed?"
+            }
+          ],
+          "diff": {
+            "id": "throttle-diff",
+            "prompt": "Which drive is broken?",
+            "review_prompt": "Which version copies the sprint into the car?",
+            "why": "The right-hand version copies Speed.",
+            "bug": "right",
+            "left": {
+              "label": "Throttle",
+              "code": "void Graph_IA_Throttle() { Throttle = Axis; }"
+            },
+            "right": {
+              "label": "Sprint",
+              "code": "void Tick() { Throttle = Speed; }"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "horror-beginner",
+      "title": "Horror, beginner",
+      "summary": "A short horror course: Sense on a timer, a use trace that is not the hunter, a door curve, and sight that is not a hit.",
+      "level": "beginner",
+      "genre": "horror",
+      "glossary_tags": [
+        "Core",
+        "Networking",
+        "Data"
+      ],
+      "pass_mark": 70,
+      "modules": [
+        {
+          "id": "sense",
+          "title": "A glimpse, not a frame",
+          "takeaway": "Begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain.\n\nTick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement.\n\nAudio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure.",
+          "assignment": {
+            "prompt": "Name the timer interval and the value a hit assigns.",
+            "accept": [
+              "0.2",
+              "Alert"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "sense-1",
+              "prompt": "How often does Sense run?",
+              "choices": [
+                "Every 0.2 seconds",
+                "Every frame",
+                "Once",
+                "On IA_Interact"
+              ],
+              "answer": 0,
+              "why": "The timer is the glimpse.",
+              "review_prompt": "What is the Sense period?"
+            },
+            {
+              "id": "sense-2",
+              "prompt": "What blocks the trace?",
+              "choices": [
+                "A wall on the visibility channel",
+                "Any audio volume",
+                "The save slot",
+                "The player's bag"
+              ],
+              "answer": 0,
+              "why": "Line of sight stops at a door.",
+              "review_prompt": "What blocks sight?"
+            },
+            {
+              "id": "sense-3",
+              "prompt": "What does a loud sound call?",
+              "choices": [
+                "Sense",
+                "A second AI",
+                "IA_Interact",
+                "Tick"
+              ],
+              "answer": 0,
+              "why": "Audio and sight share the event.",
+              "review_prompt": "What does a bottle call?"
+            },
+            {
+              "id": "sense-4",
+              "prompt": "True or false: a dropped bottle should have its own brain, separate from Sense.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "Audio calls Sense.",
+              "review_prompt": "Does a bottle need a second AI?"
+            }
+          ],
+          "diff": {
+            "id": "sense-diff",
+            "prompt": "Which sense is broken?",
+            "review_prompt": "Which schedule traces every frame?",
+            "why": "The right-hand version is Tick.",
+            "bug": "right",
+            "left": {
+              "label": "Timer",
+              "code": "SetTimer(Sense, 0.2f, true);"
+            },
+            "right": {
+              "label": "Tick",
+              "code": "void Tick() { LineTrace(); Alert = 1.f; }"
+            }
+          }
+        },
+        {
+          "id": "use",
+          "title": "Use is not the hunter",
+          "takeaway": "IA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert.\n\nThe miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge.\n\nA cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call.",
+          "assignment": {
+            "prompt": "Name the function the use excerpt looks up, and the hunter value it must not write.",
+            "accept": [
+              "Interact",
+              "Alert"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "use-1",
+              "prompt": "What do a fuse, a lever, and a door share?",
+              "choices": [
+                "Interact",
+                "Sense",
+                "Alert",
+                "Tick"
+              ],
+              "answer": 0,
+              "why": "One contract.",
+              "review_prompt": "What is the shared call?"
+            },
+            {
+              "id": "use-2",
+              "prompt": "Where does the player's trace start?",
+              "choices": [
+                "The camera",
+                "The actor location",
+                "The hunter",
+                "The save slot"
+              ],
+              "answer": 0,
+              "why": "The crosshair is the aim.",
+              "review_prompt": "Where is the origin?"
+            },
+            {
+              "id": "use-3",
+              "prompt": "What must this graph not assign?",
+              "choices": [
+                "Alert",
+                "The interface call",
+                "The miss log",
+                "Nothing"
+              ],
+              "answer": 0,
+              "why": "Alert belongs to Sense.",
+              "review_prompt": "What value stays out?"
+            },
+            {
+              "id": "use-4",
+              "prompt": "True or false: the hunter should run IA_Interact to open doors.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "The hunter uses Sense. The player uses Interact.",
+              "review_prompt": "Should the hunter press interact?"
+            }
+          ],
+          "diff": {
+            "id": "use-diff",
+            "prompt": "Which use is broken?",
+            "review_prompt": "Which version writes the hunter's certainty?",
+            "why": "The right-hand version assigns Alert.",
+            "bug": "right",
+            "left": {
+              "label": "Use",
+              "code": "ProcessEvent(Target, Interact);"
+            },
+            "right": {
+              "label": "Sense",
+              "code": "void Graph_IA_Interact() { Alert = 1.f; }"
+            }
+          }
+        },
+        {
+          "id": "door",
+          "title": "A curve has an end",
+          "takeaway": "A door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue.\n\nThe creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float.\n\nIsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house.",
+          "assignment": {
+            "prompt": "Name the call that starts a swing, and the bool it writes.",
+            "accept": [
+              "PlayFromStart",
+              "IsOpen"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "door-1",
+              "prompt": "What plays the swing?",
+              "choices": [
+                "PlayFromStart on a timeline",
+                "Tick",
+                "Sense",
+                "Any Damage"
+              ],
+              "answer": 0,
+              "why": "The curve has a finished event.",
+              "review_prompt": "What swings a door?"
+            },
+            {
+              "id": "door-2",
+              "prompt": "What does the creak call?",
+              "choices": [
+                "Sense",
+                "Any Damage",
+                "AddToSlot",
+                "Tick"
+              ],
+              "answer": 0,
+              "why": "The hinge is an audio cue.",
+              "review_prompt": "What does a creak alert?"
+            },
+            {
+              "id": "door-3",
+              "prompt": "How does a load restore an open door?",
+              "choices": [
+                "Set the curve to the end",
+                "PlayFromStart",
+                "Tick the hinge",
+                "Set Alert to 1"
+              ],
+              "answer": 0,
+              "why": "Do not replay the creak.",
+              "review_prompt": "How is IsOpen applied?"
+            },
+            {
+              "id": "door-4",
+              "prompt": "True or false: the mesh transform should replicate every frame.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "IsOpen is the state. The curve is local.",
+              "review_prompt": "Does the hinge replicate?"
+            }
+          ],
+          "diff": {
+            "id": "door-diff",
+            "prompt": "Which door motion is broken?",
+            "review_prompt": "Which version never finishes?",
+            "why": "The right-hand version is Tick.",
+            "bug": "right",
+            "left": {
+              "label": "Timeline",
+              "code": "Timeline->PlayFromStart();"
+            },
+            "right": {
+              "label": "Tick",
+              "code": "void Tick() { Yaw += 1.f; }"
+            }
+          }
+        },
+        {
+          "id": "sight",
+          "title": "Sight is not a bite",
+          "takeaway": "A confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable.\n\nThis beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract.\n\nA missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float.",
+          "assignment": {
+            "prompt": "Name the event that subtracts Health, and the value Sense writes instead.",
+            "accept": [
+              "Any Damage",
+              "Alert"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "sight-1",
+              "prompt": "When does damage run?",
+              "choices": [
+                "When an attack calls Any Damage",
+                "On every confirmed sight",
+                "On the creak",
+                "On load"
+              ],
+              "answer": 0,
+              "why": "Sight is not a hit.",
+              "review_prompt": "What subtracts health?"
+            },
+            {
+              "id": "sight-2",
+              "prompt": "Why can this lesson omit OnRep?",
+              "choices": [
+                "There is no other machine",
+                "Clamp deleted it",
+                "Doors cannot replicate",
+                "Alert replaced health"
+              ],
+              "answer": 0,
+              "why": "Co-op puts the gate back.",
+              "review_prompt": "When is OnRep optional?"
+            },
+            {
+              "id": "sight-3",
+              "prompt": "What does a miss owe?",
+              "choices": [
+                "A decay of Alert",
+                "A health subtract",
+                "A new timer at 0.01",
+                "A cast"
+              ],
+              "answer": 0,
+              "why": "Otherwise a sight lasts forever.",
+              "review_prompt": "What does the miss path owe?"
+            },
+            {
+              "id": "sight-4",
+              "prompt": "True or false: Sense should subtract Health when the hunter sees the player.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "An attack calls Any Damage.",
+              "review_prompt": "Does sight deal damage?"
+            }
+          ],
+          "diff": {
+            "id": "sight-diff",
+            "prompt": "Which sight is broken?",
+            "review_prompt": "Which version bites because the hunter looked?",
+            "why": "The right-hand version subtracts on sight.",
+            "bug": "right",
+            "left": {
+              "label": "Alert",
+              "code": "if (bHit) Alert = 1.f;"
+            },
+            "right": {
+              "label": "Bite",
+              "code": "if (bHit) Health -= Damage;"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "horror-intermediate",
+      "title": "Horror, intermediate",
+      "summary": "A short co-op horror course: one authority Sense, hide as Interact, fear on its own timer, and a save that does not replay the creak.",
+      "level": "intermediate",
+      "genre": "horror",
+      "glossary_tags": [
+        "Core",
+        "Networking",
+        "Data"
+      ],
+      "pass_mark": 70,
+      "modules": [
+        {
+          "id": "one-sense",
+          "title": "One pair of eyes",
+          "takeaway": "Co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine.\n\nThe player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over.\n\nOnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked.",
+          "assignment": {
+            "prompt": "Who traces in co-op, and what replicates instead of the trace?",
+            "accept": [
+              "authority",
+              "Alert"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "one-1",
+              "prompt": "Who should run Sense in co-op?",
+              "choices": [
+                "The authority, once",
+                "Every client",
+                "The door",
+                "The fear widget"
+              ],
+              "answer": 0,
+              "why": "One trace. Alert can replicate.",
+              "review_prompt": "Who traces?"
+            },
+            {
+              "id": "one-2",
+              "prompt": "What does a hit assign?",
+              "choices": [
+                "Alert = 1",
+                "Health = 90",
+                "IsOpen",
+                "GoingRight"
+              ],
+              "answer": 0,
+              "why": "Certainty is the float.",
+              "review_prompt": "What does a hit write?"
+            },
+            {
+              "id": "one-3",
+              "prompt": "What should OnRep of Alert avoid?",
+              "choices": [
+                "Tracing again",
+                "A local sting",
+                "Reading the float",
+                "Nothing"
+              ],
+              "answer": 0,
+              "why": "The server already looked.",
+              "review_prompt": "What must the notify skip?"
+            },
+            {
+              "id": "one-4",
+              "prompt": "What does a miss still owe?",
+              "choices": [
+                "A decay",
+                "Another client's trace",
+                "A health subtract",
+                "A creak"
+              ],
+              "answer": 0,
+              "why": "A glimpse has to fall.",
+              "review_prompt": "What does the else path owe?"
+            },
+            {
+              "id": "one-5",
+              "prompt": "True or false: each co-op client should run its own Sense trace.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "The hunters would disagree.",
+              "review_prompt": "Does every client trace?"
+            }
+          ],
+          "diff": {
+            "id": "one-sense-diff",
+            "prompt": "Which sense is broken?",
+            "review_prompt": "Which version traces from Tick?",
+            "why": "The right-hand version is Tick.",
+            "bug": "right",
+            "left": {
+              "label": "Timer",
+              "code": "SetTimer(Sense, 0.2f, true);"
+            },
+            "right": {
+              "label": "Tick",
+              "code": "void Tick() { Alert = 1.f; }"
+            }
+          }
+        },
+        {
+          "id": "hide",
+          "title": "Hide is a prop",
+          "takeaway": "A hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers.\n\nThe hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room.\n\nFear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert.",
+          "assignment": {
+            "prompt": "Name the function a hide lever implements, and the trace origin.",
+            "accept": [
+              "Interact",
+              "camera"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "hide-1",
+              "prompt": "What should the lever implement?",
+              "choices": [
+                "Interact",
+                "Sense",
+                "ApplyEffect",
+                "Any Damage"
+              ],
+              "answer": 0,
+              "why": "Hide is a prop.",
+              "review_prompt": "What contract does hide use?"
+            },
+            {
+              "id": "hide-2",
+              "prompt": "Where does the use trace start?",
+              "choices": [
+                "The camera",
+                "The actor location",
+                "The hunter",
+                "The save slot"
+              ],
+              "answer": 0,
+              "why": "The crosshair can see past the frame.",
+              "review_prompt": "Where is the origin?"
+            },
+            {
+              "id": "hide-3",
+              "prompt": "What does the hunter not run?",
+              "choices": [
+                "The player's overlap",
+                "Sense",
+                "Its patrol timer",
+                "Begin Play"
+              ],
+              "answer": 0,
+              "why": "It would loot.",
+              "review_prompt": "What overlap stays with the player?"
+            },
+            {
+              "id": "hide-4",
+              "prompt": "Why not a cast to the lever?",
+              "choices": [
+                "The fuse would need its own copy",
+                "Casts replicate",
+                "Sense requires a cast",
+                "Nothing"
+              ],
+              "answer": 0,
+              "why": "The contract stays one call.",
+              "review_prompt": "What grows with casts?"
+            },
+            {
+              "id": "hide-5",
+              "prompt": "True or false: hide needs its own event graph.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "Hide implements Interact.",
+              "review_prompt": "Does hide get a new graph?"
+            }
+          ],
+          "diff": {
+            "id": "hide-diff",
+            "prompt": "Which hide is broken?",
+            "review_prompt": "Which version gives the lever a Tick?",
+            "why": "The right-hand version is Tick.",
+            "bug": "right",
+            "left": {
+              "label": "Interface",
+              "code": "Execute_Interact(Lever);"
+            },
+            "right": {
+              "label": "Tick",
+              "code": "void Tick() { Hide(); }"
+            }
+          }
+        },
+        {
+          "id": "fear",
+          "title": "Fear is slower than sight",
+          "takeaway": "Fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player.\n\nA medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another.\n\nThe B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls.",
+          "assignment": {
+            "prompt": "Name the dispatcher fear broadcasts, and the call that starts a door.",
+            "accept": [
+              "OnEffect",
+              "PlayFromStart"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "fear-1",
+              "prompt": "Where does OnEffect broadcast?",
+              "choices": [
+                "ApplyEffect, on its one second timer",
+                "Inside Sense",
+                "On the creak",
+                "On overlap"
+              ],
+              "answer": 0,
+              "why": "Fear is slower than sight.",
+              "review_prompt": "Where is the broadcast?"
+            },
+            {
+              "id": "fear-2",
+              "prompt": "What should a creak call?",
+              "choices": [
+                "Sense",
+                "OnEffect",
+                "Any Damage",
+                "AddToSlot"
+              ],
+              "answer": 0,
+              "why": "The hinge is audio.",
+              "review_prompt": "What does a creak call?"
+            },
+            {
+              "id": "fear-3",
+              "prompt": "How does a medkit clear fear?",
+              "choices": [
+                "Stop the ApplyEffect timer",
+                "Broadcast from overlap",
+                "Set Alert to 1",
+                "Tick"
+              ],
+              "answer": 0,
+              "why": "Stop the pulse.",
+              "review_prompt": "What does a medkit stop?"
+            },
+            {
+              "id": "fear-4",
+              "prompt": "What goes wrong if AdvancePatrol starts a timer every call?",
+              "choices": [
+                "The route speeds up",
+                "The route stops",
+                "Alert clears",
+                "Nothing"
+              ],
+              "answer": 0,
+              "why": "Begin Play already started one.",
+              "review_prompt": "What happens if you stack timers?"
+            },
+            {
+              "id": "fear-5",
+              "prompt": "True or false: the door creak should broadcast OnEffect.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "The creak calls Sense. Fear reads Alert.",
+              "review_prompt": "Does the hinge broadcast fear?"
+            }
+          ],
+          "diff": {
+            "id": "fear-diff",
+            "prompt": "Which fear is broken?",
+            "review_prompt": "Which version shakes on every frame?",
+            "why": "The right-hand version is Tick.",
+            "bug": "right",
+            "left": {
+              "label": "Timer",
+              "code": "SetTimer(ApplyEffect, 1.f, true);"
+            },
+            "right": {
+              "label": "Tick",
+              "code": "void Tick() { OnEffect.Broadcast(); }"
+            }
+          }
+        },
+        {
+          "id": "quiet-save",
+          "title": "Do not replay the house",
+          "takeaway": "A horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied.\n\nPlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed.\n\nTick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down.",
+          "assignment": {
+            "prompt": "Name the door call load must not make, and one value that stays out of the slot.",
+            "accept": [
+              "PlayFromStart",
+              "binding"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "quiet-1",
+              "prompt": "How does load restore an open door?",
+              "choices": [
+                "Set the curve to the end",
+                "PlayFromStart",
+                "Tick the hinge",
+                "Broadcast OnEffect"
+              ],
+              "answer": 0,
+              "why": "Do not replay the creak.",
+              "review_prompt": "How is IsOpen applied?"
+            },
+            {
+              "id": "quiet-2",
+              "prompt": "What stays out of the slot?",
+              "choices": [
+                "Delegate bindings",
+                "Alert",
+                "IsOpen",
+                "Health"
+              ],
+              "answer": 0,
+              "why": "Begin Play binds them again.",
+              "review_prompt": "What is not packed?"
+            },
+            {
+              "id": "quiet-3",
+              "prompt": "When do Sense timers start?",
+              "choices": [
+                "After the loaded doors and Alert are applied",
+                "Before the struct is read",
+                "On Tick",
+                "On the creak"
+              ],
+              "answer": 0,
+              "why": "Otherwise the hunter learns a lie.",
+              "review_prompt": "When does Sense resume?"
+            },
+            {
+              "id": "quiet-4",
+              "prompt": "Whose struct do two clients load?",
+              "choices": [
+                "The server's",
+                "Each client's local damage",
+                "The widget's",
+                "The hinge's"
+              ],
+              "answer": 0,
+              "why": "A local spend is a filed desync.",
+              "review_prompt": "Which struct loads?"
+            },
+            {
+              "id": "quiet-5",
+              "prompt": "True or false: a load should call PlayFromStart to restore an open door.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "That replays the creak.",
+              "review_prompt": "Does load replay the swing?"
+            }
+          ],
+          "diff": {
+            "id": "quiet-save-diff",
+            "prompt": "Which save is broken?",
+            "review_prompt": "Which version writes Alert every frame?",
+            "why": "The right-hand version is Tick.",
+            "bug": "right",
+            "left": {
+              "label": "Event",
+              "code": "void BeginPlay() { Load(Slot); }"
+            },
+            "right": {
+              "label": "Tick",
+              "code": "void Tick() { SlotValue = Alert; }"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "strategy-beginner",
+      "title": "Strategy, beginner",
+      "summary": "A short strategy course: a selected order, a cost that lives on a row, fog on a timer, and a medal that is not vision.",
+      "level": "beginner",
+      "genre": "strategy",
+      "glossary_tags": [
+        "Core",
+        "Networking",
+        "Data"
+      ],
+      "pass_mark": 70,
+      "modules": [
+        {
+          "id": "orders",
+          "title": "A click is not a search",
+          "takeaway": "IA_Order is the right click. It does not move every unit. Selected is a bool on the unit, already true before the click. The graph branches on that bool and calls ReceiveOrder through one interface. A tank and a rifle squad answer the same name. A cast list grows every time a new chassis arrives.\n\nThe click does not reveal the destination. Fog is its own trace. An order behind fog still moves the unit on the server. The player may not see it yet. Tick that searches the level for a selected unit does the search the bool already finished.\n\nFormation offsets are data on the formation id. The order graph does not write every offset. Save stores the order id and the formation id. It does not store each offset.",
+          "assignment": {
+            "prompt": "Name the bool the order branches on, and the function a tank and a squad share.",
+            "accept": [
+              "Selected",
+              "ReceiveOrder"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "ord-1",
+              "prompt": "What does the order graph branch on?",
+              "choices": [
+                "Selected",
+                "Visible",
+                "Tick",
+                "Score"
+              ],
+              "answer": 0,
+              "why": "Selection already happened.",
+              "review_prompt": "What gates the click?"
+            },
+            {
+              "id": "ord-2",
+              "prompt": "What replaces a cast per chassis?",
+              "choices": [
+                "ReceiveOrder",
+                "Reveal",
+                "Spend",
+                "AwardMedal"
+              ],
+              "answer": 0,
+              "why": "One function.",
+              "review_prompt": "What does a click call?"
+            },
+            {
+              "id": "ord-3",
+              "prompt": "Does an order lift fog?",
+              "choices": [
+                "No. Reveal is a different trace.",
+                "Yes",
+                "Only for a tank",
+                "Only on Tick"
+              ],
+              "answer": 0,
+              "why": "Vision is not a click.",
+              "review_prompt": "Does the destination become visible?"
+            },
+            {
+              "id": "ord-4",
+              "prompt": "True or false: an order should reveal units behind fog.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "Fog is its own fact.",
+              "review_prompt": "Does an order grant sight?"
+            }
+          ],
+          "diff": {
+            "id": "orders-diff",
+            "prompt": "Which order is broken?",
+            "review_prompt": "Which version searches the level every frame?",
+            "why": "The right-hand version is Tick.",
+            "bug": "right",
+            "left": {
+              "label": "Click",
+              "code": "if (Selected) ReceiveOrder();"
+            },
+            "right": {
+              "label": "Tick",
+              "code": "void Tick() { FindSelected(); }"
+            }
+          }
+        },
+        {
+          "id": "stock",
+          "title": "A row, not 25",
+          "takeaway": "Spend is the build order. It is not Tick. Only the authority changes Supplies. The sample subtracts 25. A barracks and a turret do not cost the same, so 25 belongs on a data row named by the building. The graph reads the row and writes the stock.\n\nIncome is a slow timer that calls Spend with a negative cost, or a sibling event that adds. It does not drip on Tick. The board widget reads Supplies. Replicating the widget replicates the font.\n\nReveal does not spend. An order does not spend unless the order is a build. Save stores the stock after the authority writes it. A client that subtracts locally desyncs the match when the server value arrives. The icon on the board is a read. It is not a second stock.",
+          "assignment": {
+            "prompt": "Name the check that wraps a stock write, and the sample literal that should become a row.",
+            "accept": [
+              "HasAuthority",
+              "25"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "stock-1",
+              "prompt": "Where should a building cost live?",
+              "choices": [
+                "A data row per building",
+                "The literal 25",
+                "Tick",
+                "The fog timer"
+              ],
+              "answer": 0,
+              "why": "A barracks and a turret differ.",
+              "review_prompt": "Where is the cost?"
+            },
+            {
+              "id": "stock-2",
+              "prompt": "Who may subtract Supplies?",
+              "choices": [
+                "The authority",
+                "Every client",
+                "The board widget",
+                "Reveal"
+              ],
+              "answer": 0,
+              "why": "One stock.",
+              "review_prompt": "Who writes supplies?"
+            },
+            {
+              "id": "stock-3",
+              "prompt": "How should income arrive?",
+              "choices": [
+                "A slow timer",
+                "Tick",
+                "Reveal",
+                "A medal"
+              ],
+              "answer": 0,
+              "why": "Income is an event.",
+              "review_prompt": "What schedules income?"
+            },
+            {
+              "id": "stock-4",
+              "prompt": "True or false: income should drip on Tick.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "A timer calls Spend.",
+              "review_prompt": "Does stock change every frame?"
+            }
+          ],
+          "diff": {
+            "id": "stock-diff",
+            "prompt": "Which spend is broken?",
+            "review_prompt": "Which version hard-codes a cost?",
+            "why": "The right-hand 25 is the literal.",
+            "bug": "right",
+            "left": {
+              "label": "Data",
+              "code": "Supplies = Supplies - Row.Cost;"
+            },
+            "right": {
+              "label": "Literal",
+              "code": "Supplies = Supplies - 25.f;"
+            }
+          }
+        },
+        {
+          "id": "fog",
+          "title": "Four times a second",
+          "takeaway": "Begin Play starts the vision timer. Reveal runs every 0.25 seconds. A clear trace sets Visible for that team. A wall blocks it. The bool is a team fact. It is not a spectator widget, and it is not Relevant. Interest decides whether the actor exists on a client. Vision decides whether the team may see the cell.\n\nAn order does not set Visible. A build does not. Clients do not write it. A client that sets Visible to preview the enemy base is the cheat.\n\nHidden units keep their orders on the server. Freezing them pops them at the last cell the fog remembered. The bool is not saved. After load, place the units and let Reveal run. A spectator camera does not get its own Visible. The team fact is enough.",
+          "assignment": {
+            "prompt": "Name the bool Reveal writes, and the period.",
+            "accept": [
+              "Visible",
+              "0.25"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "fog-1",
+              "prompt": "How often does Reveal run?",
+              "choices": [
+                "Every 0.25 seconds",
+                "Every frame",
+                "Once",
+                "On the click"
+              ],
+              "answer": 0,
+              "why": "Four times a second.",
+              "review_prompt": "What is the vision period?"
+            },
+            {
+              "id": "fog-2",
+              "prompt": "What does a clear trace assign?",
+              "choices": [
+                "Visible",
+                "Relevant",
+                "Supplies",
+                "Score"
+              ],
+              "answer": 0,
+              "why": "Team sight is the bool.",
+              "review_prompt": "What does fog write?"
+            },
+            {
+              "id": "fog-3",
+              "prompt": "Who may write Visible?",
+              "choices": [
+                "The authority",
+                "Every client",
+                "The order click",
+                "The widget"
+              ],
+              "answer": 0,
+              "why": "Vision is a server pass.",
+              "review_prompt": "Who writes fog?"
+            },
+            {
+              "id": "fog-4",
+              "prompt": "True or false: an order should reveal the destination.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "Vision is the trace, not the click.",
+              "review_prompt": "Does a move lift fog?"
+            }
+          ],
+          "diff": {
+            "id": "fog-diff",
+            "prompt": "Which fog pass is broken?",
+            "review_prompt": "Which version writes Visible from Tick?",
+            "why": "The right-hand version is Tick.",
+            "bug": "right",
+            "left": {
+              "label": "Timer",
+              "code": "SetTimer(Reveal, 0.25f, true);"
+            },
+            "right": {
+              "label": "Tick",
+              "code": "void Tick() { Visible = true; }"
+            }
+          }
+        },
+        {
+          "id": "medal",
+          "title": "A kill is not a cell",
+          "takeaway": "AwardMedal is the server event for a kill or a capture. Score changes on the authority. The sample adds 10. A kill and a capture do not score the same, so 10 belongs on a medal row. The board reads Score. OnRep refreshes the board. It does not add 10 again.\n\nRevealing a fog cell does not add points. Driving does not. A destruction calls AwardMedal from the destruction event, not from inside a movement assignment.\n\nThe patrol that guards a point uses a timer and a flip, the same shape as any route. Its B path has to store the return. An empty B path marches the camp off the map. Save stores Score. It does not store Visible, and it does not store every formation offset.",
+          "assignment": {
+            "prompt": "Name the event that adds score, and the sample literal that should become a row.",
+            "accept": [
+              "AwardMedal",
+              "10"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "medal-1",
+              "prompt": "What adds score?",
+              "choices": [
+                "AwardMedal on the authority",
+                "Reveal",
+                "Tick",
+                "The widget"
+              ],
+              "answer": 0,
+              "why": "A medal is an event.",
+              "review_prompt": "What writes Score?"
+            },
+            {
+              "id": "medal-2",
+              "prompt": "What should OnRep do?",
+              "choices": [
+                "Refresh the board",
+                "Add 10",
+                "Set Visible",
+                "Spend"
+              ],
+              "answer": 0,
+              "why": "The server already scored.",
+              "review_prompt": "What does the notify do?"
+            },
+            {
+              "id": "medal-3",
+              "prompt": "Where does the value 10 belong?",
+              "choices": [
+                "A medal row",
+                "The fog timer",
+                "The order click",
+                "The widget"
+              ],
+              "answer": 0,
+              "why": "A kill and a capture differ.",
+              "review_prompt": "Where is the medal value?"
+            },
+            {
+              "id": "medal-4",
+              "prompt": "True or false: revealing a fog cell should add 10.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "Vision is not a medal.",
+              "review_prompt": "Does fog score?"
+            }
+          ],
+          "diff": {
+            "id": "medal-diff",
+            "prompt": "Which score is broken?",
+            "review_prompt": "Which version scores from Tick?",
+            "why": "The right-hand version is Tick.",
+            "bug": "right",
+            "left": {
+              "label": "Event",
+              "code": "if (GetOwner() && GetOwner()->HasAuthority()) Score = Score + Row.Value;"
+            },
+            "right": {
+              "label": "Tick",
+              "code": "void Tick() { Score += 10.f; }"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "strategy-intermediate",
+      "title": "Strategy, intermediate",
+      "summary": "A short strategy course: hidden units that still march, a barrage that does not lift fog, interest versus vision, and a save that skips the wheels.",
+      "level": "intermediate",
+      "genre": "strategy",
+      "glossary_tags": [
+        "Core",
+        "Networking",
+        "Data"
+      ],
+      "pass_mark": 70,
+      "modules": [
+        {
+          "id": "march",
+          "title": "Hidden is not frozen",
+          "takeaway": "A unit can be invisible to the enemy and still relevant to the host. The server keeps its order. Skipping the order because Visible is false pops the unit at the last cell the fog remembered, then teleports it when a spotter arrives.\n\nReceiveOrder still branches on Selected. The formation id selects the offsets. The graph does not write every offset on Tick. A truck and a squad share the interface. The truck can have a larger interest radius because it can be heard farther. That radius is data.\n\nClients do not write the order. A client file that moved a hidden unit is discarded when the server struct loads. The widget that drew the last known cell is not the unit.",
+          "assignment": {
+            "prompt": "Name the bool that must not cancel a server order, and the function the click calls.",
+            "accept": [
+              "Visible",
+              "ReceiveOrder"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "march-1",
+              "prompt": "Does a hidden unit skip its server order?",
+              "choices": [
+                "No. The server still marches it.",
+                "Yes",
+                "Only a truck",
+                "Only when Relevant is false"
+              ],
+              "answer": 0,
+              "why": "The client may not see it.",
+              "review_prompt": "Do hidden units freeze?"
+            },
+            {
+              "id": "march-2",
+              "prompt": "What does the order branch on?",
+              "choices": [
+                "Selected",
+                "Visible",
+                "Shells",
+                "Score"
+              ],
+              "answer": 0,
+              "why": "The click already chose a unit.",
+              "review_prompt": "What gates ReceiveOrder?"
+            },
+            {
+              "id": "march-3",
+              "prompt": "Where do formation offsets live?",
+              "choices": [
+                "On the formation id",
+                "In the replicated widget",
+                "On Tick",
+                "In Visible"
+              ],
+              "answer": 0,
+              "why": "The id selects the row.",
+              "review_prompt": "Where are the offsets?"
+            },
+            {
+              "id": "march-4",
+              "prompt": "Who writes the order?",
+              "choices": [
+                "The authority",
+                "Each client",
+                "The fog widget",
+                "Throttle"
+              ],
+              "answer": 0,
+              "why": "The server owns the route.",
+              "review_prompt": "Who marches the unit?"
+            },
+            {
+              "id": "march-5",
+              "prompt": "True or false: a hidden unit should skip its server order.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "The client may not see it. The server still marches it.",
+              "review_prompt": "Do hidden orders stop?"
+            }
+          ],
+          "diff": {
+            "id": "march-diff",
+            "prompt": "Which march is broken?",
+            "review_prompt": "Which version writes offsets from Tick?",
+            "why": "The right-hand version is Tick.",
+            "bug": "right",
+            "left": {
+              "label": "Click",
+              "code": "if (Selected) ReceiveOrder();"
+            },
+            "right": {
+              "label": "Tick",
+              "code": "void Tick() { WriteOffsets(); }"
+            }
+          }
+        },
+        {
+          "id": "barrage",
+          "title": "The gun is not the spotter",
+          "takeaway": "FireMission spends a shell. It does not set Visible. A spotter's Reveal lifts fog. A blind barrage that marks the cell visible gives the shooter the spotter's eyes. Shells are their own stock. They do not subtract Supplies unless the design said ammo is the team's money.\n\nThe impact can call AwardMedal when it destroys a truck. That add does not live inside Throttle's assignment, and it does not live inside the shell subtract. OnRep of Score refreshes the board.\n\nA move order does not subtract a shell. Confusing the two spends the battery on a right click. Authority wraps the shell write. A client that decrements Shells to feel the shot snaps back. Heat on a cannon, if the gun has it, is that weapon's float. It is not the rifle's Heat.",
+          "assignment": {
+            "prompt": "Name the event that spends a shell, and the bool it must not write.",
+            "accept": [
+              "FireMission",
+              "Visible"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "bar-1",
+              "prompt": "What spends a shell?",
+              "choices": [
+                "FireMission",
+                "Reveal",
+                "IA_Order",
+                "Throttle"
+              ],
+              "answer": 0,
+              "why": "The mission is the spend.",
+              "review_prompt": "Which event spends?"
+            },
+            {
+              "id": "bar-2",
+              "prompt": "What lifts fog?",
+              "choices": [
+                "A spotter's Reveal",
+                "The impact",
+                "The shell subtract",
+                "Throttle"
+              ],
+              "answer": 0,
+              "why": "The gun is not the eyes.",
+              "review_prompt": "What sets Visible?"
+            },
+            {
+              "id": "bar-3",
+              "prompt": "Where does a destroyed truck add points?",
+              "choices": [
+                "AwardMedal on the destruction",
+                "Inside Throttle",
+                "Inside the shell subtract",
+                "On Tick"
+              ],
+              "answer": 0,
+              "why": "Scoring is its own event.",
+              "review_prompt": "What writes Score?"
+            },
+            {
+              "id": "bar-4",
+              "prompt": "Does a move order spend a shell?",
+              "choices": [
+                "No",
+                "Yes",
+                "Only the first move",
+                "Only if Visible"
+              ],
+              "answer": 0,
+              "why": "A move is not a shot.",
+              "review_prompt": "Does a right click spend ammo?"
+            },
+            {
+              "id": "bar-5",
+              "prompt": "True or false: a blind barrage should set Visible.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "A spotter's trace is Reveal.",
+              "review_prompt": "Does the gun lift fog?"
+            }
+          ],
+          "diff": {
+            "id": "barrage-diff",
+            "prompt": "Which gun is broken?",
+            "review_prompt": "Which version spends shells from Tick and lifts fog?",
+            "why": "The right-hand version is Tick.",
+            "bug": "right",
+            "left": {
+              "label": "Mission",
+              "code": "void FireMission() { Shells -= 1.f; }"
+            },
+            "right": {
+              "label": "Tick",
+              "code": "void Tick() { Shells -= 1.f; Visible = true; }"
+            }
+          }
+        },
+        {
+          "id": "cells",
+          "title": "Two bools",
+          "takeaway": "Relevant and Visible answer different questions. CheckAOI assigns Relevant every 0.5 seconds from a trace, inside HasAuthority. Reveal assigns Visible every 0.25 seconds. Using one bool means culling the actor deletes it from a spotter's future vision.\n\nA client that forces Relevant pulls cosmetics the server hid. A client that forces Visible sees the enemy base. Debris drops Relevant quickly. A hidden camp stays relevant to the host so its order still runs.\n\nNeither bool is saved. After load, place the units and let both timers run. Wheel transforms and selection decals are not either bool. They are local. A selection decal is painted from Selected on the machine that is looking. It is not a third replicated bool, and it does not belong in either timer.",
+          "assignment": {
+            "prompt": "Name the two bools in order: interest, then vision.",
+            "accept": [
+              "Relevant",
+              "Visible"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "cell-1",
+              "prompt": "What does CheckAOI assign?",
+              "choices": [
+                "Relevant on a 0.5 second timer",
+                "Visible every frame",
+                "Score",
+                "Shells"
+              ],
+              "answer": 0,
+              "why": "Interest is the slower pass.",
+              "review_prompt": "What does AOI write?"
+            },
+            {
+              "id": "cell-2",
+              "prompt": "Why must the bools stay separate?",
+              "choices": [
+                "Culling must not delete a unit a spotter might reveal",
+                "They are aliases",
+                "Visible is a float",
+                "Relevant is the medal"
+              ],
+              "answer": 0,
+              "why": "Simulation and team sight differ.",
+              "review_prompt": "Why two bools?"
+            },
+            {
+              "id": "cell-3",
+              "prompt": "What drops debris at the map edge?",
+              "choices": [
+                "Relevant",
+                "Visible",
+                "Selected",
+                "Score"
+              ],
+              "answer": 0,
+              "why": "Interest, not team vision.",
+              "review_prompt": "Which bool culls debris?"
+            },
+            {
+              "id": "cell-4",
+              "prompt": "Are the bools saved?",
+              "choices": [
+                "No. The timers recompute them.",
+                "Yes",
+                "Only Visible",
+                "Only Relevant"
+              ],
+              "answer": 0,
+              "why": "Positions are enough.",
+              "review_prompt": "Do you pack fog?"
+            },
+            {
+              "id": "cell-5",
+              "prompt": "True or false: Relevant and Visible should be the same bool.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "Culling would delete a unit a spotter might reveal.",
+              "review_prompt": "Are the bools aliases?"
+            }
+          ],
+          "diff": {
+            "id": "cells-diff",
+            "prompt": "Which interest test is broken?",
+            "review_prompt": "Which version copies vision into interest from Tick?",
+            "why": "The right-hand version is Tick.",
+            "bug": "right",
+            "left": {
+              "label": "Timer",
+              "code": "SetTimer(CheckAOI, 0.5f, true);"
+            },
+            "right": {
+              "label": "Tick",
+              "code": "void Tick() { Relevant = Visible; }"
+            }
+          }
+        },
+        {
+          "id": "convoy",
+          "title": "Wheels stay local",
+          "takeaway": "A strategy truck replicates fuel, or Supplies if that is the stock, and the order id. It does not replicate each wheel transform. The simulation rebuilds the wheels from Throttle and fuel. Driving does not drain Supplies unless the design said the convoy spends the team's stock. Fuel can be its own number.\n\nDestroying the truck calls AwardMedal. That add is not inside the throttle assignment. The impact does not set Visible. A spotter does.\n\nSave packs fuel, Shells, Supplies, Score, and the order id. It does not pack wheel transforms, Relevant, or Visible. Begin Play loads the server struct onto both clients. A client that spent fuel locally loads a desync. Tick packs a truck mid-bump. The gauge reads OnRep. It does not spend a second time when the number arrives.",
+          "assignment": {
+            "prompt": "Name two values that stay out of the slot: wheel transforms, and team vision.",
+            "accept": [
+              "wheel",
+              "Visible"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "conv-1",
+              "prompt": "What should a truck replicate?",
+              "choices": [
+                "Fuel or the stock, and the order id",
+                "Each wheel transform",
+                "Visible as a widget",
+                "The decal"
+              ],
+              "answer": 0,
+              "why": "The numbers, not the pose.",
+              "review_prompt": "What crosses the network?"
+            },
+            {
+              "id": "conv-2",
+              "prompt": "Does driving subtract Supplies by default?",
+              "choices": [
+                "No. Fuel is its own stock if driving costs anything.",
+                "Yes",
+                "Only on Tick",
+                "Only when Visible"
+              ],
+              "answer": 0,
+              "why": "The stocks are different.",
+              "review_prompt": "Does the pedal spend the team's money?"
+            },
+            {
+              "id": "conv-3",
+              "prompt": "What does destruction call?",
+              "choices": [
+                "AwardMedal",
+                "Throttle",
+                "Reveal",
+                "CheckAOI"
+              ],
+              "answer": 0,
+              "why": "Scoring is its own event.",
+              "review_prompt": "What scores a wreck?"
+            },
+            {
+              "id": "conv-4",
+              "prompt": "Whose struct do both clients load?",
+              "choices": [
+                "The server's",
+                "Each client's local spend",
+                "The widget's",
+                "The wheel pose"
+              ],
+              "answer": 0,
+              "why": "A local spend is a desync.",
+              "review_prompt": "Which struct loads?"
+            },
+            {
+              "id": "conv-5",
+              "prompt": "True or false: each wheel transform should replicate.",
+              "choices": [
+                "True",
+                "False"
+              ],
+              "answer": 1,
+              "why": "The simulation rebuilds them.",
+              "review_prompt": "Do wheels replicate?"
+            }
+          ],
+          "diff": {
+            "id": "convoy-diff",
+            "prompt": "Which save is broken?",
+            "review_prompt": "Which version writes fuel every frame?",
+            "why": "The right-hand version is Tick.",
+            "bug": "right",
+            "left": {
+              "label": "Event",
+              "code": "void BeginPlay() { Load(Slot); }"
+            },
+            "right": {
+              "label": "Tick",
+              "code": "void Tick() { SlotValue = Fuel; }"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

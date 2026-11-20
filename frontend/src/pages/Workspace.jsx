@@ -6,7 +6,7 @@ import {
   Boxes, ChevronDown, PlayCircle, Hammer, Wrench, GitBranch, Network, Zap,
   Swords, Package, MessagesSquare, Shield, HardDrive, Car, Hand, Workflow,
   GitCompareArrows, Compass, StickyNote, FolderClosed, Eye, Pencil, KeyRound, FileArchive, History, Tag, ChevronDown as Caret, AlertTriangle,
-  FilePlus, MessageSquarePlus
+  FilePlus, MessageSquarePlus, Combine
 } from "lucide-react";
 import EventGraph from "../components/EventGraph";
 import GlossaryText from "../components/GlossaryText";
@@ -147,6 +147,10 @@ function TemplateCard({ tpl, onPick }) {
 export default function Workspace() {
   const shell = useShell();
   const session = shell.session;
+  useEffect(() => {
+    if (!shell.stackTick) return;
+    document.querySelector("[data-testid='stack-controls']")?.scrollIntoView({ block: "center" });
+  }, [shell.stackTick]);
   // Restore the in-progress system from the app session. A plain value is
   // copied so later edits don't rewrite the stored draft in place.
   const readDraft = (key, fallback) => {
@@ -1029,6 +1033,9 @@ export default function Workspace() {
   );
 
   const checkIssues = useMemo(() => (result ? checkSystem(result) : []), [result?.cpp_header, result?.cpp_source]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (result && checkIssues.length === 0) setOutcomeCheck(null);
+  }, [result, checkIssues.length]);
   const ignoreKeys = useMemo(() => new Set(ignores.map((i) => i.key)), [ignores]);
   const keyedIssues = useMemo(() => checkIssues.map((i) => ({ ...i, key: issueKey(i, result) })), [checkIssues]); // eslint-disable-line react-hooks/exhaustive-deps
   const activeIssues = keyedIssues.filter((i) => !ignoreKeys.has(i.key));
@@ -1368,6 +1375,7 @@ export default function Workspace() {
             </div>
           )}
         </div>
+        <button type="button" className="ue-btn shrink-0" onClick={() => shell.focusStack()} data-testid="header-stack-systems" title="Jump to Stack systems in Projects"><Combine size={13} /> Stack systems</button>
         <button className="ue-btn ue-btn-primary shrink-0" onClick={() => { afterSaveRef.current = null; if (!saveNote.trim() && fixNotes.length) setSaveNote(fixNotes.join(" · ").slice(0, 200)); setSaveDialog(true); }} disabled={!result || readOnly || saving} data-testid="save-system-button"><Save size={13} /> {project ? "Save" : "Save project"}</button>
         <UsageChip aiKey={aiKey} usage={usage} />
         <div className="relative">
@@ -1722,7 +1730,7 @@ export default function Workspace() {
               <div className="flex flex-col h-full min-h-0">
                 <div className="relative flex-1 min-h-0 overflow-hidden">
                 {(result?.stacked_from?.length > 0 || result?.stack_map?.shared?.length || result?.stack_map?.conflicts?.length) && (
-                  <div className="absolute left-[248px] top-16 z-20 max-w-sm panel p-3" data-testid="stack-map">
+                  <div className="absolute left-3 top-[9.5rem] z-10 max-w-xs max-h-[calc(100%-14rem)] overflow-auto panel p-3" data-testid="stack-map">
                     <div className="eyebrow mb-1">Stack map</div>
                     {(result.stack_map?.shared || []).map((item) => (
                       <div key={`${item.kind}-${item.name}`} className="text-[12px] text-[var(--text-secondary)]" data-testid={`stack-shared-${item.name}`}>

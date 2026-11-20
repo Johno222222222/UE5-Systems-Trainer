@@ -160,6 +160,19 @@ test("every stage 2 spec term is present, and short words stay off the underline
   assert.deepEqual(verb.filter((part) => part.type === "term").map((part) => part.id), ["replication", "magazine"]);
 });
 
+test("glossary search returns the named terms and drops duplicate cards", async () => {
+  const { filterGlossary } = await matcher();
+  const terms = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "content", "glossary.json"), "utf8")).terms;
+  const replication = filterGlossary(terms, "replication");
+  assert.deepEqual(replication.map((term) => term.term), ["Replication", "Replication Graph", "Conditional Replication", "Subobject Replication"]);
+  assert.equal(replication.some((term) => term.term === "Dormancy" || term.term === "Line Trace"), false);
+  assert.equal(new Set(replication.map((term) => term.id)).size, replication.length);
+  const onRep = filterGlossary(terms, "OnRep");
+  assert.deepEqual(onRep.map((term) => term.id), ["onrep"]);
+  const traces = filterGlossary(terms, "line trace");
+  assert.deepEqual(traces.map((term) => term.id), ["line-trace"]);
+});
+
 test("a requested word is stored once and capped", async () => {
   const { addGlossaryRequest } = await matcher();
   const first = addGlossaryRequest([], "Prediction");
