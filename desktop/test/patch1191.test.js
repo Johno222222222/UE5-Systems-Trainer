@@ -74,7 +74,9 @@ test("the stack map sits clear of My Blueprint and can collapse", () => {
   const workspace = fs.readFileSync(path.join(__dirname, "..", "..", "frontend", "src", "pages", "Workspace.jsx"), "utf8");
   const css = fs.readFileSync(path.join(__dirname, "..", "..", "frontend", "src", "index.css"), "utf8");
   assert.match(workspace, /stack-map-toggle/);
-  assert.match(css, /\.stack-map\s*\{[^}]*left:\s*444px/s);
+  assert.match(workspace, /stack-map panel p-3 shrink-0/);
+  assert.match(css, /\.stack-map\s*\{[^}]*position:\s*relative/s);
+  assert.doesNotMatch(css, /\.stack-map\s*\{[^}]*position:\s*absolute/s);
   assert.doesNotMatch(workspace, /stack-map[\s\S]{0,80}left-3/);
 });
 

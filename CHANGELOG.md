@@ -5,7 +5,7 @@
 - Course expansion notes are rewritten where a template left a broken sentence.
 - The GAS effect graph wires run left to right.
 - Learn node labels wrap instead of cutting off. Older saved graphs no longer get the generic function-step sentence.
-- The stack map sits to the right of My Blueprint and can collapse.
+- The stack map docks above the event graph and can collapse, so it does not cover My Blueprint or the graph toolbar.
 - Community text matches the public packs repo. Programs lists every track until you filter.
 
 ## 1.19.0
