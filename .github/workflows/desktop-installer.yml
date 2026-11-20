@@ -127,6 +127,16 @@ jobs:
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
+      - name: Smoke-check the packaged app
+        shell: bash
+        run: |
+          set -euo pipefail
+          asar=$(find release -name app.asar | head -n 1)
+          test -n "$asar"
+          rm -rf release/asar-smoke
+          npx --yes @electron/asar extract "$asar" release/asar-smoke
+          node desktop/asarSmoke.js release/asar-smoke
+
       - name: Upload the installer to the release
         shell: bash
         env:
@@ -185,6 +195,16 @@ jobs:
         run: npx electron-builder --mac dmg zip --publish never
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Smoke-check the packaged app
+        shell: bash
+        run: |
+          set -euo pipefail
+          asar=$(find release -name app.asar | head -n 1)
+          test -n "$asar"
+          rm -rf release/asar-smoke
+          npx --yes @electron/asar extract "$asar" release/asar-smoke
+          node desktop/asarSmoke.js release/asar-smoke
 
       - name: Upload the macOS archive to the release
         env:
@@ -246,6 +266,16 @@ jobs:
         run: npx electron-builder --linux AppImage deb --publish never
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Smoke-check the packaged app
+        shell: bash
+        run: |
+          set -euo pipefail
+          asar=$(find release -name app.asar | head -n 1)
+          test -n "$asar"
+          rm -rf release/asar-smoke
+          npx --yes @electron/asar extract "$asar" release/asar-smoke
+          node desktop/asarSmoke.js release/asar-smoke
 
       - name: Upload the Linux packages to the release
         env:

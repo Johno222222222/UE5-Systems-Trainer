@@ -8,8 +8,8 @@ const { buildTracks, problemsForTracks, scoreQuestions } = require("../tracks");
 const { enrichCourse } = require("../lessonStudy");
 const { loadPacks } = require("../packs");
 const { loadGlossary } = require("../glossary");
-const { presentQuiz, positionShare, isTrueFalse } = require("../../frontend/src/lib/quizShuffle");
-const { CATALOG_EXPLAIN, explainLine, headerNote } = require("../../frontend/src/lib/lineExplain");
+const { presentQuiz, positionShare, isTrueFalse } = require("../shared/quizShuffle");
+const { CATALOG_EXPLAIN, explainLine, headerNote } = require("../shared/lineExplain");
 
 function normClause(text) {
   return String(text || "")

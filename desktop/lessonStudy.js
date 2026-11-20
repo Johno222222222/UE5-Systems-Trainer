@@ -7,7 +7,7 @@
 const fs = require("fs");
 const path = require("path");
 const { loadGraph, nodeLabel, cppExcerpt, renderGraph, hubSvg } = require("./lessonRender");
-const { explainLine, nodeWhy, headerNote } = require("../frontend/src/lib/lineExplain");
+const { explainLine, nodeWhy, headerNote } = require("./shared/lineExplain");
 
 const STUDY = path.join(__dirname, "..", "content", "study");
 
