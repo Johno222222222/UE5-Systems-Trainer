@@ -1,0 +1,1605 @@
+{
+  "id": "horror-beginner",
+  "sections": {
+    "perception": {
+      "plainEnglish": "In plain English: Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. What the function actually does is a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. the Sense timer started at Begin Play is who is allowed to do it.",
+      "whyGame": "In a real match, tracing from Tick, or giving a loud sound its own second brain looks almost right and then costs a query, a desync, or a double write. the player's interact graph stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Sight and sound listener",
+          "detail": "A follow-on in Horror — Beginner should bind to Sense after the 0.2 second timer fires. It should not poll sight and sound."
+        },
+        {
+          "title": "Sight and sound data",
+          "detail": "Numbers a designer tunes for sight and sound belong on a data row. a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit can read that row without a new function."
+        },
+        {
+          "title": "Sight and sound neighbor",
+          "detail": "the player's interact graph must not be implemented inside Sense. Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "horror-beginner-perception-s1",
+          "kind": "mc",
+          "prompt": "Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. When `void UKitComponent::Graph_Sense_tpl_perception_sense() // node:tpl_perception_sense` runs, what does the player get?",
+          "choices": [
+            "a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. That keeps the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "The line tracing from Tick, or giving a loud sound its own second brain. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "The constructor writes the result before a pawn exists. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "the player's interact graph overwrites the value on every client. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event."
+          ],
+          "answer": 0,
+          "why": "a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit"
+        },
+        {
+          "id": "horror-beginner-perception-s2",
+          "kind": "mc",
+          "prompt": "Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. Where does Sense sit relative to Sense?",
+          "choices": [
+            "Sense runs after the 0.2 second timer fires. Sense reaches that gate through the timer. That keeps the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "Sense runs before Sense, so the write does not wait for the player. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "Sense sits on Tick while Sense is idle. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "Sense sits in OnRep and applies the change a second time. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event."
+          ],
+          "answer": 0,
+          "why": "Sense is the start."
+        },
+        {
+          "id": "horror-beginner-perception-s3",
+          "kind": "tf",
+          "prompt": "True or false: Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event."
+        },
+        {
+          "id": "horror-beginner-perception-s4",
+          "kind": "tf",
+          "prompt": "True or false: Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. You keep that promise by tracing from Tick, or giving a loud sound its own second brain.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the Sense timer started at Begin Play is the real writer."
+        },
+        {
+          "id": "horror-beginner-perception-s5",
+          "kind": "mc",
+          "prompt": "Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. Who may commit the change?",
+          "choices": [
+            "the Sense timer started at Begin Play. That keeps the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "Every client writes it so the result feels instant. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "The constructor writes it once, and Sense never fires. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event."
+          ],
+          "answer": 0,
+          "why": "the Sense timer started at Begin Play"
+        },
+        {
+          "id": "horror-beginner-perception-s6",
+          "kind": "mc",
+          "prompt": "Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. What has to be true before Sense writes?",
+          "choices": [
+            "the 0.2 second timer fires. That keeps the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "Sense has not fired and the graph is only hoping. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "Tick has run one frame even though nothing changed. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "the player's interact graph has already performed this write. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event."
+          ],
+          "answer": 0,
+          "why": "the 0.2 second timer fires"
+        },
+        {
+          "id": "horror-beginner-perception-s7",
+          "kind": "tf",
+          "prompt": "True or false: Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. Sense is the start, and the timer is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Sense through the timer."
+        },
+        {
+          "id": "horror-beginner-perception-s8",
+          "kind": "mc",
+          "prompt": "Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. Delete Sense and leave the rest of the Horror — Beginner compiled. What does the player lose?",
+          "choices": [
+            "Sight and sound never starts, because nothing else fires the timer. That keeps the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "Nothing visible, because Tick still does the work. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "the player's interact graph quietly takes over the job. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "The next travel's constructor writes it. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event."
+          ],
+          "answer": 0,
+          "why": "Sense is the only start."
+        },
+        {
+          "id": "horror-beginner-perception-s9",
+          "kind": "mc",
+          "prompt": "Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. Which broken schedule is the one to refuse?",
+          "choices": [
+            "tracing from Tick, or giving a loud sound its own second brain. That keeps the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "Leaving the real work on Sense. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "Waiting until the 0.2 second timer fires before the write. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "Keeping the Sense timer started at Begin Play as the only writer. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event."
+          ],
+          "answer": 0,
+          "why": "tracing from Tick, or giving a loud sound its own second brain"
+        },
+        {
+          "id": "horror-beginner-perception-s10",
+          "kind": "mc",
+          "prompt": "Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. the player's interact graph wants to live in this same function. What stays separate?",
+          "choices": [
+            "the player's interact graph keeps its own event. This function only handles a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. That keeps the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "the player's interact graph is inlined so one Tick serves both jobs. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "the player's interact graph writes the value from the client. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "the player's interact graph runs inside OnRep after this write. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "horror-beginner-perception-s11",
+          "kind": "mc",
+          "prompt": "Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. A teammate also applies the write from OnRep, so the game need not wait for the Sense timer started at Begin Play. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "The widget stops drawing until Tick resumes. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "Sense stops firing. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "horror-beginner-perception-s12",
+          "kind": "mc",
+          "prompt": "Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. Which gate sits immediately in front of the write?",
+          "choices": [
+            "the 0.2 second timer fires, reached from Sense via the timer. That keeps the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "A Tick frame, even when Sense is idle. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "A cast to every Blueprint that might show up. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event."
+          ],
+          "answer": 0,
+          "why": "the 0.2 second timer fires is the gate."
+        }
+      ]
+    },
+    "interaction": {
+      "plainEnglish": "In plain English: The player's look calls Interact. The hunter's Sense trace is not this graph. What the function actually does is a line trace from the aim, then Interact on the actor that was hit. the possessed pawn's input action is who is allowed to do it.",
+      "whyGame": "In a real match, tracing on Tick so a prompt stays fresh while the player stands still looks almost right and then costs a query, a desync, or a double write. the hunter Sense trace stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Use in the dark listener",
+          "detail": "A follow-on in Horror — Beginner should bind to IA_Interact after the hit bool is true. It should not poll use in the dark."
+        },
+        {
+          "title": "Use in the dark data",
+          "detail": "Numbers a designer tunes for use in the dark belong on a data row. a line trace from the aim, then Interact on the actor that was hit can read that row without a new function."
+        },
+        {
+          "title": "Use in the dark neighbor",
+          "detail": "the hunter Sense trace must not be implemented inside Enhanced Input for IA_Interact. The player's look calls Interact. The hunter's Sense trace is not this graph."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "horror-beginner-interaction-s1",
+          "kind": "mc",
+          "prompt": "The player's look calls Interact. The hunter's Sense trace is not this graph. When `void UKitComponent::Graph_IA_Interact_tpl_interact_input() // node:tpl_interact_input` runs, what does the player get?",
+          "choices": [
+            "a line trace from the aim, then Interact on the actor that was hit. That keeps the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "The line tracing on Tick so a prompt stays fresh while the player stands still. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "The constructor writes the result before a pawn exists. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "the hunter Sense trace overwrites the value on every client. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph."
+          ],
+          "answer": 0,
+          "why": "a line trace from the aim, then Interact on the actor that was hit"
+        },
+        {
+          "id": "horror-beginner-interaction-s2",
+          "kind": "mc",
+          "prompt": "The player's look calls Interact. The hunter's Sense trace is not this graph. Where does Enhanced Input for IA_Interact sit relative to IA_Interact?",
+          "choices": [
+            "Enhanced Input for IA_Interact runs after the hit bool is true. IA_Interact reaches that gate through Triggered. That keeps the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "Enhanced Input for IA_Interact runs before IA_Interact, so the write does not wait for the player. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "Enhanced Input for IA_Interact sits on Tick while IA_Interact is idle. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "Enhanced Input for IA_Interact sits in OnRep and applies the change a second time. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph."
+          ],
+          "answer": 0,
+          "why": "IA_Interact is the start."
+        },
+        {
+          "id": "horror-beginner-interaction-s3",
+          "kind": "tf",
+          "prompt": "True or false: The player's look calls Interact. The hunter's Sense trace is not this graph.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The player's look calls Interact. The hunter's Sense trace is not this graph."
+        },
+        {
+          "id": "horror-beginner-interaction-s4",
+          "kind": "tf",
+          "prompt": "True or false: The player's look calls Interact. The hunter's Sense trace is not this graph. You keep that promise by tracing on Tick so a prompt stays fresh while the player stands still.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the possessed pawn's input action is the real writer."
+        },
+        {
+          "id": "horror-beginner-interaction-s5",
+          "kind": "mc",
+          "prompt": "The player's look calls Interact. The hunter's Sense trace is not this graph. Who may commit the change?",
+          "choices": [
+            "the possessed pawn's input action. That keeps the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "Every client writes it so the result feels instant. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "The constructor writes it once, and IA_Interact never fires. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph."
+          ],
+          "answer": 0,
+          "why": "the possessed pawn's input action"
+        },
+        {
+          "id": "horror-beginner-interaction-s6",
+          "kind": "mc",
+          "prompt": "The player's look calls Interact. The hunter's Sense trace is not this graph. What has to be true before Enhanced Input for IA_Interact writes?",
+          "choices": [
+            "the hit bool is true. That keeps the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "IA_Interact has not fired and the graph is only hoping. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "Tick has run one frame even though nothing changed. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "the hunter Sense trace has already performed this write. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph."
+          ],
+          "answer": 0,
+          "why": "the hit bool is true"
+        },
+        {
+          "id": "horror-beginner-interaction-s7",
+          "kind": "tf",
+          "prompt": "True or false: The player's look calls Interact. The hunter's Sense trace is not this graph. IA_Interact is the start, and Triggered is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "IA_Interact through Triggered."
+        },
+        {
+          "id": "horror-beginner-interaction-s8",
+          "kind": "mc",
+          "prompt": "The player's look calls Interact. The hunter's Sense trace is not this graph. Delete IA_Interact and leave the rest of the Horror — Beginner compiled. What does the player lose?",
+          "choices": [
+            "Use in the dark never starts, because nothing else fires Triggered. That keeps the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "Nothing visible, because Tick still does the work. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "the hunter Sense trace quietly takes over the job. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "The next travel's constructor writes it. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph."
+          ],
+          "answer": 0,
+          "why": "IA_Interact is the only start."
+        },
+        {
+          "id": "horror-beginner-interaction-s9",
+          "kind": "mc",
+          "prompt": "The player's look calls Interact. The hunter's Sense trace is not this graph. Which broken schedule is the one to refuse?",
+          "choices": [
+            "tracing on Tick so a prompt stays fresh while the player stands still. That keeps the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "Leaving the real work on IA_Interact. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "Waiting until the hit bool is true before the write. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "Keeping the possessed pawn's input action as the only writer. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph."
+          ],
+          "answer": 0,
+          "why": "tracing on Tick so a prompt stays fresh while the player stands still"
+        },
+        {
+          "id": "horror-beginner-interaction-s10",
+          "kind": "mc",
+          "prompt": "The player's look calls Interact. The hunter's Sense trace is not this graph. the hunter Sense trace wants to live in this same function. What stays separate?",
+          "choices": [
+            "the hunter Sense trace keeps its own event. This function only handles a line trace from the aim, then Interact on the actor that was hit. That keeps the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "the hunter Sense trace is inlined so one Tick serves both jobs. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "the hunter Sense trace writes the value from the client. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "the hunter Sense trace runs inside OnRep after this write. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "horror-beginner-interaction-s11",
+          "kind": "mc",
+          "prompt": "The player's look calls Interact. The hunter's Sense trace is not this graph. A teammate also applies the write from OnRep, so the game need not wait for the possessed pawn's input action. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "The widget stops drawing until Tick resumes. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "IA_Interact stops firing. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "horror-beginner-interaction-s12",
+          "kind": "mc",
+          "prompt": "The player's look calls Interact. The hunter's Sense trace is not this graph. Which gate sits immediately in front of the write?",
+          "choices": [
+            "the hit bool is true, reached from IA_Interact via Triggered. That keeps the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "A Tick frame, even when IA_Interact is idle. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "A cast to every Blueprint that might show up. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph."
+          ],
+          "answer": 0,
+          "why": "the hit bool is true is the gate."
+        }
+      ]
+    },
+    "stalk": {
+      "plainEnglish": "In plain English: AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. What the function actually does is the next patrol point on a one second timer, flipping GoingRight at the ends. the timer armed in Begin Play is who is allowed to do it.",
+      "whyGame": "In a real match, stepping the route from Tick, or starting a second move while Sense should only raise Alert looks almost right and then costs a query, a desync, or a double write. Sense stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Stalking the route listener",
+          "detail": "A follow-on in Horror — Beginner should bind to AdvancePatrol after one second has passed. It should not poll stalking the route."
+        },
+        {
+          "title": "Stalking the route data",
+          "detail": "Numbers a designer tunes for stalking the route belong on a data row. the next patrol point on a one second timer, flipping GoingRight at the ends can read that row without a new function."
+        },
+        {
+          "title": "Stalking the route neighbor",
+          "detail": "Sense must not be implemented inside Advance Patrol. AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "horror-beginner-stalk-s1",
+          "kind": "mc",
+          "prompt": "AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. When `void UKitComponent::Graph_AdvancePatrol_tpl_aipatrol_advance() // node:tpl_ai-patrol_advance` runs, what does the player get?",
+          "choices": [
+            "the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "The line stepping the route from Tick, or starting a second move while Sense should only raise Alert. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "The constructor writes the result before a pawn exists. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "Sense overwrites the value on every client. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route."
+          ],
+          "answer": 0,
+          "why": "the next patrol point on a one second timer, flipping GoingRight at the ends"
+        },
+        {
+          "id": "horror-beginner-stalk-s2",
+          "kind": "mc",
+          "prompt": "AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. Where does Advance Patrol sit relative to AdvancePatrol?",
+          "choices": [
+            "Advance Patrol runs after one second has passed. AdvancePatrol reaches that gate through the timer. That keeps the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "Advance Patrol runs before AdvancePatrol, so the write does not wait for the player. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "Advance Patrol sits on Tick while AdvancePatrol is idle. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "Advance Patrol sits in OnRep and applies the change a second time. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route."
+          ],
+          "answer": 0,
+          "why": "AdvancePatrol is the start."
+        },
+        {
+          "id": "horror-beginner-stalk-s3",
+          "kind": "tf",
+          "prompt": "True or false: AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route."
+        },
+        {
+          "id": "horror-beginner-stalk-s4",
+          "kind": "tf",
+          "prompt": "True or false: AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. You keep that promise by stepping the route from Tick, or starting a second move while Sense should only raise Alert.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the timer armed in Begin Play is the real writer."
+        },
+        {
+          "id": "horror-beginner-stalk-s5",
+          "kind": "mc",
+          "prompt": "AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. Who may commit the change?",
+          "choices": [
+            "the timer armed in Begin Play. That keeps the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "Every client writes it so the result feels instant. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "The constructor writes it once, and AdvancePatrol never fires. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route."
+          ],
+          "answer": 0,
+          "why": "the timer armed in Begin Play"
+        },
+        {
+          "id": "horror-beginner-stalk-s6",
+          "kind": "mc",
+          "prompt": "AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. What has to be true before Advance Patrol writes?",
+          "choices": [
+            "one second has passed. That keeps the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "AdvancePatrol has not fired and the graph is only hoping. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "Tick has run one frame even though nothing changed. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "Sense has already performed this write. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route."
+          ],
+          "answer": 0,
+          "why": "one second has passed"
+        },
+        {
+          "id": "horror-beginner-stalk-s7",
+          "kind": "tf",
+          "prompt": "True or false: AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. AdvancePatrol is the start, and the timer is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "AdvancePatrol through the timer."
+        },
+        {
+          "id": "horror-beginner-stalk-s8",
+          "kind": "mc",
+          "prompt": "AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. Delete AdvancePatrol and leave the rest of the Horror — Beginner compiled. What does the player lose?",
+          "choices": [
+            "Stalking the route never starts, because nothing else fires the timer. That keeps the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "Nothing visible, because Tick still does the work. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "Sense quietly takes over the job. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "The next travel's constructor writes it. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route."
+          ],
+          "answer": 0,
+          "why": "AdvancePatrol is the only start."
+        },
+        {
+          "id": "horror-beginner-stalk-s9",
+          "kind": "mc",
+          "prompt": "AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. Which broken schedule is the one to refuse?",
+          "choices": [
+            "stepping the route from Tick, or starting a second move while Sense should only raise Alert. That keeps the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "Leaving the real work on AdvancePatrol. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "Waiting until one second has passed before the write. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "Keeping the timer armed in Begin Play as the only writer. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route."
+          ],
+          "answer": 0,
+          "why": "stepping the route from Tick, or starting a second move while Sense should only raise Alert"
+        },
+        {
+          "id": "horror-beginner-stalk-s10",
+          "kind": "mc",
+          "prompt": "AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. Sense wants to live in this same function. What stays separate?",
+          "choices": [
+            "Sense keeps its own event. This function only handles the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "Sense is inlined so one Tick serves both jobs. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "Sense writes the value from the client. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "Sense runs inside OnRep after this write. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "horror-beginner-stalk-s11",
+          "kind": "mc",
+          "prompt": "AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. A teammate also applies the write from OnRep, so the game need not wait for the timer armed in Begin Play. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "The widget stops drawing until Tick resumes. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "AdvancePatrol stops firing. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "horror-beginner-stalk-s12",
+          "kind": "mc",
+          "prompt": "AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. Which gate sits immediately in front of the write?",
+          "choices": [
+            "one second has passed, reached from AdvancePatrol via the timer. That keeps the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "A Tick frame, even when AdvancePatrol is idle. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "A cast to every Blueprint that might show up. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route."
+          ],
+          "answer": 0,
+          "why": "one second has passed is the gate."
+        }
+      ]
+    },
+    "door": {
+      "plainEnglish": "In plain English: Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. What the function actually does is PlayFromStart on the timeline, then FlipFlop writes IsOpen. the overlap that starts the timeline is who is allowed to do it.",
+      "whyGame": "In a real match, yawing the door a degree per Tick looks almost right and then costs a query, a desync, or a double write. Sense stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "The creaking door listener",
+          "detail": "A follow-on in Horror — Beginner should bind to Begin Overlap after someone actually entered the volume. It should not poll the creaking door."
+        },
+        {
+          "title": "The creaking door data",
+          "detail": "Numbers a designer tunes for the creaking door belong on a data row. PlayFromStart on the timeline, then FlipFlop writes IsOpen can read that row without a new function."
+        },
+        {
+          "title": "The creaking door neighbor",
+          "detail": "Sense must not be implemented inside Timeline. Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "horror-beginner-door-s1",
+          "kind": "mc",
+          "prompt": "Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. When `void UKitComponent::Graph_OnComponentBeginOverlap_tpl_door_overlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor)` runs, what does the player get?",
+          "choices": [
+            "PlayFromStart on the timeline, then FlipFlop writes IsOpen. That keeps the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "The line yawing the door a degree per Tick. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "The constructor writes the result before a pawn exists. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "Sense overwrites the value on every client. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue."
+          ],
+          "answer": 0,
+          "why": "PlayFromStart on the timeline, then FlipFlop writes IsOpen"
+        },
+        {
+          "id": "horror-beginner-door-s2",
+          "kind": "mc",
+          "prompt": "Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. Where does Timeline sit relative to Begin Overlap?",
+          "choices": [
+            "Timeline runs after someone actually entered the volume. Begin Overlap reaches that gate through overlap. That keeps the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "Timeline runs before Begin Overlap, so the write does not wait for the player. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "Timeline sits on Tick while Begin Overlap is idle. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "Timeline sits in OnRep and applies the change a second time. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue."
+          ],
+          "answer": 0,
+          "why": "Begin Overlap is the start."
+        },
+        {
+          "id": "horror-beginner-door-s3",
+          "kind": "tf",
+          "prompt": "True or false: Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue."
+        },
+        {
+          "id": "horror-beginner-door-s4",
+          "kind": "tf",
+          "prompt": "True or false: Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. You keep that promise by yawing the door a degree per Tick.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the overlap that starts the timeline is the real writer."
+        },
+        {
+          "id": "horror-beginner-door-s5",
+          "kind": "mc",
+          "prompt": "Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. Who may commit the change?",
+          "choices": [
+            "the overlap that starts the timeline. That keeps the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "Every client writes it so the result feels instant. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "The constructor writes it once, and Begin Overlap never fires. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue."
+          ],
+          "answer": 0,
+          "why": "the overlap that starts the timeline"
+        },
+        {
+          "id": "horror-beginner-door-s6",
+          "kind": "mc",
+          "prompt": "Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. What has to be true before Timeline writes?",
+          "choices": [
+            "someone actually entered the volume. That keeps the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "Begin Overlap has not fired and the graph is only hoping. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "Tick has run one frame even though nothing changed. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "Sense has already performed this write. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue."
+          ],
+          "answer": 0,
+          "why": "someone actually entered the volume"
+        },
+        {
+          "id": "horror-beginner-door-s7",
+          "kind": "tf",
+          "prompt": "True or false: Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. Begin Overlap is the start, and overlap is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Begin Overlap through overlap."
+        },
+        {
+          "id": "horror-beginner-door-s8",
+          "kind": "mc",
+          "prompt": "Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. Delete Begin Overlap and leave the rest of the Horror — Beginner compiled. What does the player lose?",
+          "choices": [
+            "The creaking door never starts, because nothing else fires overlap. That keeps the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "Nothing visible, because Tick still does the work. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "Sense quietly takes over the job. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "The next travel's constructor writes it. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue."
+          ],
+          "answer": 0,
+          "why": "Begin Overlap is the only start."
+        },
+        {
+          "id": "horror-beginner-door-s9",
+          "kind": "mc",
+          "prompt": "Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. Which broken schedule is the one to refuse?",
+          "choices": [
+            "yawing the door a degree per Tick. That keeps the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "Leaving the real work on Begin Overlap. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "Waiting until someone actually entered the volume before the write. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "Keeping the overlap that starts the timeline as the only writer. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue."
+          ],
+          "answer": 0,
+          "why": "yawing the door a degree per Tick"
+        },
+        {
+          "id": "horror-beginner-door-s10",
+          "kind": "mc",
+          "prompt": "Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. Sense wants to live in this same function. What stays separate?",
+          "choices": [
+            "Sense keeps its own event. This function only handles PlayFromStart on the timeline, then FlipFlop writes IsOpen. That keeps the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "Sense is inlined so one Tick serves both jobs. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "Sense writes the value from the client. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "Sense runs inside OnRep after this write. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "horror-beginner-door-s11",
+          "kind": "mc",
+          "prompt": "Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. A teammate also applies the write from OnRep, so the game need not wait for the overlap that starts the timeline. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "The widget stops drawing until Tick resumes. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "Begin Overlap stops firing. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "horror-beginner-door-s12",
+          "kind": "mc",
+          "prompt": "Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. Which gate sits immediately in front of the write?",
+          "choices": [
+            "someone actually entered the volume, reached from Begin Overlap via overlap. That keeps the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "A Tick frame, even when Begin Overlap is idle. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "A cast to every Blueprint that might show up. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue."
+          ],
+          "answer": 0,
+          "why": "someone actually entered the volume is the gate."
+        }
+      ]
+    },
+    "health": {
+      "plainEnglish": "In plain English: This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. What the function actually does is Health clamped between zero and MaxHealth, then a branch that logs death at zero. the damage event on this local pawn is who is allowed to do it.",
+      "whyGame": "In a real match, subtracting with no clamp so health goes negative and the death branch never sees zero looks almost right and then costs a query, a desync, or a double write. the interact trace stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Single-player health listener",
+          "detail": "A follow-on in Horror — Beginner should bind to Any Damage after Damage has been received. It should not poll single-player health."
+        },
+        {
+          "title": "Single-player health data",
+          "detail": "Numbers a designer tunes for single-player health belong on a data row. Health clamped between zero and MaxHealth, then a branch that logs death at zero can read that row without a new function."
+        },
+        {
+          "title": "Single-player health neighbor",
+          "detail": "the interact trace must not be implemented inside Clamp. This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "horror-beginner-health-s1",
+          "kind": "mc",
+          "prompt": "This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. When `Health = FMath::Clamp((Health - Damage), 0.f, MaxHealth); // node:tpl_health_set` runs, what does the player get?",
+          "choices": [
+            "Health clamped between zero and MaxHealth, then a branch that logs death at zero. That keeps the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "The line subtracting with no clamp so health goes negative and the death branch never sees zero. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "The constructor writes the result before a pawn exists. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "the interact trace overwrites the value on every client. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph."
+          ],
+          "answer": 0,
+          "why": "Health clamped between zero and MaxHealth, then a branch that logs death at zero"
+        },
+        {
+          "id": "horror-beginner-health-s2",
+          "kind": "mc",
+          "prompt": "This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. Where does Clamp sit relative to Any Damage?",
+          "choices": [
+            "Clamp runs after Damage has been received. Any Damage reaches that gate through the damage pin. That keeps the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "Clamp runs before Any Damage, so the write does not wait for the player. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "Clamp sits on Tick while Any Damage is idle. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "Clamp sits in OnRep and applies the change a second time. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph."
+          ],
+          "answer": 0,
+          "why": "Any Damage is the start."
+        },
+        {
+          "id": "horror-beginner-health-s3",
+          "kind": "tf",
+          "prompt": "True or false: This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph."
+        },
+        {
+          "id": "horror-beginner-health-s4",
+          "kind": "tf",
+          "prompt": "True or false: This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. You keep that promise by subtracting with no clamp so health goes negative and the death branch never sees zero.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the damage event on this local pawn is the real writer."
+        },
+        {
+          "id": "horror-beginner-health-s5",
+          "kind": "mc",
+          "prompt": "This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. Who may commit the change?",
+          "choices": [
+            "the damage event on this local pawn. That keeps the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "Every client writes it so the result feels instant. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "The constructor writes it once, and Any Damage never fires. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph."
+          ],
+          "answer": 0,
+          "why": "the damage event on this local pawn"
+        },
+        {
+          "id": "horror-beginner-health-s6",
+          "kind": "mc",
+          "prompt": "This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. What has to be true before Clamp writes?",
+          "choices": [
+            "Damage has been received. That keeps the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "Any Damage has not fired and the graph is only hoping. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "Tick has run one frame even though nothing changed. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "the interact trace has already performed this write. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph."
+          ],
+          "answer": 0,
+          "why": "Damage has been received"
+        },
+        {
+          "id": "horror-beginner-health-s7",
+          "kind": "tf",
+          "prompt": "True or false: This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. Any Damage is the start, and the damage pin is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Any Damage through the damage pin."
+        },
+        {
+          "id": "horror-beginner-health-s8",
+          "kind": "mc",
+          "prompt": "This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. Delete Any Damage and leave the rest of the Horror — Beginner compiled. What does the player lose?",
+          "choices": [
+            "Single-player health never starts, because nothing else fires the damage pin. That keeps the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "Nothing visible, because Tick still does the work. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "the interact trace quietly takes over the job. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "The next travel's constructor writes it. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph."
+          ],
+          "answer": 0,
+          "why": "Any Damage is the only start."
+        },
+        {
+          "id": "horror-beginner-health-s9",
+          "kind": "mc",
+          "prompt": "This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. Which broken schedule is the one to refuse?",
+          "choices": [
+            "subtracting with no clamp so health goes negative and the death branch never sees zero. That keeps the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "Leaving the real work on Any Damage. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "Waiting until Damage has been received before the write. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "Keeping the damage event on this local pawn as the only writer. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph."
+          ],
+          "answer": 0,
+          "why": "subtracting with no clamp so health goes negative and the death branch never sees zero"
+        },
+        {
+          "id": "horror-beginner-health-s10",
+          "kind": "mc",
+          "prompt": "This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. the interact trace wants to live in this same function. What stays separate?",
+          "choices": [
+            "the interact trace keeps its own event. This function only handles Health clamped between zero and MaxHealth, then a branch that logs death at zero. That keeps the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "the interact trace is inlined so one Tick serves both jobs. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "the interact trace writes the value from the client. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "the interact trace runs inside OnRep after this write. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "horror-beginner-health-s11",
+          "kind": "mc",
+          "prompt": "This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. A teammate also applies the write from OnRep, so the game need not wait for the damage event on this local pawn. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "The widget stops drawing until Tick resumes. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "Any Damage stops firing. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "horror-beginner-health-s12",
+          "kind": "mc",
+          "prompt": "This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. Which gate sits immediately in front of the write?",
+          "choices": [
+            "Damage has been received, reached from Any Damage via the damage pin. That keeps the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "A Tick frame, even when Any Damage is idle. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "A cast to every Blueprint that might show up. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph."
+          ],
+          "answer": 0,
+          "why": "Damage has been received is the gate."
+        }
+      ]
+    },
+    "save": {
+      "plainEnglish": "In plain English: Begin Play restores Alert, Health, and IsOpen together. What the function actually does is one struct loaded at Begin Play, written earlier by an event rather than by Tick. Begin Play for the load, and a finished event for the save is who is allowed to do it.",
+      "whyGame": "In a real match, assigning SlotValue from Tick every frame, including while a value is still changing looks almost right and then costs a query, a desync, or a double write. Tick stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Save the house listener",
+          "detail": "A follow-on in Horror — Beginner should bind to Begin Play after the slot struct already exists. It should not poll save the house."
+        },
+        {
+          "title": "Save the house data",
+          "detail": "Numbers a designer tunes for save the house belong on a data row. one struct loaded at Begin Play, written earlier by an event rather than by Tick can read that row without a new function."
+        },
+        {
+          "title": "Save the house neighbor",
+          "detail": "Tick must not be implemented inside Begin Play. Begin Play restores Alert, Health, and IsOpen together."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "horror-beginner-save-s1",
+          "kind": "mc",
+          "prompt": "Begin Play restores Alert, Health, and IsOpen together. When `void UKitComponent::Graph_BeginPlay_tpl_saveload_begin() // node:tpl_save-load_begin` runs, what does the player get?",
+          "choices": [
+            "one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "The line assigning SlotValue from Tick every frame, including while a value is still changing. That would break the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "The constructor writes the result before a pawn exists. That would break the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "Tick overwrites the value on every client. That would break the rule that begin Play restores Alert, Health, and IsOpen together."
+          ],
+          "answer": 0,
+          "why": "one struct loaded at Begin Play, written earlier by an event rather than by Tick"
+        },
+        {
+          "id": "horror-beginner-save-s2",
+          "kind": "mc",
+          "prompt": "Begin Play restores Alert, Health, and IsOpen together. Where does Begin Play sit relative to Begin Play?",
+          "choices": [
+            "Begin Play runs after the slot struct already exists. Begin Play reaches that gate through Begin Play. That keeps the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "Begin Play runs before Begin Play, so the write does not wait for the player. That would break the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "Begin Play sits on Tick while Begin Play is idle. That would break the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "Begin Play sits in OnRep and applies the change a second time. That would break the rule that begin Play restores Alert, Health, and IsOpen together."
+          ],
+          "answer": 0,
+          "why": "Begin Play is the start."
+        },
+        {
+          "id": "horror-beginner-save-s3",
+          "kind": "tf",
+          "prompt": "True or false: Begin Play restores Alert, Health, and IsOpen together.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Begin Play restores Alert, Health, and IsOpen together."
+        },
+        {
+          "id": "horror-beginner-save-s4",
+          "kind": "tf",
+          "prompt": "True or false: Begin Play restores Alert, Health, and IsOpen together. You keep that promise by assigning SlotValue from Tick every frame, including while a value is still changing.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Begin Play for the load, and a finished event for the save is the real writer."
+        },
+        {
+          "id": "horror-beginner-save-s5",
+          "kind": "mc",
+          "prompt": "Begin Play restores Alert, Health, and IsOpen together. Who may commit the change?",
+          "choices": [
+            "Begin Play for the load, and a finished event for the save. That keeps the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "Every client writes it so the result feels instant. That would break the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "The constructor writes it once, and Begin Play never fires. That would break the rule that begin Play restores Alert, Health, and IsOpen together."
+          ],
+          "answer": 0,
+          "why": "Begin Play for the load, and a finished event for the save"
+        },
+        {
+          "id": "horror-beginner-save-s6",
+          "kind": "mc",
+          "prompt": "Begin Play restores Alert, Health, and IsOpen together. What has to be true before Begin Play writes?",
+          "choices": [
+            "the slot struct already exists. That keeps the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "Begin Play has not fired and the graph is only hoping. That would break the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "Tick has run one frame even though nothing changed. That would break the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "Tick has already performed this write. That would break the rule that begin Play restores Alert, Health, and IsOpen together."
+          ],
+          "answer": 0,
+          "why": "the slot struct already exists"
+        },
+        {
+          "id": "horror-beginner-save-s7",
+          "kind": "tf",
+          "prompt": "True or false: Begin Play restores Alert, Health, and IsOpen together. Begin Play is the start, and Begin Play is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Begin Play through Begin Play."
+        },
+        {
+          "id": "horror-beginner-save-s8",
+          "kind": "mc",
+          "prompt": "Begin Play restores Alert, Health, and IsOpen together. Delete Begin Play and leave the rest of the Horror — Beginner compiled. What does the player lose?",
+          "choices": [
+            "Save the house never starts, because nothing else fires Begin Play. That keeps the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "Nothing visible, because Tick still does the work. That would break the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "Tick quietly takes over the job. That would break the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "The next travel's constructor writes it. That would break the rule that begin Play restores Alert, Health, and IsOpen together."
+          ],
+          "answer": 0,
+          "why": "Begin Play is the only start."
+        },
+        {
+          "id": "horror-beginner-save-s9",
+          "kind": "mc",
+          "prompt": "Begin Play restores Alert, Health, and IsOpen together. Which broken schedule is the one to refuse?",
+          "choices": [
+            "assigning SlotValue from Tick every frame, including while a value is still changing. That keeps the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "Leaving the real work on Begin Play. That would break the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "Waiting until the slot struct already exists before the write. That would break the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "Keeping Begin Play for the load, and a finished event for the save as the only writer. That would break the rule that begin Play restores Alert, Health, and IsOpen together."
+          ],
+          "answer": 0,
+          "why": "assigning SlotValue from Tick every frame, including while a value is still changing"
+        },
+        {
+          "id": "horror-beginner-save-s10",
+          "kind": "mc",
+          "prompt": "Begin Play restores Alert, Health, and IsOpen together. Tick wants to live in this same function. What stays separate?",
+          "choices": [
+            "Tick keeps its own event. This function only handles one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "Tick is inlined so one Tick serves both jobs. That would break the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "Tick writes the value from the client. That would break the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "Tick runs inside OnRep after this write. That would break the rule that begin Play restores Alert, Health, and IsOpen together."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "horror-beginner-save-s11",
+          "kind": "mc",
+          "prompt": "Begin Play restores Alert, Health, and IsOpen together. A teammate also applies the write from OnRep, so the game need not wait for Begin Play for the load, and a finished event for the save. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "The widget stops drawing until Tick resumes. That would break the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "Begin Play stops firing. That would break the rule that begin Play restores Alert, Health, and IsOpen together."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "horror-beginner-save-s12",
+          "kind": "mc",
+          "prompt": "Begin Play restores Alert, Health, and IsOpen together. Which gate sits immediately in front of the write?",
+          "choices": [
+            "the slot struct already exists, reached from Begin Play via Begin Play. That keeps the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "A Tick frame, even when Begin Play is idle. That would break the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "A cast to every Blueprint that might show up. That would break the rule that begin Play restores Alert, Health, and IsOpen together.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that begin Play restores Alert, Health, and IsOpen together."
+          ],
+          "answer": 0,
+          "why": "the slot struct already exists is the gate."
+        }
+      ]
+    }
+  },
+  "exam": [
+    {
+      "id": "study-horror-beginner-exam-0",
+      "kind": "tf",
+      "prompt": "True or false: Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. The player's look calls Interact. The hunter's Sense trace is not this graph. That pair of rules also means use in the dark may tracing on Tick so a prompt stays fresh while the player stands still.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Sight and sound does not give Use in the dark permission to tracing on Tick so a prompt stays fresh while the player stands still."
+    },
+    {
+      "id": "study-horror-beginner-exam-1",
+      "kind": "tf",
+      "prompt": "True or false: Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. Sight and sound still starts at Sense after the player has learned stalking the route.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "Sense remains the start of Sight and sound."
+    },
+    {
+      "id": "study-horror-beginner-exam-2",
+      "kind": "mc",
+      "prompt": "Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. A prototype runs both jobs from Begin Overlap. What do you put back in Horror — Beginner?",
+      "choices": [
+        "Sight and sound keeps Sense so it can a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. The creaking door keeps Begin Overlap so it can PlayFromStart on the timeline, then FlipFlop writes IsOpen. That keeps the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+        "Fold the first job into Begin Overlap so the exam build has one event. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+        "Let each client apply both writes before the authority answers. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-beginner-exam-3",
+      "kind": "mc",
+      "prompt": "Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. A prototype runs both jobs from Any Damage. What do you put back in Horror — Beginner?",
+      "choices": [
+        "Sight and sound keeps Sense so it can a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. Single-player health keeps Any Damage so it can Health clamped between zero and MaxHealth, then a branch that logs death at zero. That keeps the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+        "Fold the first job into Any Damage so the exam build has one event. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+        "Let each client apply both writes before the authority answers. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-beginner-exam-4",
+      "kind": "mc",
+      "prompt": "Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. Begin Play restores Alert, Health, and IsOpen together. A prototype runs both jobs from Begin Play. What do you put back in Horror — Beginner?",
+      "choices": [
+        "Sight and sound keeps Sense so it can a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. Save the house keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. Begin Play restores Alert, Health, and IsOpen together.",
+        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. Begin Play restores Alert, Health, and IsOpen together.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. Begin Play restores Alert, Health, and IsOpen together.",
+        "Let each client apply both writes before the authority answers. That would break the rule that sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. Begin Play restores Alert, Health, and IsOpen together."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-beginner-exam-5",
+      "kind": "mc",
+      "prompt": "The player's look calls Interact. The hunter's Sense trace is not this graph. Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. A prototype runs both jobs from Sense. What do you put back in Horror — Beginner?",
+      "choices": [
+        "Use in the dark keeps IA_Interact so it can a line trace from the aim, then Interact on the actor that was hit. Sight and sound keeps Sense so it can a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. That keeps the rule that the player's look calls Interact. The hunter's Sense trace is not this graph. Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+        "Fold the first job into Sense so the exam build has one event. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph. Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph. Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+        "Let each client apply both writes before the authority answers. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph. Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-beginner-exam-6",
+      "kind": "mc",
+      "prompt": "The player's look calls Interact. The hunter's Sense trace is not this graph. AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. A prototype runs both jobs from AdvancePatrol. What do you put back in Horror — Beginner?",
+      "choices": [
+        "Use in the dark keeps IA_Interact so it can a line trace from the aim, then Interact on the actor that was hit. Stalking the route keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that the player's look calls Interact. The hunter's Sense trace is not this graph. AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+        "Fold the first job into AdvancePatrol so the exam build has one event. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph. AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph. AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+        "Let each client apply both writes before the authority answers. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph. AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-beginner-exam-7",
+      "kind": "tf",
+      "prompt": "True or false: The player's look calls Interact. The hunter's Sense trace is not this graph. Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. That pair of rules also means the creaking door may yawing the door a degree per Tick.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Use in the dark does not give The creaking door permission to yawing the door a degree per Tick."
+    },
+    {
+      "id": "study-horror-beginner-exam-8",
+      "kind": "tf",
+      "prompt": "True or false: The player's look calls Interact. The hunter's Sense trace is not this graph. This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. Use in the dark still starts at IA_Interact after the player has learned single-player health.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "IA_Interact remains the start of Use in the dark."
+    },
+    {
+      "id": "study-horror-beginner-exam-9",
+      "kind": "mc",
+      "prompt": "The player's look calls Interact. The hunter's Sense trace is not this graph. Begin Play restores Alert, Health, and IsOpen together. A prototype runs both jobs from Begin Play. What do you put back in Horror — Beginner?",
+      "choices": [
+        "Use in the dark keeps IA_Interact so it can a line trace from the aim, then Interact on the actor that was hit. Save the house keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that the player's look calls Interact. The hunter's Sense trace is not this graph. Begin Play restores Alert, Health, and IsOpen together.",
+        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph. Begin Play restores Alert, Health, and IsOpen together.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph. Begin Play restores Alert, Health, and IsOpen together.",
+        "Let each client apply both writes before the authority answers. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph. Begin Play restores Alert, Health, and IsOpen together."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-beginner-exam-10",
+      "kind": "mc",
+      "prompt": "AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. A prototype runs both jobs from Sense. What do you put back in Horror — Beginner?",
+      "choices": [
+        "Stalking the route keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. Sight and sound keeps Sense so it can a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. That keeps the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+        "Fold the first job into Sense so the exam build has one event. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+        "Let each client apply both writes before the authority answers. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-beginner-exam-11",
+      "kind": "mc",
+      "prompt": "AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. The player's look calls Interact. The hunter's Sense trace is not this graph. A prototype runs both jobs from IA_Interact. What do you put back in Horror — Beginner?",
+      "choices": [
+        "Stalking the route keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. Use in the dark keeps IA_Interact so it can a line trace from the aim, then Interact on the actor that was hit. That keeps the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. The player's look calls Interact. The hunter's Sense trace is not this graph.",
+        "Fold the first job into IA_Interact so the exam build has one event. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. The player's look calls Interact. The hunter's Sense trace is not this graph.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. The player's look calls Interact. The hunter's Sense trace is not this graph.",
+        "Let each client apply both writes before the authority answers. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. The player's look calls Interact. The hunter's Sense trace is not this graph."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-beginner-exam-12",
+      "kind": "mc",
+      "prompt": "AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. A prototype runs both jobs from Begin Overlap. What do you put back in Horror — Beginner?",
+      "choices": [
+        "Stalking the route keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. The creaking door keeps Begin Overlap so it can PlayFromStart on the timeline, then FlipFlop writes IsOpen. That keeps the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+        "Fold the first job into Begin Overlap so the exam build has one event. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+        "Let each client apply both writes before the authority answers. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-beginner-exam-13",
+      "kind": "mc",
+      "prompt": "AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. A prototype runs both jobs from Any Damage. What do you put back in Horror — Beginner?",
+      "choices": [
+        "Stalking the route keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. Single-player health keeps Any Damage so it can Health clamped between zero and MaxHealth, then a branch that logs death at zero. That keeps the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+        "Fold the first job into Any Damage so the exam build has one event. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+        "Let each client apply both writes before the authority answers. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-beginner-exam-14",
+      "kind": "tf",
+      "prompt": "True or false: AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. Begin Play restores Alert, Health, and IsOpen together. That pair of rules also means save the house may assigning SlotValue from Tick every frame, including while a value is still changing.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Stalking the route does not give Save the house permission to assigning SlotValue from Tick every frame, including while a value is still changing."
+    },
+    {
+      "id": "study-horror-beginner-exam-15",
+      "kind": "tf",
+      "prompt": "True or false: Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. The creaking door still starts at Begin Overlap after the player has learned sight and sound.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "Begin Overlap remains the start of The creaking door."
+    },
+    {
+      "id": "study-horror-beginner-exam-16",
+      "kind": "mc",
+      "prompt": "Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. The player's look calls Interact. The hunter's Sense trace is not this graph. A prototype runs both jobs from IA_Interact. What do you put back in Horror — Beginner?",
+      "choices": [
+        "The creaking door keeps Begin Overlap so it can PlayFromStart on the timeline, then FlipFlop writes IsOpen. Use in the dark keeps IA_Interact so it can a line trace from the aim, then Interact on the actor that was hit. That keeps the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. The player's look calls Interact. The hunter's Sense trace is not this graph.",
+        "Fold the first job into IA_Interact so the exam build has one event. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. The player's look calls Interact. The hunter's Sense trace is not this graph.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. The player's look calls Interact. The hunter's Sense trace is not this graph.",
+        "Let each client apply both writes before the authority answers. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. The player's look calls Interact. The hunter's Sense trace is not this graph."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-beginner-exam-17",
+      "kind": "mc",
+      "prompt": "Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. A prototype runs both jobs from AdvancePatrol. What do you put back in Horror — Beginner?",
+      "choices": [
+        "The creaking door keeps Begin Overlap so it can PlayFromStart on the timeline, then FlipFlop writes IsOpen. Stalking the route keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+        "Fold the first job into AdvancePatrol so the exam build has one event. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+        "Let each client apply both writes before the authority answers. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-beginner-exam-18",
+      "kind": "mc",
+      "prompt": "Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. A prototype runs both jobs from Any Damage. What do you put back in Horror — Beginner?",
+      "choices": [
+        "The creaking door keeps Begin Overlap so it can PlayFromStart on the timeline, then FlipFlop writes IsOpen. Single-player health keeps Any Damage so it can Health clamped between zero and MaxHealth, then a branch that logs death at zero. That keeps the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+        "Fold the first job into Any Damage so the exam build has one event. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+        "Let each client apply both writes before the authority answers. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-beginner-exam-19",
+      "kind": "mc",
+      "prompt": "Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. Begin Play restores Alert, Health, and IsOpen together. A prototype runs both jobs from Begin Play. What do you put back in Horror — Beginner?",
+      "choices": [
+        "The creaking door keeps Begin Overlap so it can PlayFromStart on the timeline, then FlipFlop writes IsOpen. Save the house keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. Begin Play restores Alert, Health, and IsOpen together.",
+        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. Begin Play restores Alert, Health, and IsOpen together.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. Begin Play restores Alert, Health, and IsOpen together.",
+        "Let each client apply both writes before the authority answers. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. Begin Play restores Alert, Health, and IsOpen together."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-beginner-exam-20",
+      "kind": "mc",
+      "prompt": "This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. A prototype runs both jobs from Sense. What do you put back in Horror — Beginner?",
+      "choices": [
+        "Single-player health keeps Any Damage so it can Health clamped between zero and MaxHealth, then a branch that logs death at zero. Sight and sound keeps Sense so it can a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. That keeps the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+        "Fold the first job into Sense so the exam build has one event. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+        "Let each client apply both writes before the authority answers. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-beginner-exam-21",
+      "kind": "tf",
+      "prompt": "True or false: This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. The player's look calls Interact. The hunter's Sense trace is not this graph. That pair of rules also means use in the dark may tracing on Tick so a prompt stays fresh while the player stands still.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Single-player health does not give Use in the dark permission to tracing on Tick so a prompt stays fresh while the player stands still."
+    },
+    {
+      "id": "study-horror-beginner-exam-22",
+      "kind": "tf",
+      "prompt": "True or false: This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. Single-player health still starts at Any Damage after the player has learned stalking the route.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "Any Damage remains the start of Single-player health."
+    },
+    {
+      "id": "study-horror-beginner-exam-23",
+      "kind": "mc",
+      "prompt": "This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. A prototype runs both jobs from Begin Overlap. What do you put back in Horror — Beginner?",
+      "choices": [
+        "Single-player health keeps Any Damage so it can Health clamped between zero and MaxHealth, then a branch that logs death at zero. The creaking door keeps Begin Overlap so it can PlayFromStart on the timeline, then FlipFlop writes IsOpen. That keeps the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+        "Fold the first job into Begin Overlap so the exam build has one event. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+        "Let each client apply both writes before the authority answers. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-beginner-exam-24",
+      "kind": "mc",
+      "prompt": "This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. Begin Play restores Alert, Health, and IsOpen together. A prototype runs both jobs from Begin Play. What do you put back in Horror — Beginner?",
+      "choices": [
+        "Single-player health keeps Any Damage so it can Health clamped between zero and MaxHealth, then a branch that logs death at zero. Save the house keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. Begin Play restores Alert, Health, and IsOpen together.",
+        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. Begin Play restores Alert, Health, and IsOpen together.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. Begin Play restores Alert, Health, and IsOpen together.",
+        "Let each client apply both writes before the authority answers. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. Begin Play restores Alert, Health, and IsOpen together."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-beginner-exam-25",
+      "kind": "mc",
+      "prompt": "Begin Play restores Alert, Health, and IsOpen together. Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. A prototype runs both jobs from Sense. What do you put back in Horror — Beginner?",
+      "choices": [
+        "Save the house keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. Sight and sound keeps Sense so it can a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. That keeps the rule that begin Play restores Alert, Health, and IsOpen together. Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+        "Fold the first job into Sense so the exam build has one event. That would break the rule that begin Play restores Alert, Health, and IsOpen together. Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that begin Play restores Alert, Health, and IsOpen together. Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event.",
+        "Let each client apply both writes before the authority answers. That would break the rule that begin Play restores Alert, Health, and IsOpen together. Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-beginner-exam-26",
+      "kind": "mc",
+      "prompt": "Begin Play restores Alert, Health, and IsOpen together. The player's look calls Interact. The hunter's Sense trace is not this graph. A prototype runs both jobs from IA_Interact. What do you put back in Horror — Beginner?",
+      "choices": [
+        "Save the house keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. Use in the dark keeps IA_Interact so it can a line trace from the aim, then Interact on the actor that was hit. That keeps the rule that begin Play restores Alert, Health, and IsOpen together. The player's look calls Interact. The hunter's Sense trace is not this graph.",
+        "Fold the first job into IA_Interact so the exam build has one event. That would break the rule that begin Play restores Alert, Health, and IsOpen together. The player's look calls Interact. The hunter's Sense trace is not this graph.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that begin Play restores Alert, Health, and IsOpen together. The player's look calls Interact. The hunter's Sense trace is not this graph.",
+        "Let each client apply both writes before the authority answers. That would break the rule that begin Play restores Alert, Health, and IsOpen together. The player's look calls Interact. The hunter's Sense trace is not this graph."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-beginner-exam-27",
+      "kind": "mc",
+      "prompt": "Begin Play restores Alert, Health, and IsOpen together. AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. A prototype runs both jobs from AdvancePatrol. What do you put back in Horror — Beginner?",
+      "choices": [
+        "Save the house keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. Stalking the route keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that begin Play restores Alert, Health, and IsOpen together. AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+        "Fold the first job into AdvancePatrol so the exam build has one event. That would break the rule that begin Play restores Alert, Health, and IsOpen together. AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that begin Play restores Alert, Health, and IsOpen together. AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+        "Let each client apply both writes before the authority answers. That would break the rule that begin Play restores Alert, Health, and IsOpen together. AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-beginner-exam-28",
+      "kind": "tf",
+      "prompt": "True or false: Begin Play restores Alert, Health, and IsOpen together. Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. That pair of rules also means the creaking door may yawing the door a degree per Tick.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Save the house does not give The creaking door permission to yawing the door a degree per Tick."
+    },
+    {
+      "id": "study-horror-beginner-exam-29",
+      "kind": "tf",
+      "prompt": "True or false: Begin Play restores Alert, Health, and IsOpen together. This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. Save the house still starts at Begin Play after the player has learned single-player health.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "Begin Play remains the start of Save the house."
+    },
+    {
+      "id": "study-horror-beginner-exam-extra-0",
+      "kind": "tf",
+      "prompt": "True or false: Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. During a listen server already at twenty frames, tracing from Tick, or giving a loud sound its own second brain is still not a substitute for the Sense timer started at Begin Play.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event."
+    },
+    {
+      "id": "study-horror-beginner-exam-extra-1",
+      "kind": "mc",
+      "prompt": "The player's look calls Interact. The hunter's Sense trace is not this graph. During a client who joined after the fight started, the build instead does this: tracing on Tick so a prompt stays fresh while the player stands still. Which repair matches the rule?",
+      "choices": [
+        "During a client who joined after the fight started, the possessed pawn's input action performs a line trace from the aim, then Interact on the actor that was hit. That keeps the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+        "During a client who joined after the fight started, leave the broken path in the build. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+        "During a client who joined after the fight started, move the write onto the widget. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+        "During a client who joined after the fight started, apply the write again inside OnRep. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph."
+      ],
+      "answer": 0,
+      "why": "The player's look calls Interact. The hunter's Sense trace is not this graph."
+    },
+    {
+      "id": "study-horror-beginner-exam-extra-2",
+      "kind": "mc",
+      "prompt": "AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. During a paused match that still simulates pawns, the build instead does this: stepping the route from Tick, or starting a second move while Sense should only raise Alert. Which repair matches the rule?",
+      "choices": [
+        "During a paused match that still simulates pawns, the timer armed in Begin Play performs the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+        "During a paused match that still simulates pawns, leave the broken path in the build. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+        "During a paused match that still simulates pawns, move the write onto the widget. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+        "During a paused match that still simulates pawns, apply the write again inside OnRep. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route."
+      ],
+      "answer": 0,
+      "why": "AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route."
+    },
+    {
+      "id": "study-horror-beginner-exam-extra-3",
+      "kind": "mc",
+      "prompt": "Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. During a second player sharing the same pawn class, the build instead does this: yawing the door a degree per Tick. Which repair matches the rule?",
+      "choices": [
+        "During a second player sharing the same pawn class, the overlap that starts the timeline performs PlayFromStart on the timeline, then FlipFlop writes IsOpen. That keeps the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+        "During a second player sharing the same pawn class, leave the broken path in the build. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+        "During a second player sharing the same pawn class, move the write onto the widget. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+        "During a second player sharing the same pawn class, apply the write again inside OnRep. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue."
+      ],
+      "answer": 0,
+      "why": "Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue."
+    },
+    {
+      "id": "study-horror-beginner-exam-extra-4",
+      "kind": "mc",
+      "prompt": "This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. During a designer who duplicated the component, the build instead does this: subtracting with no clamp so health goes negative and the death branch never sees zero. Which repair matches the rule?",
+      "choices": [
+        "During a designer who duplicated the component, the damage event on this local pawn performs Health clamped between zero and MaxHealth, then a branch that logs death at zero. That keeps the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+        "During a designer who duplicated the component, leave the broken path in the build. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+        "During a designer who duplicated the component, move the write onto the widget. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+        "During a designer who duplicated the component, apply the write again inside OnRep. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph."
+      ],
+      "answer": 0,
+      "why": "This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph."
+    },
+    {
+      "id": "study-horror-beginner-exam-extra-5",
+      "kind": "mc",
+      "prompt": "Begin Play restores Alert, Health, and IsOpen together. During a replay that scrubs backward, the build instead does this: assigning SlotValue from Tick every frame, including while a value is still changing. Which repair matches the rule?",
+      "choices": [
+        "During a replay that scrubs backward, Begin Play for the load, and a finished event for the save performs one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that begin Play restores Alert, Health, and IsOpen together.",
+        "During a replay that scrubs backward, leave the broken path in the build. That would break the rule that begin Play restores Alert, Health, and IsOpen together.",
+        "During a replay that scrubs backward, move the write onto the widget. That would break the rule that begin Play restores Alert, Health, and IsOpen together.",
+        "During a replay that scrubs backward, apply the write again inside OnRep. That would break the rule that begin Play restores Alert, Health, and IsOpen together."
+      ],
+      "answer": 0,
+      "why": "Begin Play restores Alert, Health, and IsOpen together."
+    },
+    {
+      "id": "study-horror-beginner-exam-extra-6",
+      "kind": "tf",
+      "prompt": "True or false: Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. During a bot standing still at the objective, tracing from Tick, or giving a loud sound its own second brain is still not a substitute for the Sense timer started at Begin Play.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event."
+    },
+    {
+      "id": "study-horror-beginner-exam-extra-7",
+      "kind": "mc",
+      "prompt": "The player's look calls Interact. The hunter's Sense trace is not this graph. During a late tick after the player released the control, the build instead does this: tracing on Tick so a prompt stays fresh while the player stands still. Which repair matches the rule?",
+      "choices": [
+        "During a late tick after the player released the control, the possessed pawn's input action performs a line trace from the aim, then Interact on the actor that was hit. That keeps the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+        "During a late tick after the player released the control, leave the broken path in the build. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+        "During a late tick after the player released the control, move the write onto the widget. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+        "During a late tick after the player released the control, apply the write again inside OnRep. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph."
+      ],
+      "answer": 0,
+      "why": "The player's look calls Interact. The hunter's Sense trace is not this graph."
+    },
+    {
+      "id": "study-horror-beginner-exam-extra-8",
+      "kind": "mc",
+      "prompt": "AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route. During a listen server already at twenty frames, the build instead does this: stepping the route from Tick, or starting a second move while Sense should only raise Alert. Which repair matches the rule?",
+      "choices": [
+        "During a listen server already at twenty frames, the timer armed in Begin Play performs the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+        "During a listen server already at twenty frames, leave the broken path in the build. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+        "During a listen server already at twenty frames, move the write onto the widget. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route.",
+        "During a listen server already at twenty frames, apply the write again inside OnRep. That would break the rule that advancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route."
+      ],
+      "answer": 0,
+      "why": "AdvancePatrol walks the route on a timer. Alert from Sense decides when the stalk leaves the route."
+    },
+    {
+      "id": "study-horror-beginner-exam-extra-9",
+      "kind": "mc",
+      "prompt": "Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue. During a client who joined after the fight started, the build instead does this: yawing the door a degree per Tick. Which repair matches the rule?",
+      "choices": [
+        "During a client who joined after the fight started, the overlap that starts the timeline performs PlayFromStart on the timeline, then FlipFlop writes IsOpen. That keeps the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+        "During a client who joined after the fight started, leave the broken path in the build. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+        "During a client who joined after the fight started, move the write onto the widget. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue.",
+        "During a client who joined after the fight started, apply the write again inside OnRep. That would break the rule that overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue."
+      ],
+      "answer": 0,
+      "why": "Overlap plays a timeline. FlipFlop toggles IsOpen. The creak is the audio cue."
+    },
+    {
+      "id": "study-horror-beginner-exam-extra-10",
+      "kind": "mc",
+      "prompt": "This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph. During a paused match that still simulates pawns, the build instead does this: subtracting with no clamp so health goes negative and the death branch never sees zero. Which repair matches the rule?",
+      "choices": [
+        "During a paused match that still simulates pawns, the damage event on this local pawn performs Health clamped between zero and MaxHealth, then a branch that logs death at zero. That keeps the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+        "During a paused match that still simulates pawns, leave the broken path in the build. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+        "During a paused match that still simulates pawns, move the write onto the widget. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph.",
+        "During a paused match that still simulates pawns, apply the write again inside OnRep. That would break the rule that this lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph."
+      ],
+      "answer": 0,
+      "why": "This lesson is local health: subtract, clamp, and branch on zero. It is not the replicated graph."
+    },
+    {
+      "id": "study-horror-beginner-exam-extra-11",
+      "kind": "mc",
+      "prompt": "Begin Play restores Alert, Health, and IsOpen together. During a second player sharing the same pawn class, the build instead does this: assigning SlotValue from Tick every frame, including while a value is still changing. Which repair matches the rule?",
+      "choices": [
+        "During a second player sharing the same pawn class, Begin Play for the load, and a finished event for the save performs one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that begin Play restores Alert, Health, and IsOpen together.",
+        "During a second player sharing the same pawn class, leave the broken path in the build. That would break the rule that begin Play restores Alert, Health, and IsOpen together.",
+        "During a second player sharing the same pawn class, move the write onto the widget. That would break the rule that begin Play restores Alert, Health, and IsOpen together.",
+        "During a second player sharing the same pawn class, apply the write again inside OnRep. That would break the rule that begin Play restores Alert, Health, and IsOpen together."
+      ],
+      "answer": 0,
+      "why": "Begin Play restores Alert, Health, and IsOpen together."
+    },
+    {
+      "id": "study-horror-beginner-exam-extra-12",
+      "kind": "tf",
+      "prompt": "True or false: Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event. During a designer who duplicated the component, tracing from Tick, or giving a loud sound its own second brain is still not a substitute for the Sense timer started at Begin Play.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "Sense runs five times a second. A wall blocks the trace. A loud sound uses the same event."
+    },
+    {
+      "id": "study-horror-beginner-exam-extra-13",
+      "kind": "mc",
+      "prompt": "The player's look calls Interact. The hunter's Sense trace is not this graph. During a replay that scrubs backward, the build instead does this: tracing on Tick so a prompt stays fresh while the player stands still. Which repair matches the rule?",
+      "choices": [
+        "During a replay that scrubs backward, the possessed pawn's input action performs a line trace from the aim, then Interact on the actor that was hit. That keeps the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+        "During a replay that scrubs backward, leave the broken path in the build. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+        "During a replay that scrubs backward, move the write onto the widget. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph.",
+        "During a replay that scrubs backward, apply the write again inside OnRep. That would break the rule that the player's look calls Interact. The hunter's Sense trace is not this graph."
+      ],
+      "answer": 0,
+      "why": "The player's look calls Interact. The hunter's Sense trace is not this graph."
+    }
+  ],
+  "repairWrongs": {
+    "horror-beginner-e2": [
+      "Ship the broken sample as written (Tick traces and sets Alert) and treat the red node as close enough.",
+      "Use Sense every 0.2f, then Alert = 1.f on a hit, but also leave the broken sample running so both paths write.",
+      "Drop Sense every 0.2f, then Alert = 1.f on a hit and replay the broken sample from OnRep: Tick traces and sets Alert"
+    ],
+    "horror-beginner-e6": [
+      "Ship the broken sample as written (Alert = 1.f; // inside Graph_IA_Interact) and treat the red node as close enough.",
+      "Use ProcessEvent on Interact, but also leave the broken sample running so both paths write.",
+      "Drop ProcessEvent on Interact and replay the broken sample from OnRep: Alert = 1.f; // inside Graph_IA_Interact"
+    ],
+    "horror-beginner-e8": [
+      "Ship the broken sample as written (Tick steps the hunter) and treat the red node as close enough.",
+      "Use AdvancePatrol at 1.f, but also leave the broken sample running so both paths write.",
+      "Drop AdvancePatrol at 1.f and replay the broken sample from OnRep: Tick steps the hunter"
+    ],
+    "horror-beginner-e12": [
+      "Ship the broken sample as written (Health = Health - Damage; // no clamp) and treat the red node as close enough.",
+      "Use Health = FMath::Clamp((Health - Damage), 0.f, MaxHealth), but also leave the broken sample running so both paths write.",
+      "Drop Health = FMath::Clamp((Health - Damage), 0.f, MaxHealth) and replay the broken sample from OnRep: Health = Health - Damage; // no clamp"
+    ],
+    "horror-beginner-e15": [
+      "Ship the broken sample as written (Tick yaws the door) and treat the red node as close enough.",
+      "Use The timeline, then FlipFlop writes IsOpen, but also leave the broken sample running so both paths write.",
+      "Drop The timeline, then FlipFlop writes IsOpen and replay the broken sample from OnRep: Tick yaws the door"
+    ],
+    "horror-beginner-e17": [
+      "Ship the broken sample as written (void Tick() { SlotValue = Alert; }) and treat the red node as close enough.",
+      "Use An event when the timeline finishes or the player hits a save point, loaded at Begin Play, but also leave the broken sample running so both paths write.",
+      "Drop An event when the timeline finishes or the player hits a save point, loaded at Begin Play and replay the broken sample from OnRep: void Tick() { SlotValue = Alert; }"
+    ]
+  }
+}

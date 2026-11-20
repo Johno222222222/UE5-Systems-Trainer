@@ -1,0 +1,1931 @@
+{
+  "id": "horror-intermediate",
+  "sections": {
+    "perception": {
+      "plainEnglish": "In plain English: Sight and a creak share Sense. Alert becomes 1 only on a clear trace. What the function actually does is a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. the Sense timer started at Begin Play is who is allowed to do it.",
+      "whyGame": "In a real match, tracing from Tick, or giving a loud sound its own second brain looks almost right and then costs a query, a desync, or a double write. the player's interact graph stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Stalker's senses listener",
+          "detail": "A follow-on in Horror — Intermediate should bind to Sense after the 0.2 second timer fires. It should not poll stalker's senses."
+        },
+        {
+          "title": "Stalker's senses data",
+          "detail": "Numbers a designer tunes for stalker's senses belong on a data row. a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit can read that row without a new function."
+        },
+        {
+          "title": "Stalker's senses neighbor",
+          "detail": "the player's interact graph must not be implemented inside Sense. Sight and a creak share Sense. Alert becomes 1 only on a clear trace."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "horror-intermediate-perception-s1",
+          "kind": "mc",
+          "prompt": "Sight and a creak share Sense. Alert becomes 1 only on a clear trace. When `void UKitComponent::Graph_Sense_tpl_perception_sense() // node:tpl_perception_sense` runs, what does the player get?",
+          "choices": [
+            "a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. That keeps the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "The line tracing from Tick, or giving a loud sound its own second brain. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "The constructor writes the result before a pawn exists. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "the player's interact graph overwrites the value on every client. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace."
+          ],
+          "answer": 0,
+          "why": "a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit"
+        },
+        {
+          "id": "horror-intermediate-perception-s2",
+          "kind": "mc",
+          "prompt": "Sight and a creak share Sense. Alert becomes 1 only on a clear trace. Where does Sense sit relative to Sense?",
+          "choices": [
+            "Sense runs after the 0.2 second timer fires. Sense reaches that gate through the timer. That keeps the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "Sense runs before Sense, so the write does not wait for the player. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "Sense sits on Tick while Sense is idle. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "Sense sits in OnRep and applies the change a second time. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace."
+          ],
+          "answer": 0,
+          "why": "Sense is the start."
+        },
+        {
+          "id": "horror-intermediate-perception-s3",
+          "kind": "tf",
+          "prompt": "True or false: Sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Sight and a creak share Sense. Alert becomes 1 only on a clear trace."
+        },
+        {
+          "id": "horror-intermediate-perception-s4",
+          "kind": "tf",
+          "prompt": "True or false: Sight and a creak share Sense. Alert becomes 1 only on a clear trace. You keep that promise by tracing from Tick, or giving a loud sound its own second brain.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the Sense timer started at Begin Play is the real writer."
+        },
+        {
+          "id": "horror-intermediate-perception-s5",
+          "kind": "mc",
+          "prompt": "Sight and a creak share Sense. Alert becomes 1 only on a clear trace. Who may commit the change?",
+          "choices": [
+            "the Sense timer started at Begin Play. That keeps the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "Every client writes it so the result feels instant. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "The constructor writes it once, and Sense never fires. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace."
+          ],
+          "answer": 0,
+          "why": "the Sense timer started at Begin Play"
+        },
+        {
+          "id": "horror-intermediate-perception-s6",
+          "kind": "mc",
+          "prompt": "Sight and a creak share Sense. Alert becomes 1 only on a clear trace. What has to be true before Sense writes?",
+          "choices": [
+            "the 0.2 second timer fires. That keeps the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "Sense has not fired and the graph is only hoping. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "Tick has run one frame even though nothing changed. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "the player's interact graph has already performed this write. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace."
+          ],
+          "answer": 0,
+          "why": "the 0.2 second timer fires"
+        },
+        {
+          "id": "horror-intermediate-perception-s7",
+          "kind": "tf",
+          "prompt": "True or false: Sight and a creak share Sense. Alert becomes 1 only on a clear trace. Sense is the start, and the timer is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Sense through the timer."
+        },
+        {
+          "id": "horror-intermediate-perception-s8",
+          "kind": "mc",
+          "prompt": "Sight and a creak share Sense. Alert becomes 1 only on a clear trace. Delete Sense and leave the rest of the Horror — Intermediate compiled. What does the player lose?",
+          "choices": [
+            "Stalker's senses never starts, because nothing else fires the timer. That keeps the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "Nothing visible, because Tick still does the work. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "the player's interact graph quietly takes over the job. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "The next travel's constructor writes it. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace."
+          ],
+          "answer": 0,
+          "why": "Sense is the only start."
+        },
+        {
+          "id": "horror-intermediate-perception-s9",
+          "kind": "mc",
+          "prompt": "Sight and a creak share Sense. Alert becomes 1 only on a clear trace. Which broken schedule is the one to refuse?",
+          "choices": [
+            "tracing from Tick, or giving a loud sound its own second brain. That keeps the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "Leaving the real work on Sense. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "Waiting until the 0.2 second timer fires before the write. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "Keeping the Sense timer started at Begin Play as the only writer. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace."
+          ],
+          "answer": 0,
+          "why": "tracing from Tick, or giving a loud sound its own second brain"
+        },
+        {
+          "id": "horror-intermediate-perception-s10",
+          "kind": "mc",
+          "prompt": "Sight and a creak share Sense. Alert becomes 1 only on a clear trace. the player's interact graph wants to live in this same function. What stays separate?",
+          "choices": [
+            "the player's interact graph keeps its own event. This function only handles a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. That keeps the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "the player's interact graph is inlined so one Tick serves both jobs. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "the player's interact graph writes the value from the client. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "the player's interact graph runs inside OnRep after this write. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "horror-intermediate-perception-s11",
+          "kind": "mc",
+          "prompt": "Sight and a creak share Sense. Alert becomes 1 only on a clear trace. A teammate also applies the write from OnRep, so the game need not wait for the Sense timer started at Begin Play. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "The widget stops drawing until Tick resumes. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "Sense stops firing. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "horror-intermediate-perception-s12",
+          "kind": "mc",
+          "prompt": "Sight and a creak share Sense. Alert becomes 1 only on a clear trace. Which gate sits immediately in front of the write?",
+          "choices": [
+            "the 0.2 second timer fires, reached from Sense via the timer. That keeps the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "A Tick frame, even when Sense is idle. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "A cast to every Blueprint that might show up. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace."
+          ],
+          "answer": 0,
+          "why": "the 0.2 second timer fires is the gate."
+        }
+      ]
+    },
+    "interaction": {
+      "plainEnglish": "In plain English: One Interact call covers the fuse, the door, and the hide lever. What the function actually does is a line trace from the aim, then Interact on the actor that was hit. the possessed pawn's input action is who is allowed to do it.",
+      "whyGame": "In a real match, tracing on Tick so a prompt stays fresh while the player stands still looks almost right and then costs a query, a desync, or a double write. the hunter Sense trace stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Fuse, door, hide listener",
+          "detail": "A follow-on in Horror — Intermediate should bind to IA_Interact after the hit bool is true. It should not poll fuse, door, hide."
+        },
+        {
+          "title": "Fuse, door, hide data",
+          "detail": "Numbers a designer tunes for fuse, door, hide belong on a data row. a line trace from the aim, then Interact on the actor that was hit can read that row without a new function."
+        },
+        {
+          "title": "Fuse, door, hide neighbor",
+          "detail": "the hunter Sense trace must not be implemented inside Enhanced Input for IA_Interact. One Interact call covers the fuse, the door, and the hide lever."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "horror-intermediate-interaction-s1",
+          "kind": "mc",
+          "prompt": "One Interact call covers the fuse, the door, and the hide lever. When `void UKitComponent::Graph_IA_Interact_tpl_interact_input() // node:tpl_interact_input` runs, what does the player get?",
+          "choices": [
+            "a line trace from the aim, then Interact on the actor that was hit. That keeps the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "The line tracing on Tick so a prompt stays fresh while the player stands still. That would break the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "The constructor writes the result before a pawn exists. That would break the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "the hunter Sense trace overwrites the value on every client. That would break the rule that one Interact call covers the fuse, the door, and the hide lever."
+          ],
+          "answer": 0,
+          "why": "a line trace from the aim, then Interact on the actor that was hit"
+        },
+        {
+          "id": "horror-intermediate-interaction-s2",
+          "kind": "mc",
+          "prompt": "One Interact call covers the fuse, the door, and the hide lever. Where does Enhanced Input for IA_Interact sit relative to IA_Interact?",
+          "choices": [
+            "Enhanced Input for IA_Interact runs after the hit bool is true. IA_Interact reaches that gate through Triggered. That keeps the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "Enhanced Input for IA_Interact runs before IA_Interact, so the write does not wait for the player. That would break the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "Enhanced Input for IA_Interact sits on Tick while IA_Interact is idle. That would break the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "Enhanced Input for IA_Interact sits in OnRep and applies the change a second time. That would break the rule that one Interact call covers the fuse, the door, and the hide lever."
+          ],
+          "answer": 0,
+          "why": "IA_Interact is the start."
+        },
+        {
+          "id": "horror-intermediate-interaction-s3",
+          "kind": "tf",
+          "prompt": "True or false: One Interact call covers the fuse, the door, and the hide lever.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "One Interact call covers the fuse, the door, and the hide lever."
+        },
+        {
+          "id": "horror-intermediate-interaction-s4",
+          "kind": "tf",
+          "prompt": "True or false: One Interact call covers the fuse, the door, and the hide lever. You keep that promise by tracing on Tick so a prompt stays fresh while the player stands still.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the possessed pawn's input action is the real writer."
+        },
+        {
+          "id": "horror-intermediate-interaction-s5",
+          "kind": "mc",
+          "prompt": "One Interact call covers the fuse, the door, and the hide lever. Who may commit the change?",
+          "choices": [
+            "the possessed pawn's input action. That keeps the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "Every client writes it so the result feels instant. That would break the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "The constructor writes it once, and IA_Interact never fires. That would break the rule that one Interact call covers the fuse, the door, and the hide lever."
+          ],
+          "answer": 0,
+          "why": "the possessed pawn's input action"
+        },
+        {
+          "id": "horror-intermediate-interaction-s6",
+          "kind": "mc",
+          "prompt": "One Interact call covers the fuse, the door, and the hide lever. What has to be true before Enhanced Input for IA_Interact writes?",
+          "choices": [
+            "the hit bool is true. That keeps the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "IA_Interact has not fired and the graph is only hoping. That would break the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "Tick has run one frame even though nothing changed. That would break the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "the hunter Sense trace has already performed this write. That would break the rule that one Interact call covers the fuse, the door, and the hide lever."
+          ],
+          "answer": 0,
+          "why": "the hit bool is true"
+        },
+        {
+          "id": "horror-intermediate-interaction-s7",
+          "kind": "tf",
+          "prompt": "True or false: One Interact call covers the fuse, the door, and the hide lever. IA_Interact is the start, and Triggered is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "IA_Interact through Triggered."
+        },
+        {
+          "id": "horror-intermediate-interaction-s8",
+          "kind": "mc",
+          "prompt": "One Interact call covers the fuse, the door, and the hide lever. Delete IA_Interact and leave the rest of the Horror — Intermediate compiled. What does the player lose?",
+          "choices": [
+            "Fuse, door, hide never starts, because nothing else fires Triggered. That keeps the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "Nothing visible, because Tick still does the work. That would break the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "the hunter Sense trace quietly takes over the job. That would break the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "The next travel's constructor writes it. That would break the rule that one Interact call covers the fuse, the door, and the hide lever."
+          ],
+          "answer": 0,
+          "why": "IA_Interact is the only start."
+        },
+        {
+          "id": "horror-intermediate-interaction-s9",
+          "kind": "mc",
+          "prompt": "One Interact call covers the fuse, the door, and the hide lever. Which broken schedule is the one to refuse?",
+          "choices": [
+            "tracing on Tick so a prompt stays fresh while the player stands still. That keeps the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "Leaving the real work on IA_Interact. That would break the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "Waiting until the hit bool is true before the write. That would break the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "Keeping the possessed pawn's input action as the only writer. That would break the rule that one Interact call covers the fuse, the door, and the hide lever."
+          ],
+          "answer": 0,
+          "why": "tracing on Tick so a prompt stays fresh while the player stands still"
+        },
+        {
+          "id": "horror-intermediate-interaction-s10",
+          "kind": "mc",
+          "prompt": "One Interact call covers the fuse, the door, and the hide lever. the hunter Sense trace wants to live in this same function. What stays separate?",
+          "choices": [
+            "the hunter Sense trace keeps its own event. This function only handles a line trace from the aim, then Interact on the actor that was hit. That keeps the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "the hunter Sense trace is inlined so one Tick serves both jobs. That would break the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "the hunter Sense trace writes the value from the client. That would break the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "the hunter Sense trace runs inside OnRep after this write. That would break the rule that one Interact call covers the fuse, the door, and the hide lever."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "horror-intermediate-interaction-s11",
+          "kind": "mc",
+          "prompt": "One Interact call covers the fuse, the door, and the hide lever. A teammate also applies the write from OnRep, so the game need not wait for the possessed pawn's input action. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "The widget stops drawing until Tick resumes. That would break the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "IA_Interact stops firing. That would break the rule that one Interact call covers the fuse, the door, and the hide lever."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "horror-intermediate-interaction-s12",
+          "kind": "mc",
+          "prompt": "One Interact call covers the fuse, the door, and the hide lever. Which gate sits immediately in front of the write?",
+          "choices": [
+            "the hit bool is true, reached from IA_Interact via Triggered. That keeps the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "A Tick frame, even when IA_Interact is idle. That would break the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "A cast to every Blueprint that might show up. That would break the rule that one Interact call covers the fuse, the door, and the hide lever.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that one Interact call covers the fuse, the door, and the hide lever."
+          ],
+          "answer": 0,
+          "why": "the hit bool is true is the gate."
+        }
+      ]
+    },
+    "stalk": {
+      "plainEnglish": "In plain English: AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. What the function actually does is the next patrol point on a one second timer, flipping GoingRight at the ends. the timer armed in Begin Play is who is allowed to do it.",
+      "whyGame": "In a real match, stepping the route from Tick, or starting a second move while Sense should only raise Alert looks almost right and then costs a query, a desync, or a double write. Sense stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Leaving the route listener",
+          "detail": "A follow-on in Horror — Intermediate should bind to AdvancePatrol after one second has passed. It should not poll leaving the route."
+        },
+        {
+          "title": "Leaving the route data",
+          "detail": "Numbers a designer tunes for leaving the route belong on a data row. the next patrol point on a one second timer, flipping GoingRight at the ends can read that row without a new function."
+        },
+        {
+          "title": "Leaving the route neighbor",
+          "detail": "Sense must not be implemented inside Advance Patrol. AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "horror-intermediate-stalk-s1",
+          "kind": "mc",
+          "prompt": "AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. When `void UKitComponent::Graph_AdvancePatrol_tpl_aipatrol_advance() // node:tpl_ai-patrol_advance` runs, what does the player get?",
+          "choices": [
+            "the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "The line stepping the route from Tick, or starting a second move while Sense should only raise Alert. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "The constructor writes the result before a pawn exists. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "Sense overwrites the value on every client. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase."
+          ],
+          "answer": 0,
+          "why": "the next patrol point on a one second timer, flipping GoingRight at the ends"
+        },
+        {
+          "id": "horror-intermediate-stalk-s2",
+          "kind": "mc",
+          "prompt": "AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. Where does Advance Patrol sit relative to AdvancePatrol?",
+          "choices": [
+            "Advance Patrol runs after one second has passed. AdvancePatrol reaches that gate through the timer. That keeps the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "Advance Patrol runs before AdvancePatrol, so the write does not wait for the player. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "Advance Patrol sits on Tick while AdvancePatrol is idle. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "Advance Patrol sits in OnRep and applies the change a second time. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase."
+          ],
+          "answer": 0,
+          "why": "AdvancePatrol is the start."
+        },
+        {
+          "id": "horror-intermediate-stalk-s3",
+          "kind": "tf",
+          "prompt": "True or false: AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase."
+        },
+        {
+          "id": "horror-intermediate-stalk-s4",
+          "kind": "tf",
+          "prompt": "True or false: AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. You keep that promise by stepping the route from Tick, or starting a second move while Sense should only raise Alert.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the timer armed in Begin Play is the real writer."
+        },
+        {
+          "id": "horror-intermediate-stalk-s5",
+          "kind": "mc",
+          "prompt": "AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. Who may commit the change?",
+          "choices": [
+            "the timer armed in Begin Play. That keeps the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "Every client writes it so the result feels instant. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "The constructor writes it once, and AdvancePatrol never fires. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase."
+          ],
+          "answer": 0,
+          "why": "the timer armed in Begin Play"
+        },
+        {
+          "id": "horror-intermediate-stalk-s6",
+          "kind": "mc",
+          "prompt": "AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. What has to be true before Advance Patrol writes?",
+          "choices": [
+            "one second has passed. That keeps the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "AdvancePatrol has not fired and the graph is only hoping. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "Tick has run one frame even though nothing changed. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "Sense has already performed this write. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase."
+          ],
+          "answer": 0,
+          "why": "one second has passed"
+        },
+        {
+          "id": "horror-intermediate-stalk-s7",
+          "kind": "tf",
+          "prompt": "True or false: AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. AdvancePatrol is the start, and the timer is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "AdvancePatrol through the timer."
+        },
+        {
+          "id": "horror-intermediate-stalk-s8",
+          "kind": "mc",
+          "prompt": "AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. Delete AdvancePatrol and leave the rest of the Horror — Intermediate compiled. What does the player lose?",
+          "choices": [
+            "Leaving the route never starts, because nothing else fires the timer. That keeps the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "Nothing visible, because Tick still does the work. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "Sense quietly takes over the job. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "The next travel's constructor writes it. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase."
+          ],
+          "answer": 0,
+          "why": "AdvancePatrol is the only start."
+        },
+        {
+          "id": "horror-intermediate-stalk-s9",
+          "kind": "mc",
+          "prompt": "AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. Which broken schedule is the one to refuse?",
+          "choices": [
+            "stepping the route from Tick, or starting a second move while Sense should only raise Alert. That keeps the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "Leaving the real work on AdvancePatrol. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "Waiting until one second has passed before the write. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "Keeping the timer armed in Begin Play as the only writer. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase."
+          ],
+          "answer": 0,
+          "why": "stepping the route from Tick, or starting a second move while Sense should only raise Alert"
+        },
+        {
+          "id": "horror-intermediate-stalk-s10",
+          "kind": "mc",
+          "prompt": "AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. Sense wants to live in this same function. What stays separate?",
+          "choices": [
+            "Sense keeps its own event. This function only handles the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "Sense is inlined so one Tick serves both jobs. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "Sense writes the value from the client. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "Sense runs inside OnRep after this write. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "horror-intermediate-stalk-s11",
+          "kind": "mc",
+          "prompt": "AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. A teammate also applies the write from OnRep, so the game need not wait for the timer armed in Begin Play. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "The widget stops drawing until Tick resumes. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "AdvancePatrol stops firing. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "horror-intermediate-stalk-s12",
+          "kind": "mc",
+          "prompt": "AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. Which gate sits immediately in front of the write?",
+          "choices": [
+            "one second has passed, reached from AdvancePatrol via the timer. That keeps the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "A Tick frame, even when AdvancePatrol is idle. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "A cast to every Blueprint that might show up. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase."
+          ],
+          "answer": 0,
+          "why": "one second has passed is the gate."
+        }
+      ]
+    },
+    "door": {
+      "plainEnglish": "In plain English: PlayFromStart swings the door. IsOpen replicates. The creak calls Sense. What the function actually does is PlayFromStart on the timeline, then FlipFlop writes IsOpen. the overlap that starts the timeline is who is allowed to do it.",
+      "whyGame": "In a real match, yawing the door a degree per Tick looks almost right and then costs a query, a desync, or a double write. Sense stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Timeline and the creak listener",
+          "detail": "A follow-on in Horror — Intermediate should bind to Begin Overlap after someone actually entered the volume. It should not poll timeline and the creak."
+        },
+        {
+          "title": "Timeline and the creak data",
+          "detail": "Numbers a designer tunes for timeline and the creak belong on a data row. PlayFromStart on the timeline, then FlipFlop writes IsOpen can read that row without a new function."
+        },
+        {
+          "title": "Timeline and the creak neighbor",
+          "detail": "Sense must not be implemented inside Timeline. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "horror-intermediate-door-s1",
+          "kind": "mc",
+          "prompt": "PlayFromStart swings the door. IsOpen replicates. The creak calls Sense. When `void UKitComponent::Graph_OnComponentBeginOverlap_tpl_door_overlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor)` runs, what does the player get?",
+          "choices": [
+            "PlayFromStart on the timeline, then FlipFlop writes IsOpen. That keeps the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "The line yawing the door a degree per Tick. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "The constructor writes the result before a pawn exists. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "Sense overwrites the value on every client. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense."
+          ],
+          "answer": 0,
+          "why": "PlayFromStart on the timeline, then FlipFlop writes IsOpen"
+        },
+        {
+          "id": "horror-intermediate-door-s2",
+          "kind": "mc",
+          "prompt": "PlayFromStart swings the door. IsOpen replicates. The creak calls Sense. Where does Timeline sit relative to Begin Overlap?",
+          "choices": [
+            "Timeline runs after someone actually entered the volume. Begin Overlap reaches that gate through overlap. That keeps the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "Timeline runs before Begin Overlap, so the write does not wait for the player. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "Timeline sits on Tick while Begin Overlap is idle. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "Timeline sits in OnRep and applies the change a second time. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense."
+          ],
+          "answer": 0,
+          "why": "Begin Overlap is the start."
+        },
+        {
+          "id": "horror-intermediate-door-s3",
+          "kind": "tf",
+          "prompt": "True or false: PlayFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "PlayFromStart swings the door. IsOpen replicates. The creak calls Sense."
+        },
+        {
+          "id": "horror-intermediate-door-s4",
+          "kind": "tf",
+          "prompt": "True or false: PlayFromStart swings the door. IsOpen replicates. The creak calls Sense. You keep that promise by yawing the door a degree per Tick.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the overlap that starts the timeline is the real writer."
+        },
+        {
+          "id": "horror-intermediate-door-s5",
+          "kind": "mc",
+          "prompt": "PlayFromStart swings the door. IsOpen replicates. The creak calls Sense. Who may commit the change?",
+          "choices": [
+            "the overlap that starts the timeline. That keeps the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "Every client writes it so the result feels instant. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "The constructor writes it once, and Begin Overlap never fires. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense."
+          ],
+          "answer": 0,
+          "why": "the overlap that starts the timeline"
+        },
+        {
+          "id": "horror-intermediate-door-s6",
+          "kind": "mc",
+          "prompt": "PlayFromStart swings the door. IsOpen replicates. The creak calls Sense. What has to be true before Timeline writes?",
+          "choices": [
+            "someone actually entered the volume. That keeps the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "Begin Overlap has not fired and the graph is only hoping. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "Tick has run one frame even though nothing changed. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "Sense has already performed this write. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense."
+          ],
+          "answer": 0,
+          "why": "someone actually entered the volume"
+        },
+        {
+          "id": "horror-intermediate-door-s7",
+          "kind": "tf",
+          "prompt": "True or false: PlayFromStart swings the door. IsOpen replicates. The creak calls Sense. Begin Overlap is the start, and overlap is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Begin Overlap through overlap."
+        },
+        {
+          "id": "horror-intermediate-door-s8",
+          "kind": "mc",
+          "prompt": "PlayFromStart swings the door. IsOpen replicates. The creak calls Sense. Delete Begin Overlap and leave the rest of the Horror — Intermediate compiled. What does the player lose?",
+          "choices": [
+            "Timeline and the creak never starts, because nothing else fires overlap. That keeps the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "Nothing visible, because Tick still does the work. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "Sense quietly takes over the job. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "The next travel's constructor writes it. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense."
+          ],
+          "answer": 0,
+          "why": "Begin Overlap is the only start."
+        },
+        {
+          "id": "horror-intermediate-door-s9",
+          "kind": "mc",
+          "prompt": "PlayFromStart swings the door. IsOpen replicates. The creak calls Sense. Which broken schedule is the one to refuse?",
+          "choices": [
+            "yawing the door a degree per Tick. That keeps the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "Leaving the real work on Begin Overlap. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "Waiting until someone actually entered the volume before the write. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "Keeping the overlap that starts the timeline as the only writer. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense."
+          ],
+          "answer": 0,
+          "why": "yawing the door a degree per Tick"
+        },
+        {
+          "id": "horror-intermediate-door-s10",
+          "kind": "mc",
+          "prompt": "PlayFromStart swings the door. IsOpen replicates. The creak calls Sense. Sense wants to live in this same function. What stays separate?",
+          "choices": [
+            "Sense keeps its own event. This function only handles PlayFromStart on the timeline, then FlipFlop writes IsOpen. That keeps the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "Sense is inlined so one Tick serves both jobs. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "Sense writes the value from the client. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "Sense runs inside OnRep after this write. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "horror-intermediate-door-s11",
+          "kind": "mc",
+          "prompt": "PlayFromStart swings the door. IsOpen replicates. The creak calls Sense. A teammate also applies the write from OnRep, so the game need not wait for the overlap that starts the timeline. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "The widget stops drawing until Tick resumes. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "Begin Overlap stops firing. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "horror-intermediate-door-s12",
+          "kind": "mc",
+          "prompt": "PlayFromStart swings the door. IsOpen replicates. The creak calls Sense. Which gate sits immediately in front of the write?",
+          "choices": [
+            "someone actually entered the volume, reached from Begin Overlap via overlap. That keeps the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "A Tick frame, even when Begin Overlap is idle. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "A cast to every Blueprint that might show up. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense."
+          ],
+          "answer": 0,
+          "why": "someone actually entered the volume is the gate."
+        }
+      ]
+    },
+    "limbs": {
+      "plainEnglish": "In plain English: Even in co-op horror the server writes the limb. A normal hit floors at 10% of max. What the function actually does is Health written only on the authority, then OnRep plays the local reaction. the authority, inside HasAuthority is who is allowed to do it.",
+      "whyGame": "In a real match, letting every client subtract Health, or subtracting again inside OnRep looks almost right and then costs a query, a desync, or a double write. the local hit reaction stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Co-op limbs listener",
+          "detail": "A follow-on in Horror — Intermediate should bind to Any Damage after a real damage event has arrived. It should not poll co-op limbs."
+        },
+        {
+          "title": "Co-op limbs data",
+          "detail": "Numbers a designer tunes for co-op limbs belong on a data row. Health written only on the authority, then OnRep plays the local reaction can read that row without a new function."
+        },
+        {
+          "title": "Co-op limbs neighbor",
+          "detail": "the local hit reaction must not be implemented inside Has Authority. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "horror-intermediate-limbs-s1",
+          "kind": "mc",
+          "prompt": "Even in co-op horror the server writes the limb. A normal hit floors at 10% of max. When `if (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_replicated-health_auth` runs, what does the player get?",
+          "choices": [
+            "Health written only on the authority, then OnRep plays the local reaction. That keeps the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "The line letting every client subtract Health, or subtracting again inside OnRep. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "The constructor writes the result before a pawn exists. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "the local hit reaction overwrites the value on every client. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max."
+          ],
+          "answer": 0,
+          "why": "Health written only on the authority, then OnRep plays the local reaction"
+        },
+        {
+          "id": "horror-intermediate-limbs-s2",
+          "kind": "mc",
+          "prompt": "Even in co-op horror the server writes the limb. A normal hit floors at 10% of max. Where does Has Authority sit relative to Any Damage?",
+          "choices": [
+            "Has Authority runs after a real damage event has arrived. Any Damage reaches that gate through the damage event. That keeps the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "Has Authority runs before Any Damage, so the write does not wait for the player. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "Has Authority sits on Tick while Any Damage is idle. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "Has Authority sits in OnRep and applies the change a second time. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max."
+          ],
+          "answer": 0,
+          "why": "Any Damage is the start."
+        },
+        {
+          "id": "horror-intermediate-limbs-s3",
+          "kind": "tf",
+          "prompt": "True or false: Even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Even in co-op horror the server writes the limb. A normal hit floors at 10% of max."
+        },
+        {
+          "id": "horror-intermediate-limbs-s4",
+          "kind": "tf",
+          "prompt": "True or false: Even in co-op horror the server writes the limb. A normal hit floors at 10% of max. You keep that promise by letting every client subtract Health, or subtracting again inside OnRep.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the authority, inside HasAuthority is the real writer."
+        },
+        {
+          "id": "horror-intermediate-limbs-s5",
+          "kind": "mc",
+          "prompt": "Even in co-op horror the server writes the limb. A normal hit floors at 10% of max. Who may commit the change?",
+          "choices": [
+            "the authority, inside HasAuthority. That keeps the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "Every client writes it so the result feels instant. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "The constructor writes it once, and Any Damage never fires. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max."
+          ],
+          "answer": 0,
+          "why": "the authority, inside HasAuthority"
+        },
+        {
+          "id": "horror-intermediate-limbs-s6",
+          "kind": "mc",
+          "prompt": "Even in co-op horror the server writes the limb. A normal hit floors at 10% of max. What has to be true before Has Authority writes?",
+          "choices": [
+            "a real damage event has arrived. That keeps the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "Any Damage has not fired and the graph is only hoping. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "Tick has run one frame even though nothing changed. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "the local hit reaction has already performed this write. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max."
+          ],
+          "answer": 0,
+          "why": "a real damage event has arrived"
+        },
+        {
+          "id": "horror-intermediate-limbs-s7",
+          "kind": "tf",
+          "prompt": "True or false: Even in co-op horror the server writes the limb. A normal hit floors at 10% of max. Any Damage is the start, and the damage event is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Any Damage through the damage event."
+        },
+        {
+          "id": "horror-intermediate-limbs-s8",
+          "kind": "mc",
+          "prompt": "Even in co-op horror the server writes the limb. A normal hit floors at 10% of max. Delete Any Damage and leave the rest of the Horror — Intermediate compiled. What does the player lose?",
+          "choices": [
+            "Co-op limbs never starts, because nothing else fires the damage event. That keeps the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "Nothing visible, because Tick still does the work. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "the local hit reaction quietly takes over the job. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "The next travel's constructor writes it. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max."
+          ],
+          "answer": 0,
+          "why": "Any Damage is the only start."
+        },
+        {
+          "id": "horror-intermediate-limbs-s9",
+          "kind": "mc",
+          "prompt": "Even in co-op horror the server writes the limb. A normal hit floors at 10% of max. Which broken schedule is the one to refuse?",
+          "choices": [
+            "letting every client subtract Health, or subtracting again inside OnRep. That keeps the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "Leaving the real work on Any Damage. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "Waiting until a real damage event has arrived before the write. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "Keeping the authority, inside HasAuthority as the only writer. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max."
+          ],
+          "answer": 0,
+          "why": "letting every client subtract Health, or subtracting again inside OnRep"
+        },
+        {
+          "id": "horror-intermediate-limbs-s10",
+          "kind": "mc",
+          "prompt": "Even in co-op horror the server writes the limb. A normal hit floors at 10% of max. the local hit reaction wants to live in this same function. What stays separate?",
+          "choices": [
+            "the local hit reaction keeps its own event. This function only handles Health written only on the authority, then OnRep plays the local reaction. That keeps the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "the local hit reaction is inlined so one Tick serves both jobs. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "the local hit reaction writes the value from the client. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "the local hit reaction runs inside OnRep after this write. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "horror-intermediate-limbs-s11",
+          "kind": "mc",
+          "prompt": "Even in co-op horror the server writes the limb. A normal hit floors at 10% of max. A teammate also applies the write from OnRep, so the game need not wait for the authority, inside HasAuthority. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "The widget stops drawing until Tick resumes. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "Any Damage stops firing. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "horror-intermediate-limbs-s12",
+          "kind": "mc",
+          "prompt": "Even in co-op horror the server writes the limb. A normal hit floors at 10% of max. Which gate sits immediately in front of the write?",
+          "choices": [
+            "a real damage event has arrived, reached from Any Damage via the damage event. That keeps the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "A Tick frame, even when Any Damage is idle. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "A cast to every Blueprint that might show up. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max."
+          ],
+          "answer": 0,
+          "why": "a real damage event has arrived is the gate."
+        }
+      ]
+    },
+    "inventory": {
+      "plainEnglish": "In plain English: Overlap calls AddToSlot for a key or a fuel can. The use trace does not count. What the function actually does is AddToSlot through the interface when StackCount is positive, then the count is cleared. the overlap, not the interact trace is who is allowed to do it.",
+      "whyGame": "In a real match, incrementing the stack from the use trace, which would count a look as a pickup looks almost right and then costs a query, a desync, or a double write. the use trace stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Keys and fuel listener",
+          "detail": "A follow-on in Horror — Intermediate should bind to Begin Overlap after StackCount is greater than zero. It should not poll keys and fuel."
+        },
+        {
+          "title": "Keys and fuel data",
+          "detail": "Numbers a designer tunes for keys and fuel belong on a data row. AddToSlot through the interface when StackCount is positive, then the count is cleared can read that row without a new function."
+        },
+        {
+          "title": "Keys and fuel neighbor",
+          "detail": "the use trace must not be implemented inside Begin Overlap. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "horror-intermediate-inventory-s1",
+          "kind": "mc",
+          "prompt": "Overlap calls AddToSlot for a key or a fuel can. The use trace does not count. When `void UKitComponent::Graph_OnComponentBeginOverlap_tpl_inventoryslot_overlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor)` runs, what does the player get?",
+          "choices": [
+            "AddToSlot through the interface when StackCount is positive, then the count is cleared. That keeps the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "The line incrementing the stack from the use trace, which would count a look as a pickup. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "The constructor writes the result before a pawn exists. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "the use trace overwrites the value on every client. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count."
+          ],
+          "answer": 0,
+          "why": "AddToSlot through the interface when StackCount is positive, then the count is cleared"
+        },
+        {
+          "id": "horror-intermediate-inventory-s2",
+          "kind": "mc",
+          "prompt": "Overlap calls AddToSlot for a key or a fuel can. The use trace does not count. Where does Begin Overlap sit relative to Begin Overlap?",
+          "choices": [
+            "Begin Overlap runs after StackCount is greater than zero. Begin Overlap reaches that gate through the overlap exec. That keeps the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "Begin Overlap runs before Begin Overlap, so the write does not wait for the player. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "Begin Overlap sits on Tick while Begin Overlap is idle. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "Begin Overlap sits in OnRep and applies the change a second time. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count."
+          ],
+          "answer": 0,
+          "why": "Begin Overlap is the start."
+        },
+        {
+          "id": "horror-intermediate-inventory-s3",
+          "kind": "tf",
+          "prompt": "True or false: Overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Overlap calls AddToSlot for a key or a fuel can. The use trace does not count."
+        },
+        {
+          "id": "horror-intermediate-inventory-s4",
+          "kind": "tf",
+          "prompt": "True or false: Overlap calls AddToSlot for a key or a fuel can. The use trace does not count. You keep that promise by incrementing the stack from the use trace, which would count a look as a pickup.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the overlap, not the interact trace is the real writer."
+        },
+        {
+          "id": "horror-intermediate-inventory-s5",
+          "kind": "mc",
+          "prompt": "Overlap calls AddToSlot for a key or a fuel can. The use trace does not count. Who may commit the change?",
+          "choices": [
+            "the overlap, not the interact trace. That keeps the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "Every client writes it so the result feels instant. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "The constructor writes it once, and Begin Overlap never fires. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count."
+          ],
+          "answer": 0,
+          "why": "the overlap, not the interact trace"
+        },
+        {
+          "id": "horror-intermediate-inventory-s6",
+          "kind": "mc",
+          "prompt": "Overlap calls AddToSlot for a key or a fuel can. The use trace does not count. What has to be true before Begin Overlap writes?",
+          "choices": [
+            "StackCount is greater than zero. That keeps the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "Begin Overlap has not fired and the graph is only hoping. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "Tick has run one frame even though nothing changed. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "the use trace has already performed this write. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count."
+          ],
+          "answer": 0,
+          "why": "StackCount is greater than zero"
+        },
+        {
+          "id": "horror-intermediate-inventory-s7",
+          "kind": "tf",
+          "prompt": "True or false: Overlap calls AddToSlot for a key or a fuel can. The use trace does not count. Begin Overlap is the start, and the overlap exec is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Begin Overlap through the overlap exec."
+        },
+        {
+          "id": "horror-intermediate-inventory-s8",
+          "kind": "mc",
+          "prompt": "Overlap calls AddToSlot for a key or a fuel can. The use trace does not count. Delete Begin Overlap and leave the rest of the Horror — Intermediate compiled. What does the player lose?",
+          "choices": [
+            "Keys and fuel never starts, because nothing else fires the overlap exec. That keeps the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "Nothing visible, because Tick still does the work. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "the use trace quietly takes over the job. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "The next travel's constructor writes it. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count."
+          ],
+          "answer": 0,
+          "why": "Begin Overlap is the only start."
+        },
+        {
+          "id": "horror-intermediate-inventory-s9",
+          "kind": "mc",
+          "prompt": "Overlap calls AddToSlot for a key or a fuel can. The use trace does not count. Which broken schedule is the one to refuse?",
+          "choices": [
+            "incrementing the stack from the use trace, which would count a look as a pickup. That keeps the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "Leaving the real work on Begin Overlap. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "Waiting until StackCount is greater than zero before the write. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "Keeping the overlap, not the interact trace as the only writer. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count."
+          ],
+          "answer": 0,
+          "why": "incrementing the stack from the use trace, which would count a look as a pickup"
+        },
+        {
+          "id": "horror-intermediate-inventory-s10",
+          "kind": "mc",
+          "prompt": "Overlap calls AddToSlot for a key or a fuel can. The use trace does not count. the use trace wants to live in this same function. What stays separate?",
+          "choices": [
+            "the use trace keeps its own event. This function only handles AddToSlot through the interface when StackCount is positive, then the count is cleared. That keeps the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "the use trace is inlined so one Tick serves both jobs. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "the use trace writes the value from the client. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "the use trace runs inside OnRep after this write. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "horror-intermediate-inventory-s11",
+          "kind": "mc",
+          "prompt": "Overlap calls AddToSlot for a key or a fuel can. The use trace does not count. A teammate also applies the write from OnRep, so the game need not wait for the overlap, not the interact trace. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "The widget stops drawing until Tick resumes. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "Begin Overlap stops firing. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "horror-intermediate-inventory-s12",
+          "kind": "mc",
+          "prompt": "Overlap calls AddToSlot for a key or a fuel can. The use trace does not count. Which gate sits immediately in front of the write?",
+          "choices": [
+            "StackCount is greater than zero, reached from Begin Overlap via the overlap exec. That keeps the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "A Tick frame, even when Begin Overlap is idle. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "A cast to every Blueprint that might show up. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count."
+          ],
+          "answer": 0,
+          "why": "StackCount is greater than zero is the gate."
+        }
+      ]
+    },
+    "fear": {
+      "plainEnglish": "In plain English: OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick. What the function actually does is a one second timer that broadcasts OnEffect, which is the fear or cost reaction. the timer started at Begin Play is who is allowed to do it.",
+      "whyGame": "In a real match, broadcasting OnEffect from Tick, or also subtracting the cost by hand looks almost right and then costs a query, a desync, or a double write. the health float stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Fear as an effect listener",
+          "detail": "A follow-on in Horror — Intermediate should bind to ApplyEffect after the effect's timer elapses. It should not poll fear as an effect."
+        },
+        {
+          "title": "Fear as an effect data",
+          "detail": "Numbers a designer tunes for fear as an effect belong on a data row. a one second timer that broadcasts OnEffect, which is the fear or cost reaction can read that row without a new function."
+        },
+        {
+          "title": "Fear as an effect neighbor",
+          "detail": "the health float must not be implemented inside Apply Effect. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "horror-intermediate-fear-s1",
+          "kind": "mc",
+          "prompt": "OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick. When `void UKitComponent::Graph_ApplyEffect_tpl_gaseffect_apply() // node:tpl_gas-effect_apply` runs, what does the player get?",
+          "choices": [
+            "a one second timer that broadcasts OnEffect, which is the fear or cost reaction. That keeps the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "The line broadcasting OnEffect from Tick, or also subtracting the cost by hand. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "The constructor writes the result before a pawn exists. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "the health float overwrites the value on every client. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick."
+          ],
+          "answer": 0,
+          "why": "a one second timer that broadcasts OnEffect, which is the fear or cost reaction"
+        },
+        {
+          "id": "horror-intermediate-fear-s2",
+          "kind": "mc",
+          "prompt": "OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick. Where does Apply Effect sit relative to ApplyEffect?",
+          "choices": [
+            "Apply Effect runs after the effect's timer elapses. ApplyEffect reaches that gate through the timer. That keeps the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "Apply Effect runs before ApplyEffect, so the write does not wait for the player. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "Apply Effect sits on Tick while ApplyEffect is idle. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "Apply Effect sits in OnRep and applies the change a second time. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick."
+          ],
+          "answer": 0,
+          "why": "ApplyEffect is the start."
+        },
+        {
+          "id": "horror-intermediate-fear-s3",
+          "kind": "tf",
+          "prompt": "True or false: OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick."
+        },
+        {
+          "id": "horror-intermediate-fear-s4",
+          "kind": "tf",
+          "prompt": "True or false: OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick. You keep that promise by broadcasting OnEffect from Tick, or also subtracting the cost by hand.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the timer started at Begin Play is the real writer."
+        },
+        {
+          "id": "horror-intermediate-fear-s5",
+          "kind": "mc",
+          "prompt": "OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick. Who may commit the change?",
+          "choices": [
+            "the timer started at Begin Play. That keeps the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "Every client writes it so the result feels instant. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "The constructor writes it once, and ApplyEffect never fires. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick."
+          ],
+          "answer": 0,
+          "why": "the timer started at Begin Play"
+        },
+        {
+          "id": "horror-intermediate-fear-s6",
+          "kind": "mc",
+          "prompt": "OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick. What has to be true before Apply Effect writes?",
+          "choices": [
+            "the effect's timer elapses. That keeps the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "ApplyEffect has not fired and the graph is only hoping. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "Tick has run one frame even though nothing changed. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "the health float has already performed this write. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick."
+          ],
+          "answer": 0,
+          "why": "the effect's timer elapses"
+        },
+        {
+          "id": "horror-intermediate-fear-s7",
+          "kind": "tf",
+          "prompt": "True or false: OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick. ApplyEffect is the start, and the timer is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "ApplyEffect through the timer."
+        },
+        {
+          "id": "horror-intermediate-fear-s8",
+          "kind": "mc",
+          "prompt": "OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick. Delete ApplyEffect and leave the rest of the Horror — Intermediate compiled. What does the player lose?",
+          "choices": [
+            "Fear as an effect never starts, because nothing else fires the timer. That keeps the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "Nothing visible, because Tick still does the work. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "the health float quietly takes over the job. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "The next travel's constructor writes it. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick."
+          ],
+          "answer": 0,
+          "why": "ApplyEffect is the only start."
+        },
+        {
+          "id": "horror-intermediate-fear-s9",
+          "kind": "mc",
+          "prompt": "OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick. Which broken schedule is the one to refuse?",
+          "choices": [
+            "broadcasting OnEffect from Tick, or also subtracting the cost by hand. That keeps the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "Leaving the real work on ApplyEffect. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "Waiting until the effect's timer elapses before the write. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "Keeping the timer started at Begin Play as the only writer. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick."
+          ],
+          "answer": 0,
+          "why": "broadcasting OnEffect from Tick, or also subtracting the cost by hand"
+        },
+        {
+          "id": "horror-intermediate-fear-s10",
+          "kind": "mc",
+          "prompt": "OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick. the health float wants to live in this same function. What stays separate?",
+          "choices": [
+            "the health float keeps its own event. This function only handles a one second timer that broadcasts OnEffect, which is the fear or cost reaction. That keeps the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "the health float is inlined so one Tick serves both jobs. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "the health float writes the value from the client. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "the health float runs inside OnRep after this write. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "horror-intermediate-fear-s11",
+          "kind": "mc",
+          "prompt": "OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick. A teammate also applies the write from OnRep, so the game need not wait for the timer started at Begin Play. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "The widget stops drawing until Tick resumes. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "ApplyEffect stops firing. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "horror-intermediate-fear-s12",
+          "kind": "mc",
+          "prompt": "OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick. Which gate sits immediately in front of the write?",
+          "choices": [
+            "the effect's timer elapses, reached from ApplyEffect via the timer. That keeps the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "A Tick frame, even when ApplyEffect is idle. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "A cast to every Blueprint that might show up. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that onEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick."
+          ],
+          "answer": 0,
+          "why": "the effect's timer elapses is the gate."
+        }
+      ]
+    },
+    "save": {
+      "plainEnglish": "In plain English: Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak. What the function actually does is one struct loaded at Begin Play, written earlier by an event rather than by Tick. Begin Play for the load, and a finished event for the save is who is allowed to do it.",
+      "whyGame": "In a real match, assigning SlotValue from Tick every frame, including while a value is still changing looks almost right and then costs a query, a desync, or a double write. Tick stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Save the night listener",
+          "detail": "A follow-on in Horror — Intermediate should bind to Begin Play after the slot struct already exists. It should not poll save the night."
+        },
+        {
+          "title": "Save the night data",
+          "detail": "Numbers a designer tunes for save the night belong on a data row. one struct loaded at Begin Play, written earlier by an event rather than by Tick can read that row without a new function."
+        },
+        {
+          "title": "Save the night neighbor",
+          "detail": "Tick must not be implemented inside Begin Play. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "horror-intermediate-save-s1",
+          "kind": "mc",
+          "prompt": "Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak. When `void UKitComponent::Graph_BeginPlay_tpl_saveload_begin() // node:tpl_save-load_begin` runs, what does the player get?",
+          "choices": [
+            "one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "The line assigning SlotValue from Tick every frame, including while a value is still changing. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "The constructor writes the result before a pawn exists. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "Tick overwrites the value on every client. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak."
+          ],
+          "answer": 0,
+          "why": "one struct loaded at Begin Play, written earlier by an event rather than by Tick"
+        },
+        {
+          "id": "horror-intermediate-save-s2",
+          "kind": "mc",
+          "prompt": "Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak. Where does Begin Play sit relative to Begin Play?",
+          "choices": [
+            "Begin Play runs after the slot struct already exists. Begin Play reaches that gate through Begin Play. That keeps the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "Begin Play runs before Begin Play, so the write does not wait for the player. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "Begin Play sits on Tick while Begin Play is idle. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "Begin Play sits in OnRep and applies the change a second time. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak."
+          ],
+          "answer": 0,
+          "why": "Begin Play is the start."
+        },
+        {
+          "id": "horror-intermediate-save-s3",
+          "kind": "tf",
+          "prompt": "True or false: Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak."
+        },
+        {
+          "id": "horror-intermediate-save-s4",
+          "kind": "tf",
+          "prompt": "True or false: Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak. You keep that promise by assigning SlotValue from Tick every frame, including while a value is still changing.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Begin Play for the load, and a finished event for the save is the real writer."
+        },
+        {
+          "id": "horror-intermediate-save-s5",
+          "kind": "mc",
+          "prompt": "Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak. Who may commit the change?",
+          "choices": [
+            "Begin Play for the load, and a finished event for the save. That keeps the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "Every client writes it so the result feels instant. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "The constructor writes it once, and Begin Play never fires. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak."
+          ],
+          "answer": 0,
+          "why": "Begin Play for the load, and a finished event for the save"
+        },
+        {
+          "id": "horror-intermediate-save-s6",
+          "kind": "mc",
+          "prompt": "Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak. What has to be true before Begin Play writes?",
+          "choices": [
+            "the slot struct already exists. That keeps the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "Begin Play has not fired and the graph is only hoping. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "Tick has run one frame even though nothing changed. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "Tick has already performed this write. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak."
+          ],
+          "answer": 0,
+          "why": "the slot struct already exists"
+        },
+        {
+          "id": "horror-intermediate-save-s7",
+          "kind": "tf",
+          "prompt": "True or false: Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak. Begin Play is the start, and Begin Play is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Begin Play through Begin Play."
+        },
+        {
+          "id": "horror-intermediate-save-s8",
+          "kind": "mc",
+          "prompt": "Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak. Delete Begin Play and leave the rest of the Horror — Intermediate compiled. What does the player lose?",
+          "choices": [
+            "Save the night never starts, because nothing else fires Begin Play. That keeps the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "Nothing visible, because Tick still does the work. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "Tick quietly takes over the job. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "The next travel's constructor writes it. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak."
+          ],
+          "answer": 0,
+          "why": "Begin Play is the only start."
+        },
+        {
+          "id": "horror-intermediate-save-s9",
+          "kind": "mc",
+          "prompt": "Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak. Which broken schedule is the one to refuse?",
+          "choices": [
+            "assigning SlotValue from Tick every frame, including while a value is still changing. That keeps the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "Leaving the real work on Begin Play. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "Waiting until the slot struct already exists before the write. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "Keeping Begin Play for the load, and a finished event for the save as the only writer. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak."
+          ],
+          "answer": 0,
+          "why": "assigning SlotValue from Tick every frame, including while a value is still changing"
+        },
+        {
+          "id": "horror-intermediate-save-s10",
+          "kind": "mc",
+          "prompt": "Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak. Tick wants to live in this same function. What stays separate?",
+          "choices": [
+            "Tick keeps its own event. This function only handles one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "Tick is inlined so one Tick serves both jobs. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "Tick writes the value from the client. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "Tick runs inside OnRep after this write. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "horror-intermediate-save-s11",
+          "kind": "mc",
+          "prompt": "Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak. A teammate also applies the write from OnRep, so the game need not wait for Begin Play for the load, and a finished event for the save. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "The widget stops drawing until Tick resumes. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "Begin Play stops firing. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "horror-intermediate-save-s12",
+          "kind": "mc",
+          "prompt": "Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak. Which gate sits immediately in front of the write?",
+          "choices": [
+            "the slot struct already exists, reached from Begin Play via Begin Play. That keeps the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "A Tick frame, even when Begin Play is idle. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "A cast to every Blueprint that might show up. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak."
+          ],
+          "answer": 0,
+          "why": "the slot struct already exists is the gate."
+        }
+      ]
+    }
+  },
+  "exam": [
+    {
+      "id": "study-horror-intermediate-exam-0",
+      "kind": "tf",
+      "prompt": "True or false: Sight and a creak share Sense. Alert becomes 1 only on a clear trace. One Interact call covers the fuse, the door, and the hide lever. That pair of rules also means fuse, door, hide may tracing on Tick so a prompt stays fresh while the player stands still.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Stalker's senses does not give Fuse, door, hide permission to tracing on Tick so a prompt stays fresh while the player stands still."
+    },
+    {
+      "id": "study-horror-intermediate-exam-1",
+      "kind": "tf",
+      "prompt": "True or false: Sight and a creak share Sense. Alert becomes 1 only on a clear trace. AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. Stalker's senses still starts at Sense after the player has learned leaving the route.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "Sense remains the start of Stalker's senses."
+    },
+    {
+      "id": "study-horror-intermediate-exam-2",
+      "kind": "mc",
+      "prompt": "Sight and a creak share Sense. Alert becomes 1 only on a clear trace. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense. A prototype runs both jobs from Begin Overlap. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Stalker's senses keeps Sense so it can a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. Timeline and the creak keeps Begin Overlap so it can PlayFromStart on the timeline, then FlipFlop writes IsOpen. That keeps the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+        "Fold the first job into Begin Overlap so the exam build has one event. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+        "Let each client apply both writes before the authority answers. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-3",
+      "kind": "mc",
+      "prompt": "Sight and a creak share Sense. Alert becomes 1 only on a clear trace. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max. A prototype runs both jobs from Any Damage. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Stalker's senses keeps Sense so it can a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. Co-op limbs keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. That keeps the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+        "Fold the first job into Any Damage so the exam build has one event. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+        "Let each client apply both writes before the authority answers. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-4",
+      "kind": "mc",
+      "prompt": "Sight and a creak share Sense. Alert becomes 1 only on a clear trace. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count. A prototype runs both jobs from Begin Overlap. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Stalker's senses keeps Sense so it can a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. Keys and fuel keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. That keeps the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+        "Fold the first job into Begin Overlap so the exam build has one event. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+        "Let each client apply both writes before the authority answers. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-5",
+      "kind": "mc",
+      "prompt": "Sight and a creak share Sense. Alert becomes 1 only on a clear trace. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick. A prototype runs both jobs from ApplyEffect. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Stalker's senses keeps Sense so it can a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. Fear as an effect keeps ApplyEffect so it can a one second timer that broadcasts OnEffect, which is the fear or cost reaction. That keeps the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+        "Fold the first job into ApplyEffect so the exam build has one event. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+        "Let each client apply both writes before the authority answers. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-6",
+      "kind": "mc",
+      "prompt": "Sight and a creak share Sense. Alert becomes 1 only on a clear trace. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak. A prototype runs both jobs from Begin Play. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Stalker's senses keeps Sense so it can a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. Save the night keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+        "Let each client apply both writes before the authority answers. That would break the rule that sight and a creak share Sense. Alert becomes 1 only on a clear trace. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-7",
+      "kind": "tf",
+      "prompt": "True or false: One Interact call covers the fuse, the door, and the hide lever. Sight and a creak share Sense. Alert becomes 1 only on a clear trace. That pair of rules also means stalker's senses may tracing from Tick, or giving a loud sound its own second brain.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Fuse, door, hide does not give Stalker's senses permission to tracing from Tick, or giving a loud sound its own second brain."
+    },
+    {
+      "id": "study-horror-intermediate-exam-8",
+      "kind": "tf",
+      "prompt": "True or false: One Interact call covers the fuse, the door, and the hide lever. AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. Fuse, door, hide still starts at IA_Interact after the player has learned leaving the route.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "IA_Interact remains the start of Fuse, door, hide."
+    },
+    {
+      "id": "study-horror-intermediate-exam-9",
+      "kind": "mc",
+      "prompt": "One Interact call covers the fuse, the door, and the hide lever. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense. A prototype runs both jobs from Begin Overlap. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Fuse, door, hide keeps IA_Interact so it can a line trace from the aim, then Interact on the actor that was hit. Timeline and the creak keeps Begin Overlap so it can PlayFromStart on the timeline, then FlipFlop writes IsOpen. That keeps the rule that one Interact call covers the fuse, the door, and the hide lever. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+        "Fold the first job into Begin Overlap so the exam build has one event. That would break the rule that one Interact call covers the fuse, the door, and the hide lever. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that one Interact call covers the fuse, the door, and the hide lever. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+        "Let each client apply both writes before the authority answers. That would break the rule that one Interact call covers the fuse, the door, and the hide lever. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-10",
+      "kind": "mc",
+      "prompt": "One Interact call covers the fuse, the door, and the hide lever. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max. A prototype runs both jobs from Any Damage. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Fuse, door, hide keeps IA_Interact so it can a line trace from the aim, then Interact on the actor that was hit. Co-op limbs keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. That keeps the rule that one Interact call covers the fuse, the door, and the hide lever. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+        "Fold the first job into Any Damage so the exam build has one event. That would break the rule that one Interact call covers the fuse, the door, and the hide lever. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that one Interact call covers the fuse, the door, and the hide lever. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+        "Let each client apply both writes before the authority answers. That would break the rule that one Interact call covers the fuse, the door, and the hide lever. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-11",
+      "kind": "mc",
+      "prompt": "One Interact call covers the fuse, the door, and the hide lever. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count. A prototype runs both jobs from Begin Overlap. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Fuse, door, hide keeps IA_Interact so it can a line trace from the aim, then Interact on the actor that was hit. Keys and fuel keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. That keeps the rule that one Interact call covers the fuse, the door, and the hide lever. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+        "Fold the first job into Begin Overlap so the exam build has one event. That would break the rule that one Interact call covers the fuse, the door, and the hide lever. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that one Interact call covers the fuse, the door, and the hide lever. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+        "Let each client apply both writes before the authority answers. That would break the rule that one Interact call covers the fuse, the door, and the hide lever. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-12",
+      "kind": "mc",
+      "prompt": "One Interact call covers the fuse, the door, and the hide lever. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick. A prototype runs both jobs from ApplyEffect. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Fuse, door, hide keeps IA_Interact so it can a line trace from the aim, then Interact on the actor that was hit. Fear as an effect keeps ApplyEffect so it can a one second timer that broadcasts OnEffect, which is the fear or cost reaction. That keeps the rule that one Interact call covers the fuse, the door, and the hide lever. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+        "Fold the first job into ApplyEffect so the exam build has one event. That would break the rule that one Interact call covers the fuse, the door, and the hide lever. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that one Interact call covers the fuse, the door, and the hide lever. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+        "Let each client apply both writes before the authority answers. That would break the rule that one Interact call covers the fuse, the door, and the hide lever. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-13",
+      "kind": "mc",
+      "prompt": "One Interact call covers the fuse, the door, and the hide lever. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak. A prototype runs both jobs from Begin Play. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Fuse, door, hide keeps IA_Interact so it can a line trace from the aim, then Interact on the actor that was hit. Save the night keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that one Interact call covers the fuse, the door, and the hide lever. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that one Interact call covers the fuse, the door, and the hide lever. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that one Interact call covers the fuse, the door, and the hide lever. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+        "Let each client apply both writes before the authority answers. That would break the rule that one Interact call covers the fuse, the door, and the hide lever. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-14",
+      "kind": "tf",
+      "prompt": "True or false: AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. Sight and a creak share Sense. Alert becomes 1 only on a clear trace. That pair of rules also means stalker's senses may tracing from Tick, or giving a loud sound its own second brain.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Leaving the route does not give Stalker's senses permission to tracing from Tick, or giving a loud sound its own second brain."
+    },
+    {
+      "id": "study-horror-intermediate-exam-15",
+      "kind": "tf",
+      "prompt": "True or false: AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. One Interact call covers the fuse, the door, and the hide lever. Leaving the route still starts at AdvancePatrol after the player has learned fuse, door, hide.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "AdvancePatrol remains the start of Leaving the route."
+    },
+    {
+      "id": "study-horror-intermediate-exam-16",
+      "kind": "mc",
+      "prompt": "AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense. A prototype runs both jobs from Begin Overlap. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Leaving the route keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. Timeline and the creak keeps Begin Overlap so it can PlayFromStart on the timeline, then FlipFlop writes IsOpen. That keeps the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+        "Fold the first job into Begin Overlap so the exam build has one event. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+        "Let each client apply both writes before the authority answers. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-17",
+      "kind": "mc",
+      "prompt": "AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max. A prototype runs both jobs from Any Damage. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Leaving the route keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. Co-op limbs keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. That keeps the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+        "Fold the first job into Any Damage so the exam build has one event. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+        "Let each client apply both writes before the authority answers. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-18",
+      "kind": "mc",
+      "prompt": "AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count. A prototype runs both jobs from Begin Overlap. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Leaving the route keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. Keys and fuel keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. That keeps the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+        "Fold the first job into Begin Overlap so the exam build has one event. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+        "Let each client apply both writes before the authority answers. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-19",
+      "kind": "mc",
+      "prompt": "AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick. A prototype runs both jobs from ApplyEffect. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Leaving the route keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. Fear as an effect keeps ApplyEffect so it can a one second timer that broadcasts OnEffect, which is the fear or cost reaction. That keeps the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+        "Fold the first job into ApplyEffect so the exam build has one event. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+        "Let each client apply both writes before the authority answers. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-20",
+      "kind": "mc",
+      "prompt": "AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak. A prototype runs both jobs from Begin Play. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Leaving the route keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. Save the night keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+        "Let each client apply both writes before the authority answers. That would break the rule that advancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-21",
+      "kind": "tf",
+      "prompt": "True or false: PlayFromStart swings the door. IsOpen replicates. The creak calls Sense. Sight and a creak share Sense. Alert becomes 1 only on a clear trace. That pair of rules also means stalker's senses may tracing from Tick, or giving a loud sound its own second brain.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Timeline and the creak does not give Stalker's senses permission to tracing from Tick, or giving a loud sound its own second brain."
+    },
+    {
+      "id": "study-horror-intermediate-exam-22",
+      "kind": "tf",
+      "prompt": "True or false: PlayFromStart swings the door. IsOpen replicates. The creak calls Sense. One Interact call covers the fuse, the door, and the hide lever. Timeline and the creak still starts at Begin Overlap after the player has learned fuse, door, hide.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "Begin Overlap remains the start of Timeline and the creak."
+    },
+    {
+      "id": "study-horror-intermediate-exam-23",
+      "kind": "mc",
+      "prompt": "PlayFromStart swings the door. IsOpen replicates. The creak calls Sense. AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. A prototype runs both jobs from AdvancePatrol. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Timeline and the creak keeps Begin Overlap so it can PlayFromStart on the timeline, then FlipFlop writes IsOpen. Leaving the route keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense. AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+        "Fold the first job into AdvancePatrol so the exam build has one event. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense. AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense. AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+        "Let each client apply both writes before the authority answers. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense. AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-24",
+      "kind": "mc",
+      "prompt": "PlayFromStart swings the door. IsOpen replicates. The creak calls Sense. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max. A prototype runs both jobs from Any Damage. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Timeline and the creak keeps Begin Overlap so it can PlayFromStart on the timeline, then FlipFlop writes IsOpen. Co-op limbs keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. That keeps the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+        "Fold the first job into Any Damage so the exam build has one event. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+        "Let each client apply both writes before the authority answers. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-25",
+      "kind": "mc",
+      "prompt": "PlayFromStart swings the door. IsOpen replicates. The creak calls Sense. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count. A prototype runs both jobs from Begin Overlap. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Timeline and the creak keeps Begin Overlap so it can PlayFromStart on the timeline, then FlipFlop writes IsOpen. Keys and fuel keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. That keeps the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+        "Fold the first job into Begin Overlap so the exam build has one event. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+        "Let each client apply both writes before the authority answers. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-26",
+      "kind": "mc",
+      "prompt": "PlayFromStart swings the door. IsOpen replicates. The creak calls Sense. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick. A prototype runs both jobs from ApplyEffect. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Timeline and the creak keeps Begin Overlap so it can PlayFromStart on the timeline, then FlipFlop writes IsOpen. Fear as an effect keeps ApplyEffect so it can a one second timer that broadcasts OnEffect, which is the fear or cost reaction. That keeps the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+        "Fold the first job into ApplyEffect so the exam build has one event. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+        "Let each client apply both writes before the authority answers. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-27",
+      "kind": "mc",
+      "prompt": "PlayFromStart swings the door. IsOpen replicates. The creak calls Sense. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak. A prototype runs both jobs from Begin Play. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Timeline and the creak keeps Begin Overlap so it can PlayFromStart on the timeline, then FlipFlop writes IsOpen. Save the night keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+        "Let each client apply both writes before the authority answers. That would break the rule that playFromStart swings the door. IsOpen replicates. The creak calls Sense. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-28",
+      "kind": "tf",
+      "prompt": "True or false: Even in co-op horror the server writes the limb. A normal hit floors at 10% of max. Sight and a creak share Sense. Alert becomes 1 only on a clear trace. That pair of rules also means stalker's senses may tracing from Tick, or giving a loud sound its own second brain.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Co-op limbs does not give Stalker's senses permission to tracing from Tick, or giving a loud sound its own second brain."
+    },
+    {
+      "id": "study-horror-intermediate-exam-29",
+      "kind": "tf",
+      "prompt": "True or false: Even in co-op horror the server writes the limb. A normal hit floors at 10% of max. One Interact call covers the fuse, the door, and the hide lever. Co-op limbs still starts at Any Damage after the player has learned fuse, door, hide.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "Any Damage remains the start of Co-op limbs."
+    },
+    {
+      "id": "study-horror-intermediate-exam-30",
+      "kind": "mc",
+      "prompt": "Even in co-op horror the server writes the limb. A normal hit floors at 10% of max. AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. A prototype runs both jobs from AdvancePatrol. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Co-op limbs keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. Leaving the route keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max. AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+        "Fold the first job into AdvancePatrol so the exam build has one event. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max. AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max. AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+        "Let each client apply both writes before the authority answers. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max. AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-31",
+      "kind": "mc",
+      "prompt": "Even in co-op horror the server writes the limb. A normal hit floors at 10% of max. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense. A prototype runs both jobs from Begin Overlap. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Co-op limbs keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. Timeline and the creak keeps Begin Overlap so it can PlayFromStart on the timeline, then FlipFlop writes IsOpen. That keeps the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+        "Fold the first job into Begin Overlap so the exam build has one event. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+        "Let each client apply both writes before the authority answers. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-32",
+      "kind": "mc",
+      "prompt": "Even in co-op horror the server writes the limb. A normal hit floors at 10% of max. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count. A prototype runs both jobs from Begin Overlap. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Co-op limbs keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. Keys and fuel keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. That keeps the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+        "Fold the first job into Begin Overlap so the exam build has one event. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count.",
+        "Let each client apply both writes before the authority answers. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max. Overlap calls AddToSlot for a key or a fuel can. The use trace does not count."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-33",
+      "kind": "mc",
+      "prompt": "Even in co-op horror the server writes the limb. A normal hit floors at 10% of max. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick. A prototype runs both jobs from ApplyEffect. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Co-op limbs keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. Fear as an effect keeps ApplyEffect so it can a one second timer that broadcasts OnEffect, which is the fear or cost reaction. That keeps the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+        "Fold the first job into ApplyEffect so the exam build has one event. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+        "Let each client apply both writes before the authority answers. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-34",
+      "kind": "mc",
+      "prompt": "Even in co-op horror the server writes the limb. A normal hit floors at 10% of max. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak. A prototype runs both jobs from Begin Play. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Co-op limbs keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. Save the night keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+        "Let each client apply both writes before the authority answers. That would break the rule that even in co-op horror the server writes the limb. A normal hit floors at 10% of max. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-35",
+      "kind": "tf",
+      "prompt": "True or false: Overlap calls AddToSlot for a key or a fuel can. The use trace does not count. Sight and a creak share Sense. Alert becomes 1 only on a clear trace. That pair of rules also means stalker's senses may tracing from Tick, or giving a loud sound its own second brain.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Keys and fuel does not give Stalker's senses permission to tracing from Tick, or giving a loud sound its own second brain."
+    },
+    {
+      "id": "study-horror-intermediate-exam-36",
+      "kind": "tf",
+      "prompt": "True or false: Overlap calls AddToSlot for a key or a fuel can. The use trace does not count. One Interact call covers the fuse, the door, and the hide lever. Keys and fuel still starts at Begin Overlap after the player has learned fuse, door, hide.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "Begin Overlap remains the start of Keys and fuel."
+    },
+    {
+      "id": "study-horror-intermediate-exam-37",
+      "kind": "mc",
+      "prompt": "Overlap calls AddToSlot for a key or a fuel can. The use trace does not count. AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase. A prototype runs both jobs from AdvancePatrol. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Keys and fuel keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. Leaving the route keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count. AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+        "Fold the first job into AdvancePatrol so the exam build has one event. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count. AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count. AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase.",
+        "Let each client apply both writes before the authority answers. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count. AdvancePatrol keeps the route. Alert at 1 leaves it. A miss decays the chase."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-38",
+      "kind": "mc",
+      "prompt": "Overlap calls AddToSlot for a key or a fuel can. The use trace does not count. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense. A prototype runs both jobs from Begin Overlap. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Keys and fuel keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. Timeline and the creak keeps Begin Overlap so it can PlayFromStart on the timeline, then FlipFlop writes IsOpen. That keeps the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+        "Fold the first job into Begin Overlap so the exam build has one event. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense.",
+        "Let each client apply both writes before the authority answers. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count. PlayFromStart swings the door. IsOpen replicates. The creak calls Sense."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-39",
+      "kind": "mc",
+      "prompt": "Overlap calls AddToSlot for a key or a fuel can. The use trace does not count. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max. A prototype runs both jobs from Any Damage. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Keys and fuel keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. Co-op limbs keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. That keeps the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+        "Fold the first job into Any Damage so the exam build has one event. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max.",
+        "Let each client apply both writes before the authority answers. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count. Even in co-op horror the server writes the limb. A normal hit floors at 10% of max."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-40",
+      "kind": "mc",
+      "prompt": "Overlap calls AddToSlot for a key or a fuel can. The use trace does not count. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick. A prototype runs both jobs from ApplyEffect. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Keys and fuel keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. Fear as an effect keeps ApplyEffect so it can a one second timer that broadcasts OnEffect, which is the fear or cost reaction. That keeps the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+        "Fold the first job into ApplyEffect so the exam build has one event. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick.",
+        "Let each client apply both writes before the authority answers. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count. OnEffect broadcasts when Alert stays high. ApplyEffect is a timer, not Tick."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-horror-intermediate-exam-41",
+      "kind": "mc",
+      "prompt": "Overlap calls AddToSlot for a key or a fuel can. The use trace does not count. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak. A prototype runs both jobs from Begin Play. What do you put back in Horror — Intermediate?",
+      "choices": [
+        "Keys and fuel keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. Save the night keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak.",
+        "Let each client apply both writes before the authority answers. That would break the rule that overlap calls AddToSlot for a key or a fuel can. The use trace does not count. Begin Play restores Alert, the limb, IsOpen, and the key count without replaying the creak."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    }
+  ],
+  "repairWrongs": {
+    "horror-intermediate-e2": [
+      "Ship the broken sample as written (Tick sets Alert = 1) and treat the red node as close enough.",
+      "Use Alert = 1.f inside Sense, scheduled at 0.2f, but also leave the broken sample running so both paths write.",
+      "Drop Alert = 1.f inside Sense, scheduled at 0.2f and replay the broken sample from OnRep: Tick sets Alert = 1"
+    ],
+    "horror-intermediate-e6": [
+      "Ship the broken sample as written (Alert = 1.f; // in Graph_IA_Interact) and treat the red node as close enough.",
+      "Use ProcessEvent on Interact, but also leave the broken sample running so both paths write.",
+      "Drop ProcessEvent on Interact and replay the broken sample from OnRep: Alert = 1.f; // in Graph_IA_Interact"
+    ],
+    "horror-intermediate-e9": [
+      "Ship the broken sample as written (Tick chases) and treat the red node as close enough.",
+      "Use Alert, but also leave the broken sample running so both paths write.",
+      "Drop Alert and replay the broken sample from OnRep: Tick chases"
+    ],
+    "horror-intermediate-e12": [
+      "Ship the broken sample as written (void Tick() { Yaw += 1.f; }) and treat the red node as close enough.",
+      "Use PlayFromStart on a UTimelineComponent, but also leave the broken sample running so both paths write.",
+      "Drop PlayFromStart on a UTimelineComponent and replay the broken sample from OnRep: void Tick() { Yaw += 1.f; }"
+    ],
+    "horror-intermediate-e15": [
+      "Ship the broken sample as written (Client writes Health = 90.f) and treat the red node as close enough.",
+      "Use Inside HasAuthority, from Any Damage, but also leave the broken sample running so both paths write.",
+      "Drop Inside HasAuthority, from Any Damage and replay the broken sample from OnRep: Client writes Health = 90.f"
+    ],
+    "horror-intermediate-e18": [
+      "Ship the broken sample as written (StackCount = StackCount + 1.f; // inside the use trace) and treat the red node as close enough.",
+      "Use ProcessEvent on AddToSlot, but also leave the broken sample running so both paths write.",
+      "Drop ProcessEvent on AddToSlot and replay the broken sample from OnRep: StackCount = StackCount + 1.f; // inside the use trace"
+    ],
+    "horror-intermediate-e22": [
+      "Ship the broken sample as written (Tick broadcasts OnEffect) and treat the red node as close enough.",
+      "Use A 1 second timer that calls ApplyEffect, but also leave the broken sample running so both paths write.",
+      "Drop A 1 second timer that calls ApplyEffect and replay the broken sample from OnRep: Tick broadcasts OnEffect"
+    ],
+    "horror-intermediate-e24": [
+      "Ship the broken sample as written (void Tick() { SlotValue = Alert; }) and treat the red node as close enough.",
+      "Use On a finished event, and loaded at Begin Play, but also leave the broken sample running so both paths write.",
+      "Drop On a finished event, and loaded at Begin Play and replay the broken sample from OnRep: void Tick() { SlotValue = Alert; }"
+    ]
+  }
+}

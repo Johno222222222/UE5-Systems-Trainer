@@ -1,0 +1,673 @@
+{
+  "id": "replication-basics",
+  "modules": {
+    "authority": {
+      "plainEnglish": "In plain English, Authority means: The machine with authority writes shared gameplay state. A client can ask.",
+      "whyGame": "In a real game, getting authority wrong shows up as subtracting with no clamp so health goes negative and the death branch never sees zero. the damage event on this local pawn is the repair, and the generated line `Health = FMath::Clamp((Health - Damage), 0.f, MaxHealth); // node:tpl_health_set` is that repair in C++.",
+      "expansions": [
+        {
+          "title": "Authority as a door",
+          "detail": "If authority is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+        },
+        {
+          "title": "Authority as data",
+          "detail": "Designer numbers for authority live on a row. Health clamped between zero and MaxHealth, then a branch that logs death at zero reads the row instead of a literal."
+        },
+        {
+          "title": "Authority as a listener",
+          "detail": "Later systems listen for Any Damage. They do not subtracting with no clamp so health goes negative and the death branch never sees zero."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "replication-basics-authority-c1",
+          "kind": "mc",
+          "prompt": "The machine with authority writes shared gameplay state. A client can ask. What should own that decision in Authority?",
+          "choices": [
+            "the damage event on this local pawn. That keeps the rule that the machine with authority writes shared gameplay state. A client can ask.",
+            "Tick owns it, so the section never misses a frame. That would break the rule that the machine with authority writes shared gameplay state. A client can ask.",
+            "The widget that draws authority owns it. That would break the rule that the machine with authority writes shared gameplay state. A client can ask.",
+            "Every client owns it, before Any Damage is replicated. That would break the rule that the machine with authority writes shared gameplay state. A client can ask."
+          ],
+          "answer": 0,
+          "why": "The machine with authority writes shared gameplay state. A client can ask."
+        },
+        {
+          "id": "replication-basics-authority-c2",
+          "kind": "mc",
+          "prompt": "The machine with authority writes shared gameplay state. A client can ask. The course graph contains `Health = FMath::Clamp((Health - Damage), 0.f, MaxHealth); // node:tpl_health_set`. What is that line doing in gameplay terms?",
+          "choices": [
+            "Health clamped between zero and MaxHealth, then a branch that logs death at zero. That keeps the rule that the machine with authority writes shared gameplay state. A client can ask.",
+            "subtracting with no clamp so health goes negative and the death branch never sees zero. That would break the rule that the machine with authority writes shared gameplay state. A client can ask.",
+            "The constructor loads a save slot and applies it before play. That would break the rule that the machine with authority writes shared gameplay state. A client can ask.",
+            "The line replicates a mesh pointer instead of the value. That would break the rule that the machine with authority writes shared gameplay state. A client can ask."
+          ],
+          "answer": 0,
+          "why": "Health clamped between zero and MaxHealth, then a branch that logs death at zero"
+        },
+        {
+          "id": "replication-basics-authority-c3",
+          "kind": "mc",
+          "prompt": "The machine with authority writes shared gameplay state. A client can ask. Where should Clamp sit?",
+          "choices": [
+            "After Damage has been received, started by Any Damage through the damage pin. That keeps the rule that the machine with authority writes shared gameplay state. A client can ask.",
+            "It runs before Any Damage, so the player is not required. That would break the rule that the machine with authority writes shared gameplay state. A client can ask.",
+            "It sits on Tick beside Any Damage. That would break the rule that the machine with authority writes shared gameplay state. A client can ask.",
+            "It sits in OnRep and applies the rule a second time. That would break the rule that the machine with authority writes shared gameplay state. A client can ask."
+          ],
+          "answer": 0,
+          "why": "Damage has been received is the gate."
+        },
+        {
+          "id": "replication-basics-authority-c4",
+          "kind": "tf",
+          "prompt": "True or false: The machine with authority writes shared gameplay state. A client can ask.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The takeaway states that directly."
+        },
+        {
+          "id": "replication-basics-authority-c5",
+          "kind": "tf",
+          "prompt": "True or false: The machine with authority writes shared gameplay state. A client can ask. You keep that promise by subtracting with no clamp so health goes negative and the death branch never sees zero.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "subtracting with no clamp so health goes negative and the death branch never sees zero is the broken schedule."
+        },
+        {
+          "id": "replication-basics-authority-c6",
+          "kind": "mc",
+          "prompt": "The machine with authority writes shared gameplay state. A client can ask. Which mistake breaks it?",
+          "choices": [
+            "subtracting with no clamp so health goes negative and the death branch never sees zero. That keeps the rule that the machine with authority writes shared gameplay state. A client can ask.",
+            "Leaving the real work on Any Damage. That would break the rule that the machine with authority writes shared gameplay state. A client can ask.",
+            "Waiting until Damage has been received. That would break the rule that the machine with authority writes shared gameplay state. A client can ask.",
+            "Keeping the damage event on this local pawn as the only writer. That would break the rule that the machine with authority writes shared gameplay state. A client can ask."
+          ],
+          "answer": 0,
+          "why": "subtracting with no clamp so health goes negative and the death branch never sees zero"
+        },
+        {
+          "id": "replication-basics-authority-c7",
+          "kind": "tf",
+          "prompt": "True or false: The machine with authority writes shared gameplay state. A client can ask. Any Damage through the damage pin remains the start.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "the damage event on this local pawn"
+        },
+        {
+          "id": "replication-basics-authority-c8",
+          "kind": "mc",
+          "prompt": "The machine with authority writes shared gameplay state. A client can ask. A teammate casts to every Blueprint instead. What scales worse as content is added?",
+          "choices": [
+            "The cast list grows with every new actor, while Any Damage stayed one call. That keeps the rule that the machine with authority writes shared gameplay state. A client can ask.",
+            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that the machine with authority writes shared gameplay state. A client can ask.",
+            "A data row must be recompiled for this section. That would break the rule that the machine with authority writes shared gameplay state. A client can ask.",
+            "Clamp only works for one class, so the cast is the stable choice. That would break the rule that the machine with authority writes shared gameplay state. A client can ask."
+          ],
+          "answer": 0,
+          "why": "One event stays stable."
+        },
+        {
+          "id": "replication-basics-authority-c9",
+          "kind": "mc",
+          "prompt": "The machine with authority writes shared gameplay state. A client can ask. What does the player lose if Any Damage is removed?",
+          "choices": [
+            "Authority never starts, because the damage pin was the only way in. That keeps the rule that the machine with authority writes shared gameplay state. A client can ask.",
+            "Nothing, because Tick still does the job. That would break the rule that the machine with authority writes shared gameplay state. A client can ask.",
+            "Only the widget. Gameplay for this section continues. That would break the rule that the machine with authority writes shared gameplay state. A client can ask.",
+            "The constructor replaces Any Damage on the next map. That would break the rule that the machine with authority writes shared gameplay state. A client can ask."
+          ],
+          "answer": 0,
+          "why": "Any Damage is the start."
+        },
+        {
+          "id": "replication-basics-authority-c10",
+          "kind": "tf",
+          "prompt": "True or false: The machine with authority writes shared gameplay state. A client can ask. OnRep should perform the write again so the section does not wait for the damage event on this local pawn.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "replication-basics-authority-c11",
+          "kind": "mc",
+          "prompt": "The machine with authority writes shared gameplay state. A client can ask. Which gate sits immediately in front of the write?",
+          "choices": [
+            "Damage has been received. That keeps the rule that the machine with authority writes shared gameplay state. A client can ask.",
+            "A Tick frame, whether or not Any Damage fired. That would break the rule that the machine with authority writes shared gameplay state. A client can ask.",
+            "A client prediction that skips the damage event on this local pawn. That would break the rule that the machine with authority writes shared gameplay state. A client can ask.",
+            "A cast to every actor this course might spawn. That would break the rule that the machine with authority writes shared gameplay state. A client can ask."
+          ],
+          "answer": 0,
+          "why": "Damage has been received"
+        },
+        {
+          "id": "replication-basics-authority-c11b",
+          "kind": "tf",
+          "prompt": "True or false: The machine with authority writes shared gameplay state. A client can ask. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Saves load at Begin Play. They do not poll."
+        }
+      ],
+      "graph": "health"
+    },
+    "property": {
+      "plainEnglish": "In plain English, Replicated properties means: Replicate the number. Do not replicate the mesh or the widget.",
+      "whyGame": "In a real game, getting replicated properties wrong shows up as subtracting with no clamp so health goes negative and the death branch never sees zero. the damage event on this local pawn is the repair, and the generated line `Health = FMath::Clamp((Health - Damage), 0.f, MaxHealth); // node:tpl_health_set` is that repair in C++.",
+      "expansions": [
+        {
+          "title": "Replicated properties as a door",
+          "detail": "If replicated properties is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+        },
+        {
+          "title": "Replicated properties as data",
+          "detail": "Designer numbers for replicated properties live on a row. Health clamped between zero and MaxHealth, then a branch that logs death at zero reads the row instead of a literal."
+        },
+        {
+          "title": "Replicated properties as a listener",
+          "detail": "Later systems listen for Any Damage. They do not subtracting with no clamp so health goes negative and the death branch never sees zero."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "replication-basics-property-c1",
+          "kind": "mc",
+          "prompt": "Replicate the number. Do not replicate the mesh or the widget. What should own that decision in Replicated properties?",
+          "choices": [
+            "the damage event on this local pawn. That keeps the rule that replicate the number. Do not replicate the mesh or the widget.",
+            "Tick owns it, so the section never misses a frame. That would break the rule that replicate the number. Do not replicate the mesh or the widget.",
+            "The widget that draws replicated properties owns it. That would break the rule that replicate the number. Do not replicate the mesh or the widget.",
+            "Every client owns it, before Any Damage is replicated. That would break the rule that replicate the number. Do not replicate the mesh or the widget."
+          ],
+          "answer": 0,
+          "why": "Replicate the number. Do not replicate the mesh or the widget."
+        },
+        {
+          "id": "replication-basics-property-c2",
+          "kind": "mc",
+          "prompt": "Replicate the number. Do not replicate the mesh or the widget. The course graph contains `Health = FMath::Clamp((Health - Damage), 0.f, MaxHealth); // node:tpl_health_set`. What is that line doing in gameplay terms?",
+          "choices": [
+            "Health clamped between zero and MaxHealth, then a branch that logs death at zero. That keeps the rule that replicate the number. Do not replicate the mesh or the widget.",
+            "subtracting with no clamp so health goes negative and the death branch never sees zero. That would break the rule that replicate the number. Do not replicate the mesh or the widget.",
+            "The constructor loads a save slot and applies it before play. That would break the rule that replicate the number. Do not replicate the mesh or the widget.",
+            "The line replicates a mesh pointer instead of the value. That would break the rule that replicate the number. Do not replicate the mesh or the widget."
+          ],
+          "answer": 0,
+          "why": "Health clamped between zero and MaxHealth, then a branch that logs death at zero"
+        },
+        {
+          "id": "replication-basics-property-c3",
+          "kind": "mc",
+          "prompt": "Replicate the number. Do not replicate the mesh or the widget. Where should Clamp sit?",
+          "choices": [
+            "After Damage has been received, started by Any Damage through the damage pin. That keeps the rule that replicate the number. Do not replicate the mesh or the widget.",
+            "It runs before Any Damage, so the player is not required. That would break the rule that replicate the number. Do not replicate the mesh or the widget.",
+            "It sits on Tick beside Any Damage. That would break the rule that replicate the number. Do not replicate the mesh or the widget.",
+            "It sits in OnRep and applies the rule a second time. That would break the rule that replicate the number. Do not replicate the mesh or the widget."
+          ],
+          "answer": 0,
+          "why": "Damage has been received is the gate."
+        },
+        {
+          "id": "replication-basics-property-c4",
+          "kind": "tf",
+          "prompt": "True or false: Replicate the number. Do not replicate the mesh or the widget.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The takeaway states that directly."
+        },
+        {
+          "id": "replication-basics-property-c5",
+          "kind": "tf",
+          "prompt": "True or false: Replicate the number. Do not replicate the mesh or the widget. You keep that promise by subtracting with no clamp so health goes negative and the death branch never sees zero.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "subtracting with no clamp so health goes negative and the death branch never sees zero is the broken schedule."
+        },
+        {
+          "id": "replication-basics-property-c6",
+          "kind": "mc",
+          "prompt": "Replicate the number. Do not replicate the mesh or the widget. Which mistake breaks it?",
+          "choices": [
+            "subtracting with no clamp so health goes negative and the death branch never sees zero. That keeps the rule that replicate the number. Do not replicate the mesh or the widget.",
+            "Leaving the real work on Any Damage. That would break the rule that replicate the number. Do not replicate the mesh or the widget.",
+            "Waiting until Damage has been received. That would break the rule that replicate the number. Do not replicate the mesh or the widget.",
+            "Keeping the damage event on this local pawn as the only writer. That would break the rule that replicate the number. Do not replicate the mesh or the widget."
+          ],
+          "answer": 0,
+          "why": "subtracting with no clamp so health goes negative and the death branch never sees zero"
+        },
+        {
+          "id": "replication-basics-property-c7",
+          "kind": "tf",
+          "prompt": "True or false: Replicate the number. Do not replicate the mesh or the widget. Any Damage through the damage pin remains the start.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "the damage event on this local pawn"
+        },
+        {
+          "id": "replication-basics-property-c8",
+          "kind": "mc",
+          "prompt": "Replicate the number. Do not replicate the mesh or the widget. A teammate casts to every Blueprint instead. What scales worse as content is added?",
+          "choices": [
+            "The cast list grows with every new actor, while Any Damage stayed one call. That keeps the rule that replicate the number. Do not replicate the mesh or the widget.",
+            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that replicate the number. Do not replicate the mesh or the widget.",
+            "A data row must be recompiled for this section. That would break the rule that replicate the number. Do not replicate the mesh or the widget.",
+            "Clamp only works for one class, so the cast is the stable choice. That would break the rule that replicate the number. Do not replicate the mesh or the widget."
+          ],
+          "answer": 0,
+          "why": "One event stays stable."
+        },
+        {
+          "id": "replication-basics-property-c9",
+          "kind": "mc",
+          "prompt": "Replicate the number. Do not replicate the mesh or the widget. What does the player lose if Any Damage is removed?",
+          "choices": [
+            "Replicated properties never starts, because the damage pin was the only way in. That keeps the rule that replicate the number. Do not replicate the mesh or the widget.",
+            "Nothing, because Tick still does the job. That would break the rule that replicate the number. Do not replicate the mesh or the widget.",
+            "Only the widget. Gameplay for this section continues. That would break the rule that replicate the number. Do not replicate the mesh or the widget.",
+            "The constructor replaces Any Damage on the next map. That would break the rule that replicate the number. Do not replicate the mesh or the widget."
+          ],
+          "answer": 0,
+          "why": "Any Damage is the start."
+        },
+        {
+          "id": "replication-basics-property-c10",
+          "kind": "tf",
+          "prompt": "True or false: Replicate the number. Do not replicate the mesh or the widget. OnRep should perform the write again so the section does not wait for the damage event on this local pawn.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "replication-basics-property-c11",
+          "kind": "mc",
+          "prompt": "Replicate the number. Do not replicate the mesh or the widget. Which gate sits immediately in front of the write?",
+          "choices": [
+            "Damage has been received. That keeps the rule that replicate the number. Do not replicate the mesh or the widget.",
+            "A Tick frame, whether or not Any Damage fired. That would break the rule that replicate the number. Do not replicate the mesh or the widget.",
+            "A client prediction that skips the damage event on this local pawn. That would break the rule that replicate the number. Do not replicate the mesh or the widget.",
+            "A cast to every actor this course might spawn. That would break the rule that replicate the number. Do not replicate the mesh or the widget."
+          ],
+          "answer": 0,
+          "why": "Damage has been received"
+        },
+        {
+          "id": "replication-basics-property-c11b",
+          "kind": "tf",
+          "prompt": "True or false: Replicate the number. Do not replicate the mesh or the widget. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Saves load at Begin Play. They do not poll."
+        }
+      ],
+      "graph": "health"
+    },
+    "onrep": {
+      "plainEnglish": "In plain English, OnRep means: OnRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+      "whyGame": "In a real game, getting onrep wrong shows up as subtracting with no clamp so health goes negative and the death branch never sees zero. the damage event on this local pawn is the repair, and the generated line `Health = FMath::Clamp((Health - Damage), 0.f, MaxHealth); // node:tpl_health_set` is that repair in C++.",
+      "expansions": [
+        {
+          "title": "OnRep as a door",
+          "detail": "If onrep is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+        },
+        {
+          "title": "OnRep as data",
+          "detail": "Designer numbers for onrep live on a row. Health clamped between zero and MaxHealth, then a branch that logs death at zero reads the row instead of a literal."
+        },
+        {
+          "title": "OnRep as a listener",
+          "detail": "Later systems listen for Any Damage. They do not subtracting with no clamp so health goes negative and the death branch never sees zero."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "replication-basics-onrep-c1",
+          "kind": "mc",
+          "prompt": "OnRep is where other machines hear the new value. Play the hit there, do not decide the rule there. What should own that decision in OnRep?",
+          "choices": [
+            "the damage event on this local pawn. That keeps the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+            "Tick owns it, so the section never misses a frame. That would break the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+            "The widget that draws onrep owns it. That would break the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+            "Every client owns it, before Any Damage is replicated. That would break the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there."
+          ],
+          "answer": 0,
+          "why": "OnRep is where other machines hear the new value. Play the hit there, do not decide the rule there."
+        },
+        {
+          "id": "replication-basics-onrep-c2",
+          "kind": "mc",
+          "prompt": "OnRep is where other machines hear the new value. Play the hit there, do not decide the rule there. The course graph contains `Health = FMath::Clamp((Health - Damage), 0.f, MaxHealth); // node:tpl_health_set`. What is that line doing in gameplay terms?",
+          "choices": [
+            "Health clamped between zero and MaxHealth, then a branch that logs death at zero. That keeps the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+            "subtracting with no clamp so health goes negative and the death branch never sees zero. That would break the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+            "The constructor loads a save slot and applies it before play. That would break the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+            "The line replicates a mesh pointer instead of the value. That would break the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there."
+          ],
+          "answer": 0,
+          "why": "Health clamped between zero and MaxHealth, then a branch that logs death at zero"
+        },
+        {
+          "id": "replication-basics-onrep-c3",
+          "kind": "mc",
+          "prompt": "OnRep is where other machines hear the new value. Play the hit there, do not decide the rule there. Where should Clamp sit?",
+          "choices": [
+            "After Damage has been received, started by Any Damage through the damage pin. That keeps the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+            "It runs before Any Damage, so the player is not required. That would break the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+            "It sits on Tick beside Any Damage. That would break the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+            "It sits in OnRep and applies the rule a second time. That would break the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there."
+          ],
+          "answer": 0,
+          "why": "Damage has been received is the gate."
+        },
+        {
+          "id": "replication-basics-onrep-c4",
+          "kind": "tf",
+          "prompt": "True or false: OnRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The takeaway states that directly."
+        },
+        {
+          "id": "replication-basics-onrep-c5",
+          "kind": "tf",
+          "prompt": "True or false: OnRep is where other machines hear the new value. Play the hit there, do not decide the rule there. You keep that promise by subtracting with no clamp so health goes negative and the death branch never sees zero.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "subtracting with no clamp so health goes negative and the death branch never sees zero is the broken schedule."
+        },
+        {
+          "id": "replication-basics-onrep-c6",
+          "kind": "mc",
+          "prompt": "OnRep is where other machines hear the new value. Play the hit there, do not decide the rule there. Which mistake breaks it?",
+          "choices": [
+            "subtracting with no clamp so health goes negative and the death branch never sees zero. That keeps the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+            "Leaving the real work on Any Damage. That would break the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+            "Waiting until Damage has been received. That would break the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+            "Keeping the damage event on this local pawn as the only writer. That would break the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there."
+          ],
+          "answer": 0,
+          "why": "subtracting with no clamp so health goes negative and the death branch never sees zero"
+        },
+        {
+          "id": "replication-basics-onrep-c7",
+          "kind": "tf",
+          "prompt": "True or false: OnRep is where other machines hear the new value. Play the hit there, do not decide the rule there. Any Damage through the damage pin remains the start.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "the damage event on this local pawn"
+        },
+        {
+          "id": "replication-basics-onrep-c8",
+          "kind": "mc",
+          "prompt": "OnRep is where other machines hear the new value. Play the hit there, do not decide the rule there. A teammate casts to every Blueprint instead. What scales worse as content is added?",
+          "choices": [
+            "The cast list grows with every new actor, while Any Damage stayed one call. That keeps the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+            "A data row must be recompiled for this section. That would break the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+            "Clamp only works for one class, so the cast is the stable choice. That would break the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there."
+          ],
+          "answer": 0,
+          "why": "One event stays stable."
+        },
+        {
+          "id": "replication-basics-onrep-c9",
+          "kind": "mc",
+          "prompt": "OnRep is where other machines hear the new value. Play the hit there, do not decide the rule there. What does the player lose if Any Damage is removed?",
+          "choices": [
+            "OnRep never starts, because the damage pin was the only way in. That keeps the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+            "Nothing, because Tick still does the job. That would break the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+            "Only the widget. Gameplay for this section continues. That would break the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+            "The constructor replaces Any Damage on the next map. That would break the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there."
+          ],
+          "answer": 0,
+          "why": "Any Damage is the start."
+        },
+        {
+          "id": "replication-basics-onrep-c10",
+          "kind": "tf",
+          "prompt": "True or false: OnRep is where other machines hear the new value. Play the hit there, do not decide the rule there. OnRep should perform the write again so the section does not wait for the damage event on this local pawn.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "replication-basics-onrep-c11",
+          "kind": "mc",
+          "prompt": "OnRep is where other machines hear the new value. Play the hit there, do not decide the rule there. Which gate sits immediately in front of the write?",
+          "choices": [
+            "Damage has been received. That keeps the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+            "A Tick frame, whether or not Any Damage fired. That would break the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+            "A client prediction that skips the damage event on this local pawn. That would break the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there.",
+            "A cast to every actor this course might spawn. That would break the rule that onRep is where other machines hear the new value. Play the hit there, do not decide the rule there."
+          ],
+          "answer": 0,
+          "why": "Damage has been received"
+        },
+        {
+          "id": "replication-basics-onrep-c11b",
+          "kind": "tf",
+          "prompt": "True or false: OnRep is where other machines hear the new value. Play the hit there, do not decide the rule there. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Saves load at Begin Play. They do not poll."
+        }
+      ],
+      "graph": "health"
+    },
+    "rpc": {
+      "plainEnglish": "In plain English, RPCs means: A server RPC asks. The server function decides. Do not trust the client's number.",
+      "whyGame": "In a real game, getting rpcs wrong shows up as subtracting with no clamp so health goes negative and the death branch never sees zero. the damage event on this local pawn is the repair, and the generated line `Health = FMath::Clamp((Health - Damage), 0.f, MaxHealth); // node:tpl_health_set` is that repair in C++.",
+      "expansions": [
+        {
+          "title": "RPCs as a door",
+          "detail": "If rpcs is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+        },
+        {
+          "title": "RPCs as data",
+          "detail": "Designer numbers for rpcs live on a row. Health clamped between zero and MaxHealth, then a branch that logs death at zero reads the row instead of a literal."
+        },
+        {
+          "title": "RPCs as a listener",
+          "detail": "Later systems listen for Any Damage. They do not subtracting with no clamp so health goes negative and the death branch never sees zero."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "replication-basics-rpc-c1",
+          "kind": "mc",
+          "prompt": "A server RPC asks. The server function decides. Do not trust the client's number. What should own that decision in RPCs?",
+          "choices": [
+            "the damage event on this local pawn. That keeps the rule that a server RPC asks. The server function decides. Do not trust the client's number.",
+            "Tick owns it, so the section never misses a frame. That would break the rule that a server RPC asks. The server function decides. Do not trust the client's number.",
+            "The widget that draws rpcs owns it. That would break the rule that a server RPC asks. The server function decides. Do not trust the client's number.",
+            "Every client owns it, before Any Damage is replicated. That would break the rule that a server RPC asks. The server function decides. Do not trust the client's number."
+          ],
+          "answer": 0,
+          "why": "A server RPC asks. The server function decides. Do not trust the client's number."
+        },
+        {
+          "id": "replication-basics-rpc-c2",
+          "kind": "mc",
+          "prompt": "A server RPC asks. The server function decides. Do not trust the client's number. The course graph contains `Health = FMath::Clamp((Health - Damage), 0.f, MaxHealth); // node:tpl_health_set`. What is that line doing in gameplay terms?",
+          "choices": [
+            "Health clamped between zero and MaxHealth, then a branch that logs death at zero. That keeps the rule that a server RPC asks. The server function decides. Do not trust the client's number.",
+            "subtracting with no clamp so health goes negative and the death branch never sees zero. That would break the rule that a server RPC asks. The server function decides. Do not trust the client's number.",
+            "The constructor loads a save slot and applies it before play. That would break the rule that a server RPC asks. The server function decides. Do not trust the client's number.",
+            "The line replicates a mesh pointer instead of the value. That would break the rule that a server RPC asks. The server function decides. Do not trust the client's number."
+          ],
+          "answer": 0,
+          "why": "Health clamped between zero and MaxHealth, then a branch that logs death at zero"
+        },
+        {
+          "id": "replication-basics-rpc-c3",
+          "kind": "mc",
+          "prompt": "A server RPC asks. The server function decides. Do not trust the client's number. Where should Clamp sit?",
+          "choices": [
+            "After Damage has been received, started by Any Damage through the damage pin. That keeps the rule that a server RPC asks. The server function decides. Do not trust the client's number.",
+            "It runs before Any Damage, so the player is not required. That would break the rule that a server RPC asks. The server function decides. Do not trust the client's number.",
+            "It sits on Tick beside Any Damage. That would break the rule that a server RPC asks. The server function decides. Do not trust the client's number.",
+            "It sits in OnRep and applies the rule a second time. That would break the rule that a server RPC asks. The server function decides. Do not trust the client's number."
+          ],
+          "answer": 0,
+          "why": "Damage has been received is the gate."
+        },
+        {
+          "id": "replication-basics-rpc-c4",
+          "kind": "tf",
+          "prompt": "True or false: A server RPC asks. The server function decides. Do not trust the client's number.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The takeaway states that directly."
+        },
+        {
+          "id": "replication-basics-rpc-c5",
+          "kind": "tf",
+          "prompt": "True or false: A server RPC asks. The server function decides. Do not trust the client's number. You keep that promise by subtracting with no clamp so health goes negative and the death branch never sees zero.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "subtracting with no clamp so health goes negative and the death branch never sees zero is the broken schedule."
+        },
+        {
+          "id": "replication-basics-rpc-c6",
+          "kind": "mc",
+          "prompt": "A server RPC asks. The server function decides. Do not trust the client's number. Which mistake breaks it?",
+          "choices": [
+            "subtracting with no clamp so health goes negative and the death branch never sees zero. That keeps the rule that a server RPC asks. The server function decides. Do not trust the client's number.",
+            "Leaving the real work on Any Damage. That would break the rule that a server RPC asks. The server function decides. Do not trust the client's number.",
+            "Waiting until Damage has been received. That would break the rule that a server RPC asks. The server function decides. Do not trust the client's number.",
+            "Keeping the damage event on this local pawn as the only writer. That would break the rule that a server RPC asks. The server function decides. Do not trust the client's number."
+          ],
+          "answer": 0,
+          "why": "subtracting with no clamp so health goes negative and the death branch never sees zero"
+        },
+        {
+          "id": "replication-basics-rpc-c7",
+          "kind": "tf",
+          "prompt": "True or false: A server RPC asks. The server function decides. Do not trust the client's number. Any Damage through the damage pin remains the start.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "the damage event on this local pawn"
+        },
+        {
+          "id": "replication-basics-rpc-c8",
+          "kind": "mc",
+          "prompt": "A server RPC asks. The server function decides. Do not trust the client's number. A teammate casts to every Blueprint instead. What scales worse as content is added?",
+          "choices": [
+            "The cast list grows with every new actor, while Any Damage stayed one call. That keeps the rule that a server RPC asks. The server function decides. Do not trust the client's number.",
+            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that a server RPC asks. The server function decides. Do not trust the client's number.",
+            "A data row must be recompiled for this section. That would break the rule that a server RPC asks. The server function decides. Do not trust the client's number.",
+            "Clamp only works for one class, so the cast is the stable choice. That would break the rule that a server RPC asks. The server function decides. Do not trust the client's number."
+          ],
+          "answer": 0,
+          "why": "One event stays stable."
+        },
+        {
+          "id": "replication-basics-rpc-c9",
+          "kind": "mc",
+          "prompt": "A server RPC asks. The server function decides. Do not trust the client's number. What does the player lose if Any Damage is removed?",
+          "choices": [
+            "RPCs never starts, because the damage pin was the only way in. That keeps the rule that a server RPC asks. The server function decides. Do not trust the client's number.",
+            "Nothing, because Tick still does the job. That would break the rule that a server RPC asks. The server function decides. Do not trust the client's number.",
+            "Only the widget. Gameplay for this section continues. That would break the rule that a server RPC asks. The server function decides. Do not trust the client's number.",
+            "The constructor replaces Any Damage on the next map. That would break the rule that a server RPC asks. The server function decides. Do not trust the client's number."
+          ],
+          "answer": 0,
+          "why": "Any Damage is the start."
+        },
+        {
+          "id": "replication-basics-rpc-c10",
+          "kind": "tf",
+          "prompt": "True or false: A server RPC asks. The server function decides. Do not trust the client's number. OnRep should perform the write again so the section does not wait for the damage event on this local pawn.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "replication-basics-rpc-c11",
+          "kind": "mc",
+          "prompt": "A server RPC asks. The server function decides. Do not trust the client's number. Which gate sits immediately in front of the write?",
+          "choices": [
+            "Damage has been received. That keeps the rule that a server RPC asks. The server function decides. Do not trust the client's number.",
+            "A Tick frame, whether or not Any Damage fired. That would break the rule that a server RPC asks. The server function decides. Do not trust the client's number.",
+            "A client prediction that skips the damage event on this local pawn. That would break the rule that a server RPC asks. The server function decides. Do not trust the client's number.",
+            "A cast to every actor this course might spawn. That would break the rule that a server RPC asks. The server function decides. Do not trust the client's number."
+          ],
+          "answer": 0,
+          "why": "Damage has been received"
+        },
+        {
+          "id": "replication-basics-rpc-c11b",
+          "kind": "tf",
+          "prompt": "True or false: A server RPC asks. The server function decides. Do not trust the client's number. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Saves load at Begin Play. They do not poll."
+        }
+      ],
+      "graph": "health"
+    }
+  }
+}

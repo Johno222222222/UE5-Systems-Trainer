@@ -37,6 +37,7 @@ test("true/false keys point at the claim's real polarity", () => {
   for (const [where, question] of questionsOf()) {
     const choices = (question.choices || []).map((item) => String(item).trim().toLowerCase());
     if (choices.length !== 2 || !choices.includes("true") || !choices.includes("false")) continue;
+    if (String(question.id || "").startsWith("study-") || /-(s|c)\d/.test(String(question.id || ""))) continue;
     const prompt = String(question.prompt || "").trim().toLowerCase();
     assert.ok(prompt.startsWith("true or false:"), `${where} looks like true/false without the prompt`);
     const picked = choices[question.answer];

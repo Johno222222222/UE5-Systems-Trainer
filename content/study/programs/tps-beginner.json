@@ -1,0 +1,1943 @@
+{
+  "id": "tps-beginner",
+  "sections": {
+    "camera": {
+      "plainEnglish": "In plain English: IA_Aim traces from the camera and sets Aiming. This is not the interact graph. What the function actually does is Aiming set true when the aim trace from the camera hits. the aim action is who is allowed to do it.",
+      "whyGame": "In a real match, setting Aiming from Tick, or firing the weapon from the camera graph looks almost right and then costs a query, a desync, or a double write. the weapon trace stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Over-the-shoulder camera listener",
+          "detail": "A follow-on in TPS — Beginner should bind to IA_Aim after the camera trace hits. It should not poll over-the-shoulder camera."
+        },
+        {
+          "title": "Over-the-shoulder camera data",
+          "detail": "Numbers a designer tunes for over-the-shoulder camera belong on a data row. Aiming set true when the aim trace from the camera hits can read that row without a new function."
+        },
+        {
+          "title": "Over-the-shoulder camera neighbor",
+          "detail": "the weapon trace must not be implemented inside Set Aiming. IA_Aim traces from the camera and sets Aiming. This is not the interact graph."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tps-beginner-camera-s1",
+          "kind": "mc",
+          "prompt": "IA_Aim traces from the camera and sets Aiming. This is not the interact graph. When `Aiming = true; // node:tpl_camera_set` runs, what does the player get?",
+          "choices": [
+            "Aiming set true when the aim trace from the camera hits. That keeps the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "The line setting Aiming from Tick, or firing the weapon from the camera graph. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "The constructor writes the result before a pawn exists. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "the weapon trace overwrites the value on every client. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph."
+          ],
+          "answer": 0,
+          "why": "Aiming set true when the aim trace from the camera hits"
+        },
+        {
+          "id": "tps-beginner-camera-s2",
+          "kind": "mc",
+          "prompt": "IA_Aim traces from the camera and sets Aiming. This is not the interact graph. Where does Set Aiming sit relative to IA_Aim?",
+          "choices": [
+            "Set Aiming runs after the camera trace hits. IA_Aim reaches that gate through Triggered. That keeps the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "Set Aiming runs before IA_Aim, so the write does not wait for the player. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "Set Aiming sits on Tick while IA_Aim is idle. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "Set Aiming sits in OnRep and applies the change a second time. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph."
+          ],
+          "answer": 0,
+          "why": "IA_Aim is the start."
+        },
+        {
+          "id": "tps-beginner-camera-s3",
+          "kind": "tf",
+          "prompt": "True or false: IA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "IA_Aim traces from the camera and sets Aiming. This is not the interact graph."
+        },
+        {
+          "id": "tps-beginner-camera-s4",
+          "kind": "tf",
+          "prompt": "True or false: IA_Aim traces from the camera and sets Aiming. This is not the interact graph. You keep that promise by setting Aiming from Tick, or firing the weapon from the camera graph.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the aim action is the real writer."
+        },
+        {
+          "id": "tps-beginner-camera-s5",
+          "kind": "mc",
+          "prompt": "IA_Aim traces from the camera and sets Aiming. This is not the interact graph. Who may commit the change?",
+          "choices": [
+            "the aim action. That keeps the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "Every client writes it so the result feels instant. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "The constructor writes it once, and IA_Aim never fires. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph."
+          ],
+          "answer": 0,
+          "why": "the aim action"
+        },
+        {
+          "id": "tps-beginner-camera-s6",
+          "kind": "mc",
+          "prompt": "IA_Aim traces from the camera and sets Aiming. This is not the interact graph. What has to be true before Set Aiming writes?",
+          "choices": [
+            "the camera trace hits. That keeps the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "IA_Aim has not fired and the graph is only hoping. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "Tick has run one frame even though nothing changed. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "the weapon trace has already performed this write. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph."
+          ],
+          "answer": 0,
+          "why": "the camera trace hits"
+        },
+        {
+          "id": "tps-beginner-camera-s7",
+          "kind": "tf",
+          "prompt": "True or false: IA_Aim traces from the camera and sets Aiming. This is not the interact graph. IA_Aim is the start, and Triggered is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "IA_Aim through Triggered."
+        },
+        {
+          "id": "tps-beginner-camera-s8",
+          "kind": "mc",
+          "prompt": "IA_Aim traces from the camera and sets Aiming. This is not the interact graph. Delete IA_Aim and leave the rest of the TPS — Beginner compiled. What does the player lose?",
+          "choices": [
+            "Over-the-shoulder camera never starts, because nothing else fires Triggered. That keeps the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "Nothing visible, because Tick still does the work. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "the weapon trace quietly takes over the job. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "The next travel's constructor writes it. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph."
+          ],
+          "answer": 0,
+          "why": "IA_Aim is the only start."
+        },
+        {
+          "id": "tps-beginner-camera-s9",
+          "kind": "mc",
+          "prompt": "IA_Aim traces from the camera and sets Aiming. This is not the interact graph. Which broken schedule is the one to refuse?",
+          "choices": [
+            "setting Aiming from Tick, or firing the weapon from the camera graph. That keeps the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "Leaving the real work on IA_Aim. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "Waiting until the camera trace hits before the write. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "Keeping the aim action as the only writer. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph."
+          ],
+          "answer": 0,
+          "why": "setting Aiming from Tick, or firing the weapon from the camera graph"
+        },
+        {
+          "id": "tps-beginner-camera-s10",
+          "kind": "mc",
+          "prompt": "IA_Aim traces from the camera and sets Aiming. This is not the interact graph. the weapon trace wants to live in this same function. What stays separate?",
+          "choices": [
+            "the weapon trace keeps its own event. This function only handles Aiming set true when the aim trace from the camera hits. That keeps the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "the weapon trace is inlined so one Tick serves both jobs. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "the weapon trace writes the value from the client. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "the weapon trace runs inside OnRep after this write. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "tps-beginner-camera-s11",
+          "kind": "mc",
+          "prompt": "IA_Aim traces from the camera and sets Aiming. This is not the interact graph. A teammate also applies the write from OnRep, so the game need not wait for the aim action. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "The widget stops drawing until Tick resumes. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "IA_Aim stops firing. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "tps-beginner-camera-s12",
+          "kind": "mc",
+          "prompt": "IA_Aim traces from the camera and sets Aiming. This is not the interact graph. Which gate sits immediately in front of the write?",
+          "choices": [
+            "the camera trace hits, reached from IA_Aim via Triggered. That keeps the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "A Tick frame, even when IA_Aim is idle. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "A cast to every Blueprint that might show up. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph."
+          ],
+          "answer": 0,
+          "why": "the camera trace hits is the gate."
+        }
+      ]
+    },
+    "movement": {
+      "plainEnglish": "In plain English: IA_Move writes Speed. The camera reads the pawn and does not write it. What the function actually does is Speed set to 600 while the axis is pushed, or 200 when it is released. the move action, compared greater than zero is who is allowed to do it.",
+      "whyGame": "In a real match, writing Speed from Tick so the gait updates even in a menu looks almost right and then costs a query, a desync, or a double write. the camera aim bool stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Third-person movement listener",
+          "detail": "A follow-on in TPS — Beginner should bind to IA_Move after the stick or key actually changed. It should not poll third-person movement."
+        },
+        {
+          "title": "Third-person movement data",
+          "detail": "Numbers a designer tunes for third-person movement belong on a data row. Speed set to 600 while the axis is pushed, or 200 when it is released can read that row without a new function."
+        },
+        {
+          "title": "Third-person movement neighbor",
+          "detail": "the camera aim bool must not be implemented inside Enhanced Input for IA_Move. IA_Move writes Speed. The camera reads the pawn and does not write it."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tps-beginner-movement-s1",
+          "kind": "mc",
+          "prompt": "IA_Move writes Speed. The camera reads the pawn and does not write it. When `void UKitComponent::Graph_IA_Move_tpl_movement_input() // node:tpl_movement_input` runs, what does the player get?",
+          "choices": [
+            "Speed set to 600 while the axis is pushed, or 200 when it is released. That keeps the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "The line writing Speed from Tick so the gait updates even in a menu. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "The constructor writes the result before a pawn exists. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "the camera aim bool overwrites the value on every client. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it."
+          ],
+          "answer": 0,
+          "why": "Speed set to 600 while the axis is pushed, or 200 when it is released"
+        },
+        {
+          "id": "tps-beginner-movement-s2",
+          "kind": "mc",
+          "prompt": "IA_Move writes Speed. The camera reads the pawn and does not write it. Where does Enhanced Input for IA_Move sit relative to IA_Move?",
+          "choices": [
+            "Enhanced Input for IA_Move runs after the stick or key actually changed. IA_Move reaches that gate through the axis value. That keeps the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "Enhanced Input for IA_Move runs before IA_Move, so the write does not wait for the player. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "Enhanced Input for IA_Move sits on Tick while IA_Move is idle. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "Enhanced Input for IA_Move sits in OnRep and applies the change a second time. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it."
+          ],
+          "answer": 0,
+          "why": "IA_Move is the start."
+        },
+        {
+          "id": "tps-beginner-movement-s3",
+          "kind": "tf",
+          "prompt": "True or false: IA_Move writes Speed. The camera reads the pawn and does not write it.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "IA_Move writes Speed. The camera reads the pawn and does not write it."
+        },
+        {
+          "id": "tps-beginner-movement-s4",
+          "kind": "tf",
+          "prompt": "True or false: IA_Move writes Speed. The camera reads the pawn and does not write it. You keep that promise by writing Speed from Tick so the gait updates even in a menu.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the move action, compared greater than zero is the real writer."
+        },
+        {
+          "id": "tps-beginner-movement-s5",
+          "kind": "mc",
+          "prompt": "IA_Move writes Speed. The camera reads the pawn and does not write it. Who may commit the change?",
+          "choices": [
+            "the move action, compared greater than zero. That keeps the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "Every client writes it so the result feels instant. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "The constructor writes it once, and IA_Move never fires. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it."
+          ],
+          "answer": 0,
+          "why": "the move action, compared greater than zero"
+        },
+        {
+          "id": "tps-beginner-movement-s6",
+          "kind": "mc",
+          "prompt": "IA_Move writes Speed. The camera reads the pawn and does not write it. What has to be true before Enhanced Input for IA_Move writes?",
+          "choices": [
+            "the stick or key actually changed. That keeps the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "IA_Move has not fired and the graph is only hoping. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "Tick has run one frame even though nothing changed. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "the camera aim bool has already performed this write. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it."
+          ],
+          "answer": 0,
+          "why": "the stick or key actually changed"
+        },
+        {
+          "id": "tps-beginner-movement-s7",
+          "kind": "tf",
+          "prompt": "True or false: IA_Move writes Speed. The camera reads the pawn and does not write it. IA_Move is the start, and the axis value is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "IA_Move through the axis value."
+        },
+        {
+          "id": "tps-beginner-movement-s8",
+          "kind": "mc",
+          "prompt": "IA_Move writes Speed. The camera reads the pawn and does not write it. Delete IA_Move and leave the rest of the TPS — Beginner compiled. What does the player lose?",
+          "choices": [
+            "Third-person movement never starts, because nothing else fires the axis value. That keeps the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "Nothing visible, because Tick still does the work. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "the camera aim bool quietly takes over the job. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "The next travel's constructor writes it. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it."
+          ],
+          "answer": 0,
+          "why": "IA_Move is the only start."
+        },
+        {
+          "id": "tps-beginner-movement-s9",
+          "kind": "mc",
+          "prompt": "IA_Move writes Speed. The camera reads the pawn and does not write it. Which broken schedule is the one to refuse?",
+          "choices": [
+            "writing Speed from Tick so the gait updates even in a menu. That keeps the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "Leaving the real work on IA_Move. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "Waiting until the stick or key actually changed before the write. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "Keeping the move action, compared greater than zero as the only writer. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it."
+          ],
+          "answer": 0,
+          "why": "writing Speed from Tick so the gait updates even in a menu"
+        },
+        {
+          "id": "tps-beginner-movement-s10",
+          "kind": "mc",
+          "prompt": "IA_Move writes Speed. The camera reads the pawn and does not write it. the camera aim bool wants to live in this same function. What stays separate?",
+          "choices": [
+            "the camera aim bool keeps its own event. This function only handles Speed set to 600 while the axis is pushed, or 200 when it is released. That keeps the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "the camera aim bool is inlined so one Tick serves both jobs. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "the camera aim bool writes the value from the client. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "the camera aim bool runs inside OnRep after this write. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "tps-beginner-movement-s11",
+          "kind": "mc",
+          "prompt": "IA_Move writes Speed. The camera reads the pawn and does not write it. A teammate also applies the write from OnRep, so the game need not wait for the move action, compared greater than zero. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "The widget stops drawing until Tick resumes. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "IA_Move stops firing. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "tps-beginner-movement-s12",
+          "kind": "mc",
+          "prompt": "IA_Move writes Speed. The camera reads the pawn and does not write it. Which gate sits immediately in front of the write?",
+          "choices": [
+            "the stick or key actually changed, reached from IA_Move via the axis value. That keeps the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "A Tick frame, even when IA_Move is idle. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "A cast to every Blueprint that might show up. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it."
+          ],
+          "answer": 0,
+          "why": "the stick or key actually changed is the gate."
+        }
+      ]
+    },
+    "interaction": {
+      "plainEnglish": "In plain English: Use traces from the camera and calls Interact. Aim only set a bool. What the function actually does is a line trace from the aim, then Interact on the actor that was hit. the possessed pawn's input action is who is allowed to do it.",
+      "whyGame": "In a real match, tracing on Tick so a prompt stays fresh while the player stands still looks almost right and then costs a query, a desync, or a double write. the hunter Sense trace stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Third-person interaction listener",
+          "detail": "A follow-on in TPS — Beginner should bind to IA_Interact after the hit bool is true. It should not poll third-person interaction."
+        },
+        {
+          "title": "Third-person interaction data",
+          "detail": "Numbers a designer tunes for third-person interaction belong on a data row. a line trace from the aim, then Interact on the actor that was hit can read that row without a new function."
+        },
+        {
+          "title": "Third-person interaction neighbor",
+          "detail": "the hunter Sense trace must not be implemented inside Enhanced Input for IA_Interact. Use traces from the camera and calls Interact. Aim only set a bool."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tps-beginner-interaction-s1",
+          "kind": "mc",
+          "prompt": "Use traces from the camera and calls Interact. Aim only set a bool. When `void UKitComponent::Graph_IA_Interact_tpl_interact_input() // node:tpl_interact_input` runs, what does the player get?",
+          "choices": [
+            "a line trace from the aim, then Interact on the actor that was hit. That keeps the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "The line tracing on Tick so a prompt stays fresh while the player stands still. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "The constructor writes the result before a pawn exists. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "the hunter Sense trace overwrites the value on every client. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool."
+          ],
+          "answer": 0,
+          "why": "a line trace from the aim, then Interact on the actor that was hit"
+        },
+        {
+          "id": "tps-beginner-interaction-s2",
+          "kind": "mc",
+          "prompt": "Use traces from the camera and calls Interact. Aim only set a bool. Where does Enhanced Input for IA_Interact sit relative to IA_Interact?",
+          "choices": [
+            "Enhanced Input for IA_Interact runs after the hit bool is true. IA_Interact reaches that gate through Triggered. That keeps the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "Enhanced Input for IA_Interact runs before IA_Interact, so the write does not wait for the player. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "Enhanced Input for IA_Interact sits on Tick while IA_Interact is idle. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "Enhanced Input for IA_Interact sits in OnRep and applies the change a second time. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool."
+          ],
+          "answer": 0,
+          "why": "IA_Interact is the start."
+        },
+        {
+          "id": "tps-beginner-interaction-s3",
+          "kind": "tf",
+          "prompt": "True or false: Use traces from the camera and calls Interact. Aim only set a bool.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Use traces from the camera and calls Interact. Aim only set a bool."
+        },
+        {
+          "id": "tps-beginner-interaction-s4",
+          "kind": "tf",
+          "prompt": "True or false: Use traces from the camera and calls Interact. Aim only set a bool. You keep that promise by tracing on Tick so a prompt stays fresh while the player stands still.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the possessed pawn's input action is the real writer."
+        },
+        {
+          "id": "tps-beginner-interaction-s5",
+          "kind": "mc",
+          "prompt": "Use traces from the camera and calls Interact. Aim only set a bool. Who may commit the change?",
+          "choices": [
+            "the possessed pawn's input action. That keeps the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "Every client writes it so the result feels instant. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "The constructor writes it once, and IA_Interact never fires. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool."
+          ],
+          "answer": 0,
+          "why": "the possessed pawn's input action"
+        },
+        {
+          "id": "tps-beginner-interaction-s6",
+          "kind": "mc",
+          "prompt": "Use traces from the camera and calls Interact. Aim only set a bool. What has to be true before Enhanced Input for IA_Interact writes?",
+          "choices": [
+            "the hit bool is true. That keeps the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "IA_Interact has not fired and the graph is only hoping. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "Tick has run one frame even though nothing changed. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "the hunter Sense trace has already performed this write. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool."
+          ],
+          "answer": 0,
+          "why": "the hit bool is true"
+        },
+        {
+          "id": "tps-beginner-interaction-s7",
+          "kind": "tf",
+          "prompt": "True or false: Use traces from the camera and calls Interact. Aim only set a bool. IA_Interact is the start, and Triggered is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "IA_Interact through Triggered."
+        },
+        {
+          "id": "tps-beginner-interaction-s8",
+          "kind": "mc",
+          "prompt": "Use traces from the camera and calls Interact. Aim only set a bool. Delete IA_Interact and leave the rest of the TPS — Beginner compiled. What does the player lose?",
+          "choices": [
+            "Third-person interaction never starts, because nothing else fires Triggered. That keeps the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "Nothing visible, because Tick still does the work. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "the hunter Sense trace quietly takes over the job. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "The next travel's constructor writes it. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool."
+          ],
+          "answer": 0,
+          "why": "IA_Interact is the only start."
+        },
+        {
+          "id": "tps-beginner-interaction-s9",
+          "kind": "mc",
+          "prompt": "Use traces from the camera and calls Interact. Aim only set a bool. Which broken schedule is the one to refuse?",
+          "choices": [
+            "tracing on Tick so a prompt stays fresh while the player stands still. That keeps the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "Leaving the real work on IA_Interact. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "Waiting until the hit bool is true before the write. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "Keeping the possessed pawn's input action as the only writer. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool."
+          ],
+          "answer": 0,
+          "why": "tracing on Tick so a prompt stays fresh while the player stands still"
+        },
+        {
+          "id": "tps-beginner-interaction-s10",
+          "kind": "mc",
+          "prompt": "Use traces from the camera and calls Interact. Aim only set a bool. the hunter Sense trace wants to live in this same function. What stays separate?",
+          "choices": [
+            "the hunter Sense trace keeps its own event. This function only handles a line trace from the aim, then Interact on the actor that was hit. That keeps the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "the hunter Sense trace is inlined so one Tick serves both jobs. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "the hunter Sense trace writes the value from the client. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "the hunter Sense trace runs inside OnRep after this write. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "tps-beginner-interaction-s11",
+          "kind": "mc",
+          "prompt": "Use traces from the camera and calls Interact. Aim only set a bool. A teammate also applies the write from OnRep, so the game need not wait for the possessed pawn's input action. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "The widget stops drawing until Tick resumes. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "IA_Interact stops firing. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "tps-beginner-interaction-s12",
+          "kind": "mc",
+          "prompt": "Use traces from the camera and calls Interact. Aim only set a bool. Which gate sits immediately in front of the write?",
+          "choices": [
+            "the hit bool is true, reached from IA_Interact via Triggered. That keeps the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "A Tick frame, even when IA_Interact is idle. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "A cast to every Blueprint that might show up. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool."
+          ],
+          "answer": 0,
+          "why": "the hit bool is true is the gate."
+        }
+      ]
+    },
+    "weapon": {
+      "plainEnglish": "In plain English: IA_Reload checks the magazine and the reserve, then clamps. What the function actually does is Needed clamped between zero and the empty space in the magazine, then added to Magazine and taken from Reserve. the reload action, after both the mag-space check and the reserve check pass is who is allowed to do it.",
+      "whyGame": "In a real match, adding Needed inside Tick, or reloading when the mag is already full looks almost right and then costs a query, a desync, or a double write. the use trace stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Third-person weapon listener",
+          "detail": "A follow-on in TPS — Beginner should bind to IA_Reload after Magazine is below MagSize and Reserve is above zero. It should not poll third-person weapon."
+        },
+        {
+          "title": "Third-person weapon data",
+          "detail": "Numbers a designer tunes for third-person weapon belong on a data row. Needed clamped between zero and the empty space in the magazine, then added to Magazine and taken from Reserve can read that row without a new function."
+        },
+        {
+          "title": "Third-person weapon neighbor",
+          "detail": "the use trace must not be implemented inside Set Magazine. IA_Reload checks the magazine and the reserve, then clamps."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tps-beginner-weapon-s1",
+          "kind": "mc",
+          "prompt": "IA_Reload checks the magazine and the reserve, then clamps. When `void UKitComponent::Graph_IA_Reload_tpl_tacticalammo_input() // node:tpl_tactical-ammo_input` runs, what does the player get?",
+          "choices": [
+            "Needed clamped between zero and the empty space in the magazine, then added to Magazine and taken from Reserve. That keeps the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "The line adding Needed inside Tick, or reloading when the mag is already full. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "The constructor writes the result before a pawn exists. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "the use trace overwrites the value on every client. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps."
+          ],
+          "answer": 0,
+          "why": "Needed clamped between zero and the empty space in the magazine, then added to Magazine and taken from Reserve"
+        },
+        {
+          "id": "tps-beginner-weapon-s2",
+          "kind": "mc",
+          "prompt": "IA_Reload checks the magazine and the reserve, then clamps. Where does Set Magazine sit relative to IA_Reload?",
+          "choices": [
+            "Set Magazine runs after Magazine is below MagSize and Reserve is above zero. IA_Reload reaches that gate through Triggered. That keeps the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "Set Magazine runs before IA_Reload, so the write does not wait for the player. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "Set Magazine sits on Tick while IA_Reload is idle. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "Set Magazine sits in OnRep and applies the change a second time. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps."
+          ],
+          "answer": 0,
+          "why": "IA_Reload is the start."
+        },
+        {
+          "id": "tps-beginner-weapon-s3",
+          "kind": "tf",
+          "prompt": "True or false: IA_Reload checks the magazine and the reserve, then clamps.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "IA_Reload checks the magazine and the reserve, then clamps."
+        },
+        {
+          "id": "tps-beginner-weapon-s4",
+          "kind": "tf",
+          "prompt": "True or false: IA_Reload checks the magazine and the reserve, then clamps. You keep that promise by adding Needed inside Tick, or reloading when the mag is already full.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the reload action, after both the mag-space check and the reserve check pass is the real writer."
+        },
+        {
+          "id": "tps-beginner-weapon-s5",
+          "kind": "mc",
+          "prompt": "IA_Reload checks the magazine and the reserve, then clamps. Who may commit the change?",
+          "choices": [
+            "the reload action, after both the mag-space check and the reserve check pass. That keeps the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "Every client writes it so the result feels instant. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "The constructor writes it once, and IA_Reload never fires. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps."
+          ],
+          "answer": 0,
+          "why": "the reload action, after both the mag-space check and the reserve check pass"
+        },
+        {
+          "id": "tps-beginner-weapon-s6",
+          "kind": "mc",
+          "prompt": "IA_Reload checks the magazine and the reserve, then clamps. What has to be true before Set Magazine writes?",
+          "choices": [
+            "Magazine is below MagSize and Reserve is above zero. That keeps the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "IA_Reload has not fired and the graph is only hoping. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "Tick has run one frame even though nothing changed. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "the use trace has already performed this write. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps."
+          ],
+          "answer": 0,
+          "why": "Magazine is below MagSize and Reserve is above zero"
+        },
+        {
+          "id": "tps-beginner-weapon-s7",
+          "kind": "tf",
+          "prompt": "True or false: IA_Reload checks the magazine and the reserve, then clamps. IA_Reload is the start, and Triggered is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "IA_Reload through Triggered."
+        },
+        {
+          "id": "tps-beginner-weapon-s8",
+          "kind": "mc",
+          "prompt": "IA_Reload checks the magazine and the reserve, then clamps. Delete IA_Reload and leave the rest of the TPS — Beginner compiled. What does the player lose?",
+          "choices": [
+            "Third-person weapon never starts, because nothing else fires Triggered. That keeps the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "Nothing visible, because Tick still does the work. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "the use trace quietly takes over the job. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "The next travel's constructor writes it. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps."
+          ],
+          "answer": 0,
+          "why": "IA_Reload is the only start."
+        },
+        {
+          "id": "tps-beginner-weapon-s9",
+          "kind": "mc",
+          "prompt": "IA_Reload checks the magazine and the reserve, then clamps. Which broken schedule is the one to refuse?",
+          "choices": [
+            "adding Needed inside Tick, or reloading when the mag is already full. That keeps the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "Leaving the real work on IA_Reload. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "Waiting until Magazine is below MagSize and Reserve is above zero before the write. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "Keeping the reload action, after both the mag-space check and the reserve check pass as the only writer. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps."
+          ],
+          "answer": 0,
+          "why": "adding Needed inside Tick, or reloading when the mag is already full"
+        },
+        {
+          "id": "tps-beginner-weapon-s10",
+          "kind": "mc",
+          "prompt": "IA_Reload checks the magazine and the reserve, then clamps. the use trace wants to live in this same function. What stays separate?",
+          "choices": [
+            "the use trace keeps its own event. This function only handles Needed clamped between zero and the empty space in the magazine, then added to Magazine and taken from Reserve. That keeps the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "the use trace is inlined so one Tick serves both jobs. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "the use trace writes the value from the client. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "the use trace runs inside OnRep after this write. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "tps-beginner-weapon-s11",
+          "kind": "mc",
+          "prompt": "IA_Reload checks the magazine and the reserve, then clamps. A teammate also applies the write from OnRep, so the game need not wait for the reload action, after both the mag-space check and the reserve check pass. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "The widget stops drawing until Tick resumes. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "IA_Reload stops firing. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "tps-beginner-weapon-s12",
+          "kind": "mc",
+          "prompt": "IA_Reload checks the magazine and the reserve, then clamps. Which gate sits immediately in front of the write?",
+          "choices": [
+            "Magazine is below MagSize and Reserve is above zero, reached from IA_Reload via Triggered. That keeps the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "A Tick frame, even when IA_Reload is idle. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "A cast to every Blueprint that might show up. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps."
+          ],
+          "answer": 0,
+          "why": "Magazine is below MagSize and Reserve is above zero is the gate."
+        }
+      ]
+    },
+    "health": {
+      "plainEnglish": "In plain English: Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. What the function actually does is Health written only on the authority, then OnRep plays the local reaction. the authority, inside HasAuthority is who is allowed to do it.",
+      "whyGame": "In a real match, letting every client subtract Health, or subtracting again inside OnRep looks almost right and then costs a query, a desync, or a double write. the interact trace stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Third-person health listener",
+          "detail": "A follow-on in TPS — Beginner should bind to Any Damage after a real damage event has arrived. It should not poll third-person health."
+        },
+        {
+          "title": "Third-person health data",
+          "detail": "Numbers a designer tunes for third-person health belong on a data row. Health written only on the authority, then OnRep plays the local reaction can read that row without a new function."
+        },
+        {
+          "title": "Third-person health neighbor",
+          "detail": "the interact trace must not be implemented inside Has Authority. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tps-beginner-health-s1",
+          "kind": "mc",
+          "prompt": "Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. When `if (GetOwner() && GetOwner()->HasAuthority()) // node:tpl_replicated-health_auth` runs, what does the player get?",
+          "choices": [
+            "Health written only on the authority, then OnRep plays the local reaction. That keeps the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "The line letting every client subtract Health, or subtracting again inside OnRep. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "The constructor writes the result before a pawn exists. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "the interact trace overwrites the value on every client. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction."
+          ],
+          "answer": 0,
+          "why": "Health written only on the authority, then OnRep plays the local reaction"
+        },
+        {
+          "id": "tps-beginner-health-s2",
+          "kind": "mc",
+          "prompt": "Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. Where does Has Authority sit relative to Any Damage?",
+          "choices": [
+            "Has Authority runs after a real damage event has arrived. Any Damage reaches that gate through the damage event. That keeps the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "Has Authority runs before Any Damage, so the write does not wait for the player. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "Has Authority sits on Tick while Any Damage is idle. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "Has Authority sits in OnRep and applies the change a second time. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction."
+          ],
+          "answer": 0,
+          "why": "Any Damage is the start."
+        },
+        {
+          "id": "tps-beginner-health-s3",
+          "kind": "tf",
+          "prompt": "True or false: Any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Any Damage writes Health on the authority. OnRep updates the third-person hit reaction."
+        },
+        {
+          "id": "tps-beginner-health-s4",
+          "kind": "tf",
+          "prompt": "True or false: Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. You keep that promise by letting every client subtract Health, or subtracting again inside OnRep.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the authority, inside HasAuthority is the real writer."
+        },
+        {
+          "id": "tps-beginner-health-s5",
+          "kind": "mc",
+          "prompt": "Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. Who may commit the change?",
+          "choices": [
+            "the authority, inside HasAuthority. That keeps the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "Every client writes it so the result feels instant. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "The constructor writes it once, and Any Damage never fires. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction."
+          ],
+          "answer": 0,
+          "why": "the authority, inside HasAuthority"
+        },
+        {
+          "id": "tps-beginner-health-s6",
+          "kind": "mc",
+          "prompt": "Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. What has to be true before Has Authority writes?",
+          "choices": [
+            "a real damage event has arrived. That keeps the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "Any Damage has not fired and the graph is only hoping. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "Tick has run one frame even though nothing changed. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "the interact trace has already performed this write. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction."
+          ],
+          "answer": 0,
+          "why": "a real damage event has arrived"
+        },
+        {
+          "id": "tps-beginner-health-s7",
+          "kind": "tf",
+          "prompt": "True or false: Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. Any Damage is the start, and the damage event is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Any Damage through the damage event."
+        },
+        {
+          "id": "tps-beginner-health-s8",
+          "kind": "mc",
+          "prompt": "Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. Delete Any Damage and leave the rest of the TPS — Beginner compiled. What does the player lose?",
+          "choices": [
+            "Third-person health never starts, because nothing else fires the damage event. That keeps the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "Nothing visible, because Tick still does the work. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "the interact trace quietly takes over the job. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "The next travel's constructor writes it. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction."
+          ],
+          "answer": 0,
+          "why": "Any Damage is the only start."
+        },
+        {
+          "id": "tps-beginner-health-s9",
+          "kind": "mc",
+          "prompt": "Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. Which broken schedule is the one to refuse?",
+          "choices": [
+            "letting every client subtract Health, or subtracting again inside OnRep. That keeps the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "Leaving the real work on Any Damage. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "Waiting until a real damage event has arrived before the write. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "Keeping the authority, inside HasAuthority as the only writer. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction."
+          ],
+          "answer": 0,
+          "why": "letting every client subtract Health, or subtracting again inside OnRep"
+        },
+        {
+          "id": "tps-beginner-health-s10",
+          "kind": "mc",
+          "prompt": "Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. the interact trace wants to live in this same function. What stays separate?",
+          "choices": [
+            "the interact trace keeps its own event. This function only handles Health written only on the authority, then OnRep plays the local reaction. That keeps the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "the interact trace is inlined so one Tick serves both jobs. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "the interact trace writes the value from the client. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "the interact trace runs inside OnRep after this write. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "tps-beginner-health-s11",
+          "kind": "mc",
+          "prompt": "Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. A teammate also applies the write from OnRep, so the game need not wait for the authority, inside HasAuthority. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "The widget stops drawing until Tick resumes. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "Any Damage stops firing. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "tps-beginner-health-s12",
+          "kind": "mc",
+          "prompt": "Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. Which gate sits immediately in front of the write?",
+          "choices": [
+            "a real damage event has arrived, reached from Any Damage via the damage event. That keeps the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "A Tick frame, even when Any Damage is idle. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "A cast to every Blueprint that might show up. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction."
+          ],
+          "answer": 0,
+          "why": "a real damage event has arrived is the gate."
+        }
+      ]
+    },
+    "inventory": {
+      "plainEnglish": "In plain English: Overlap calls AddToSlot. The use-trace does not count the stack. What the function actually does is AddToSlot through the interface when StackCount is positive, then the count is cleared. the overlap, not the interact trace is who is allowed to do it.",
+      "whyGame": "In a real match, incrementing the stack from the use trace, which would count a look as a pickup looks almost right and then costs a query, a desync, or a double write. the use trace stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Third-person inventory listener",
+          "detail": "A follow-on in TPS — Beginner should bind to Begin Overlap after StackCount is greater than zero. It should not poll third-person inventory."
+        },
+        {
+          "title": "Third-person inventory data",
+          "detail": "Numbers a designer tunes for third-person inventory belong on a data row. AddToSlot through the interface when StackCount is positive, then the count is cleared can read that row without a new function."
+        },
+        {
+          "title": "Third-person inventory neighbor",
+          "detail": "the use trace must not be implemented inside Begin Overlap. Overlap calls AddToSlot. The use-trace does not count the stack."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tps-beginner-inventory-s1",
+          "kind": "mc",
+          "prompt": "Overlap calls AddToSlot. The use-trace does not count the stack. When `void UKitComponent::Graph_OnComponentBeginOverlap_tpl_inventoryslot_overlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor)` runs, what does the player get?",
+          "choices": [
+            "AddToSlot through the interface when StackCount is positive, then the count is cleared. That keeps the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "The line incrementing the stack from the use trace, which would count a look as a pickup. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "The constructor writes the result before a pawn exists. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "the use trace overwrites the value on every client. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack."
+          ],
+          "answer": 0,
+          "why": "AddToSlot through the interface when StackCount is positive, then the count is cleared"
+        },
+        {
+          "id": "tps-beginner-inventory-s2",
+          "kind": "mc",
+          "prompt": "Overlap calls AddToSlot. The use-trace does not count the stack. Where does Begin Overlap sit relative to Begin Overlap?",
+          "choices": [
+            "Begin Overlap runs after StackCount is greater than zero. Begin Overlap reaches that gate through the overlap exec. That keeps the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "Begin Overlap runs before Begin Overlap, so the write does not wait for the player. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "Begin Overlap sits on Tick while Begin Overlap is idle. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "Begin Overlap sits in OnRep and applies the change a second time. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack."
+          ],
+          "answer": 0,
+          "why": "Begin Overlap is the start."
+        },
+        {
+          "id": "tps-beginner-inventory-s3",
+          "kind": "tf",
+          "prompt": "True or false: Overlap calls AddToSlot. The use-trace does not count the stack.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Overlap calls AddToSlot. The use-trace does not count the stack."
+        },
+        {
+          "id": "tps-beginner-inventory-s4",
+          "kind": "tf",
+          "prompt": "True or false: Overlap calls AddToSlot. The use-trace does not count the stack. You keep that promise by incrementing the stack from the use trace, which would count a look as a pickup.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the overlap, not the interact trace is the real writer."
+        },
+        {
+          "id": "tps-beginner-inventory-s5",
+          "kind": "mc",
+          "prompt": "Overlap calls AddToSlot. The use-trace does not count the stack. Who may commit the change?",
+          "choices": [
+            "the overlap, not the interact trace. That keeps the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "Every client writes it so the result feels instant. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "The constructor writes it once, and Begin Overlap never fires. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack."
+          ],
+          "answer": 0,
+          "why": "the overlap, not the interact trace"
+        },
+        {
+          "id": "tps-beginner-inventory-s6",
+          "kind": "mc",
+          "prompt": "Overlap calls AddToSlot. The use-trace does not count the stack. What has to be true before Begin Overlap writes?",
+          "choices": [
+            "StackCount is greater than zero. That keeps the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "Begin Overlap has not fired and the graph is only hoping. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "Tick has run one frame even though nothing changed. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "the use trace has already performed this write. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack."
+          ],
+          "answer": 0,
+          "why": "StackCount is greater than zero"
+        },
+        {
+          "id": "tps-beginner-inventory-s7",
+          "kind": "tf",
+          "prompt": "True or false: Overlap calls AddToSlot. The use-trace does not count the stack. Begin Overlap is the start, and the overlap exec is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Begin Overlap through the overlap exec."
+        },
+        {
+          "id": "tps-beginner-inventory-s8",
+          "kind": "mc",
+          "prompt": "Overlap calls AddToSlot. The use-trace does not count the stack. Delete Begin Overlap and leave the rest of the TPS — Beginner compiled. What does the player lose?",
+          "choices": [
+            "Third-person inventory never starts, because nothing else fires the overlap exec. That keeps the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "Nothing visible, because Tick still does the work. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "the use trace quietly takes over the job. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "The next travel's constructor writes it. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack."
+          ],
+          "answer": 0,
+          "why": "Begin Overlap is the only start."
+        },
+        {
+          "id": "tps-beginner-inventory-s9",
+          "kind": "mc",
+          "prompt": "Overlap calls AddToSlot. The use-trace does not count the stack. Which broken schedule is the one to refuse?",
+          "choices": [
+            "incrementing the stack from the use trace, which would count a look as a pickup. That keeps the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "Leaving the real work on Begin Overlap. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "Waiting until StackCount is greater than zero before the write. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "Keeping the overlap, not the interact trace as the only writer. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack."
+          ],
+          "answer": 0,
+          "why": "incrementing the stack from the use trace, which would count a look as a pickup"
+        },
+        {
+          "id": "tps-beginner-inventory-s10",
+          "kind": "mc",
+          "prompt": "Overlap calls AddToSlot. The use-trace does not count the stack. the use trace wants to live in this same function. What stays separate?",
+          "choices": [
+            "the use trace keeps its own event. This function only handles AddToSlot through the interface when StackCount is positive, then the count is cleared. That keeps the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "the use trace is inlined so one Tick serves both jobs. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "the use trace writes the value from the client. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "the use trace runs inside OnRep after this write. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "tps-beginner-inventory-s11",
+          "kind": "mc",
+          "prompt": "Overlap calls AddToSlot. The use-trace does not count the stack. A teammate also applies the write from OnRep, so the game need not wait for the overlap, not the interact trace. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "The widget stops drawing until Tick resumes. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "Begin Overlap stops firing. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "tps-beginner-inventory-s12",
+          "kind": "mc",
+          "prompt": "Overlap calls AddToSlot. The use-trace does not count the stack. Which gate sits immediately in front of the write?",
+          "choices": [
+            "StackCount is greater than zero, reached from Begin Overlap via the overlap exec. That keeps the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "A Tick frame, even when Begin Overlap is idle. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "A cast to every Blueprint that might show up. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack."
+          ],
+          "answer": 0,
+          "why": "StackCount is greater than zero is the gate."
+        }
+      ]
+    },
+    "companion": {
+      "plainEnglish": "In plain English: AdvancePatrol runs from a timer. The squadmate does not tick a path. What the function actually does is the next patrol point on a one second timer, flipping GoingRight at the ends. the timer armed in Begin Play is who is allowed to do it.",
+      "whyGame": "In a real match, stepping the route from Tick, or starting a second move while Sense should only raise Alert looks almost right and then costs a query, a desync, or a double write. the player's move graph stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Squadmate patrol listener",
+          "detail": "A follow-on in TPS — Beginner should bind to AdvancePatrol after one second has passed. It should not poll squadmate patrol."
+        },
+        {
+          "title": "Squadmate patrol data",
+          "detail": "Numbers a designer tunes for squadmate patrol belong on a data row. the next patrol point on a one second timer, flipping GoingRight at the ends can read that row without a new function."
+        },
+        {
+          "title": "Squadmate patrol neighbor",
+          "detail": "the player's move graph must not be implemented inside Advance Patrol. AdvancePatrol runs from a timer. The squadmate does not tick a path."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tps-beginner-companion-s1",
+          "kind": "mc",
+          "prompt": "AdvancePatrol runs from a timer. The squadmate does not tick a path. When `void UKitComponent::Graph_AdvancePatrol_tpl_aipatrol_advance() // node:tpl_ai-patrol_advance` runs, what does the player get?",
+          "choices": [
+            "the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "The line stepping the route from Tick, or starting a second move while Sense should only raise Alert. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "The constructor writes the result before a pawn exists. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "the player's move graph overwrites the value on every client. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path."
+          ],
+          "answer": 0,
+          "why": "the next patrol point on a one second timer, flipping GoingRight at the ends"
+        },
+        {
+          "id": "tps-beginner-companion-s2",
+          "kind": "mc",
+          "prompt": "AdvancePatrol runs from a timer. The squadmate does not tick a path. Where does Advance Patrol sit relative to AdvancePatrol?",
+          "choices": [
+            "Advance Patrol runs after one second has passed. AdvancePatrol reaches that gate through the timer. That keeps the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "Advance Patrol runs before AdvancePatrol, so the write does not wait for the player. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "Advance Patrol sits on Tick while AdvancePatrol is idle. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "Advance Patrol sits in OnRep and applies the change a second time. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path."
+          ],
+          "answer": 0,
+          "why": "AdvancePatrol is the start."
+        },
+        {
+          "id": "tps-beginner-companion-s3",
+          "kind": "tf",
+          "prompt": "True or false: AdvancePatrol runs from a timer. The squadmate does not tick a path.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "AdvancePatrol runs from a timer. The squadmate does not tick a path."
+        },
+        {
+          "id": "tps-beginner-companion-s4",
+          "kind": "tf",
+          "prompt": "True or false: AdvancePatrol runs from a timer. The squadmate does not tick a path. You keep that promise by stepping the route from Tick, or starting a second move while Sense should only raise Alert.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the timer armed in Begin Play is the real writer."
+        },
+        {
+          "id": "tps-beginner-companion-s5",
+          "kind": "mc",
+          "prompt": "AdvancePatrol runs from a timer. The squadmate does not tick a path. Who may commit the change?",
+          "choices": [
+            "the timer armed in Begin Play. That keeps the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "Every client writes it so the result feels instant. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "The constructor writes it once, and AdvancePatrol never fires. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path."
+          ],
+          "answer": 0,
+          "why": "the timer armed in Begin Play"
+        },
+        {
+          "id": "tps-beginner-companion-s6",
+          "kind": "mc",
+          "prompt": "AdvancePatrol runs from a timer. The squadmate does not tick a path. What has to be true before Advance Patrol writes?",
+          "choices": [
+            "one second has passed. That keeps the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "AdvancePatrol has not fired and the graph is only hoping. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "Tick has run one frame even though nothing changed. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "the player's move graph has already performed this write. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path."
+          ],
+          "answer": 0,
+          "why": "one second has passed"
+        },
+        {
+          "id": "tps-beginner-companion-s7",
+          "kind": "tf",
+          "prompt": "True or false: AdvancePatrol runs from a timer. The squadmate does not tick a path. AdvancePatrol is the start, and the timer is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "AdvancePatrol through the timer."
+        },
+        {
+          "id": "tps-beginner-companion-s8",
+          "kind": "mc",
+          "prompt": "AdvancePatrol runs from a timer. The squadmate does not tick a path. Delete AdvancePatrol and leave the rest of the TPS — Beginner compiled. What does the player lose?",
+          "choices": [
+            "Squadmate patrol never starts, because nothing else fires the timer. That keeps the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "Nothing visible, because Tick still does the work. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "the player's move graph quietly takes over the job. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "The next travel's constructor writes it. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path."
+          ],
+          "answer": 0,
+          "why": "AdvancePatrol is the only start."
+        },
+        {
+          "id": "tps-beginner-companion-s9",
+          "kind": "mc",
+          "prompt": "AdvancePatrol runs from a timer. The squadmate does not tick a path. Which broken schedule is the one to refuse?",
+          "choices": [
+            "stepping the route from Tick, or starting a second move while Sense should only raise Alert. That keeps the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "Leaving the real work on AdvancePatrol. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "Waiting until one second has passed before the write. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "Keeping the timer armed in Begin Play as the only writer. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path."
+          ],
+          "answer": 0,
+          "why": "stepping the route from Tick, or starting a second move while Sense should only raise Alert"
+        },
+        {
+          "id": "tps-beginner-companion-s10",
+          "kind": "mc",
+          "prompt": "AdvancePatrol runs from a timer. The squadmate does not tick a path. the player's move graph wants to live in this same function. What stays separate?",
+          "choices": [
+            "the player's move graph keeps its own event. This function only handles the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "the player's move graph is inlined so one Tick serves both jobs. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "the player's move graph writes the value from the client. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "the player's move graph runs inside OnRep after this write. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "tps-beginner-companion-s11",
+          "kind": "mc",
+          "prompt": "AdvancePatrol runs from a timer. The squadmate does not tick a path. A teammate also applies the write from OnRep, so the game need not wait for the timer armed in Begin Play. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "The widget stops drawing until Tick resumes. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "AdvancePatrol stops firing. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "tps-beginner-companion-s12",
+          "kind": "mc",
+          "prompt": "AdvancePatrol runs from a timer. The squadmate does not tick a path. Which gate sits immediately in front of the write?",
+          "choices": [
+            "one second has passed, reached from AdvancePatrol via the timer. That keeps the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "A Tick frame, even when AdvancePatrol is idle. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "A cast to every Blueprint that might show up. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that advancePatrol runs from a timer. The squadmate does not tick a path."
+          ],
+          "answer": 0,
+          "why": "one second has passed is the gate."
+        }
+      ]
+    },
+    "save": {
+      "plainEnglish": "In plain English: Begin Play loads the pawn, the mag, and the companion point. What the function actually does is one struct loaded at Begin Play, written earlier by an event rather than by Tick. Begin Play for the load, and a finished event for the save is who is allowed to do it.",
+      "whyGame": "In a real match, assigning SlotValue from Tick every frame, including while a value is still changing looks almost right and then costs a query, a desync, or a double write. Tick stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Third-person save listener",
+          "detail": "A follow-on in TPS — Beginner should bind to Begin Play after the slot struct already exists. It should not poll third-person save."
+        },
+        {
+          "title": "Third-person save data",
+          "detail": "Numbers a designer tunes for third-person save belong on a data row. one struct loaded at Begin Play, written earlier by an event rather than by Tick can read that row without a new function."
+        },
+        {
+          "title": "Third-person save neighbor",
+          "detail": "Tick must not be implemented inside Begin Play. Begin Play loads the pawn, the mag, and the companion point."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "tps-beginner-save-s1",
+          "kind": "mc",
+          "prompt": "Begin Play loads the pawn, the mag, and the companion point. When `void UKitComponent::Graph_BeginPlay_tpl_saveload_begin() // node:tpl_save-load_begin` runs, what does the player get?",
+          "choices": [
+            "one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "The line assigning SlotValue from Tick every frame, including while a value is still changing. That would break the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "The constructor writes the result before a pawn exists. That would break the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "Tick overwrites the value on every client. That would break the rule that begin Play loads the pawn, the mag, and the companion point."
+          ],
+          "answer": 0,
+          "why": "one struct loaded at Begin Play, written earlier by an event rather than by Tick"
+        },
+        {
+          "id": "tps-beginner-save-s2",
+          "kind": "mc",
+          "prompt": "Begin Play loads the pawn, the mag, and the companion point. Where does Begin Play sit relative to Begin Play?",
+          "choices": [
+            "Begin Play runs after the slot struct already exists. Begin Play reaches that gate through Begin Play. That keeps the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "Begin Play runs before Begin Play, so the write does not wait for the player. That would break the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "Begin Play sits on Tick while Begin Play is idle. That would break the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "Begin Play sits in OnRep and applies the change a second time. That would break the rule that begin Play loads the pawn, the mag, and the companion point."
+          ],
+          "answer": 0,
+          "why": "Begin Play is the start."
+        },
+        {
+          "id": "tps-beginner-save-s3",
+          "kind": "tf",
+          "prompt": "True or false: Begin Play loads the pawn, the mag, and the companion point.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Begin Play loads the pawn, the mag, and the companion point."
+        },
+        {
+          "id": "tps-beginner-save-s4",
+          "kind": "tf",
+          "prompt": "True or false: Begin Play loads the pawn, the mag, and the companion point. You keep that promise by assigning SlotValue from Tick every frame, including while a value is still changing.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Begin Play for the load, and a finished event for the save is the real writer."
+        },
+        {
+          "id": "tps-beginner-save-s5",
+          "kind": "mc",
+          "prompt": "Begin Play loads the pawn, the mag, and the companion point. Who may commit the change?",
+          "choices": [
+            "Begin Play for the load, and a finished event for the save. That keeps the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "Every client writes it so the result feels instant. That would break the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "The constructor writes it once, and Begin Play never fires. That would break the rule that begin Play loads the pawn, the mag, and the companion point."
+          ],
+          "answer": 0,
+          "why": "Begin Play for the load, and a finished event for the save"
+        },
+        {
+          "id": "tps-beginner-save-s6",
+          "kind": "mc",
+          "prompt": "Begin Play loads the pawn, the mag, and the companion point. What has to be true before Begin Play writes?",
+          "choices": [
+            "the slot struct already exists. That keeps the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "Begin Play has not fired and the graph is only hoping. That would break the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "Tick has run one frame even though nothing changed. That would break the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "Tick has already performed this write. That would break the rule that begin Play loads the pawn, the mag, and the companion point."
+          ],
+          "answer": 0,
+          "why": "the slot struct already exists"
+        },
+        {
+          "id": "tps-beginner-save-s7",
+          "kind": "tf",
+          "prompt": "True or false: Begin Play loads the pawn, the mag, and the companion point. Begin Play is the start, and Begin Play is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Begin Play through Begin Play."
+        },
+        {
+          "id": "tps-beginner-save-s8",
+          "kind": "mc",
+          "prompt": "Begin Play loads the pawn, the mag, and the companion point. Delete Begin Play and leave the rest of the TPS — Beginner compiled. What does the player lose?",
+          "choices": [
+            "Third-person save never starts, because nothing else fires Begin Play. That keeps the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "Nothing visible, because Tick still does the work. That would break the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "Tick quietly takes over the job. That would break the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "The next travel's constructor writes it. That would break the rule that begin Play loads the pawn, the mag, and the companion point."
+          ],
+          "answer": 0,
+          "why": "Begin Play is the only start."
+        },
+        {
+          "id": "tps-beginner-save-s9",
+          "kind": "mc",
+          "prompt": "Begin Play loads the pawn, the mag, and the companion point. Which broken schedule is the one to refuse?",
+          "choices": [
+            "assigning SlotValue from Tick every frame, including while a value is still changing. That keeps the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "Leaving the real work on Begin Play. That would break the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "Waiting until the slot struct already exists before the write. That would break the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "Keeping Begin Play for the load, and a finished event for the save as the only writer. That would break the rule that begin Play loads the pawn, the mag, and the companion point."
+          ],
+          "answer": 0,
+          "why": "assigning SlotValue from Tick every frame, including while a value is still changing"
+        },
+        {
+          "id": "tps-beginner-save-s10",
+          "kind": "mc",
+          "prompt": "Begin Play loads the pawn, the mag, and the companion point. Tick wants to live in this same function. What stays separate?",
+          "choices": [
+            "Tick keeps its own event. This function only handles one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "Tick is inlined so one Tick serves both jobs. That would break the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "Tick writes the value from the client. That would break the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "Tick runs inside OnRep after this write. That would break the rule that begin Play loads the pawn, the mag, and the companion point."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "tps-beginner-save-s11",
+          "kind": "mc",
+          "prompt": "Begin Play loads the pawn, the mag, and the companion point. A teammate also applies the write from OnRep, so the game need not wait for Begin Play for the load, and a finished event for the save. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "The widget stops drawing until Tick resumes. That would break the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "Begin Play stops firing. That would break the rule that begin Play loads the pawn, the mag, and the companion point."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "tps-beginner-save-s12",
+          "kind": "mc",
+          "prompt": "Begin Play loads the pawn, the mag, and the companion point. Which gate sits immediately in front of the write?",
+          "choices": [
+            "the slot struct already exists, reached from Begin Play via Begin Play. That keeps the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "A Tick frame, even when Begin Play is idle. That would break the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "A cast to every Blueprint that might show up. That would break the rule that begin Play loads the pawn, the mag, and the companion point.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that begin Play loads the pawn, the mag, and the companion point."
+          ],
+          "answer": 0,
+          "why": "the slot struct already exists is the gate."
+        }
+      ]
+    }
+  },
+  "exam": [
+    {
+      "id": "study-tps-beginner-exam-0",
+      "kind": "tf",
+      "prompt": "True or false: IA_Aim traces from the camera and sets Aiming. This is not the interact graph. IA_Move writes Speed. The camera reads the pawn and does not write it. That pair of rules also means third-person movement may writing Speed from Tick so the gait updates even in a menu.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Over-the-shoulder camera does not give Third-person movement permission to writing Speed from Tick so the gait updates even in a menu."
+    },
+    {
+      "id": "study-tps-beginner-exam-1",
+      "kind": "tf",
+      "prompt": "True or false: IA_Aim traces from the camera and sets Aiming. This is not the interact graph. Use traces from the camera and calls Interact. Aim only set a bool. Over-the-shoulder camera still starts at IA_Aim after the player has learned third-person interaction.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "IA_Aim remains the start of Over-the-shoulder camera."
+    },
+    {
+      "id": "study-tps-beginner-exam-2",
+      "kind": "mc",
+      "prompt": "IA_Aim traces from the camera and sets Aiming. This is not the interact graph. IA_Reload checks the magazine and the reserve, then clamps. A prototype runs both jobs from IA_Reload. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Over-the-shoulder camera keeps IA_Aim so it can Aiming set true when the aim trace from the camera hits. Third-person weapon keeps IA_Reload so it can Needed clamped between zero and the empty space in the magazine, then added to Magazine and taken from Reserve. That keeps the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph. IA_Reload checks the magazine and the reserve, then clamps.",
+        "Fold the first job into IA_Reload so the exam build has one event. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph. IA_Reload checks the magazine and the reserve, then clamps.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph. IA_Reload checks the magazine and the reserve, then clamps.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph. IA_Reload checks the magazine and the reserve, then clamps."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-3",
+      "kind": "mc",
+      "prompt": "IA_Aim traces from the camera and sets Aiming. This is not the interact graph. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. A prototype runs both jobs from Any Damage. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Over-the-shoulder camera keeps IA_Aim so it can Aiming set true when the aim trace from the camera hits. Third-person health keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. That keeps the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+        "Fold the first job into Any Damage so the exam build has one event. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-4",
+      "kind": "mc",
+      "prompt": "IA_Aim traces from the camera and sets Aiming. This is not the interact graph. Overlap calls AddToSlot. The use-trace does not count the stack. A prototype runs both jobs from Begin Overlap. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Over-the-shoulder camera keeps IA_Aim so it can Aiming set true when the aim trace from the camera hits. Third-person inventory keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. That keeps the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph. Overlap calls AddToSlot. The use-trace does not count the stack.",
+        "Fold the first job into Begin Overlap so the exam build has one event. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph. Overlap calls AddToSlot. The use-trace does not count the stack.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph. Overlap calls AddToSlot. The use-trace does not count the stack.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph. Overlap calls AddToSlot. The use-trace does not count the stack."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-5",
+      "kind": "mc",
+      "prompt": "IA_Aim traces from the camera and sets Aiming. This is not the interact graph. AdvancePatrol runs from a timer. The squadmate does not tick a path. A prototype runs both jobs from AdvancePatrol. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Over-the-shoulder camera keeps IA_Aim so it can Aiming set true when the aim trace from the camera hits. Squadmate patrol keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph. AdvancePatrol runs from a timer. The squadmate does not tick a path.",
+        "Fold the first job into AdvancePatrol so the exam build has one event. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph. AdvancePatrol runs from a timer. The squadmate does not tick a path.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph. AdvancePatrol runs from a timer. The squadmate does not tick a path.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph. AdvancePatrol runs from a timer. The squadmate does not tick a path."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-6",
+      "kind": "mc",
+      "prompt": "IA_Aim traces from the camera and sets Aiming. This is not the interact graph. Begin Play loads the pawn, the mag, and the companion point. A prototype runs both jobs from Begin Play. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Over-the-shoulder camera keeps IA_Aim so it can Aiming set true when the aim trace from the camera hits. Third-person save keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph. Begin Play loads the pawn, the mag, and the companion point.",
+        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph. Begin Play loads the pawn, the mag, and the companion point.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph. Begin Play loads the pawn, the mag, and the companion point.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Aim traces from the camera and sets Aiming. This is not the interact graph. Begin Play loads the pawn, the mag, and the companion point."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-7",
+      "kind": "tf",
+      "prompt": "True or false: IA_Move writes Speed. The camera reads the pawn and does not write it. IA_Aim traces from the camera and sets Aiming. This is not the interact graph. That pair of rules also means over-the-shoulder camera may setting Aiming from Tick, or firing the weapon from the camera graph.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Third-person movement does not give Over-the-shoulder camera permission to setting Aiming from Tick, or firing the weapon from the camera graph."
+    },
+    {
+      "id": "study-tps-beginner-exam-8",
+      "kind": "tf",
+      "prompt": "True or false: IA_Move writes Speed. The camera reads the pawn and does not write it. Use traces from the camera and calls Interact. Aim only set a bool. Third-person movement still starts at IA_Move after the player has learned third-person interaction.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "IA_Move remains the start of Third-person movement."
+    },
+    {
+      "id": "study-tps-beginner-exam-9",
+      "kind": "mc",
+      "prompt": "IA_Move writes Speed. The camera reads the pawn and does not write it. IA_Reload checks the magazine and the reserve, then clamps. A prototype runs both jobs from IA_Reload. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person movement keeps IA_Move so it can Speed set to 600 while the axis is pushed, or 200 when it is released. Third-person weapon keeps IA_Reload so it can Needed clamped between zero and the empty space in the magazine, then added to Magazine and taken from Reserve. That keeps the rule that iA_Move writes Speed. The camera reads the pawn and does not write it. IA_Reload checks the magazine and the reserve, then clamps.",
+        "Fold the first job into IA_Reload so the exam build has one event. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it. IA_Reload checks the magazine and the reserve, then clamps.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it. IA_Reload checks the magazine and the reserve, then clamps.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it. IA_Reload checks the magazine and the reserve, then clamps."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-10",
+      "kind": "mc",
+      "prompt": "IA_Move writes Speed. The camera reads the pawn and does not write it. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. A prototype runs both jobs from Any Damage. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person movement keeps IA_Move so it can Speed set to 600 while the axis is pushed, or 200 when it is released. Third-person health keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. That keeps the rule that iA_Move writes Speed. The camera reads the pawn and does not write it. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+        "Fold the first job into Any Damage so the exam build has one event. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-11",
+      "kind": "mc",
+      "prompt": "IA_Move writes Speed. The camera reads the pawn and does not write it. Overlap calls AddToSlot. The use-trace does not count the stack. A prototype runs both jobs from Begin Overlap. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person movement keeps IA_Move so it can Speed set to 600 while the axis is pushed, or 200 when it is released. Third-person inventory keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. That keeps the rule that iA_Move writes Speed. The camera reads the pawn and does not write it. Overlap calls AddToSlot. The use-trace does not count the stack.",
+        "Fold the first job into Begin Overlap so the exam build has one event. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it. Overlap calls AddToSlot. The use-trace does not count the stack.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it. Overlap calls AddToSlot. The use-trace does not count the stack.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it. Overlap calls AddToSlot. The use-trace does not count the stack."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-12",
+      "kind": "mc",
+      "prompt": "IA_Move writes Speed. The camera reads the pawn and does not write it. AdvancePatrol runs from a timer. The squadmate does not tick a path. A prototype runs both jobs from AdvancePatrol. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person movement keeps IA_Move so it can Speed set to 600 while the axis is pushed, or 200 when it is released. Squadmate patrol keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that iA_Move writes Speed. The camera reads the pawn and does not write it. AdvancePatrol runs from a timer. The squadmate does not tick a path.",
+        "Fold the first job into AdvancePatrol so the exam build has one event. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it. AdvancePatrol runs from a timer. The squadmate does not tick a path.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it. AdvancePatrol runs from a timer. The squadmate does not tick a path.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it. AdvancePatrol runs from a timer. The squadmate does not tick a path."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-13",
+      "kind": "mc",
+      "prompt": "IA_Move writes Speed. The camera reads the pawn and does not write it. Begin Play loads the pawn, the mag, and the companion point. A prototype runs both jobs from Begin Play. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person movement keeps IA_Move so it can Speed set to 600 while the axis is pushed, or 200 when it is released. Third-person save keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that iA_Move writes Speed. The camera reads the pawn and does not write it. Begin Play loads the pawn, the mag, and the companion point.",
+        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it. Begin Play loads the pawn, the mag, and the companion point.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it. Begin Play loads the pawn, the mag, and the companion point.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Move writes Speed. The camera reads the pawn and does not write it. Begin Play loads the pawn, the mag, and the companion point."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-14",
+      "kind": "tf",
+      "prompt": "True or false: Use traces from the camera and calls Interact. Aim only set a bool. IA_Aim traces from the camera and sets Aiming. This is not the interact graph. That pair of rules also means over-the-shoulder camera may setting Aiming from Tick, or firing the weapon from the camera graph.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Third-person interaction does not give Over-the-shoulder camera permission to setting Aiming from Tick, or firing the weapon from the camera graph."
+    },
+    {
+      "id": "study-tps-beginner-exam-15",
+      "kind": "tf",
+      "prompt": "True or false: Use traces from the camera and calls Interact. Aim only set a bool. IA_Move writes Speed. The camera reads the pawn and does not write it. Third-person interaction still starts at IA_Interact after the player has learned third-person movement.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "IA_Interact remains the start of Third-person interaction."
+    },
+    {
+      "id": "study-tps-beginner-exam-16",
+      "kind": "mc",
+      "prompt": "Use traces from the camera and calls Interact. Aim only set a bool. IA_Reload checks the magazine and the reserve, then clamps. A prototype runs both jobs from IA_Reload. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person interaction keeps IA_Interact so it can a line trace from the aim, then Interact on the actor that was hit. Third-person weapon keeps IA_Reload so it can Needed clamped between zero and the empty space in the magazine, then added to Magazine and taken from Reserve. That keeps the rule that use traces from the camera and calls Interact. Aim only set a bool. IA_Reload checks the magazine and the reserve, then clamps.",
+        "Fold the first job into IA_Reload so the exam build has one event. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool. IA_Reload checks the magazine and the reserve, then clamps.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool. IA_Reload checks the magazine and the reserve, then clamps.",
+        "Let each client apply both writes before the authority answers. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool. IA_Reload checks the magazine and the reserve, then clamps."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-17",
+      "kind": "mc",
+      "prompt": "Use traces from the camera and calls Interact. Aim only set a bool. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. A prototype runs both jobs from Any Damage. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person interaction keeps IA_Interact so it can a line trace from the aim, then Interact on the actor that was hit. Third-person health keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. That keeps the rule that use traces from the camera and calls Interact. Aim only set a bool. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+        "Fold the first job into Any Damage so the exam build has one event. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+        "Let each client apply both writes before the authority answers. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-18",
+      "kind": "mc",
+      "prompt": "Use traces from the camera and calls Interact. Aim only set a bool. Overlap calls AddToSlot. The use-trace does not count the stack. A prototype runs both jobs from Begin Overlap. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person interaction keeps IA_Interact so it can a line trace from the aim, then Interact on the actor that was hit. Third-person inventory keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. That keeps the rule that use traces from the camera and calls Interact. Aim only set a bool. Overlap calls AddToSlot. The use-trace does not count the stack.",
+        "Fold the first job into Begin Overlap so the exam build has one event. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool. Overlap calls AddToSlot. The use-trace does not count the stack.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool. Overlap calls AddToSlot. The use-trace does not count the stack.",
+        "Let each client apply both writes before the authority answers. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool. Overlap calls AddToSlot. The use-trace does not count the stack."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-19",
+      "kind": "mc",
+      "prompt": "Use traces from the camera and calls Interact. Aim only set a bool. AdvancePatrol runs from a timer. The squadmate does not tick a path. A prototype runs both jobs from AdvancePatrol. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person interaction keeps IA_Interact so it can a line trace from the aim, then Interact on the actor that was hit. Squadmate patrol keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that use traces from the camera and calls Interact. Aim only set a bool. AdvancePatrol runs from a timer. The squadmate does not tick a path.",
+        "Fold the first job into AdvancePatrol so the exam build has one event. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool. AdvancePatrol runs from a timer. The squadmate does not tick a path.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool. AdvancePatrol runs from a timer. The squadmate does not tick a path.",
+        "Let each client apply both writes before the authority answers. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool. AdvancePatrol runs from a timer. The squadmate does not tick a path."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-20",
+      "kind": "mc",
+      "prompt": "Use traces from the camera and calls Interact. Aim only set a bool. Begin Play loads the pawn, the mag, and the companion point. A prototype runs both jobs from Begin Play. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person interaction keeps IA_Interact so it can a line trace from the aim, then Interact on the actor that was hit. Third-person save keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that use traces from the camera and calls Interact. Aim only set a bool. Begin Play loads the pawn, the mag, and the companion point.",
+        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool. Begin Play loads the pawn, the mag, and the companion point.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool. Begin Play loads the pawn, the mag, and the companion point.",
+        "Let each client apply both writes before the authority answers. That would break the rule that use traces from the camera and calls Interact. Aim only set a bool. Begin Play loads the pawn, the mag, and the companion point."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-21",
+      "kind": "tf",
+      "prompt": "True or false: IA_Reload checks the magazine and the reserve, then clamps. IA_Aim traces from the camera and sets Aiming. This is not the interact graph. That pair of rules also means over-the-shoulder camera may setting Aiming from Tick, or firing the weapon from the camera graph.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Third-person weapon does not give Over-the-shoulder camera permission to setting Aiming from Tick, or firing the weapon from the camera graph."
+    },
+    {
+      "id": "study-tps-beginner-exam-22",
+      "kind": "tf",
+      "prompt": "True or false: IA_Reload checks the magazine and the reserve, then clamps. IA_Move writes Speed. The camera reads the pawn and does not write it. Third-person weapon still starts at IA_Reload after the player has learned third-person movement.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "IA_Reload remains the start of Third-person weapon."
+    },
+    {
+      "id": "study-tps-beginner-exam-23",
+      "kind": "mc",
+      "prompt": "IA_Reload checks the magazine and the reserve, then clamps. Use traces from the camera and calls Interact. Aim only set a bool. A prototype runs both jobs from IA_Interact. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person weapon keeps IA_Reload so it can Needed clamped between zero and the empty space in the magazine, then added to Magazine and taken from Reserve. Third-person interaction keeps IA_Interact so it can a line trace from the aim, then Interact on the actor that was hit. That keeps the rule that iA_Reload checks the magazine and the reserve, then clamps. Use traces from the camera and calls Interact. Aim only set a bool.",
+        "Fold the first job into IA_Interact so the exam build has one event. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps. Use traces from the camera and calls Interact. Aim only set a bool.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps. Use traces from the camera and calls Interact. Aim only set a bool.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps. Use traces from the camera and calls Interact. Aim only set a bool."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-24",
+      "kind": "mc",
+      "prompt": "IA_Reload checks the magazine and the reserve, then clamps. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. A prototype runs both jobs from Any Damage. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person weapon keeps IA_Reload so it can Needed clamped between zero and the empty space in the magazine, then added to Magazine and taken from Reserve. Third-person health keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. That keeps the rule that iA_Reload checks the magazine and the reserve, then clamps. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+        "Fold the first job into Any Damage so the exam build has one event. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-25",
+      "kind": "mc",
+      "prompt": "IA_Reload checks the magazine and the reserve, then clamps. Overlap calls AddToSlot. The use-trace does not count the stack. A prototype runs both jobs from Begin Overlap. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person weapon keeps IA_Reload so it can Needed clamped between zero and the empty space in the magazine, then added to Magazine and taken from Reserve. Third-person inventory keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. That keeps the rule that iA_Reload checks the magazine and the reserve, then clamps. Overlap calls AddToSlot. The use-trace does not count the stack.",
+        "Fold the first job into Begin Overlap so the exam build has one event. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps. Overlap calls AddToSlot. The use-trace does not count the stack.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps. Overlap calls AddToSlot. The use-trace does not count the stack.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps. Overlap calls AddToSlot. The use-trace does not count the stack."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-26",
+      "kind": "mc",
+      "prompt": "IA_Reload checks the magazine and the reserve, then clamps. AdvancePatrol runs from a timer. The squadmate does not tick a path. A prototype runs both jobs from AdvancePatrol. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person weapon keeps IA_Reload so it can Needed clamped between zero and the empty space in the magazine, then added to Magazine and taken from Reserve. Squadmate patrol keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that iA_Reload checks the magazine and the reserve, then clamps. AdvancePatrol runs from a timer. The squadmate does not tick a path.",
+        "Fold the first job into AdvancePatrol so the exam build has one event. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps. AdvancePatrol runs from a timer. The squadmate does not tick a path.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps. AdvancePatrol runs from a timer. The squadmate does not tick a path.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps. AdvancePatrol runs from a timer. The squadmate does not tick a path."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-27",
+      "kind": "mc",
+      "prompt": "IA_Reload checks the magazine and the reserve, then clamps. Begin Play loads the pawn, the mag, and the companion point. A prototype runs both jobs from Begin Play. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person weapon keeps IA_Reload so it can Needed clamped between zero and the empty space in the magazine, then added to Magazine and taken from Reserve. Third-person save keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that iA_Reload checks the magazine and the reserve, then clamps. Begin Play loads the pawn, the mag, and the companion point.",
+        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps. Begin Play loads the pawn, the mag, and the companion point.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps. Begin Play loads the pawn, the mag, and the companion point.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Reload checks the magazine and the reserve, then clamps. Begin Play loads the pawn, the mag, and the companion point."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-28",
+      "kind": "tf",
+      "prompt": "True or false: Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. IA_Aim traces from the camera and sets Aiming. This is not the interact graph. That pair of rules also means over-the-shoulder camera may setting Aiming from Tick, or firing the weapon from the camera graph.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Third-person health does not give Over-the-shoulder camera permission to setting Aiming from Tick, or firing the weapon from the camera graph."
+    },
+    {
+      "id": "study-tps-beginner-exam-29",
+      "kind": "tf",
+      "prompt": "True or false: Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. IA_Move writes Speed. The camera reads the pawn and does not write it. Third-person health still starts at Any Damage after the player has learned third-person movement.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "Any Damage remains the start of Third-person health."
+    },
+    {
+      "id": "study-tps-beginner-exam-30",
+      "kind": "mc",
+      "prompt": "Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. Use traces from the camera and calls Interact. Aim only set a bool. A prototype runs both jobs from IA_Interact. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person health keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. Third-person interaction keeps IA_Interact so it can a line trace from the aim, then Interact on the actor that was hit. That keeps the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction. Use traces from the camera and calls Interact. Aim only set a bool.",
+        "Fold the first job into IA_Interact so the exam build has one event. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction. Use traces from the camera and calls Interact. Aim only set a bool.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction. Use traces from the camera and calls Interact. Aim only set a bool.",
+        "Let each client apply both writes before the authority answers. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction. Use traces from the camera and calls Interact. Aim only set a bool."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-31",
+      "kind": "mc",
+      "prompt": "Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. IA_Reload checks the magazine and the reserve, then clamps. A prototype runs both jobs from IA_Reload. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person health keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. Third-person weapon keeps IA_Reload so it can Needed clamped between zero and the empty space in the magazine, then added to Magazine and taken from Reserve. That keeps the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction. IA_Reload checks the magazine and the reserve, then clamps.",
+        "Fold the first job into IA_Reload so the exam build has one event. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction. IA_Reload checks the magazine and the reserve, then clamps.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction. IA_Reload checks the magazine and the reserve, then clamps.",
+        "Let each client apply both writes before the authority answers. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction. IA_Reload checks the magazine and the reserve, then clamps."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-32",
+      "kind": "mc",
+      "prompt": "Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. Overlap calls AddToSlot. The use-trace does not count the stack. A prototype runs both jobs from Begin Overlap. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person health keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. Third-person inventory keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. That keeps the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction. Overlap calls AddToSlot. The use-trace does not count the stack.",
+        "Fold the first job into Begin Overlap so the exam build has one event. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction. Overlap calls AddToSlot. The use-trace does not count the stack.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction. Overlap calls AddToSlot. The use-trace does not count the stack.",
+        "Let each client apply both writes before the authority answers. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction. Overlap calls AddToSlot. The use-trace does not count the stack."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-33",
+      "kind": "mc",
+      "prompt": "Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. AdvancePatrol runs from a timer. The squadmate does not tick a path. A prototype runs both jobs from AdvancePatrol. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person health keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. Squadmate patrol keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction. AdvancePatrol runs from a timer. The squadmate does not tick a path.",
+        "Fold the first job into AdvancePatrol so the exam build has one event. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction. AdvancePatrol runs from a timer. The squadmate does not tick a path.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction. AdvancePatrol runs from a timer. The squadmate does not tick a path.",
+        "Let each client apply both writes before the authority answers. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction. AdvancePatrol runs from a timer. The squadmate does not tick a path."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-34",
+      "kind": "mc",
+      "prompt": "Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. Begin Play loads the pawn, the mag, and the companion point. A prototype runs both jobs from Begin Play. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person health keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. Third-person save keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction. Begin Play loads the pawn, the mag, and the companion point.",
+        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction. Begin Play loads the pawn, the mag, and the companion point.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction. Begin Play loads the pawn, the mag, and the companion point.",
+        "Let each client apply both writes before the authority answers. That would break the rule that any Damage writes Health on the authority. OnRep updates the third-person hit reaction. Begin Play loads the pawn, the mag, and the companion point."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-35",
+      "kind": "tf",
+      "prompt": "True or false: Overlap calls AddToSlot. The use-trace does not count the stack. IA_Aim traces from the camera and sets Aiming. This is not the interact graph. That pair of rules also means over-the-shoulder camera may setting Aiming from Tick, or firing the weapon from the camera graph.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Third-person inventory does not give Over-the-shoulder camera permission to setting Aiming from Tick, or firing the weapon from the camera graph."
+    },
+    {
+      "id": "study-tps-beginner-exam-36",
+      "kind": "tf",
+      "prompt": "True or false: Overlap calls AddToSlot. The use-trace does not count the stack. IA_Move writes Speed. The camera reads the pawn and does not write it. Third-person inventory still starts at Begin Overlap after the player has learned third-person movement.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "Begin Overlap remains the start of Third-person inventory."
+    },
+    {
+      "id": "study-tps-beginner-exam-37",
+      "kind": "mc",
+      "prompt": "Overlap calls AddToSlot. The use-trace does not count the stack. Use traces from the camera and calls Interact. Aim only set a bool. A prototype runs both jobs from IA_Interact. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person inventory keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. Third-person interaction keeps IA_Interact so it can a line trace from the aim, then Interact on the actor that was hit. That keeps the rule that overlap calls AddToSlot. The use-trace does not count the stack. Use traces from the camera and calls Interact. Aim only set a bool.",
+        "Fold the first job into IA_Interact so the exam build has one event. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack. Use traces from the camera and calls Interact. Aim only set a bool.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack. Use traces from the camera and calls Interact. Aim only set a bool.",
+        "Let each client apply both writes before the authority answers. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack. Use traces from the camera and calls Interact. Aim only set a bool."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-38",
+      "kind": "mc",
+      "prompt": "Overlap calls AddToSlot. The use-trace does not count the stack. IA_Reload checks the magazine and the reserve, then clamps. A prototype runs both jobs from IA_Reload. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person inventory keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. Third-person weapon keeps IA_Reload so it can Needed clamped between zero and the empty space in the magazine, then added to Magazine and taken from Reserve. That keeps the rule that overlap calls AddToSlot. The use-trace does not count the stack. IA_Reload checks the magazine and the reserve, then clamps.",
+        "Fold the first job into IA_Reload so the exam build has one event. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack. IA_Reload checks the magazine and the reserve, then clamps.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack. IA_Reload checks the magazine and the reserve, then clamps.",
+        "Let each client apply both writes before the authority answers. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack. IA_Reload checks the magazine and the reserve, then clamps."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-39",
+      "kind": "mc",
+      "prompt": "Overlap calls AddToSlot. The use-trace does not count the stack. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction. A prototype runs both jobs from Any Damage. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person inventory keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. Third-person health keeps Any Damage so it can Health written only on the authority, then OnRep plays the local reaction. That keeps the rule that overlap calls AddToSlot. The use-trace does not count the stack. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+        "Fold the first job into Any Damage so the exam build has one event. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction.",
+        "Let each client apply both writes before the authority answers. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack. Any Damage writes Health on the authority. OnRep updates the third-person hit reaction."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-40",
+      "kind": "mc",
+      "prompt": "Overlap calls AddToSlot. The use-trace does not count the stack. AdvancePatrol runs from a timer. The squadmate does not tick a path. A prototype runs both jobs from AdvancePatrol. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person inventory keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. Squadmate patrol keeps AdvancePatrol so it can the next patrol point on a one second timer, flipping GoingRight at the ends. That keeps the rule that overlap calls AddToSlot. The use-trace does not count the stack. AdvancePatrol runs from a timer. The squadmate does not tick a path.",
+        "Fold the first job into AdvancePatrol so the exam build has one event. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack. AdvancePatrol runs from a timer. The squadmate does not tick a path.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack. AdvancePatrol runs from a timer. The squadmate does not tick a path.",
+        "Let each client apply both writes before the authority answers. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack. AdvancePatrol runs from a timer. The squadmate does not tick a path."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-41",
+      "kind": "mc",
+      "prompt": "Overlap calls AddToSlot. The use-trace does not count the stack. Begin Play loads the pawn, the mag, and the companion point. A prototype runs both jobs from Begin Play. What do you put back in TPS — Beginner?",
+      "choices": [
+        "Third-person inventory keeps Begin Overlap so it can AddToSlot through the interface when StackCount is positive, then the count is cleared. Third-person save keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that overlap calls AddToSlot. The use-trace does not count the stack. Begin Play loads the pawn, the mag, and the companion point.",
+        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack. Begin Play loads the pawn, the mag, and the companion point.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack. Begin Play loads the pawn, the mag, and the companion point.",
+        "Let each client apply both writes before the authority answers. That would break the rule that overlap calls AddToSlot. The use-trace does not count the stack. Begin Play loads the pawn, the mag, and the companion point."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-tps-beginner-exam-42",
+      "kind": "tf",
+      "prompt": "True or false: AdvancePatrol runs from a timer. The squadmate does not tick a path. IA_Aim traces from the camera and sets Aiming. This is not the interact graph. That pair of rules also means over-the-shoulder camera may setting Aiming from Tick, or firing the weapon from the camera graph.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Squadmate patrol does not give Over-the-shoulder camera permission to setting Aiming from Tick, or firing the weapon from the camera graph."
+    },
+    {
+      "id": "study-tps-beginner-exam-43",
+      "kind": "tf",
+      "prompt": "True or false: AdvancePatrol runs from a timer. The squadmate does not tick a path. IA_Move writes Speed. The camera reads the pawn and does not write it. Squadmate patrol still starts at AdvancePatrol after the player has learned third-person movement.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "AdvancePatrol remains the start of Squadmate patrol."
+    }
+  ],
+  "repairWrongs": {
+    "tps-beginner-e2": [
+      "Ship the broken sample as written (Tick sets Aiming) and treat the red node as close enough.",
+      "Use Aiming = true inside Graph_IA_Aim, but also leave the broken sample running so both paths write.",
+      "Drop Aiming = true inside Graph_IA_Aim and replay the broken sample from OnRep: Tick sets Aiming"
+    ],
+    "tps-beginner-e6": [
+      "Ship the broken sample as written (void Tick() { Speed = 600.f; }) and treat the red node as close enough.",
+      "Use Inside if ((IA_Move > 0.f)), but also leave the broken sample running so both paths write.",
+      "Drop Inside if ((IA_Move > 0.f)) and replay the broken sample from OnRep: void Tick() { Speed = 600.f; }"
+    ],
+    "tps-beginner-e9": [
+      "Ship the broken sample as written (Tick adds Needed to Magazine) and treat the red node as close enough.",
+      "Use IA_Reload, but also leave the broken sample running so both paths write.",
+      "Drop IA_Reload and replay the broken sample from OnRep: Tick adds Needed to Magazine"
+    ],
+    "tps-beginner-e11": [
+      "Ship the broken sample as written (Health = 90.f; // after an empty HasAuthority) and treat the red node as close enough.",
+      "Use Nest Health's assignment inside HasAuthority, but also leave the broken sample running so both paths write.",
+      "Drop Nest Health's assignment inside HasAuthority and replay the broken sample from OnRep: Health = 90.f; // after an empty HasAuthority"
+    ],
+    "tps-beginner-e16": [
+      "Ship the broken sample as written (Tick flips GoingRight) and treat the red node as close enough.",
+      "Use AdvancePatrol after 1.f, but also leave the broken sample running so both paths write.",
+      "Drop AdvancePatrol after 1.f and replay the broken sample from OnRep: Tick flips GoingRight"
+    ],
+    "tps-beginner-e19": [
+      "Ship the broken sample as written (void Tick() { SlotValue = Health; }) and treat the red node as close enough.",
+      "Use Begin Play, from a struct written on an event, but also leave the broken sample running so both paths write.",
+      "Drop Begin Play, from a struct written on an event and replay the broken sample from OnRep: void Tick() { SlotValue = Health; }"
+    ]
+  }
+}

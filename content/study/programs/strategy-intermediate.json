@@ -1,0 +1,1931 @@
+{
+  "id": "strategy-intermediate",
+  "sections": {
+    "orders": {
+      "plainEnglish": "In plain English: IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. What the function actually does is ReceiveOrder only on the unit that is Selected. the order action, after the Selected branch is who is allowed to do it.",
+      "whyGame": "In a real match, searching every unit from Tick and moving them all to the cursor looks almost right and then costs a query, a desync, or a double write. formation offsets stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Formations and orders listener",
+          "detail": "A follow-on in Strategy — Intermediate should bind to IA_Order after the unit's Selected flag is true. It should not poll formations and orders."
+        },
+        {
+          "title": "Formations and orders data",
+          "detail": "Numbers a designer tunes for formations and orders belong on a data row. ReceiveOrder only on the unit that is Selected can read that row without a new function."
+        },
+        {
+          "title": "Formations and orders neighbor",
+          "detail": "formation offsets must not be implemented inside Branch on Selected. IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "strategy-intermediate-orders-s1",
+          "kind": "mc",
+          "prompt": "IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. When `void UKitComponent::Graph_IA_Order_tpl_orders_input() // node:tpl_orders_input` runs, what does the player get?",
+          "choices": [
+            "ReceiveOrder only on the unit that is Selected. That keeps the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "The line searching every unit from Tick and moving them all to the cursor. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "The constructor writes the result before a pawn exists. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "formation offsets overwrites the value on every client. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data."
+          ],
+          "answer": 0,
+          "why": "ReceiveOrder only on the unit that is Selected"
+        },
+        {
+          "id": "strategy-intermediate-orders-s2",
+          "kind": "mc",
+          "prompt": "IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. Where does Branch on Selected sit relative to IA_Order?",
+          "choices": [
+            "Branch on Selected runs after the unit's Selected flag is true. IA_Order reaches that gate through Triggered. That keeps the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "Branch on Selected runs before IA_Order, so the write does not wait for the player. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "Branch on Selected sits on Tick while IA_Order is idle. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "Branch on Selected sits in OnRep and applies the change a second time. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data."
+          ],
+          "answer": 0,
+          "why": "IA_Order is the start."
+        },
+        {
+          "id": "strategy-intermediate-orders-s3",
+          "kind": "tf",
+          "prompt": "True or false: IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data."
+        },
+        {
+          "id": "strategy-intermediate-orders-s4",
+          "kind": "tf",
+          "prompt": "True or false: IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. You keep that promise by searching every unit from Tick and moving them all to the cursor.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the order action, after the Selected branch is the real writer."
+        },
+        {
+          "id": "strategy-intermediate-orders-s5",
+          "kind": "mc",
+          "prompt": "IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. Who may commit the change?",
+          "choices": [
+            "the order action, after the Selected branch. That keeps the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "Every client writes it so the result feels instant. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "The constructor writes it once, and IA_Order never fires. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data."
+          ],
+          "answer": 0,
+          "why": "the order action, after the Selected branch"
+        },
+        {
+          "id": "strategy-intermediate-orders-s6",
+          "kind": "mc",
+          "prompt": "IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. What has to be true before Branch on Selected writes?",
+          "choices": [
+            "the unit's Selected flag is true. That keeps the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "IA_Order has not fired and the graph is only hoping. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "Tick has run one frame even though nothing changed. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "formation offsets has already performed this write. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data."
+          ],
+          "answer": 0,
+          "why": "the unit's Selected flag is true"
+        },
+        {
+          "id": "strategy-intermediate-orders-s7",
+          "kind": "tf",
+          "prompt": "True or false: IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. IA_Order is the start, and Triggered is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "IA_Order through Triggered."
+        },
+        {
+          "id": "strategy-intermediate-orders-s8",
+          "kind": "mc",
+          "prompt": "IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. Delete IA_Order and leave the rest of the Strategy — Intermediate compiled. What does the player lose?",
+          "choices": [
+            "Formations and orders never starts, because nothing else fires Triggered. That keeps the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "Nothing visible, because Tick still does the work. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "formation offsets quietly takes over the job. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "The next travel's constructor writes it. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data."
+          ],
+          "answer": 0,
+          "why": "IA_Order is the only start."
+        },
+        {
+          "id": "strategy-intermediate-orders-s9",
+          "kind": "mc",
+          "prompt": "IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. Which broken schedule is the one to refuse?",
+          "choices": [
+            "searching every unit from Tick and moving them all to the cursor. That keeps the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "Leaving the real work on IA_Order. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "Waiting until the unit's Selected flag is true before the write. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "Keeping the order action, after the Selected branch as the only writer. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data."
+          ],
+          "answer": 0,
+          "why": "searching every unit from Tick and moving them all to the cursor"
+        },
+        {
+          "id": "strategy-intermediate-orders-s10",
+          "kind": "mc",
+          "prompt": "IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. formation offsets wants to live in this same function. What stays separate?",
+          "choices": [
+            "formation offsets keeps its own event. This function only handles ReceiveOrder only on the unit that is Selected. That keeps the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "formation offsets is inlined so one Tick serves both jobs. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "formation offsets writes the value from the client. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "formation offsets runs inside OnRep after this write. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "strategy-intermediate-orders-s11",
+          "kind": "mc",
+          "prompt": "IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. A teammate also applies the write from OnRep, so the game need not wait for the order action, after the Selected branch. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "The widget stops drawing until Tick resumes. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "IA_Order stops firing. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "strategy-intermediate-orders-s12",
+          "kind": "mc",
+          "prompt": "IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. Which gate sits immediately in front of the write?",
+          "choices": [
+            "the unit's Selected flag is true, reached from IA_Order via Triggered. That keeps the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "A Tick frame, even when IA_Order is idle. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "A cast to every Blueprint that might show up. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data."
+          ],
+          "answer": 0,
+          "why": "the unit's Selected flag is true is the gate."
+        }
+      ]
+    },
+    "economy": {
+      "plainEnglish": "In plain English: Spend subtracts a data cost on the authority. Artillery shells are a different budget. What the function actually does is Supplies reduced by the data cost, and only on the authority. the authority, inside the Spend event is who is allowed to do it.",
+      "whyGame": "In a real match, every client subtracting 25, or paying for a shell out of the same float looks almost right and then costs a query, a desync, or a double write. the shell budget stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "The stock and the bill listener",
+          "detail": "A follow-on in Strategy — Intermediate should bind to Spend after HasAuthority passes. It should not poll the stock and the bill."
+        },
+        {
+          "title": "The stock and the bill data",
+          "detail": "Numbers a designer tunes for the stock and the bill belong on a data row. Supplies reduced by the data cost, and only on the authority can read that row without a new function."
+        },
+        {
+          "title": "The stock and the bill neighbor",
+          "detail": "the shell budget must not be implemented inside Set Supplies. Spend subtracts a data cost on the authority. Artillery shells are a different budget."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "strategy-intermediate-economy-s1",
+          "kind": "mc",
+          "prompt": "Spend subtracts a data cost on the authority. Artillery shells are a different budget. When `Supplies = (Supplies - 25.f); // node:tpl_economy_set` runs, what does the player get?",
+          "choices": [
+            "Supplies reduced by the data cost, and only on the authority. That keeps the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "The line every client subtracting 25, or paying for a shell out of the same float. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "The constructor writes the result before a pawn exists. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "the shell budget overwrites the value on every client. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget."
+          ],
+          "answer": 0,
+          "why": "Supplies reduced by the data cost, and only on the authority"
+        },
+        {
+          "id": "strategy-intermediate-economy-s2",
+          "kind": "mc",
+          "prompt": "Spend subtracts a data cost on the authority. Artillery shells are a different budget. Where does Set Supplies sit relative to Spend?",
+          "choices": [
+            "Set Supplies runs after HasAuthority passes. Spend reaches that gate through the spend event. That keeps the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "Set Supplies runs before Spend, so the write does not wait for the player. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "Set Supplies sits on Tick while Spend is idle. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "Set Supplies sits in OnRep and applies the change a second time. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget."
+          ],
+          "answer": 0,
+          "why": "Spend is the start."
+        },
+        {
+          "id": "strategy-intermediate-economy-s3",
+          "kind": "tf",
+          "prompt": "True or false: Spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Spend subtracts a data cost on the authority. Artillery shells are a different budget."
+        },
+        {
+          "id": "strategy-intermediate-economy-s4",
+          "kind": "tf",
+          "prompt": "True or false: Spend subtracts a data cost on the authority. Artillery shells are a different budget. You keep that promise by every client subtracting 25, or paying for a shell out of the same float.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the authority, inside the Spend event is the real writer."
+        },
+        {
+          "id": "strategy-intermediate-economy-s5",
+          "kind": "mc",
+          "prompt": "Spend subtracts a data cost on the authority. Artillery shells are a different budget. Who may commit the change?",
+          "choices": [
+            "the authority, inside the Spend event. That keeps the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "Every client writes it so the result feels instant. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "The constructor writes it once, and Spend never fires. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget."
+          ],
+          "answer": 0,
+          "why": "the authority, inside the Spend event"
+        },
+        {
+          "id": "strategy-intermediate-economy-s6",
+          "kind": "mc",
+          "prompt": "Spend subtracts a data cost on the authority. Artillery shells are a different budget. What has to be true before Set Supplies writes?",
+          "choices": [
+            "HasAuthority passes. That keeps the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "Spend has not fired and the graph is only hoping. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "Tick has run one frame even though nothing changed. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "the shell budget has already performed this write. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget."
+          ],
+          "answer": 0,
+          "why": "HasAuthority passes"
+        },
+        {
+          "id": "strategy-intermediate-economy-s7",
+          "kind": "tf",
+          "prompt": "True or false: Spend subtracts a data cost on the authority. Artillery shells are a different budget. Spend is the start, and the spend event is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Spend through the spend event."
+        },
+        {
+          "id": "strategy-intermediate-economy-s8",
+          "kind": "mc",
+          "prompt": "Spend subtracts a data cost on the authority. Artillery shells are a different budget. Delete Spend and leave the rest of the Strategy — Intermediate compiled. What does the player lose?",
+          "choices": [
+            "The stock and the bill never starts, because nothing else fires the spend event. That keeps the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "Nothing visible, because Tick still does the work. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "the shell budget quietly takes over the job. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "The next travel's constructor writes it. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget."
+          ],
+          "answer": 0,
+          "why": "Spend is the only start."
+        },
+        {
+          "id": "strategy-intermediate-economy-s9",
+          "kind": "mc",
+          "prompt": "Spend subtracts a data cost on the authority. Artillery shells are a different budget. Which broken schedule is the one to refuse?",
+          "choices": [
+            "every client subtracting 25, or paying for a shell out of the same float. That keeps the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "Leaving the real work on Spend. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "Waiting until HasAuthority passes before the write. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "Keeping the authority, inside the Spend event as the only writer. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget."
+          ],
+          "answer": 0,
+          "why": "every client subtracting 25, or paying for a shell out of the same float"
+        },
+        {
+          "id": "strategy-intermediate-economy-s10",
+          "kind": "mc",
+          "prompt": "Spend subtracts a data cost on the authority. Artillery shells are a different budget. the shell budget wants to live in this same function. What stays separate?",
+          "choices": [
+            "the shell budget keeps its own event. This function only handles Supplies reduced by the data cost, and only on the authority. That keeps the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "the shell budget is inlined so one Tick serves both jobs. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "the shell budget writes the value from the client. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "the shell budget runs inside OnRep after this write. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "strategy-intermediate-economy-s11",
+          "kind": "mc",
+          "prompt": "Spend subtracts a data cost on the authority. Artillery shells are a different budget. A teammate also applies the write from OnRep, so the game need not wait for the authority, inside the Spend event. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "The widget stops drawing until Tick resumes. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "Spend stops firing. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "strategy-intermediate-economy-s12",
+          "kind": "mc",
+          "prompt": "Spend subtracts a data cost on the authority. Artillery shells are a different budget. Which gate sits immediately in front of the write?",
+          "choices": [
+            "HasAuthority passes, reached from Spend via the spend event. That keeps the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "A Tick frame, even when Spend is idle. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "A cast to every Blueprint that might show up. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget."
+          ],
+          "answer": 0,
+          "why": "HasAuthority passes is the gate."
+        }
+      ]
+    },
+    "fog": {
+      "plainEnglish": "In plain English: Reveal at 0.25s sets Visible. Clients do not write it. What the function actually does is Visible set from a trace on a 0.25 second timer. the server timer is who is allowed to do it.",
+      "whyGame": "In a real match, writing Visible from Tick, or letting a client mark itself seen looks almost right and then costs a query, a desync, or a double write. relevance stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Fog and the cheat listener",
+          "detail": "A follow-on in Strategy — Intermediate should bind to Reveal after the reveal trace hits. It should not poll fog and the cheat."
+        },
+        {
+          "title": "Fog and the cheat data",
+          "detail": "Numbers a designer tunes for fog and the cheat belong on a data row. Visible set from a trace on a 0.25 second timer can read that row without a new function."
+        },
+        {
+          "title": "Fog and the cheat neighbor",
+          "detail": "relevance must not be implemented inside Set Visible. Reveal at 0.25s sets Visible. Clients do not write it."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "strategy-intermediate-fog-s1",
+          "kind": "mc",
+          "prompt": "Reveal at 0.25s sets Visible. Clients do not write it. When `Visible = true; // node:tpl_fog_set` runs, what does the player get?",
+          "choices": [
+            "Visible set from a trace on a 0.25 second timer. That keeps the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "The line writing Visible from Tick, or letting a client mark itself seen. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "The constructor writes the result before a pawn exists. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "relevance overwrites the value on every client. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it."
+          ],
+          "answer": 0,
+          "why": "Visible set from a trace on a 0.25 second timer"
+        },
+        {
+          "id": "strategy-intermediate-fog-s2",
+          "kind": "mc",
+          "prompt": "Reveal at 0.25s sets Visible. Clients do not write it. Where does Set Visible sit relative to Reveal?",
+          "choices": [
+            "Set Visible runs after the reveal trace hits. Reveal reaches that gate through the timer. That keeps the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "Set Visible runs before Reveal, so the write does not wait for the player. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "Set Visible sits on Tick while Reveal is idle. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "Set Visible sits in OnRep and applies the change a second time. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it."
+          ],
+          "answer": 0,
+          "why": "Reveal is the start."
+        },
+        {
+          "id": "strategy-intermediate-fog-s3",
+          "kind": "tf",
+          "prompt": "True or false: Reveal at 0.25s sets Visible. Clients do not write it.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Reveal at 0.25s sets Visible. Clients do not write it."
+        },
+        {
+          "id": "strategy-intermediate-fog-s4",
+          "kind": "tf",
+          "prompt": "True or false: Reveal at 0.25s sets Visible. Clients do not write it. You keep that promise by writing Visible from Tick, or letting a client mark itself seen.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the server timer is the real writer."
+        },
+        {
+          "id": "strategy-intermediate-fog-s5",
+          "kind": "mc",
+          "prompt": "Reveal at 0.25s sets Visible. Clients do not write it. Who may commit the change?",
+          "choices": [
+            "the server timer. That keeps the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "Every client writes it so the result feels instant. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "The constructor writes it once, and Reveal never fires. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it."
+          ],
+          "answer": 0,
+          "why": "the server timer"
+        },
+        {
+          "id": "strategy-intermediate-fog-s6",
+          "kind": "mc",
+          "prompt": "Reveal at 0.25s sets Visible. Clients do not write it. What has to be true before Set Visible writes?",
+          "choices": [
+            "the reveal trace hits. That keeps the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "Reveal has not fired and the graph is only hoping. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "Tick has run one frame even though nothing changed. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "relevance has already performed this write. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it."
+          ],
+          "answer": 0,
+          "why": "the reveal trace hits"
+        },
+        {
+          "id": "strategy-intermediate-fog-s7",
+          "kind": "tf",
+          "prompt": "True or false: Reveal at 0.25s sets Visible. Clients do not write it. Reveal is the start, and the timer is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Reveal through the timer."
+        },
+        {
+          "id": "strategy-intermediate-fog-s8",
+          "kind": "mc",
+          "prompt": "Reveal at 0.25s sets Visible. Clients do not write it. Delete Reveal and leave the rest of the Strategy — Intermediate compiled. What does the player lose?",
+          "choices": [
+            "Fog and the cheat never starts, because nothing else fires the timer. That keeps the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "Nothing visible, because Tick still does the work. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "relevance quietly takes over the job. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "The next travel's constructor writes it. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it."
+          ],
+          "answer": 0,
+          "why": "Reveal is the only start."
+        },
+        {
+          "id": "strategy-intermediate-fog-s9",
+          "kind": "mc",
+          "prompt": "Reveal at 0.25s sets Visible. Clients do not write it. Which broken schedule is the one to refuse?",
+          "choices": [
+            "writing Visible from Tick, or letting a client mark itself seen. That keeps the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "Leaving the real work on Reveal. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "Waiting until the reveal trace hits before the write. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "Keeping the server timer as the only writer. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it."
+          ],
+          "answer": 0,
+          "why": "writing Visible from Tick, or letting a client mark itself seen"
+        },
+        {
+          "id": "strategy-intermediate-fog-s10",
+          "kind": "mc",
+          "prompt": "Reveal at 0.25s sets Visible. Clients do not write it. relevance wants to live in this same function. What stays separate?",
+          "choices": [
+            "relevance keeps its own event. This function only handles Visible set from a trace on a 0.25 second timer. That keeps the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "relevance is inlined so one Tick serves both jobs. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "relevance writes the value from the client. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "relevance runs inside OnRep after this write. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "strategy-intermediate-fog-s11",
+          "kind": "mc",
+          "prompt": "Reveal at 0.25s sets Visible. Clients do not write it. A teammate also applies the write from OnRep, so the game need not wait for the server timer. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "The widget stops drawing until Tick resumes. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "Reveal stops firing. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "strategy-intermediate-fog-s12",
+          "kind": "mc",
+          "prompt": "Reveal at 0.25s sets Visible. Clients do not write it. Which gate sits immediately in front of the write?",
+          "choices": [
+            "the reveal trace hits, reached from Reveal via the timer. That keeps the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "A Tick frame, even when Reveal is idle. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "A cast to every Blueprint that might show up. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it."
+          ],
+          "answer": 0,
+          "why": "the reveal trace hits is the gate."
+        }
+      ]
+    },
+    "scoring": {
+      "plainEnglish": "In plain English: AwardMedal adds a data value on the authority. The board is local. What the function actually does is Score increased by the data value on the authority. the authority inside AwardMedal is who is allowed to do it.",
+      "whyGame": "In a real match, a client adding 10, or OnRep adding another 10 when the widget refreshes looks almost right and then costs a query, a desync, or a double write. the score widget stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Medals and the board listener",
+          "detail": "A follow-on in Strategy — Intermediate should bind to AwardMedal after HasAuthority passes. It should not poll medals and the board."
+        },
+        {
+          "title": "Medals and the board data",
+          "detail": "Numbers a designer tunes for medals and the board belong on a data row. Score increased by the data value on the authority can read that row without a new function."
+        },
+        {
+          "title": "Medals and the board neighbor",
+          "detail": "the score widget must not be implemented inside Set Score. AwardMedal adds a data value on the authority. The board is local."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "strategy-intermediate-scoring-s1",
+          "kind": "mc",
+          "prompt": "AwardMedal adds a data value on the authority. The board is local. When `Score = (Score + 10.f); // node:tpl_scoring_set` runs, what does the player get?",
+          "choices": [
+            "Score increased by the data value on the authority. That keeps the rule that awardMedal adds a data value on the authority. The board is local.",
+            "The line a client adding 10, or OnRep adding another 10 when the widget refreshes. That would break the rule that awardMedal adds a data value on the authority. The board is local.",
+            "The constructor writes the result before a pawn exists. That would break the rule that awardMedal adds a data value on the authority. The board is local.",
+            "the score widget overwrites the value on every client. That would break the rule that awardMedal adds a data value on the authority. The board is local."
+          ],
+          "answer": 0,
+          "why": "Score increased by the data value on the authority"
+        },
+        {
+          "id": "strategy-intermediate-scoring-s2",
+          "kind": "mc",
+          "prompt": "AwardMedal adds a data value on the authority. The board is local. Where does Set Score sit relative to AwardMedal?",
+          "choices": [
+            "Set Score runs after HasAuthority passes. AwardMedal reaches that gate through the medal event. That keeps the rule that awardMedal adds a data value on the authority. The board is local.",
+            "Set Score runs before AwardMedal, so the write does not wait for the player. That would break the rule that awardMedal adds a data value on the authority. The board is local.",
+            "Set Score sits on Tick while AwardMedal is idle. That would break the rule that awardMedal adds a data value on the authority. The board is local.",
+            "Set Score sits in OnRep and applies the change a second time. That would break the rule that awardMedal adds a data value on the authority. The board is local."
+          ],
+          "answer": 0,
+          "why": "AwardMedal is the start."
+        },
+        {
+          "id": "strategy-intermediate-scoring-s3",
+          "kind": "tf",
+          "prompt": "True or false: AwardMedal adds a data value on the authority. The board is local.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "AwardMedal adds a data value on the authority. The board is local."
+        },
+        {
+          "id": "strategy-intermediate-scoring-s4",
+          "kind": "tf",
+          "prompt": "True or false: AwardMedal adds a data value on the authority. The board is local. You keep that promise by a client adding 10, or OnRep adding another 10 when the widget refreshes.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the authority inside AwardMedal is the real writer."
+        },
+        {
+          "id": "strategy-intermediate-scoring-s5",
+          "kind": "mc",
+          "prompt": "AwardMedal adds a data value on the authority. The board is local. Who may commit the change?",
+          "choices": [
+            "the authority inside AwardMedal. That keeps the rule that awardMedal adds a data value on the authority. The board is local.",
+            "Every client writes it so the result feels instant. That would break the rule that awardMedal adds a data value on the authority. The board is local.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that awardMedal adds a data value on the authority. The board is local.",
+            "The constructor writes it once, and AwardMedal never fires. That would break the rule that awardMedal adds a data value on the authority. The board is local."
+          ],
+          "answer": 0,
+          "why": "the authority inside AwardMedal"
+        },
+        {
+          "id": "strategy-intermediate-scoring-s6",
+          "kind": "mc",
+          "prompt": "AwardMedal adds a data value on the authority. The board is local. What has to be true before Set Score writes?",
+          "choices": [
+            "HasAuthority passes. That keeps the rule that awardMedal adds a data value on the authority. The board is local.",
+            "AwardMedal has not fired and the graph is only hoping. That would break the rule that awardMedal adds a data value on the authority. The board is local.",
+            "Tick has run one frame even though nothing changed. That would break the rule that awardMedal adds a data value on the authority. The board is local.",
+            "the score widget has already performed this write. That would break the rule that awardMedal adds a data value on the authority. The board is local."
+          ],
+          "answer": 0,
+          "why": "HasAuthority passes"
+        },
+        {
+          "id": "strategy-intermediate-scoring-s7",
+          "kind": "tf",
+          "prompt": "True or false: AwardMedal adds a data value on the authority. The board is local. AwardMedal is the start, and the medal event is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "AwardMedal through the medal event."
+        },
+        {
+          "id": "strategy-intermediate-scoring-s8",
+          "kind": "mc",
+          "prompt": "AwardMedal adds a data value on the authority. The board is local. Delete AwardMedal and leave the rest of the Strategy — Intermediate compiled. What does the player lose?",
+          "choices": [
+            "Medals and the board never starts, because nothing else fires the medal event. That keeps the rule that awardMedal adds a data value on the authority. The board is local.",
+            "Nothing visible, because Tick still does the work. That would break the rule that awardMedal adds a data value on the authority. The board is local.",
+            "the score widget quietly takes over the job. That would break the rule that awardMedal adds a data value on the authority. The board is local.",
+            "The next travel's constructor writes it. That would break the rule that awardMedal adds a data value on the authority. The board is local."
+          ],
+          "answer": 0,
+          "why": "AwardMedal is the only start."
+        },
+        {
+          "id": "strategy-intermediate-scoring-s9",
+          "kind": "mc",
+          "prompt": "AwardMedal adds a data value on the authority. The board is local. Which broken schedule is the one to refuse?",
+          "choices": [
+            "a client adding 10, or OnRep adding another 10 when the widget refreshes. That keeps the rule that awardMedal adds a data value on the authority. The board is local.",
+            "Leaving the real work on AwardMedal. That would break the rule that awardMedal adds a data value on the authority. The board is local.",
+            "Waiting until HasAuthority passes before the write. That would break the rule that awardMedal adds a data value on the authority. The board is local.",
+            "Keeping the authority inside AwardMedal as the only writer. That would break the rule that awardMedal adds a data value on the authority. The board is local."
+          ],
+          "answer": 0,
+          "why": "a client adding 10, or OnRep adding another 10 when the widget refreshes"
+        },
+        {
+          "id": "strategy-intermediate-scoring-s10",
+          "kind": "mc",
+          "prompt": "AwardMedal adds a data value on the authority. The board is local. the score widget wants to live in this same function. What stays separate?",
+          "choices": [
+            "the score widget keeps its own event. This function only handles Score increased by the data value on the authority. That keeps the rule that awardMedal adds a data value on the authority. The board is local.",
+            "the score widget is inlined so one Tick serves both jobs. That would break the rule that awardMedal adds a data value on the authority. The board is local.",
+            "the score widget writes the value from the client. That would break the rule that awardMedal adds a data value on the authority. The board is local.",
+            "the score widget runs inside OnRep after this write. That would break the rule that awardMedal adds a data value on the authority. The board is local."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "strategy-intermediate-scoring-s11",
+          "kind": "mc",
+          "prompt": "AwardMedal adds a data value on the authority. The board is local. A teammate also applies the write from OnRep, so the game need not wait for the authority inside AwardMedal. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that awardMedal adds a data value on the authority. The board is local.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that awardMedal adds a data value on the authority. The board is local.",
+            "The widget stops drawing until Tick resumes. That would break the rule that awardMedal adds a data value on the authority. The board is local.",
+            "AwardMedal stops firing. That would break the rule that awardMedal adds a data value on the authority. The board is local."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "strategy-intermediate-scoring-s12",
+          "kind": "mc",
+          "prompt": "AwardMedal adds a data value on the authority. The board is local. Which gate sits immediately in front of the write?",
+          "choices": [
+            "HasAuthority passes, reached from AwardMedal via the medal event. That keeps the rule that awardMedal adds a data value on the authority. The board is local.",
+            "A Tick frame, even when AwardMedal is idle. That would break the rule that awardMedal adds a data value on the authority. The board is local.",
+            "A cast to every Blueprint that might show up. That would break the rule that awardMedal adds a data value on the authority. The board is local.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that awardMedal adds a data value on the authority. The board is local."
+          ],
+          "answer": 0,
+          "why": "HasAuthority passes is the gate."
+        }
+      ]
+    },
+    "aoi": {
+      "plainEnglish": "In plain English: CheckAOI at 0.5s writes Relevant. It is not the fog bit. What the function actually does is Relevant set from a trace on a 0.5 second timer. the server timer is who is allowed to do it.",
+      "whyGame": "In a real match, forcing Relevant true from Tick, or copying the fog Visible bit looks almost right and then costs a query, a desync, or a double write. fog of war stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Relevance for a large map listener",
+          "detail": "A follow-on in Strategy — Intermediate should bind to CheckAOI after the interest trace returns. It should not poll relevance for a large map."
+        },
+        {
+          "title": "Relevance for a large map data",
+          "detail": "Numbers a designer tunes for relevance for a large map belong on a data row. Relevant set from a trace on a 0.5 second timer can read that row without a new function."
+        },
+        {
+          "title": "Relevance for a large map neighbor",
+          "detail": "fog of war must not be implemented inside Set Relevant. CheckAOI at 0.5s writes Relevant. It is not the fog bit."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "strategy-intermediate-aoi-s1",
+          "kind": "mc",
+          "prompt": "CheckAOI at 0.5s writes Relevant. It is not the fog bit. When `Relevant = bHit_tpl_aoi_trace; // node:tpl_aoi_set` runs, what does the player get?",
+          "choices": [
+            "Relevant set from a trace on a 0.5 second timer. That keeps the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "The line forcing Relevant true from Tick, or copying the fog Visible bit. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "The constructor writes the result before a pawn exists. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "fog of war overwrites the value on every client. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit."
+          ],
+          "answer": 0,
+          "why": "Relevant set from a trace on a 0.5 second timer"
+        },
+        {
+          "id": "strategy-intermediate-aoi-s2",
+          "kind": "mc",
+          "prompt": "CheckAOI at 0.5s writes Relevant. It is not the fog bit. Where does Set Relevant sit relative to CheckAOI?",
+          "choices": [
+            "Set Relevant runs after the interest trace returns. CheckAOI reaches that gate through the timer. That keeps the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "Set Relevant runs before CheckAOI, so the write does not wait for the player. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "Set Relevant sits on Tick while CheckAOI is idle. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "Set Relevant sits in OnRep and applies the change a second time. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit."
+          ],
+          "answer": 0,
+          "why": "CheckAOI is the start."
+        },
+        {
+          "id": "strategy-intermediate-aoi-s3",
+          "kind": "tf",
+          "prompt": "True or false: CheckAOI at 0.5s writes Relevant. It is not the fog bit.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "CheckAOI at 0.5s writes Relevant. It is not the fog bit."
+        },
+        {
+          "id": "strategy-intermediate-aoi-s4",
+          "kind": "tf",
+          "prompt": "True or false: CheckAOI at 0.5s writes Relevant. It is not the fog bit. You keep that promise by forcing Relevant true from Tick, or copying the fog Visible bit.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the server timer is the real writer."
+        },
+        {
+          "id": "strategy-intermediate-aoi-s5",
+          "kind": "mc",
+          "prompt": "CheckAOI at 0.5s writes Relevant. It is not the fog bit. Who may commit the change?",
+          "choices": [
+            "the server timer. That keeps the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "Every client writes it so the result feels instant. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "The constructor writes it once, and CheckAOI never fires. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit."
+          ],
+          "answer": 0,
+          "why": "the server timer"
+        },
+        {
+          "id": "strategy-intermediate-aoi-s6",
+          "kind": "mc",
+          "prompt": "CheckAOI at 0.5s writes Relevant. It is not the fog bit. What has to be true before Set Relevant writes?",
+          "choices": [
+            "the interest trace returns. That keeps the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "CheckAOI has not fired and the graph is only hoping. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "Tick has run one frame even though nothing changed. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "fog of war has already performed this write. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit."
+          ],
+          "answer": 0,
+          "why": "the interest trace returns"
+        },
+        {
+          "id": "strategy-intermediate-aoi-s7",
+          "kind": "tf",
+          "prompt": "True or false: CheckAOI at 0.5s writes Relevant. It is not the fog bit. CheckAOI is the start, and the timer is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "CheckAOI through the timer."
+        },
+        {
+          "id": "strategy-intermediate-aoi-s8",
+          "kind": "mc",
+          "prompt": "CheckAOI at 0.5s writes Relevant. It is not the fog bit. Delete CheckAOI and leave the rest of the Strategy — Intermediate compiled. What does the player lose?",
+          "choices": [
+            "Relevance for a large map never starts, because nothing else fires the timer. That keeps the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "Nothing visible, because Tick still does the work. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "fog of war quietly takes over the job. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "The next travel's constructor writes it. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit."
+          ],
+          "answer": 0,
+          "why": "CheckAOI is the only start."
+        },
+        {
+          "id": "strategy-intermediate-aoi-s9",
+          "kind": "mc",
+          "prompt": "CheckAOI at 0.5s writes Relevant. It is not the fog bit. Which broken schedule is the one to refuse?",
+          "choices": [
+            "forcing Relevant true from Tick, or copying the fog Visible bit. That keeps the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "Leaving the real work on CheckAOI. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "Waiting until the interest trace returns before the write. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "Keeping the server timer as the only writer. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit."
+          ],
+          "answer": 0,
+          "why": "forcing Relevant true from Tick, or copying the fog Visible bit"
+        },
+        {
+          "id": "strategy-intermediate-aoi-s10",
+          "kind": "mc",
+          "prompt": "CheckAOI at 0.5s writes Relevant. It is not the fog bit. fog of war wants to live in this same function. What stays separate?",
+          "choices": [
+            "fog of war keeps its own event. This function only handles Relevant set from a trace on a 0.5 second timer. That keeps the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "fog of war is inlined so one Tick serves both jobs. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "fog of war writes the value from the client. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "fog of war runs inside OnRep after this write. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "strategy-intermediate-aoi-s11",
+          "kind": "mc",
+          "prompt": "CheckAOI at 0.5s writes Relevant. It is not the fog bit. A teammate also applies the write from OnRep, so the game need not wait for the server timer. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "The widget stops drawing until Tick resumes. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "CheckAOI stops firing. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "strategy-intermediate-aoi-s12",
+          "kind": "mc",
+          "prompt": "CheckAOI at 0.5s writes Relevant. It is not the fog bit. Which gate sits immediately in front of the write?",
+          "choices": [
+            "the interest trace returns, reached from CheckAOI via the timer. That keeps the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "A Tick frame, even when CheckAOI is idle. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "A cast to every Blueprint that might show up. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit."
+          ],
+          "answer": 0,
+          "why": "the interest trace returns is the gate."
+        }
+      ]
+    },
+    "vehicles": {
+      "plainEnglish": "In plain English: IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. What the function actually does is Throttle set from the vehicle axis on the authority, separate from on-foot Speed. the authority, from the throttle action is who is allowed to do it.",
+      "whyGame": "In a real match, copying Speed into Throttle, which would make a sprint pedal the truck looks almost right and then costs a query, a desync, or a double write. on-foot Speed stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Transports listener",
+          "detail": "A follow-on in Strategy — Intermediate should bind to IA_Throttle after HasAuthority passes. It should not poll transports."
+        },
+        {
+          "title": "Transports data",
+          "detail": "Numbers a designer tunes for transports belong on a data row. Throttle set from the vehicle axis on the authority, separate from on-foot Speed can read that row without a new function."
+        },
+        {
+          "title": "Transports neighbor",
+          "detail": "on-foot Speed must not be implemented inside Set Throttle. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "strategy-intermediate-vehicles-s1",
+          "kind": "mc",
+          "prompt": "IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. When `Throttle = IA_Throttle; // node:tpl_vehicle-drive_set` runs, what does the player get?",
+          "choices": [
+            "Throttle set from the vehicle axis on the authority, separate from on-foot Speed. That keeps the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "The line copying Speed into Throttle, which would make a sprint pedal the truck. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "The constructor writes the result before a pawn exists. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "on-foot Speed overwrites the value on every client. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle."
+          ],
+          "answer": 0,
+          "why": "Throttle set from the vehicle axis on the authority, separate from on-foot Speed"
+        },
+        {
+          "id": "strategy-intermediate-vehicles-s2",
+          "kind": "mc",
+          "prompt": "IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. Where does Set Throttle sit relative to IA_Throttle?",
+          "choices": [
+            "Set Throttle runs after HasAuthority passes. IA_Throttle reaches that gate through the axis. That keeps the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "Set Throttle runs before IA_Throttle, so the write does not wait for the player. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "Set Throttle sits on Tick while IA_Throttle is idle. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "Set Throttle sits in OnRep and applies the change a second time. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle."
+          ],
+          "answer": 0,
+          "why": "IA_Throttle is the start."
+        },
+        {
+          "id": "strategy-intermediate-vehicles-s3",
+          "kind": "tf",
+          "prompt": "True or false: IA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "IA_Throttle writes Throttle on the authority. Orders can command the same vehicle."
+        },
+        {
+          "id": "strategy-intermediate-vehicles-s4",
+          "kind": "tf",
+          "prompt": "True or false: IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. You keep that promise by copying Speed into Throttle, which would make a sprint pedal the truck.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the authority, from the throttle action is the real writer."
+        },
+        {
+          "id": "strategy-intermediate-vehicles-s5",
+          "kind": "mc",
+          "prompt": "IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. Who may commit the change?",
+          "choices": [
+            "the authority, from the throttle action. That keeps the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "Every client writes it so the result feels instant. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "The constructor writes it once, and IA_Throttle never fires. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle."
+          ],
+          "answer": 0,
+          "why": "the authority, from the throttle action"
+        },
+        {
+          "id": "strategy-intermediate-vehicles-s6",
+          "kind": "mc",
+          "prompt": "IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. What has to be true before Set Throttle writes?",
+          "choices": [
+            "HasAuthority passes. That keeps the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "IA_Throttle has not fired and the graph is only hoping. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "Tick has run one frame even though nothing changed. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "on-foot Speed has already performed this write. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle."
+          ],
+          "answer": 0,
+          "why": "HasAuthority passes"
+        },
+        {
+          "id": "strategy-intermediate-vehicles-s7",
+          "kind": "tf",
+          "prompt": "True or false: IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. IA_Throttle is the start, and the axis is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "IA_Throttle through the axis."
+        },
+        {
+          "id": "strategy-intermediate-vehicles-s8",
+          "kind": "mc",
+          "prompt": "IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. Delete IA_Throttle and leave the rest of the Strategy — Intermediate compiled. What does the player lose?",
+          "choices": [
+            "Transports never starts, because nothing else fires the axis. That keeps the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "Nothing visible, because Tick still does the work. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "on-foot Speed quietly takes over the job. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "The next travel's constructor writes it. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle."
+          ],
+          "answer": 0,
+          "why": "IA_Throttle is the only start."
+        },
+        {
+          "id": "strategy-intermediate-vehicles-s9",
+          "kind": "mc",
+          "prompt": "IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. Which broken schedule is the one to refuse?",
+          "choices": [
+            "copying Speed into Throttle, which would make a sprint pedal the truck. That keeps the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "Leaving the real work on IA_Throttle. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "Waiting until HasAuthority passes before the write. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "Keeping the authority, from the throttle action as the only writer. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle."
+          ],
+          "answer": 0,
+          "why": "copying Speed into Throttle, which would make a sprint pedal the truck"
+        },
+        {
+          "id": "strategy-intermediate-vehicles-s10",
+          "kind": "mc",
+          "prompt": "IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. on-foot Speed wants to live in this same function. What stays separate?",
+          "choices": [
+            "on-foot Speed keeps its own event. This function only handles Throttle set from the vehicle axis on the authority, separate from on-foot Speed. That keeps the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "on-foot Speed is inlined so one Tick serves both jobs. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "on-foot Speed writes the value from the client. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "on-foot Speed runs inside OnRep after this write. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "strategy-intermediate-vehicles-s11",
+          "kind": "mc",
+          "prompt": "IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. A teammate also applies the write from OnRep, so the game need not wait for the authority, from the throttle action. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "The widget stops drawing until Tick resumes. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "IA_Throttle stops firing. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "strategy-intermediate-vehicles-s12",
+          "kind": "mc",
+          "prompt": "IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. Which gate sits immediately in front of the write?",
+          "choices": [
+            "HasAuthority passes, reached from IA_Throttle via the axis. That keeps the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "A Tick frame, even when IA_Throttle is idle. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "A cast to every Blueprint that might show up. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle."
+          ],
+          "answer": 0,
+          "why": "HasAuthority passes is the gate."
+        }
+      ]
+    },
+    "artillery": {
+      "plainEnglish": "In plain English: FireMission traces an impact and subtracts one shell on the authority. What the function actually does is one shell subtracted on the authority after the impact trace. the authority inside FireMission is who is allowed to do it.",
+      "whyGame": "In a real match, spending shells from Tick, or subtracting Supplies as if it were a shell looks almost right and then costs a query, a desync, or a double write. Visible stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Fire missions listener",
+          "detail": "A follow-on in Strategy — Intermediate should bind to FireMission after HasAuthority passes. It should not poll fire missions."
+        },
+        {
+          "title": "Fire missions data",
+          "detail": "Numbers a designer tunes for fire missions belong on a data row. one shell subtracted on the authority after the impact trace can read that row without a new function."
+        },
+        {
+          "title": "Fire missions neighbor",
+          "detail": "Visible must not be implemented inside Set Shells. FireMission traces an impact and subtracts one shell on the authority."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "strategy-intermediate-artillery-s1",
+          "kind": "mc",
+          "prompt": "FireMission traces an impact and subtracts one shell on the authority. When `Shells = (Shells - 1.f); // node:tpl_artillery_set` runs, what does the player get?",
+          "choices": [
+            "one shell subtracted on the authority after the impact trace. That keeps the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "The line spending shells from Tick, or subtracting Supplies as if it were a shell. That would break the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "The constructor writes the result before a pawn exists. That would break the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "Visible overwrites the value on every client. That would break the rule that fireMission traces an impact and subtracts one shell on the authority."
+          ],
+          "answer": 0,
+          "why": "one shell subtracted on the authority after the impact trace"
+        },
+        {
+          "id": "strategy-intermediate-artillery-s2",
+          "kind": "mc",
+          "prompt": "FireMission traces an impact and subtracts one shell on the authority. Where does Set Shells sit relative to FireMission?",
+          "choices": [
+            "Set Shells runs after HasAuthority passes. FireMission reaches that gate through the fire-mission event. That keeps the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "Set Shells runs before FireMission, so the write does not wait for the player. That would break the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "Set Shells sits on Tick while FireMission is idle. That would break the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "Set Shells sits in OnRep and applies the change a second time. That would break the rule that fireMission traces an impact and subtracts one shell on the authority."
+          ],
+          "answer": 0,
+          "why": "FireMission is the start."
+        },
+        {
+          "id": "strategy-intermediate-artillery-s3",
+          "kind": "tf",
+          "prompt": "True or false: FireMission traces an impact and subtracts one shell on the authority.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "FireMission traces an impact and subtracts one shell on the authority."
+        },
+        {
+          "id": "strategy-intermediate-artillery-s4",
+          "kind": "tf",
+          "prompt": "True or false: FireMission traces an impact and subtracts one shell on the authority. You keep that promise by spending shells from Tick, or subtracting Supplies as if it were a shell.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "the authority inside FireMission is the real writer."
+        },
+        {
+          "id": "strategy-intermediate-artillery-s5",
+          "kind": "mc",
+          "prompt": "FireMission traces an impact and subtracts one shell on the authority. Who may commit the change?",
+          "choices": [
+            "the authority inside FireMission. That keeps the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "Every client writes it so the result feels instant. That would break the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "The constructor writes it once, and FireMission never fires. That would break the rule that fireMission traces an impact and subtracts one shell on the authority."
+          ],
+          "answer": 0,
+          "why": "the authority inside FireMission"
+        },
+        {
+          "id": "strategy-intermediate-artillery-s6",
+          "kind": "mc",
+          "prompt": "FireMission traces an impact and subtracts one shell on the authority. What has to be true before Set Shells writes?",
+          "choices": [
+            "HasAuthority passes. That keeps the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "FireMission has not fired and the graph is only hoping. That would break the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "Tick has run one frame even though nothing changed. That would break the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "Visible has already performed this write. That would break the rule that fireMission traces an impact and subtracts one shell on the authority."
+          ],
+          "answer": 0,
+          "why": "HasAuthority passes"
+        },
+        {
+          "id": "strategy-intermediate-artillery-s7",
+          "kind": "tf",
+          "prompt": "True or false: FireMission traces an impact and subtracts one shell on the authority. FireMission is the start, and the fire-mission event is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "FireMission through the fire-mission event."
+        },
+        {
+          "id": "strategy-intermediate-artillery-s8",
+          "kind": "mc",
+          "prompt": "FireMission traces an impact and subtracts one shell on the authority. Delete FireMission and leave the rest of the Strategy — Intermediate compiled. What does the player lose?",
+          "choices": [
+            "Fire missions never starts, because nothing else fires the fire-mission event. That keeps the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "Nothing visible, because Tick still does the work. That would break the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "Visible quietly takes over the job. That would break the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "The next travel's constructor writes it. That would break the rule that fireMission traces an impact and subtracts one shell on the authority."
+          ],
+          "answer": 0,
+          "why": "FireMission is the only start."
+        },
+        {
+          "id": "strategy-intermediate-artillery-s9",
+          "kind": "mc",
+          "prompt": "FireMission traces an impact and subtracts one shell on the authority. Which broken schedule is the one to refuse?",
+          "choices": [
+            "spending shells from Tick, or subtracting Supplies as if it were a shell. That keeps the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "Leaving the real work on FireMission. That would break the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "Waiting until HasAuthority passes before the write. That would break the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "Keeping the authority inside FireMission as the only writer. That would break the rule that fireMission traces an impact and subtracts one shell on the authority."
+          ],
+          "answer": 0,
+          "why": "spending shells from Tick, or subtracting Supplies as if it were a shell"
+        },
+        {
+          "id": "strategy-intermediate-artillery-s10",
+          "kind": "mc",
+          "prompt": "FireMission traces an impact and subtracts one shell on the authority. Visible wants to live in this same function. What stays separate?",
+          "choices": [
+            "Visible keeps its own event. This function only handles one shell subtracted on the authority after the impact trace. That keeps the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "Visible is inlined so one Tick serves both jobs. That would break the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "Visible writes the value from the client. That would break the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "Visible runs inside OnRep after this write. That would break the rule that fireMission traces an impact and subtracts one shell on the authority."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "strategy-intermediate-artillery-s11",
+          "kind": "mc",
+          "prompt": "FireMission traces an impact and subtracts one shell on the authority. A teammate also applies the write from OnRep, so the game need not wait for the authority inside FireMission. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "The widget stops drawing until Tick resumes. That would break the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "FireMission stops firing. That would break the rule that fireMission traces an impact and subtracts one shell on the authority."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "strategy-intermediate-artillery-s12",
+          "kind": "mc",
+          "prompt": "FireMission traces an impact and subtracts one shell on the authority. Which gate sits immediately in front of the write?",
+          "choices": [
+            "HasAuthority passes, reached from FireMission via the fire-mission event. That keeps the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "A Tick frame, even when FireMission is idle. That would break the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "A cast to every Blueprint that might show up. That would break the rule that fireMission traces an impact and subtracts one shell on the authority.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that fireMission traces an impact and subtracts one shell on the authority."
+          ],
+          "answer": 0,
+          "why": "HasAuthority passes is the gate."
+        }
+      ]
+    },
+    "save": {
+      "plainEnglish": "In plain English: Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute. What the function actually does is one struct loaded at Begin Play, written earlier by an event rather than by Tick. Begin Play for the load, and a finished event for the save is who is allowed to do it.",
+      "whyGame": "In a real match, assigning SlotValue from Tick every frame, including while a value is still changing looks almost right and then costs a query, a desync, or a double write. Tick stays on its own event so this lesson does not swallow it.",
+      "expansions": [
+        {
+          "title": "Save the battle listener",
+          "detail": "A follow-on in Strategy — Intermediate should bind to Begin Play after the slot struct already exists. It should not poll save the battle."
+        },
+        {
+          "title": "Save the battle data",
+          "detail": "Numbers a designer tunes for save the battle belong on a data row. one struct loaded at Begin Play, written earlier by an event rather than by Tick can read that row without a new function."
+        },
+        {
+          "title": "Save the battle neighbor",
+          "detail": "Tick must not be implemented inside Begin Play. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "strategy-intermediate-save-s1",
+          "kind": "mc",
+          "prompt": "Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute. When `void UKitComponent::Graph_BeginPlay_tpl_saveload_begin() // node:tpl_save-load_begin` runs, what does the player get?",
+          "choices": [
+            "one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "The line assigning SlotValue from Tick every frame, including while a value is still changing. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "The constructor writes the result before a pawn exists. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "Tick overwrites the value on every client. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute."
+          ],
+          "answer": 0,
+          "why": "one struct loaded at Begin Play, written earlier by an event rather than by Tick"
+        },
+        {
+          "id": "strategy-intermediate-save-s2",
+          "kind": "mc",
+          "prompt": "Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute. Where does Begin Play sit relative to Begin Play?",
+          "choices": [
+            "Begin Play runs after the slot struct already exists. Begin Play reaches that gate through Begin Play. That keeps the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "Begin Play runs before Begin Play, so the write does not wait for the player. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "Begin Play sits on Tick while Begin Play is idle. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "Begin Play sits in OnRep and applies the change a second time. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute."
+          ],
+          "answer": 0,
+          "why": "Begin Play is the start."
+        },
+        {
+          "id": "strategy-intermediate-save-s3",
+          "kind": "tf",
+          "prompt": "True or false: Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute."
+        },
+        {
+          "id": "strategy-intermediate-save-s4",
+          "kind": "tf",
+          "prompt": "True or false: Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute. You keep that promise by assigning SlotValue from Tick every frame, including while a value is still changing.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Begin Play for the load, and a finished event for the save is the real writer."
+        },
+        {
+          "id": "strategy-intermediate-save-s5",
+          "kind": "mc",
+          "prompt": "Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute. Who may commit the change?",
+          "choices": [
+            "Begin Play for the load, and a finished event for the save. That keeps the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "Every client writes it so the result feels instant. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "The widget writes it because that is what the player is looking at. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "The constructor writes it once, and Begin Play never fires. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute."
+          ],
+          "answer": 0,
+          "why": "Begin Play for the load, and a finished event for the save"
+        },
+        {
+          "id": "strategy-intermediate-save-s6",
+          "kind": "mc",
+          "prompt": "Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute. What has to be true before Begin Play writes?",
+          "choices": [
+            "the slot struct already exists. That keeps the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "Begin Play has not fired and the graph is only hoping. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "Tick has run one frame even though nothing changed. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "Tick has already performed this write. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute."
+          ],
+          "answer": 0,
+          "why": "the slot struct already exists"
+        },
+        {
+          "id": "strategy-intermediate-save-s7",
+          "kind": "tf",
+          "prompt": "True or false: Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute. Begin Play is the start, and Begin Play is the pin that continues into the write.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "Begin Play through Begin Play."
+        },
+        {
+          "id": "strategy-intermediate-save-s8",
+          "kind": "mc",
+          "prompt": "Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute. Delete Begin Play and leave the rest of the Strategy — Intermediate compiled. What does the player lose?",
+          "choices": [
+            "Save the battle never starts, because nothing else fires Begin Play. That keeps the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "Nothing visible, because Tick still does the work. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "Tick quietly takes over the job. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "The next travel's constructor writes it. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute."
+          ],
+          "answer": 0,
+          "why": "Begin Play is the only start."
+        },
+        {
+          "id": "strategy-intermediate-save-s9",
+          "kind": "mc",
+          "prompt": "Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute. Which broken schedule is the one to refuse?",
+          "choices": [
+            "assigning SlotValue from Tick every frame, including while a value is still changing. That keeps the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "Leaving the real work on Begin Play. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "Waiting until the slot struct already exists before the write. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "Keeping Begin Play for the load, and a finished event for the save as the only writer. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute."
+          ],
+          "answer": 0,
+          "why": "assigning SlotValue from Tick every frame, including while a value is still changing"
+        },
+        {
+          "id": "strategy-intermediate-save-s10",
+          "kind": "mc",
+          "prompt": "Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute. Tick wants to live in this same function. What stays separate?",
+          "choices": [
+            "Tick keeps its own event. This function only handles one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "Tick is inlined so one Tick serves both jobs. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "Tick writes the value from the client. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "Tick runs inside OnRep after this write. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute."
+          ],
+          "answer": 0,
+          "why": "One event, one job."
+        },
+        {
+          "id": "strategy-intermediate-save-s11",
+          "kind": "mc",
+          "prompt": "Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute. A teammate also applies the write from OnRep, so the game need not wait for Begin Play for the load, and a finished event for the save. What goes wrong?",
+          "choices": [
+            "The rule runs twice. OnRep may show the result, and must not decide it again. That keeps the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "Nothing goes wrong, because OnRep is the right place to decide the rule. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "The widget stops drawing until Tick resumes. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "Begin Play stops firing. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute."
+          ],
+          "answer": 0,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "strategy-intermediate-save-s12",
+          "kind": "mc",
+          "prompt": "Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute. Which gate sits immediately in front of the write?",
+          "choices": [
+            "the slot struct already exists, reached from Begin Play via Begin Play. That keeps the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "A Tick frame, even when Begin Play is idle. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "A cast to every Blueprint that might show up. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+            "A save reload, which would replay the change at the wrong moment. That would break the rule that begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute."
+          ],
+          "answer": 0,
+          "why": "the slot struct already exists is the gate."
+        }
+      ]
+    }
+  },
+  "exam": [
+    {
+      "id": "study-strategy-intermediate-exam-0",
+      "kind": "tf",
+      "prompt": "True or false: IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. Spend subtracts a data cost on the authority. Artillery shells are a different budget. That pair of rules also means the stock and the bill may every client subtracting 25, or paying for a shell out of the same float.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Formations and orders does not give The stock and the bill permission to every client subtracting 25, or paying for a shell out of the same float."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-1",
+      "kind": "tf",
+      "prompt": "True or false: IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. Reveal at 0.25s sets Visible. Clients do not write it. Formations and orders still starts at IA_Order after the player has learned fog and the cheat.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "IA_Order remains the start of Formations and orders."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-2",
+      "kind": "mc",
+      "prompt": "IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. AwardMedal adds a data value on the authority. The board is local. A prototype runs both jobs from AwardMedal. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Formations and orders keeps IA_Order so it can ReceiveOrder only on the unit that is Selected. Medals and the board keeps AwardMedal so it can Score increased by the data value on the authority. That keeps the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. AwardMedal adds a data value on the authority. The board is local.",
+        "Fold the first job into AwardMedal so the exam build has one event. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. AwardMedal adds a data value on the authority. The board is local.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. AwardMedal adds a data value on the authority. The board is local.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. AwardMedal adds a data value on the authority. The board is local."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-3",
+      "kind": "mc",
+      "prompt": "IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. CheckAOI at 0.5s writes Relevant. It is not the fog bit. A prototype runs both jobs from CheckAOI. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Formations and orders keeps IA_Order so it can ReceiveOrder only on the unit that is Selected. Relevance for a large map keeps CheckAOI so it can Relevant set from a trace on a 0.5 second timer. That keeps the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. CheckAOI at 0.5s writes Relevant. It is not the fog bit.",
+        "Fold the first job into CheckAOI so the exam build has one event. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. CheckAOI at 0.5s writes Relevant. It is not the fog bit.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. CheckAOI at 0.5s writes Relevant. It is not the fog bit.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. CheckAOI at 0.5s writes Relevant. It is not the fog bit."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-4",
+      "kind": "mc",
+      "prompt": "IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. A prototype runs both jobs from IA_Throttle. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Formations and orders keeps IA_Order so it can ReceiveOrder only on the unit that is Selected. Transports keeps IA_Throttle so it can Throttle set from the vehicle axis on the authority, separate from on-foot Speed. That keeps the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+        "Fold the first job into IA_Throttle so the exam build has one event. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-5",
+      "kind": "mc",
+      "prompt": "IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. FireMission traces an impact and subtracts one shell on the authority. A prototype runs both jobs from FireMission. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Formations and orders keeps IA_Order so it can ReceiveOrder only on the unit that is Selected. Fire missions keeps FireMission so it can one shell subtracted on the authority after the impact trace. That keeps the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. FireMission traces an impact and subtracts one shell on the authority.",
+        "Fold the first job into FireMission so the exam build has one event. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. FireMission traces an impact and subtracts one shell on the authority.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. FireMission traces an impact and subtracts one shell on the authority.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. FireMission traces an impact and subtracts one shell on the authority."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-6",
+      "kind": "mc",
+      "prompt": "IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute. A prototype runs both jobs from Begin Play. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Formations and orders keeps IA_Order so it can ReceiveOrder only on the unit that is Selected. Save the battle keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-7",
+      "kind": "tf",
+      "prompt": "True or false: Spend subtracts a data cost on the authority. Artillery shells are a different budget. IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. That pair of rules also means formations and orders may searching every unit from Tick and moving them all to the cursor.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "The stock and the bill does not give Formations and orders permission to searching every unit from Tick and moving them all to the cursor."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-8",
+      "kind": "tf",
+      "prompt": "True or false: Spend subtracts a data cost on the authority. Artillery shells are a different budget. Reveal at 0.25s sets Visible. Clients do not write it. The stock and the bill still starts at Spend after the player has learned fog and the cheat.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "Spend remains the start of The stock and the bill."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-9",
+      "kind": "mc",
+      "prompt": "Spend subtracts a data cost on the authority. Artillery shells are a different budget. AwardMedal adds a data value on the authority. The board is local. A prototype runs both jobs from AwardMedal. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "The stock and the bill keeps Spend so it can Supplies reduced by the data cost, and only on the authority. Medals and the board keeps AwardMedal so it can Score increased by the data value on the authority. That keeps the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget. AwardMedal adds a data value on the authority. The board is local.",
+        "Fold the first job into AwardMedal so the exam build has one event. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget. AwardMedal adds a data value on the authority. The board is local.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget. AwardMedal adds a data value on the authority. The board is local.",
+        "Let each client apply both writes before the authority answers. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget. AwardMedal adds a data value on the authority. The board is local."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-10",
+      "kind": "mc",
+      "prompt": "Spend subtracts a data cost on the authority. Artillery shells are a different budget. CheckAOI at 0.5s writes Relevant. It is not the fog bit. A prototype runs both jobs from CheckAOI. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "The stock and the bill keeps Spend so it can Supplies reduced by the data cost, and only on the authority. Relevance for a large map keeps CheckAOI so it can Relevant set from a trace on a 0.5 second timer. That keeps the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget. CheckAOI at 0.5s writes Relevant. It is not the fog bit.",
+        "Fold the first job into CheckAOI so the exam build has one event. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget. CheckAOI at 0.5s writes Relevant. It is not the fog bit.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget. CheckAOI at 0.5s writes Relevant. It is not the fog bit.",
+        "Let each client apply both writes before the authority answers. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget. CheckAOI at 0.5s writes Relevant. It is not the fog bit."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-11",
+      "kind": "mc",
+      "prompt": "Spend subtracts a data cost on the authority. Artillery shells are a different budget. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. A prototype runs both jobs from IA_Throttle. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "The stock and the bill keeps Spend so it can Supplies reduced by the data cost, and only on the authority. Transports keeps IA_Throttle so it can Throttle set from the vehicle axis on the authority, separate from on-foot Speed. That keeps the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+        "Fold the first job into IA_Throttle so the exam build has one event. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+        "Let each client apply both writes before the authority answers. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-12",
+      "kind": "mc",
+      "prompt": "Spend subtracts a data cost on the authority. Artillery shells are a different budget. FireMission traces an impact and subtracts one shell on the authority. A prototype runs both jobs from FireMission. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "The stock and the bill keeps Spend so it can Supplies reduced by the data cost, and only on the authority. Fire missions keeps FireMission so it can one shell subtracted on the authority after the impact trace. That keeps the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget. FireMission traces an impact and subtracts one shell on the authority.",
+        "Fold the first job into FireMission so the exam build has one event. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget. FireMission traces an impact and subtracts one shell on the authority.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget. FireMission traces an impact and subtracts one shell on the authority.",
+        "Let each client apply both writes before the authority answers. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget. FireMission traces an impact and subtracts one shell on the authority."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-13",
+      "kind": "mc",
+      "prompt": "Spend subtracts a data cost on the authority. Artillery shells are a different budget. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute. A prototype runs both jobs from Begin Play. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "The stock and the bill keeps Spend so it can Supplies reduced by the data cost, and only on the authority. Save the battle keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+        "Let each client apply both writes before the authority answers. That would break the rule that spend subtracts a data cost on the authority. Artillery shells are a different budget. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-14",
+      "kind": "tf",
+      "prompt": "True or false: Reveal at 0.25s sets Visible. Clients do not write it. IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. That pair of rules also means formations and orders may searching every unit from Tick and moving them all to the cursor.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Fog and the cheat does not give Formations and orders permission to searching every unit from Tick and moving them all to the cursor."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-15",
+      "kind": "tf",
+      "prompt": "True or false: Reveal at 0.25s sets Visible. Clients do not write it. Spend subtracts a data cost on the authority. Artillery shells are a different budget. Fog and the cheat still starts at Reveal after the player has learned the stock and the bill.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "Reveal remains the start of Fog and the cheat."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-16",
+      "kind": "mc",
+      "prompt": "Reveal at 0.25s sets Visible. Clients do not write it. AwardMedal adds a data value on the authority. The board is local. A prototype runs both jobs from AwardMedal. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Fog and the cheat keeps Reveal so it can Visible set from a trace on a 0.25 second timer. Medals and the board keeps AwardMedal so it can Score increased by the data value on the authority. That keeps the rule that reveal at 0.25s sets Visible. Clients do not write it. AwardMedal adds a data value on the authority. The board is local.",
+        "Fold the first job into AwardMedal so the exam build has one event. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it. AwardMedal adds a data value on the authority. The board is local.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it. AwardMedal adds a data value on the authority. The board is local.",
+        "Let each client apply both writes before the authority answers. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it. AwardMedal adds a data value on the authority. The board is local."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-17",
+      "kind": "mc",
+      "prompt": "Reveal at 0.25s sets Visible. Clients do not write it. CheckAOI at 0.5s writes Relevant. It is not the fog bit. A prototype runs both jobs from CheckAOI. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Fog and the cheat keeps Reveal so it can Visible set from a trace on a 0.25 second timer. Relevance for a large map keeps CheckAOI so it can Relevant set from a trace on a 0.5 second timer. That keeps the rule that reveal at 0.25s sets Visible. Clients do not write it. CheckAOI at 0.5s writes Relevant. It is not the fog bit.",
+        "Fold the first job into CheckAOI so the exam build has one event. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it. CheckAOI at 0.5s writes Relevant. It is not the fog bit.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it. CheckAOI at 0.5s writes Relevant. It is not the fog bit.",
+        "Let each client apply both writes before the authority answers. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it. CheckAOI at 0.5s writes Relevant. It is not the fog bit."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-18",
+      "kind": "mc",
+      "prompt": "Reveal at 0.25s sets Visible. Clients do not write it. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. A prototype runs both jobs from IA_Throttle. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Fog and the cheat keeps Reveal so it can Visible set from a trace on a 0.25 second timer. Transports keeps IA_Throttle so it can Throttle set from the vehicle axis on the authority, separate from on-foot Speed. That keeps the rule that reveal at 0.25s sets Visible. Clients do not write it. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+        "Fold the first job into IA_Throttle so the exam build has one event. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+        "Let each client apply both writes before the authority answers. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-19",
+      "kind": "mc",
+      "prompt": "Reveal at 0.25s sets Visible. Clients do not write it. FireMission traces an impact and subtracts one shell on the authority. A prototype runs both jobs from FireMission. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Fog and the cheat keeps Reveal so it can Visible set from a trace on a 0.25 second timer. Fire missions keeps FireMission so it can one shell subtracted on the authority after the impact trace. That keeps the rule that reveal at 0.25s sets Visible. Clients do not write it. FireMission traces an impact and subtracts one shell on the authority.",
+        "Fold the first job into FireMission so the exam build has one event. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it. FireMission traces an impact and subtracts one shell on the authority.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it. FireMission traces an impact and subtracts one shell on the authority.",
+        "Let each client apply both writes before the authority answers. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it. FireMission traces an impact and subtracts one shell on the authority."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-20",
+      "kind": "mc",
+      "prompt": "Reveal at 0.25s sets Visible. Clients do not write it. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute. A prototype runs both jobs from Begin Play. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Fog and the cheat keeps Reveal so it can Visible set from a trace on a 0.25 second timer. Save the battle keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that reveal at 0.25s sets Visible. Clients do not write it. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+        "Let each client apply both writes before the authority answers. That would break the rule that reveal at 0.25s sets Visible. Clients do not write it. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-21",
+      "kind": "tf",
+      "prompt": "True or false: AwardMedal adds a data value on the authority. The board is local. IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. That pair of rules also means formations and orders may searching every unit from Tick and moving them all to the cursor.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Medals and the board does not give Formations and orders permission to searching every unit from Tick and moving them all to the cursor."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-22",
+      "kind": "tf",
+      "prompt": "True or false: AwardMedal adds a data value on the authority. The board is local. Spend subtracts a data cost on the authority. Artillery shells are a different budget. Medals and the board still starts at AwardMedal after the player has learned the stock and the bill.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "AwardMedal remains the start of Medals and the board."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-23",
+      "kind": "mc",
+      "prompt": "AwardMedal adds a data value on the authority. The board is local. Reveal at 0.25s sets Visible. Clients do not write it. A prototype runs both jobs from Reveal. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Medals and the board keeps AwardMedal so it can Score increased by the data value on the authority. Fog and the cheat keeps Reveal so it can Visible set from a trace on a 0.25 second timer. That keeps the rule that awardMedal adds a data value on the authority. The board is local. Reveal at 0.25s sets Visible. Clients do not write it.",
+        "Fold the first job into Reveal so the exam build has one event. That would break the rule that awardMedal adds a data value on the authority. The board is local. Reveal at 0.25s sets Visible. Clients do not write it.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that awardMedal adds a data value on the authority. The board is local. Reveal at 0.25s sets Visible. Clients do not write it.",
+        "Let each client apply both writes before the authority answers. That would break the rule that awardMedal adds a data value on the authority. The board is local. Reveal at 0.25s sets Visible. Clients do not write it."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-24",
+      "kind": "mc",
+      "prompt": "AwardMedal adds a data value on the authority. The board is local. CheckAOI at 0.5s writes Relevant. It is not the fog bit. A prototype runs both jobs from CheckAOI. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Medals and the board keeps AwardMedal so it can Score increased by the data value on the authority. Relevance for a large map keeps CheckAOI so it can Relevant set from a trace on a 0.5 second timer. That keeps the rule that awardMedal adds a data value on the authority. The board is local. CheckAOI at 0.5s writes Relevant. It is not the fog bit.",
+        "Fold the first job into CheckAOI so the exam build has one event. That would break the rule that awardMedal adds a data value on the authority. The board is local. CheckAOI at 0.5s writes Relevant. It is not the fog bit.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that awardMedal adds a data value on the authority. The board is local. CheckAOI at 0.5s writes Relevant. It is not the fog bit.",
+        "Let each client apply both writes before the authority answers. That would break the rule that awardMedal adds a data value on the authority. The board is local. CheckAOI at 0.5s writes Relevant. It is not the fog bit."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-25",
+      "kind": "mc",
+      "prompt": "AwardMedal adds a data value on the authority. The board is local. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. A prototype runs both jobs from IA_Throttle. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Medals and the board keeps AwardMedal so it can Score increased by the data value on the authority. Transports keeps IA_Throttle so it can Throttle set from the vehicle axis on the authority, separate from on-foot Speed. That keeps the rule that awardMedal adds a data value on the authority. The board is local. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+        "Fold the first job into IA_Throttle so the exam build has one event. That would break the rule that awardMedal adds a data value on the authority. The board is local. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that awardMedal adds a data value on the authority. The board is local. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+        "Let each client apply both writes before the authority answers. That would break the rule that awardMedal adds a data value on the authority. The board is local. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-26",
+      "kind": "mc",
+      "prompt": "AwardMedal adds a data value on the authority. The board is local. FireMission traces an impact and subtracts one shell on the authority. A prototype runs both jobs from FireMission. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Medals and the board keeps AwardMedal so it can Score increased by the data value on the authority. Fire missions keeps FireMission so it can one shell subtracted on the authority after the impact trace. That keeps the rule that awardMedal adds a data value on the authority. The board is local. FireMission traces an impact and subtracts one shell on the authority.",
+        "Fold the first job into FireMission so the exam build has one event. That would break the rule that awardMedal adds a data value on the authority. The board is local. FireMission traces an impact and subtracts one shell on the authority.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that awardMedal adds a data value on the authority. The board is local. FireMission traces an impact and subtracts one shell on the authority.",
+        "Let each client apply both writes before the authority answers. That would break the rule that awardMedal adds a data value on the authority. The board is local. FireMission traces an impact and subtracts one shell on the authority."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-27",
+      "kind": "mc",
+      "prompt": "AwardMedal adds a data value on the authority. The board is local. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute. A prototype runs both jobs from Begin Play. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Medals and the board keeps AwardMedal so it can Score increased by the data value on the authority. Save the battle keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that awardMedal adds a data value on the authority. The board is local. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that awardMedal adds a data value on the authority. The board is local. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that awardMedal adds a data value on the authority. The board is local. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+        "Let each client apply both writes before the authority answers. That would break the rule that awardMedal adds a data value on the authority. The board is local. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-28",
+      "kind": "tf",
+      "prompt": "True or false: CheckAOI at 0.5s writes Relevant. It is not the fog bit. IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. That pair of rules also means formations and orders may searching every unit from Tick and moving them all to the cursor.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Relevance for a large map does not give Formations and orders permission to searching every unit from Tick and moving them all to the cursor."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-29",
+      "kind": "tf",
+      "prompt": "True or false: CheckAOI at 0.5s writes Relevant. It is not the fog bit. Spend subtracts a data cost on the authority. Artillery shells are a different budget. Relevance for a large map still starts at CheckAOI after the player has learned the stock and the bill.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "CheckAOI remains the start of Relevance for a large map."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-30",
+      "kind": "mc",
+      "prompt": "CheckAOI at 0.5s writes Relevant. It is not the fog bit. Reveal at 0.25s sets Visible. Clients do not write it. A prototype runs both jobs from Reveal. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Relevance for a large map keeps CheckAOI so it can Relevant set from a trace on a 0.5 second timer. Fog and the cheat keeps Reveal so it can Visible set from a trace on a 0.25 second timer. That keeps the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit. Reveal at 0.25s sets Visible. Clients do not write it.",
+        "Fold the first job into Reveal so the exam build has one event. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit. Reveal at 0.25s sets Visible. Clients do not write it.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit. Reveal at 0.25s sets Visible. Clients do not write it.",
+        "Let each client apply both writes before the authority answers. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit. Reveal at 0.25s sets Visible. Clients do not write it."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-31",
+      "kind": "mc",
+      "prompt": "CheckAOI at 0.5s writes Relevant. It is not the fog bit. AwardMedal adds a data value on the authority. The board is local. A prototype runs both jobs from AwardMedal. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Relevance for a large map keeps CheckAOI so it can Relevant set from a trace on a 0.5 second timer. Medals and the board keeps AwardMedal so it can Score increased by the data value on the authority. That keeps the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit. AwardMedal adds a data value on the authority. The board is local.",
+        "Fold the first job into AwardMedal so the exam build has one event. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit. AwardMedal adds a data value on the authority. The board is local.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit. AwardMedal adds a data value on the authority. The board is local.",
+        "Let each client apply both writes before the authority answers. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit. AwardMedal adds a data value on the authority. The board is local."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-32",
+      "kind": "mc",
+      "prompt": "CheckAOI at 0.5s writes Relevant. It is not the fog bit. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. A prototype runs both jobs from IA_Throttle. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Relevance for a large map keeps CheckAOI so it can Relevant set from a trace on a 0.5 second timer. Transports keeps IA_Throttle so it can Throttle set from the vehicle axis on the authority, separate from on-foot Speed. That keeps the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+        "Fold the first job into IA_Throttle so the exam build has one event. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle.",
+        "Let each client apply both writes before the authority answers. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit. IA_Throttle writes Throttle on the authority. Orders can command the same vehicle."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-33",
+      "kind": "mc",
+      "prompt": "CheckAOI at 0.5s writes Relevant. It is not the fog bit. FireMission traces an impact and subtracts one shell on the authority. A prototype runs both jobs from FireMission. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Relevance for a large map keeps CheckAOI so it can Relevant set from a trace on a 0.5 second timer. Fire missions keeps FireMission so it can one shell subtracted on the authority after the impact trace. That keeps the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit. FireMission traces an impact and subtracts one shell on the authority.",
+        "Fold the first job into FireMission so the exam build has one event. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit. FireMission traces an impact and subtracts one shell on the authority.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit. FireMission traces an impact and subtracts one shell on the authority.",
+        "Let each client apply both writes before the authority answers. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit. FireMission traces an impact and subtracts one shell on the authority."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-34",
+      "kind": "mc",
+      "prompt": "CheckAOI at 0.5s writes Relevant. It is not the fog bit. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute. A prototype runs both jobs from Begin Play. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Relevance for a large map keeps CheckAOI so it can Relevant set from a trace on a 0.5 second timer. Save the battle keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+        "Let each client apply both writes before the authority answers. That would break the rule that checkAOI at 0.5s writes Relevant. It is not the fog bit. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-35",
+      "kind": "tf",
+      "prompt": "True or false: IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. IA_Order calls ReceiveOrder only on Selected. Formation offsets stay data. That pair of rules also means formations and orders may searching every unit from Tick and moving them all to the cursor.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 1,
+      "why": "Transports does not give Formations and orders permission to searching every unit from Tick and moving them all to the cursor."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-36",
+      "kind": "tf",
+      "prompt": "True or false: IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. Spend subtracts a data cost on the authority. Artillery shells are a different budget. Transports still starts at IA_Throttle after the player has learned the stock and the bill.",
+      "choices": [
+        "True",
+        "False"
+      ],
+      "answer": 0,
+      "why": "IA_Throttle remains the start of Transports."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-37",
+      "kind": "mc",
+      "prompt": "IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. Reveal at 0.25s sets Visible. Clients do not write it. A prototype runs both jobs from Reveal. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Transports keeps IA_Throttle so it can Throttle set from the vehicle axis on the authority, separate from on-foot Speed. Fog and the cheat keeps Reveal so it can Visible set from a trace on a 0.25 second timer. That keeps the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle. Reveal at 0.25s sets Visible. Clients do not write it.",
+        "Fold the first job into Reveal so the exam build has one event. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle. Reveal at 0.25s sets Visible. Clients do not write it.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle. Reveal at 0.25s sets Visible. Clients do not write it.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle. Reveal at 0.25s sets Visible. Clients do not write it."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-38",
+      "kind": "mc",
+      "prompt": "IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. AwardMedal adds a data value on the authority. The board is local. A prototype runs both jobs from AwardMedal. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Transports keeps IA_Throttle so it can Throttle set from the vehicle axis on the authority, separate from on-foot Speed. Medals and the board keeps AwardMedal so it can Score increased by the data value on the authority. That keeps the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle. AwardMedal adds a data value on the authority. The board is local.",
+        "Fold the first job into AwardMedal so the exam build has one event. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle. AwardMedal adds a data value on the authority. The board is local.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle. AwardMedal adds a data value on the authority. The board is local.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle. AwardMedal adds a data value on the authority. The board is local."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-39",
+      "kind": "mc",
+      "prompt": "IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. CheckAOI at 0.5s writes Relevant. It is not the fog bit. A prototype runs both jobs from CheckAOI. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Transports keeps IA_Throttle so it can Throttle set from the vehicle axis on the authority, separate from on-foot Speed. Relevance for a large map keeps CheckAOI so it can Relevant set from a trace on a 0.5 second timer. That keeps the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle. CheckAOI at 0.5s writes Relevant. It is not the fog bit.",
+        "Fold the first job into CheckAOI so the exam build has one event. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle. CheckAOI at 0.5s writes Relevant. It is not the fog bit.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle. CheckAOI at 0.5s writes Relevant. It is not the fog bit.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle. CheckAOI at 0.5s writes Relevant. It is not the fog bit."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-40",
+      "kind": "mc",
+      "prompt": "IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. FireMission traces an impact and subtracts one shell on the authority. A prototype runs both jobs from FireMission. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Transports keeps IA_Throttle so it can Throttle set from the vehicle axis on the authority, separate from on-foot Speed. Fire missions keeps FireMission so it can one shell subtracted on the authority after the impact trace. That keeps the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle. FireMission traces an impact and subtracts one shell on the authority.",
+        "Fold the first job into FireMission so the exam build has one event. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle. FireMission traces an impact and subtracts one shell on the authority.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle. FireMission traces an impact and subtracts one shell on the authority.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle. FireMission traces an impact and subtracts one shell on the authority."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    },
+    {
+      "id": "study-strategy-intermediate-exam-41",
+      "kind": "mc",
+      "prompt": "IA_Throttle writes Throttle on the authority. Orders can command the same vehicle. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute. A prototype runs both jobs from Begin Play. What do you put back in Strategy — Intermediate?",
+      "choices": [
+        "Transports keeps IA_Throttle so it can Throttle set from the vehicle axis on the authority, separate from on-foot Speed. Save the battle keeps Begin Play so it can one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+        "Fold the first job into Begin Play so the exam build has one event. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+        "Run both from Tick whenever either lesson might have changed. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute.",
+        "Let each client apply both writes before the authority answers. That would break the rule that iA_Throttle writes Throttle on the authority. Orders can command the same vehicle. Begin Play reads supplies, score, shells, fuel, and orders. Fog and relevance recompute."
+      ],
+      "answer": 0,
+      "why": "Each lesson keeps its own event."
+    }
+  ],
+  "repairWrongs": {
+    "strategy-intermediate-e2": [
+      "Ship the broken sample as written (Tick writes formation offsets) and treat the red node as close enough.",
+      "Use Selected, but also leave the broken sample running so both paths write.",
+      "Drop Selected and replay the broken sample from OnRep: Tick writes formation offsets"
+    ],
+    "strategy-intermediate-e6": [
+      "Ship the broken sample as written (Supplies = (Supplies - 25.f); // each client, and also per shell) and treat the red node as close enough.",
+      "Use Nest the supplies write in HasAuthority, and keep Shells as a separate budget, but also leave the broken sample running so both paths write.",
+      "Drop Nest the supplies write in HasAuthority, and keep Shells as a separate budget and replay the broken sample from OnRep: Supplies = (Supplies - 25.f); // each client, and also per shell"
+    ],
+    "strategy-intermediate-e10": [
+      "Ship the broken sample as written (Tick sets Visible) and treat the red node as close enough.",
+      "Use 0.25f, then Visible = true on a hit, but also leave the broken sample running so both paths write.",
+      "Drop 0.25f, then Visible = true on a hit and replay the broken sample from OnRep: Tick sets Visible"
+    ],
+    "strategy-intermediate-e14": [
+      "Ship the broken sample as written (void OnRep_Score() { Score = Score + 10.f; }) and treat the red node as close enough.",
+      "Use Read Score and refresh the widget, but also leave the broken sample running so both paths write.",
+      "Drop Read Score and refresh the widget and replay the broken sample from OnRep: void OnRep_Score() { Score = Score + 10.f; }"
+    ],
+    "strategy-intermediate-e17": [
+      "Ship the broken sample as written (Tick sets Relevant from Visible) and treat the red node as close enough.",
+      "Use Relevant = bHit on a 0.5f timer, but also leave the broken sample running so both paths write.",
+      "Drop Relevant = bHit on a 0.5f timer and replay the broken sample from OnRep: Tick sets Relevant from Visible"
+    ],
+    "strategy-intermediate-e19": [
+      "Ship the broken sample as written (Throttle = Speed; // on-foot sprint) and treat the red node as close enough.",
+      "Use Throttle = IA_Throttle, inside HasAuthority, but also leave the broken sample running so both paths write.",
+      "Drop Throttle = IA_Throttle, inside HasAuthority and replay the broken sample from OnRep: Throttle = Speed; // on-foot sprint"
+    ],
+    "strategy-intermediate-e22": [
+      "Ship the broken sample as written (Tick subtracts Shells and sets Visible) and treat the red node as close enough.",
+      "Use FireMission, without writing Visible, but also leave the broken sample running so both paths write.",
+      "Drop FireMission, without writing Visible and replay the broken sample from OnRep: Tick subtracts Shells and sets Visible"
+    ],
+    "strategy-intermediate-e24": [
+      "Ship the broken sample as written (Supplies = (Supplies - 1.f); // labeled as a shell) and treat the red node as close enough.",
+      "Use Shells = (Shells - 1.f), but also leave the broken sample running so both paths write.",
+      "Drop Shells = (Shells - 1.f) and replay the broken sample from OnRep: Supplies = (Supplies - 1.f); // labeled as a shell"
+    ]
+  }
+}

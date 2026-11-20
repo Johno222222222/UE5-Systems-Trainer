@@ -1,0 +1,673 @@
+{
+  "id": "data-driven",
+  "modules": {
+    "table": {
+      "plainEnglish": "In plain English, Data tables means: A data table is a list of rows designers can edit without a code change.",
+      "whyGame": "In a real game, getting data tables wrong shows up as incrementing the stack from the use trace, which would count a look as a pickup. the overlap, not the interact trace is the repair, and the generated line `void UKitComponent::Graph_OnComponentBeginOverlap_tpl_inventoryslot_overlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor)` is that repair in C++.",
+      "expansions": [
+        {
+          "title": "Data tables as a door",
+          "detail": "If data tables is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+        },
+        {
+          "title": "Data tables as data",
+          "detail": "Designer numbers for data tables live on a row. AddToSlot through the interface when StackCount is positive, then the count is cleared reads the row instead of a literal."
+        },
+        {
+          "title": "Data tables as a listener",
+          "detail": "Later systems listen for Begin Overlap. They do not incrementing the stack from the use trace, which would count a look as a pickup."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "data-driven-table-c1",
+          "kind": "mc",
+          "prompt": "A data table is a list of rows designers can edit without a code change. What should own that decision in Data tables?",
+          "choices": [
+            "the overlap, not the interact trace. That keeps the rule that a data table is a list of rows designers can edit without a code change.",
+            "Tick owns it, so the section never misses a frame. That would break the rule that a data table is a list of rows designers can edit without a code change.",
+            "The widget that draws data tables owns it. That would break the rule that a data table is a list of rows designers can edit without a code change.",
+            "Every client owns it, before Begin Overlap is replicated. That would break the rule that a data table is a list of rows designers can edit without a code change."
+          ],
+          "answer": 0,
+          "why": "A data table is a list of rows designers can edit without a code change."
+        },
+        {
+          "id": "data-driven-table-c2",
+          "kind": "mc",
+          "prompt": "A data table is a list of rows designers can edit without a code change. The course graph contains `void UKitComponent::Graph_OnComponentBeginOverlap_tpl_inventoryslot_overlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor)`. What is that line doing in gameplay terms?",
+          "choices": [
+            "AddToSlot through the interface when StackCount is positive, then the count is cleared. That keeps the rule that a data table is a list of rows designers can edit without a code change.",
+            "incrementing the stack from the use trace, which would count a look as a pickup. That would break the rule that a data table is a list of rows designers can edit without a code change.",
+            "The constructor loads a save slot and applies it before play. That would break the rule that a data table is a list of rows designers can edit without a code change.",
+            "The line replicates a mesh pointer instead of the value. That would break the rule that a data table is a list of rows designers can edit without a code change."
+          ],
+          "answer": 0,
+          "why": "AddToSlot through the interface when StackCount is positive, then the count is cleared"
+        },
+        {
+          "id": "data-driven-table-c3",
+          "kind": "mc",
+          "prompt": "A data table is a list of rows designers can edit without a code change. Where should Begin Overlap sit?",
+          "choices": [
+            "After StackCount is greater than zero, started by Begin Overlap through the overlap exec. That keeps the rule that a data table is a list of rows designers can edit without a code change.",
+            "It runs before Begin Overlap, so the player is not required. That would break the rule that a data table is a list of rows designers can edit without a code change.",
+            "It sits on Tick beside Begin Overlap. That would break the rule that a data table is a list of rows designers can edit without a code change.",
+            "It sits in OnRep and applies the rule a second time. That would break the rule that a data table is a list of rows designers can edit without a code change."
+          ],
+          "answer": 0,
+          "why": "StackCount is greater than zero is the gate."
+        },
+        {
+          "id": "data-driven-table-c4",
+          "kind": "tf",
+          "prompt": "True or false: A data table is a list of rows designers can edit without a code change.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The takeaway states that directly."
+        },
+        {
+          "id": "data-driven-table-c5",
+          "kind": "tf",
+          "prompt": "True or false: A data table is a list of rows designers can edit without a code change. You keep that promise by incrementing the stack from the use trace, which would count a look as a pickup.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "incrementing the stack from the use trace, which would count a look as a pickup is the broken schedule."
+        },
+        {
+          "id": "data-driven-table-c6",
+          "kind": "mc",
+          "prompt": "A data table is a list of rows designers can edit without a code change. Which mistake breaks it?",
+          "choices": [
+            "incrementing the stack from the use trace, which would count a look as a pickup. That keeps the rule that a data table is a list of rows designers can edit without a code change.",
+            "Leaving the real work on Begin Overlap. That would break the rule that a data table is a list of rows designers can edit without a code change.",
+            "Waiting until StackCount is greater than zero. That would break the rule that a data table is a list of rows designers can edit without a code change.",
+            "Keeping the overlap, not the interact trace as the only writer. That would break the rule that a data table is a list of rows designers can edit without a code change."
+          ],
+          "answer": 0,
+          "why": "incrementing the stack from the use trace, which would count a look as a pickup"
+        },
+        {
+          "id": "data-driven-table-c7",
+          "kind": "tf",
+          "prompt": "True or false: A data table is a list of rows designers can edit without a code change. Begin Overlap through the overlap exec remains the start.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "the overlap, not the interact trace"
+        },
+        {
+          "id": "data-driven-table-c8",
+          "kind": "mc",
+          "prompt": "A data table is a list of rows designers can edit without a code change. A teammate casts to every Blueprint instead. What scales worse as content is added?",
+          "choices": [
+            "The cast list grows with every new actor, while Begin Overlap stayed one call. That keeps the rule that a data table is a list of rows designers can edit without a code change.",
+            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that a data table is a list of rows designers can edit without a code change.",
+            "A data row must be recompiled for this section. That would break the rule that a data table is a list of rows designers can edit without a code change.",
+            "Begin Overlap only works for one class, so the cast is the stable choice. That would break the rule that a data table is a list of rows designers can edit without a code change."
+          ],
+          "answer": 0,
+          "why": "One event stays stable."
+        },
+        {
+          "id": "data-driven-table-c9",
+          "kind": "mc",
+          "prompt": "A data table is a list of rows designers can edit without a code change. What does the player lose if Begin Overlap is removed?",
+          "choices": [
+            "Data tables never starts, because the overlap exec was the only way in. That keeps the rule that a data table is a list of rows designers can edit without a code change.",
+            "Nothing, because Tick still does the job. That would break the rule that a data table is a list of rows designers can edit without a code change.",
+            "Only the widget. Gameplay for this section continues. That would break the rule that a data table is a list of rows designers can edit without a code change.",
+            "The constructor replaces Begin Overlap on the next map. That would break the rule that a data table is a list of rows designers can edit without a code change."
+          ],
+          "answer": 0,
+          "why": "Begin Overlap is the start."
+        },
+        {
+          "id": "data-driven-table-c10",
+          "kind": "tf",
+          "prompt": "True or false: A data table is a list of rows designers can edit without a code change. OnRep should perform the write again so the section does not wait for the overlap, not the interact trace.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "data-driven-table-c11",
+          "kind": "mc",
+          "prompt": "A data table is a list of rows designers can edit without a code change. Which gate sits immediately in front of the write?",
+          "choices": [
+            "StackCount is greater than zero. That keeps the rule that a data table is a list of rows designers can edit without a code change.",
+            "A Tick frame, whether or not Begin Overlap fired. That would break the rule that a data table is a list of rows designers can edit without a code change.",
+            "A client prediction that skips the overlap, not the interact trace. That would break the rule that a data table is a list of rows designers can edit without a code change.",
+            "A cast to every actor this course might spawn. That would break the rule that a data table is a list of rows designers can edit without a code change."
+          ],
+          "answer": 0,
+          "why": "StackCount is greater than zero"
+        },
+        {
+          "id": "data-driven-table-c11b",
+          "kind": "tf",
+          "prompt": "True or false: A data table is a list of rows designers can edit without a code change. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Saves load at Begin Play. They do not poll."
+        }
+      ],
+      "graph": "inventory-slot"
+    },
+    "row": {
+      "plainEnglish": "In plain English, Row struct means: The row struct is the shape of one table row. It inherits FTableRowBase.",
+      "whyGame": "In a real game, getting row struct wrong shows up as incrementing the stack from the use trace, which would count a look as a pickup. the overlap, not the interact trace is the repair, and the generated line `void UKitComponent::Graph_OnComponentBeginOverlap_tpl_inventoryslot_overlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor)` is that repair in C++.",
+      "expansions": [
+        {
+          "title": "Row struct as a door",
+          "detail": "If row struct is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+        },
+        {
+          "title": "Row struct as data",
+          "detail": "Designer numbers for row struct live on a row. AddToSlot through the interface when StackCount is positive, then the count is cleared reads the row instead of a literal."
+        },
+        {
+          "title": "Row struct as a listener",
+          "detail": "Later systems listen for Begin Overlap. They do not incrementing the stack from the use trace, which would count a look as a pickup."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "data-driven-row-c1",
+          "kind": "mc",
+          "prompt": "The row struct is the shape of one table row. It inherits FTableRowBase. What should own that decision in Row struct?",
+          "choices": [
+            "the overlap, not the interact trace. That keeps the rule that the row struct is the shape of one table row. It inherits FTableRowBase.",
+            "Tick owns it, so the section never misses a frame. That would break the rule that the row struct is the shape of one table row. It inherits FTableRowBase.",
+            "The widget that draws row struct owns it. That would break the rule that the row struct is the shape of one table row. It inherits FTableRowBase.",
+            "Every client owns it, before Begin Overlap is replicated. That would break the rule that the row struct is the shape of one table row. It inherits FTableRowBase."
+          ],
+          "answer": 0,
+          "why": "The row struct is the shape of one table row. It inherits FTableRowBase."
+        },
+        {
+          "id": "data-driven-row-c2",
+          "kind": "mc",
+          "prompt": "The row struct is the shape of one table row. It inherits FTableRowBase. The course graph contains `void UKitComponent::Graph_OnComponentBeginOverlap_tpl_inventoryslot_overlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor)`. What is that line doing in gameplay terms?",
+          "choices": [
+            "AddToSlot through the interface when StackCount is positive, then the count is cleared. That keeps the rule that the row struct is the shape of one table row. It inherits FTableRowBase.",
+            "incrementing the stack from the use trace, which would count a look as a pickup. That would break the rule that the row struct is the shape of one table row. It inherits FTableRowBase.",
+            "The constructor loads a save slot and applies it before play. That would break the rule that the row struct is the shape of one table row. It inherits FTableRowBase.",
+            "The line replicates a mesh pointer instead of the value. That would break the rule that the row struct is the shape of one table row. It inherits FTableRowBase."
+          ],
+          "answer": 0,
+          "why": "AddToSlot through the interface when StackCount is positive, then the count is cleared"
+        },
+        {
+          "id": "data-driven-row-c3",
+          "kind": "mc",
+          "prompt": "The row struct is the shape of one table row. It inherits FTableRowBase. Where should Begin Overlap sit?",
+          "choices": [
+            "After StackCount is greater than zero, started by Begin Overlap through the overlap exec. That keeps the rule that the row struct is the shape of one table row. It inherits FTableRowBase.",
+            "It runs before Begin Overlap, so the player is not required. That would break the rule that the row struct is the shape of one table row. It inherits FTableRowBase.",
+            "It sits on Tick beside Begin Overlap. That would break the rule that the row struct is the shape of one table row. It inherits FTableRowBase.",
+            "It sits in OnRep and applies the rule a second time. That would break the rule that the row struct is the shape of one table row. It inherits FTableRowBase."
+          ],
+          "answer": 0,
+          "why": "StackCount is greater than zero is the gate."
+        },
+        {
+          "id": "data-driven-row-c4",
+          "kind": "tf",
+          "prompt": "True or false: The row struct is the shape of one table row. It inherits FTableRowBase.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The takeaway states that directly."
+        },
+        {
+          "id": "data-driven-row-c5",
+          "kind": "tf",
+          "prompt": "True or false: The row struct is the shape of one table row. It inherits FTableRowBase. You keep that promise by incrementing the stack from the use trace, which would count a look as a pickup.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "incrementing the stack from the use trace, which would count a look as a pickup is the broken schedule."
+        },
+        {
+          "id": "data-driven-row-c6",
+          "kind": "mc",
+          "prompt": "The row struct is the shape of one table row. It inherits FTableRowBase. Which mistake breaks it?",
+          "choices": [
+            "incrementing the stack from the use trace, which would count a look as a pickup. That keeps the rule that the row struct is the shape of one table row. It inherits FTableRowBase.",
+            "Leaving the real work on Begin Overlap. That would break the rule that the row struct is the shape of one table row. It inherits FTableRowBase.",
+            "Waiting until StackCount is greater than zero. That would break the rule that the row struct is the shape of one table row. It inherits FTableRowBase.",
+            "Keeping the overlap, not the interact trace as the only writer. That would break the rule that the row struct is the shape of one table row. It inherits FTableRowBase."
+          ],
+          "answer": 0,
+          "why": "incrementing the stack from the use trace, which would count a look as a pickup"
+        },
+        {
+          "id": "data-driven-row-c7",
+          "kind": "tf",
+          "prompt": "True or false: The row struct is the shape of one table row. It inherits FTableRowBase. Begin Overlap through the overlap exec remains the start.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "the overlap, not the interact trace"
+        },
+        {
+          "id": "data-driven-row-c8",
+          "kind": "mc",
+          "prompt": "The row struct is the shape of one table row. It inherits FTableRowBase. A teammate casts to every Blueprint instead. What scales worse as content is added?",
+          "choices": [
+            "The cast list grows with every new actor, while Begin Overlap stayed one call. That keeps the rule that the row struct is the shape of one table row. It inherits FTableRowBase.",
+            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that the row struct is the shape of one table row. It inherits FTableRowBase.",
+            "A data row must be recompiled for this section. That would break the rule that the row struct is the shape of one table row. It inherits FTableRowBase.",
+            "Begin Overlap only works for one class, so the cast is the stable choice. That would break the rule that the row struct is the shape of one table row. It inherits FTableRowBase."
+          ],
+          "answer": 0,
+          "why": "One event stays stable."
+        },
+        {
+          "id": "data-driven-row-c9",
+          "kind": "mc",
+          "prompt": "The row struct is the shape of one table row. It inherits FTableRowBase. What does the player lose if Begin Overlap is removed?",
+          "choices": [
+            "Row struct never starts, because the overlap exec was the only way in. That keeps the rule that the row struct is the shape of one table row. It inherits FTableRowBase.",
+            "Nothing, because Tick still does the job. That would break the rule that the row struct is the shape of one table row. It inherits FTableRowBase.",
+            "Only the widget. Gameplay for this section continues. That would break the rule that the row struct is the shape of one table row. It inherits FTableRowBase.",
+            "The constructor replaces Begin Overlap on the next map. That would break the rule that the row struct is the shape of one table row. It inherits FTableRowBase."
+          ],
+          "answer": 0,
+          "why": "Begin Overlap is the start."
+        },
+        {
+          "id": "data-driven-row-c10",
+          "kind": "tf",
+          "prompt": "True or false: The row struct is the shape of one table row. It inherits FTableRowBase. OnRep should perform the write again so the section does not wait for the overlap, not the interact trace.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "data-driven-row-c11",
+          "kind": "mc",
+          "prompt": "The row struct is the shape of one table row. It inherits FTableRowBase. Which gate sits immediately in front of the write?",
+          "choices": [
+            "StackCount is greater than zero. That keeps the rule that the row struct is the shape of one table row. It inherits FTableRowBase.",
+            "A Tick frame, whether or not Begin Overlap fired. That would break the rule that the row struct is the shape of one table row. It inherits FTableRowBase.",
+            "A client prediction that skips the overlap, not the interact trace. That would break the rule that the row struct is the shape of one table row. It inherits FTableRowBase.",
+            "A cast to every actor this course might spawn. That would break the rule that the row struct is the shape of one table row. It inherits FTableRowBase."
+          ],
+          "answer": 0,
+          "why": "StackCount is greater than zero"
+        },
+        {
+          "id": "data-driven-row-c11b",
+          "kind": "tf",
+          "prompt": "True or false: The row struct is the shape of one table row. It inherits FTableRowBase. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Saves load at Begin Play. They do not poll."
+        }
+      ],
+      "graph": "inventory-slot"
+    },
+    "asset": {
+      "plainEnglish": "In plain English, Data assets means: A data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+      "whyGame": "In a real game, getting data assets wrong shows up as adding ammo from Tick, or leaving the pickup in the world after the count changes. the overlap on the pickup is the repair, and the generated line `Ammo = (Ammo + 1); // node:tpl_pickup_set` is that repair in C++.",
+      "expansions": [
+        {
+          "title": "Data assets as a door",
+          "detail": "If data assets is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+        },
+        {
+          "title": "Data assets as data",
+          "detail": "Designer numbers for data assets live on a row. Ammo increased by one, then the pickup actor destroys itself reads the row instead of a literal."
+        },
+        {
+          "title": "Data assets as a listener",
+          "detail": "Later systems listen for Begin Overlap. They do not adding ammo from Tick, or leaving the pickup in the world after the count changes."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "data-driven-asset-c1",
+          "kind": "mc",
+          "prompt": "A data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it. What should own that decision in Data assets?",
+          "choices": [
+            "the overlap on the pickup. That keeps the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+            "Tick owns it, so the section never misses a frame. That would break the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+            "The widget that draws data assets owns it. That would break the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+            "Every client owns it, before Begin Overlap is replicated. That would break the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it."
+          ],
+          "answer": 0,
+          "why": "A data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it."
+        },
+        {
+          "id": "data-driven-asset-c2",
+          "kind": "mc",
+          "prompt": "A data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it. The course graph contains `Ammo = (Ammo + 1); // node:tpl_pickup_set`. What is that line doing in gameplay terms?",
+          "choices": [
+            "Ammo increased by one, then the pickup actor destroys itself. That keeps the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+            "adding ammo from Tick, or leaving the pickup in the world after the count changes. That would break the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+            "The constructor loads a save slot and applies it before play. That would break the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+            "The line replicates a mesh pointer instead of the value. That would break the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it."
+          ],
+          "answer": 0,
+          "why": "Ammo increased by one, then the pickup actor destroys itself"
+        },
+        {
+          "id": "data-driven-asset-c3",
+          "kind": "mc",
+          "prompt": "A data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it. Where should Set Ammo sit?",
+          "choices": [
+            "After another actor begins overlapping the pickup, started by Begin Overlap through overlap. That keeps the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+            "It runs before Begin Overlap, so the player is not required. That would break the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+            "It sits on Tick beside Begin Overlap. That would break the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+            "It sits in OnRep and applies the rule a second time. That would break the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it."
+          ],
+          "answer": 0,
+          "why": "another actor begins overlapping the pickup is the gate."
+        },
+        {
+          "id": "data-driven-asset-c4",
+          "kind": "tf",
+          "prompt": "True or false: A data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The takeaway states that directly."
+        },
+        {
+          "id": "data-driven-asset-c5",
+          "kind": "tf",
+          "prompt": "True or false: A data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it. You keep that promise by adding ammo from Tick, or leaving the pickup in the world after the count changes.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "adding ammo from Tick, or leaving the pickup in the world after the count changes is the broken schedule."
+        },
+        {
+          "id": "data-driven-asset-c6",
+          "kind": "mc",
+          "prompt": "A data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it. Which mistake breaks it?",
+          "choices": [
+            "adding ammo from Tick, or leaving the pickup in the world after the count changes. That keeps the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+            "Leaving the real work on Begin Overlap. That would break the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+            "Waiting until another actor begins overlapping the pickup. That would break the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+            "Keeping the overlap on the pickup as the only writer. That would break the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it."
+          ],
+          "answer": 0,
+          "why": "adding ammo from Tick, or leaving the pickup in the world after the count changes"
+        },
+        {
+          "id": "data-driven-asset-c7",
+          "kind": "tf",
+          "prompt": "True or false: A data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it. Begin Overlap through overlap remains the start.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "the overlap on the pickup"
+        },
+        {
+          "id": "data-driven-asset-c8",
+          "kind": "mc",
+          "prompt": "A data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it. A teammate casts to every Blueprint instead. What scales worse as content is added?",
+          "choices": [
+            "The cast list grows with every new actor, while Begin Overlap stayed one call. That keeps the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+            "A data row must be recompiled for this section. That would break the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+            "Set Ammo only works for one class, so the cast is the stable choice. That would break the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it."
+          ],
+          "answer": 0,
+          "why": "One event stays stable."
+        },
+        {
+          "id": "data-driven-asset-c9",
+          "kind": "mc",
+          "prompt": "A data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it. What does the player lose if Begin Overlap is removed?",
+          "choices": [
+            "Data assets never starts, because overlap was the only way in. That keeps the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+            "Nothing, because Tick still does the job. That would break the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+            "Only the widget. Gameplay for this section continues. That would break the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+            "The constructor replaces Begin Overlap on the next map. That would break the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it."
+          ],
+          "answer": 0,
+          "why": "Begin Overlap is the start."
+        },
+        {
+          "id": "data-driven-asset-c10",
+          "kind": "tf",
+          "prompt": "True or false: A data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it. OnRep should perform the write again so the section does not wait for the overlap on the pickup.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "data-driven-asset-c11",
+          "kind": "mc",
+          "prompt": "A data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it. Which gate sits immediately in front of the write?",
+          "choices": [
+            "another actor begins overlapping the pickup. That keeps the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+            "A Tick frame, whether or not Begin Overlap fired. That would break the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+            "A client prediction that skips the overlap on the pickup. That would break the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it.",
+            "A cast to every actor this course might spawn. That would break the rule that a data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it."
+          ],
+          "answer": 0,
+          "why": "another actor begins overlapping the pickup"
+        },
+        {
+          "id": "data-driven-asset-c11b",
+          "kind": "tf",
+          "prompt": "True or false: A data asset is one item definition: id, mesh reference, and rules. The pickup actor points at it. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Saves load at Begin Play. They do not poll."
+        }
+      ],
+      "graph": "pickup"
+    },
+    "reader": {
+      "plainEnglish": "In plain English, Who reads the row means: The component reads the row. The widget does not decide magazine size.",
+      "whyGame": "In a real game, getting who reads the row wrong shows up as adding Needed inside Tick, or reloading when the mag is already full. the reload action, after both the mag-space check and the reserve check pass is the repair, and the generated line `void UKitComponent::Graph_IA_Reload_tpl_tacticalammo_input() // node:tpl_tactical-ammo_input` is that repair in C++.",
+      "expansions": [
+        {
+          "title": "Who reads the row as a door",
+          "detail": "If who reads the row is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+        },
+        {
+          "title": "Who reads the row as data",
+          "detail": "Designer numbers for who reads the row live on a row. Needed clamped between zero and the empty space in the magazine, then added to Magazine and taken from Reserve reads the row instead of a literal."
+        },
+        {
+          "title": "Who reads the row as a listener",
+          "detail": "Later systems listen for IA_Reload. They do not adding Needed inside Tick, or reloading when the mag is already full."
+        }
+      ],
+      "quiz": [
+        {
+          "id": "data-driven-reader-c1",
+          "kind": "mc",
+          "prompt": "The component reads the row. The widget does not decide magazine size. What should own that decision in Who reads the row?",
+          "choices": [
+            "the reload action, after both the mag-space check and the reserve check pass. That keeps the rule that the component reads the row. The widget does not decide magazine size.",
+            "Tick owns it, so the section never misses a frame. That would break the rule that the component reads the row. The widget does not decide magazine size.",
+            "The widget that draws who reads the row owns it. That would break the rule that the component reads the row. The widget does not decide magazine size.",
+            "Every client owns it, before IA_Reload is replicated. That would break the rule that the component reads the row. The widget does not decide magazine size."
+          ],
+          "answer": 0,
+          "why": "The component reads the row. The widget does not decide magazine size."
+        },
+        {
+          "id": "data-driven-reader-c2",
+          "kind": "mc",
+          "prompt": "The component reads the row. The widget does not decide magazine size. The course graph contains `void UKitComponent::Graph_IA_Reload_tpl_tacticalammo_input() // node:tpl_tactical-ammo_input`. What is that line doing in gameplay terms?",
+          "choices": [
+            "Needed clamped between zero and the empty space in the magazine, then added to Magazine and taken from Reserve. That keeps the rule that the component reads the row. The widget does not decide magazine size.",
+            "adding Needed inside Tick, or reloading when the mag is already full. That would break the rule that the component reads the row. The widget does not decide magazine size.",
+            "The constructor loads a save slot and applies it before play. That would break the rule that the component reads the row. The widget does not decide magazine size.",
+            "The line replicates a mesh pointer instead of the value. That would break the rule that the component reads the row. The widget does not decide magazine size."
+          ],
+          "answer": 0,
+          "why": "Needed clamped between zero and the empty space in the magazine, then added to Magazine and taken from Reserve"
+        },
+        {
+          "id": "data-driven-reader-c3",
+          "kind": "mc",
+          "prompt": "The component reads the row. The widget does not decide magazine size. Where should Set Magazine sit?",
+          "choices": [
+            "After Magazine is below MagSize and Reserve is above zero, started by IA_Reload through Triggered. That keeps the rule that the component reads the row. The widget does not decide magazine size.",
+            "It runs before IA_Reload, so the player is not required. That would break the rule that the component reads the row. The widget does not decide magazine size.",
+            "It sits on Tick beside IA_Reload. That would break the rule that the component reads the row. The widget does not decide magazine size.",
+            "It sits in OnRep and applies the rule a second time. That would break the rule that the component reads the row. The widget does not decide magazine size."
+          ],
+          "answer": 0,
+          "why": "Magazine is below MagSize and Reserve is above zero is the gate."
+        },
+        {
+          "id": "data-driven-reader-c4",
+          "kind": "tf",
+          "prompt": "True or false: The component reads the row. The widget does not decide magazine size.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "The takeaway states that directly."
+        },
+        {
+          "id": "data-driven-reader-c5",
+          "kind": "tf",
+          "prompt": "True or false: The component reads the row. The widget does not decide magazine size. You keep that promise by adding Needed inside Tick, or reloading when the mag is already full.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "adding Needed inside Tick, or reloading when the mag is already full is the broken schedule."
+        },
+        {
+          "id": "data-driven-reader-c6",
+          "kind": "mc",
+          "prompt": "The component reads the row. The widget does not decide magazine size. Which mistake breaks it?",
+          "choices": [
+            "adding Needed inside Tick, or reloading when the mag is already full. That keeps the rule that the component reads the row. The widget does not decide magazine size.",
+            "Leaving the real work on IA_Reload. That would break the rule that the component reads the row. The widget does not decide magazine size.",
+            "Waiting until Magazine is below MagSize and Reserve is above zero. That would break the rule that the component reads the row. The widget does not decide magazine size.",
+            "Keeping the reload action, after both the mag-space check and the reserve check pass as the only writer. That would break the rule that the component reads the row. The widget does not decide magazine size."
+          ],
+          "answer": 0,
+          "why": "adding Needed inside Tick, or reloading when the mag is already full"
+        },
+        {
+          "id": "data-driven-reader-c7",
+          "kind": "tf",
+          "prompt": "True or false: The component reads the row. The widget does not decide magazine size. IA_Reload through Triggered remains the start.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 0,
+          "why": "the reload action, after both the mag-space check and the reserve check pass"
+        },
+        {
+          "id": "data-driven-reader-c8",
+          "kind": "mc",
+          "prompt": "The component reads the row. The widget does not decide magazine size. A teammate casts to every Blueprint instead. What scales worse as content is added?",
+          "choices": [
+            "The cast list grows with every new actor, while IA_Reload stayed one call. That keeps the rule that the component reads the row. The widget does not decide magazine size.",
+            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that the component reads the row. The widget does not decide magazine size.",
+            "A data row must be recompiled for this section. That would break the rule that the component reads the row. The widget does not decide magazine size.",
+            "Set Magazine only works for one class, so the cast is the stable choice. That would break the rule that the component reads the row. The widget does not decide magazine size."
+          ],
+          "answer": 0,
+          "why": "One event stays stable."
+        },
+        {
+          "id": "data-driven-reader-c9",
+          "kind": "mc",
+          "prompt": "The component reads the row. The widget does not decide magazine size. What does the player lose if IA_Reload is removed?",
+          "choices": [
+            "Who reads the row never starts, because Triggered was the only way in. That keeps the rule that the component reads the row. The widget does not decide magazine size.",
+            "Nothing, because Tick still does the job. That would break the rule that the component reads the row. The widget does not decide magazine size.",
+            "Only the widget. Gameplay for this section continues. That would break the rule that the component reads the row. The widget does not decide magazine size.",
+            "The constructor replaces IA_Reload on the next map. That would break the rule that the component reads the row. The widget does not decide magazine size."
+          ],
+          "answer": 0,
+          "why": "IA_Reload is the start."
+        },
+        {
+          "id": "data-driven-reader-c10",
+          "kind": "tf",
+          "prompt": "True or false: The component reads the row. The widget does not decide magazine size. OnRep should perform the write again so the section does not wait for the reload action, after both the mag-space check and the reserve check pass.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "OnRep shows the result."
+        },
+        {
+          "id": "data-driven-reader-c11",
+          "kind": "mc",
+          "prompt": "The component reads the row. The widget does not decide magazine size. Which gate sits immediately in front of the write?",
+          "choices": [
+            "Magazine is below MagSize and Reserve is above zero. That keeps the rule that the component reads the row. The widget does not decide magazine size.",
+            "A Tick frame, whether or not IA_Reload fired. That would break the rule that the component reads the row. The widget does not decide magazine size.",
+            "A client prediction that skips the reload action, after both the mag-space check and the reserve check pass. That would break the rule that the component reads the row. The widget does not decide magazine size.",
+            "A cast to every actor this course might spawn. That would break the rule that the component reads the row. The widget does not decide magazine size."
+          ],
+          "answer": 0,
+          "why": "Magazine is below MagSize and Reserve is above zero"
+        },
+        {
+          "id": "data-driven-reader-c11b",
+          "kind": "tf",
+          "prompt": "True or false: The component reads the row. The widget does not decide magazine size. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "choices": [
+            "True",
+            "False"
+          ],
+          "answer": 1,
+          "why": "Saves load at Begin Play. They do not poll."
+        }
+      ],
+      "graph": "tactical-ammo"
+    }
+  }
+}
