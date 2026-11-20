@@ -2,672 +2,596 @@
   "id": "fps-beginner",
   "modules": {
     "press": {
-      "plainEnglish": "In plain English, The press, not the frame means: A first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace.",
-      "whyGame": "In a real game, getting the press, not the frame wrong shows up as setting Aiming from Tick, or firing the weapon from the camera graph. the aim action is the repair, and the generated line `Aiming = true; // node:tpl_camera_set` is that repair in C++.",
+      "plainEnglish": "A first-person look starts when the player asks. The interact action traces from the camera, and a hit calls Interact. Fire is the same shape for a shot. The mapping context owns the key, so the graph never reads a key code.",
+      "whyGame": "Tracing every frame spends a query while the player stands still, and reading the key code breaks the moment they rebind.",
       "expansions": [
         {
-          "title": "The press, not the frame as a door",
-          "detail": "If the press, not the frame is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "Use",
+          "detail": "IA_Interact fires Triggered, then the trace, then the interface."
         },
         {
-          "title": "The press, not the frame as data",
-          "detail": "Designer numbers for the press, not the frame live on a row. Aiming set true when the aim trace from the camera hits reads the row instead of a literal."
+          "title": "Fire",
+          "detail": "IA_Fire is the same shape for a shot."
         },
         {
-          "title": "The press, not the frame as a listener",
-          "detail": "Later systems listen for IA_Aim. They do not setting Aiming from Tick, or firing the weapon from the camera graph."
+          "title": "Rebind",
+          "detail": "Move the binding in the context. Leave the graph alone."
         }
       ],
       "quiz": [
         {
-          "id": "fps-beginner-press-c1",
+          "id": "fpsc-press-1",
           "kind": "mc",
-          "prompt": "A first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health. What should own that decision in The press, not the frame?",
+          "prompt": "The player presses the use key in a first-person kit. What starts?",
           "choices": [
-            "the aim action. That keeps the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health.",
-            "The widget that draws the press, not the frame owns it. That would break the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health.",
-            "Every client owns it, before IA_Aim is replicated. That would break the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health."
+            "IA_Interact, then a trace from the camera",
+            "A query on every idle frame",
+            "Moving rounds into the gun",
+            "A patrol step"
           ],
           "answer": 0,
-          "why": "A first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health."
+          "why": "The press is the question."
         },
         {
-          "id": "fps-beginner-press-c2",
+          "id": "fpsc-press-2",
           "kind": "mc",
-          "prompt": "A first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health. The course graph contains `Aiming = true; // node:tpl_camera_set`. What is that line doing in gameplay terms?",
+          "prompt": "The interact function runs because Triggered fired. What did the player just do?",
           "choices": [
-            "Aiming set true when the aim trace from the camera hits. That keeps the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health.",
-            "setting Aiming from Tick, or firing the weapon from the camera graph. That would break the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health."
+            "Pressed the bound use control",
+            "Took a hit from another player",
+            "Overlapped a pickup",
+            "Finished a save"
           ],
           "answer": 0,
-          "why": "Aiming set true when the aim trace from the camera hits"
+          "why": "That function is the use action."
         },
         {
-          "id": "fps-beginner-press-c3",
+          "id": "fpsc-press-3",
           "kind": "mc",
-          "prompt": "A first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health. Where should Set Aiming sit?",
+          "prompt": "The use trace hits a door. What call runs on the door?",
           "choices": [
-            "After the camera trace hits, started by IA_Aim through Triggered. That keeps the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health.",
-            "It runs before IA_Aim, so the player is not required. That would break the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health.",
-            "It sits on Tick beside IA_Aim. That would break the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health."
+            "Interact, through the interface",
+            "A cast that names the door class",
+            "Topping the gun up",
+            "Changing how fast you move"
           ],
           "answer": 0,
-          "why": "the camera trace hits is the gate."
+          "why": "The hit asks the actor."
         },
         {
-          "id": "fps-beginner-press-c4",
+          "id": "fpsc-press-4",
+          "kind": "mc",
+          "prompt": "You move the use trace onto the frame loop so the prompt never feels late. What keeps getting paid for?",
+          "choices": [
+            "A physics query while nobody is pressing use",
+            "A second mapping context",
+            "A replicated widget",
+            "A data row"
+          ],
+          "answer": 0,
+          "why": "The press already asks at the right time."
+        },
+        {
+          "id": "fpsc-press-5",
+          "kind": "mc",
+          "prompt": "Fire should trace the shot. Which action is that, in the same shape as use?",
+          "choices": [
+            "IA_Fire",
+            "The use action, reused for the bullet",
+            "The overlap that picks up ammo",
+            "The frame loop"
+          ],
+          "answer": 0,
+          "why": "A shot is its own press."
+        },
+        {
+          "id": "fpsc-press-6",
           "kind": "tf",
-          "prompt": "True or false: A first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "fps-beginner-press-c5",
-          "kind": "tf",
-          "prompt": "True or false: A first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health. You keep that promise by setting Aiming from Tick, or firing the weapon from the camera graph.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "setting Aiming from Tick, or firing the weapon from the camera graph is the broken schedule."
-        },
-        {
-          "id": "fps-beginner-press-c6",
-          "kind": "mc",
-          "prompt": "A first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health. Which mistake breaks it?",
-          "choices": [
-            "setting Aiming from Tick, or firing the weapon from the camera graph. That keeps the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health.",
-            "Leaving the real work on IA_Aim. That would break the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health.",
-            "Waiting until the camera trace hits. That would break the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health.",
-            "Keeping the aim action as the only writer. That would break the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health."
-          ],
-          "answer": 0,
-          "why": "setting Aiming from Tick, or firing the weapon from the camera graph"
-        },
-        {
-          "id": "fps-beginner-press-c7",
-          "kind": "tf",
-          "prompt": "True or false: A first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health. IA_Aim through Triggered remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the aim action"
-        },
-        {
-          "id": "fps-beginner-press-c8",
-          "kind": "mc",
-          "prompt": "A first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while IA_Aim stayed one call. That keeps the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health.",
-            "A data row must be recompiled for this section. That would break the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health.",
-            "Set Aiming only works for one class, so the cast is the stable choice. That would break the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "fps-beginner-press-c9",
-          "kind": "mc",
-          "prompt": "A first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health. What does the player lose if IA_Aim is removed?",
-          "choices": [
-            "The press, not the frame never starts, because Triggered was the only way in. That keeps the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health.",
-            "Nothing, because Tick still does the job. That would break the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health.",
-            "The constructor replaces IA_Aim on the next map. That would break the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health."
-          ],
-          "answer": 0,
-          "why": "IA_Aim is the start."
-        },
-        {
-          "id": "fps-beginner-press-c10",
-          "kind": "tf",
-          "prompt": "True or false: A first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health. OnRep should perform the write again so the section does not wait for the aim action.",
+          "prompt": "The interact graph should read the raw key code.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "The mapping context owns the device."
         },
         {
-          "id": "fps-beginner-press-c11",
+          "id": "fpsc-press-7",
           "kind": "mc",
-          "prompt": "A first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health. Which gate sits immediately in front of the write?",
+          "prompt": "A player moves use from a keyboard key to a pad face button. What changes in the trace?",
           "choices": [
-            "the camera trace hits. That keeps the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health.",
-            "A Tick frame, whether or not IA_Aim fired. That would break the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health.",
-            "A client prediction that skips the aim action. That would break the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health.",
-            "A cast to every actor this course might spawn. That would break the rule that a first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health."
+            "Nothing. The action still fires Triggered",
+            "The trace origin moves to the chest",
+            "Branch starts comparing key codes",
+            "The door must register the new button"
           ],
           "answer": 0,
-          "why": "the camera trace hits"
+          "why": "Rebind the context, not the graph."
         },
         {
-          "id": "fps-beginner-press-c11b",
-          "kind": "tf",
-          "prompt": "True or false: A first-person look starts when the player asks. IA_Interact fires Triggered, the trace leaves the camera along the aim, and a hit calls Interact through the interface. IA_Fire is the same shape for a shot. The mapping context binds the key or the pad. The graph never reads the key code, so moving the binding does not edit the trace. Tick is the wrong schedule. It spends a physics query while the player stands still, and the stored hit is already stale when the press arrives. The weapon, the inventory, and the save all wait for their own events. They do not poll the keyboard, and they do not start a second trace to rediscover a door the interact graph already named. One query per press is the budget. A prompt that wants to hover can read the last hit. It does not get its own Tick. The false pin of the branch is a miss. A miss logs and stops. It does not open a door and it does not subtract health. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "fpsc-press-8",
+          "kind": "mc",
+          "prompt": "Where does the first-person use trace begin?",
           "choices": [
-            "True",
-            "False"
+            "At the camera, along the aim",
+            "At the pawn's feet",
+            "At the last pickup",
+            "At the muzzle flash actor"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "The crosshair is the camera."
+        },
+        {
+          "id": "fpsc-press-9",
+          "kind": "mc",
+          "prompt": "The hit bool is false. What should the use graph do?",
+          "choices": [
+            "Stop, without calling Interact",
+            "Call Interact on the nearest actor",
+            "Topping up the gun",
+            "Lowering hit points"
+          ],
+          "answer": 0,
+          "why": "A miss is not a use."
+        },
+        {
+          "id": "fpsc-press-10",
+          "kind": "mc",
+          "prompt": "Which line is the first-person press, not a timer?",
+          "choices": [
+            "The interact function that runs when the action fires",
+            "A hunter look on a fifth-of-a-second loop",
+            "A vision pass four times a second",
+            "A route step once a second"
+          ],
+          "answer": 0,
+          "why": "The player asked."
         }
-      ],
-      "graph": "camera"
+      ]
     },
     "magazine": {
-      "plainEnglish": "In plain English, Rounds in the gun means: IA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize.",
-      "whyGame": "In a real game, getting rounds in the gun wrong shows up as assigning SlotValue from Tick every frame, including while a value is still changing. Begin Play for the load, and a finished event for the save is the repair, and the generated line `void UKitComponent::Graph_BeginPlay_tpl_saveload_begin() // node:tpl_save-load_begin` is that repair in C++.",
+      "plainEnglish": "Reload is its own button. The magazine is in the gun, reserve is on the body, and mag size is the cap. Both checks have to pass before the clamp moves rounds into the gap.",
+      "whyGame": "Reloading from the frame loop fills the gun while the player is only looking, or while they are doing nothing.",
       "expansions": [
         {
-          "title": "Rounds in the gun as a door",
-          "detail": "If rounds in the gun is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The gap",
+          "detail": "Clamp writes how many rounds fit, and no more."
         },
         {
-          "title": "Rounds in the gun as data",
-          "detail": "Designer numbers for rounds in the gun live on a row. one struct loaded at Begin Play, written earlier by an event rather than by Tick reads the row instead of a literal."
+          "title": "An empty body",
+          "detail": "Reserve at zero fails the greater-than check."
         },
         {
-          "title": "Rounds in the gun as a listener",
-          "detail": "Later systems listen for Begin Play. They do not assigning SlotValue from Tick every frame, including while a value is still changing."
+          "title": "A full gun",
+          "detail": "A magazine at mag size fails the less-than check."
         }
       ],
       "quiz": [
         {
-          "id": "fps-beginner-magazine-c1",
+          "id": "fpsc-magazine-1",
           "kind": "mc",
-          "prompt": "IA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add. What should own that decision in Rounds in the gun?",
+          "prompt": "Which action is allowed to move rounds from the body into the gun?",
           "choices": [
-            "Begin Play for the load, and a finished event for the save. That keeps the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add.",
-            "The widget that draws rounds in the gun owns it. That would break the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add.",
-            "Every client owns it, before Begin Play is replicated. That would break the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add."
+            "IA_Reload",
+            "The fire button",
+            "The frame loop",
+            "The interact control"
           ],
           "answer": 0,
-          "why": "IA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add."
+          "why": "Reload is the only start."
         },
         {
-          "id": "fps-beginner-magazine-c2",
+          "id": "fpsc-magazine-2",
           "kind": "mc",
-          "prompt": "IA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add. The course graph contains `void UKitComponent::Graph_BeginPlay_tpl_saveload_begin() // node:tpl_save-load_begin`. What is that line doing in gameplay terms?",
+          "prompt": "The reload excerpt clamps reserve into the space left in the gun. What does that result count?",
           "choices": [
-            "one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add.",
-            "assigning SlotValue from Tick every frame, including while a value is still changing. That would break the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add."
+            "Rounds that will move on this reload",
+            "The player's hit points",
+            "How far the camera sits",
+            "How many items are in the backpack"
           ],
           "answer": 0,
-          "why": "one struct loaded at Begin Play, written earlier by an event rather than by Tick"
+          "why": "The clamp is the transfer."
         },
         {
-          "id": "fps-beginner-magazine-c3",
+          "id": "fpsc-magazine-3",
           "kind": "mc",
-          "prompt": "IA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add. Where should Begin Play sit?",
+          "prompt": "The magazine is below its cap and the body still has a round. What runs next?",
           "choices": [
-            "After the slot struct already exists, started by Begin Play through Begin Play. That keeps the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add.",
-            "It runs before Begin Play, so the player is not required. That would break the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add.",
-            "It sits on Tick beside Begin Play. That would break the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add."
+            "The clamp into the gap",
+            "A line trace from the camera",
+            "A health subtract",
+            "A save write"
           ],
           "answer": 0,
-          "why": "the slot struct already exists is the gate."
+          "why": "Both checks passed."
         },
         {
-          "id": "fps-beginner-magazine-c4",
+          "id": "fpsc-magazine-4",
+          "kind": "mc",
+          "prompt": "The frame loop adds the clamped amount every frame. What happens while the player is only aiming?",
+          "choices": [
+            "The gun keeps filling",
+            "The mapping context pops",
+            "The door opens",
+            "No change, if aiming blocked the frame loop"
+          ],
+          "answer": 0,
+          "why": "Reload is a button."
+        },
+        {
+          "id": "fpsc-magazine-5",
+          "kind": "mc",
+          "prompt": "The gun holds 30 of 30 and the body has rounds. Which check refuses the reload?",
+          "choices": [
+            "Less than the cap",
+            "Greater than zero on the body",
+            "The authority gate",
+            "The interact hit"
+          ],
+          "answer": 0,
+          "why": "A full magazine does not take more."
+        },
+        {
+          "id": "fpsc-magazine-6",
           "kind": "tf",
-          "prompt": "True or false: IA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "fps-beginner-magazine-c5",
-          "kind": "tf",
-          "prompt": "True or false: IA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add. You keep that promise by assigning SlotValue from Tick every frame, including while a value is still changing.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "assigning SlotValue from Tick every frame, including while a value is still changing is the broken schedule."
-        },
-        {
-          "id": "fps-beginner-magazine-c6",
-          "kind": "mc",
-          "prompt": "IA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add. Which mistake breaks it?",
-          "choices": [
-            "assigning SlotValue from Tick every frame, including while a value is still changing. That keeps the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add.",
-            "Leaving the real work on Begin Play. That would break the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add.",
-            "Waiting until the slot struct already exists. That would break the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add.",
-            "Keeping Begin Play for the load, and a finished event for the save as the only writer. That would break the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add."
-          ],
-          "answer": 0,
-          "why": "assigning SlotValue from Tick every frame, including while a value is still changing"
-        },
-        {
-          "id": "fps-beginner-magazine-c7",
-          "kind": "tf",
-          "prompt": "True or false: IA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add. Begin Play through Begin Play remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "Begin Play for the load, and a finished event for the save"
-        },
-        {
-          "id": "fps-beginner-magazine-c8",
-          "kind": "mc",
-          "prompt": "IA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while Begin Play stayed one call. That keeps the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add.",
-            "A data row must be recompiled for this section. That would break the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add.",
-            "Begin Play only works for one class, so the cast is the stable choice. That would break the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "fps-beginner-magazine-c9",
-          "kind": "mc",
-          "prompt": "IA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add. What does the player lose if Begin Play is removed?",
-          "choices": [
-            "Rounds in the gun never starts, because Begin Play was the only way in. That keeps the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add.",
-            "Nothing, because Tick still does the job. That would break the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add.",
-            "The constructor replaces Begin Play on the next map. That would break the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add."
-          ],
-          "answer": 0,
-          "why": "Begin Play is the start."
-        },
-        {
-          "id": "fps-beginner-magazine-c10",
-          "kind": "tf",
-          "prompt": "True or false: IA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add. OnRep should perform the write again so the section does not wait for Begin Play for the load, and a finished event for the save.",
+          "prompt": "Fire should also reload the magazine when it is empty.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "Fire traces. Reload transfers."
         },
         {
-          "id": "fps-beginner-magazine-c11",
+          "id": "fpsc-magazine-7",
           "kind": "mc",
-          "prompt": "IA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add. Which gate sits immediately in front of the write?",
+          "prompt": "The body has zero rounds and the gun is half empty. Which check fails?",
           "choices": [
-            "the slot struct already exists. That keeps the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add.",
-            "A Tick frame, whether or not Begin Play fired. That would break the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add.",
-            "A client prediction that skips Begin Play for the load, and a finished event for the save. That would break the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add.",
-            "A cast to every actor this course might spawn. That would break the rule that iA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add."
+            "The reserve still has a round",
+            "The magazine is below its cap",
+            "The camera origin",
+            "The use binding"
           ],
           "answer": 0,
-          "why": "the slot struct already exists"
+          "why": "There is nothing to move."
         },
         {
-          "id": "fps-beginner-magazine-c11b",
-          "kind": "tf",
-          "prompt": "True or false: IA_Reload is the only start of a magazine move. Magazine is the rounds in the gun. Reserve is the rounds on the body. MagSize is the cap. Less Than asks whether the magazine is below the cap. Greater Than asks whether the reserve still has a round. And refuses the reload when either check fails. Clamp writes the magazine back inside zero and MagSize. Those three numbers can move to a data row later. The graph's job is the event and the clamp, not the literal. A Tick that reloads by itself fires while the player is swapping weapons. Spawning one actor per bullet replicates a mesh the count already describes. Health does not own the magazine. Inventory can hand a stack into Reserve. The gunsmith, in the longer track, picks which asset named the cap. Save writes the two counts after the reload finishes, not halfway through the add. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "fpsc-magazine-8",
+          "kind": "mc",
+          "prompt": "Which three numbers describe this reload?",
           "choices": [
-            "True",
-            "False"
+            "Rounds in the gun, rounds on the body, and the cap",
+            "A life total, a gait, and whether the sights are up",
+            "Stack count, route direction, and heat",
+            "The key code, the pad code, and the widget font"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "Magazine, reserve, and mag size."
+        },
+        {
+          "id": "fpsc-magazine-9",
+          "kind": "mc",
+          "prompt": "The clamp runs and reserve is not reduced. What does the next reload still see?",
+          "choices": [
+            "Those same rounds on the body",
+            "An empty body",
+            "A larger cap",
+            "A slower walk"
+          ],
+          "answer": 0,
+          "why": "The transfer has to leave the body."
+        },
+        {
+          "id": "fpsc-magazine-10",
+          "kind": "mc",
+          "prompt": "The gun holds 20 of 30 and the body holds 4. How many rounds move?",
+          "choices": [
+            "4, because the body cannot give the full gap",
+            "The whole ten-round gap, even though the body is short",
+            "A fresh thirty-round gun, as if this one were replaced",
+            "No transfer, if looking down the sights were the reload"
+          ],
+          "answer": 0,
+          "why": "The clamp takes the smaller of the gap and the reserve."
         }
-      ],
-      "graph": "save-load"
+      ]
     },
     "pickup": {
-      "plainEnglish": "In plain English, A stack, not a scan means: Overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other.",
-      "whyGame": "In a real game, getting a stack, not a scan wrong shows up as yawing the door a degree per Tick. the overlap that starts the timeline is the repair, and the generated line `void UKitComponent::Graph_OnComponentBeginOverlap_tpl_door_overlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor)` is that repair in C++.",
+      "plainEnglish": "Overlap is the pickup. If the stack still has room, the true pin calls AddToSlot, so a rifle and a medkit share one call. The trace that highlights a door does not increment a stack.",
+      "whyGame": "A cast to one pickup class drops the other on the floor forever, and a use-trace that adds items picks them up by looking.",
       "expansions": [
         {
-          "title": "A stack, not a scan as a door",
-          "detail": "If a stack, not a scan is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "A rifle",
+          "detail": "It implements the slot add. The overlap does not cast to the rifle."
         },
         {
-          "title": "A stack, not a scan as data",
-          "detail": "Designer numbers for a stack, not a scan live on a row. PlayFromStart on the timeline, then FlipFlop writes IsOpen reads the row instead of a literal."
+          "title": "A medkit",
+          "detail": "Same call, different item data."
         },
         {
-          "title": "A stack, not a scan as a listener",
-          "detail": "Later systems listen for Begin Overlap. They do not yawing the door a degree per Tick."
+          "title": "The highlight",
+          "detail": "The interact trace can show a prompt. It does not add."
         }
       ],
       "quiz": [
         {
-          "id": "fps-beginner-pickup-c1",
+          "id": "fpsc-pickup-1",
           "kind": "mc",
-          "prompt": "Overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh. What should own that decision in A stack, not a scan?",
+          "prompt": "A rifle touches the capsule. Which event adds it?",
           "choices": [
-            "the overlap that starts the timeline. That keeps the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh.",
-            "The widget that draws a stack, not a scan owns it. That would break the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh.",
-            "Every client owns it, before Begin Overlap is replicated. That would break the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh."
+            "Overlap, through AddToSlot",
+            "The press that highlights a door",
+            "The fire trace",
+            "Moving rounds into the gun"
           ],
           "answer": 0,
-          "why": "Overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh."
+          "why": "Touching the capsule is the pickup."
         },
         {
-          "id": "fps-beginner-pickup-c2",
+          "id": "fpsc-pickup-2",
           "kind": "mc",
-          "prompt": "Overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh. The course graph contains `void UKitComponent::Graph_OnComponentBeginOverlap_tpl_door_overlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor)`. What is that line doing in gameplay terms?",
+          "prompt": "The overlap sees a stack that still has room and calls the slot function. What does the call accomplish?",
           "choices": [
-            "PlayFromStart on the timeline, then FlipFlop writes IsOpen. That keeps the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh.",
-            "yawing the door a degree per Tick. That would break the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh."
+            "It asks the inventory to take the item",
+            "It opens the door under the crosshair",
+            "It moves rounds inside the gun",
+            "It subtracts health"
           ],
           "answer": 0,
-          "why": "PlayFromStart on the timeline, then FlipFlop writes IsOpen"
+          "why": "Room means add."
         },
         {
-          "id": "fps-beginner-pickup-c3",
+          "id": "fpsc-pickup-3",
           "kind": "mc",
-          "prompt": "Overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh. Where should Timeline sit?",
+          "prompt": "The stack still has room. What runs on the true pin?",
           "choices": [
-            "After someone actually entered the volume, started by Begin Overlap through overlap. That keeps the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh.",
-            "It runs before Begin Overlap, so the player is not required. That would break the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh.",
-            "It sits on Tick beside Begin Overlap. That would break the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh."
+            "AddToSlot",
+            "The interact miss log",
+            "The magazine clamp",
+            "A save snapshot"
           ],
           "answer": 0,
-          "why": "someone actually entered the volume is the gate."
+          "why": "The branch's true pin adds."
         },
         {
-          "id": "fps-beginner-pickup-c4",
+          "id": "fpsc-pickup-4",
+          "kind": "mc",
+          "prompt": "Looking at a medkit puts it in the inventory. What did the use trace do that belongs to overlap?",
+          "choices": [
+            "The add",
+            "The highlight",
+            "The camera origin",
+            "The key binding"
+          ],
+          "answer": 0,
+          "why": "Use can show a prompt. Overlap picks up."
+        },
+        {
+          "id": "fpsc-pickup-5",
+          "kind": "mc",
+          "prompt": "A rifle and a medkit need to enter the same inventory. Which call do both answer?",
+          "choices": [
+            "AddToSlot",
+            "A cast to the rifle class only",
+            "The fire action",
+            "The health write"
+          ],
+          "answer": 0,
+          "why": "One call. The item differs in data."
+        },
+        {
+          "id": "fpsc-pickup-6",
           "kind": "tf",
-          "prompt": "True or false: Overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "fps-beginner-pickup-c5",
-          "kind": "tf",
-          "prompt": "True or false: Overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh. You keep that promise by yawing the door a degree per Tick.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "yawing the door a degree per Tick is the broken schedule."
-        },
-        {
-          "id": "fps-beginner-pickup-c6",
-          "kind": "mc",
-          "prompt": "Overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh. Which mistake breaks it?",
-          "choices": [
-            "yawing the door a degree per Tick. That keeps the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh.",
-            "Leaving the real work on Begin Overlap. That would break the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh.",
-            "Waiting until someone actually entered the volume. That would break the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh.",
-            "Keeping the overlap that starts the timeline as the only writer. That would break the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh."
-          ],
-          "answer": 0,
-          "why": "yawing the door a degree per Tick"
-        },
-        {
-          "id": "fps-beginner-pickup-c7",
-          "kind": "tf",
-          "prompt": "True or false: Overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh. Begin Overlap through overlap remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the overlap that starts the timeline"
-        },
-        {
-          "id": "fps-beginner-pickup-c8",
-          "kind": "mc",
-          "prompt": "Overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while Begin Overlap stayed one call. That keeps the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh.",
-            "A data row must be recompiled for this section. That would break the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh.",
-            "Timeline only works for one class, so the cast is the stable choice. That would break the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "fps-beginner-pickup-c9",
-          "kind": "mc",
-          "prompt": "Overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh. What does the player lose if Begin Overlap is removed?",
-          "choices": [
-            "A stack, not a scan never starts, because overlap was the only way in. That keeps the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh.",
-            "Nothing, because Tick still does the job. That would break the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh.",
-            "The constructor replaces Begin Overlap on the next map. That would break the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh."
-          ],
-          "answer": 0,
-          "why": "Begin Overlap is the start."
-        },
-        {
-          "id": "fps-beginner-pickup-c10",
-          "kind": "tf",
-          "prompt": "True or false: Overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh. OnRep should perform the write again so the section does not wait for the overlap that starts the timeline.",
+          "prompt": "A cast to the rifle class is enough for every pickup.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "The medkit never matches that cast."
         },
         {
-          "id": "fps-beginner-pickup-c11",
+          "id": "fpsc-pickup-7",
           "kind": "mc",
-          "prompt": "Overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh. Which gate sits immediately in front of the write?",
+          "prompt": "The stack is already full. What should another overlap do?",
           "choices": [
-            "someone actually entered the volume. That keeps the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh.",
-            "A Tick frame, whether or not Begin Overlap fired. That would break the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh.",
-            "A client prediction that skips the overlap that starts the timeline. That would break the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh.",
-            "A cast to every actor this course might spawn. That would break the rule that overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh."
+            "Refuse the extra",
+            "Grow the stack past the item data",
+            "Reload the gun",
+            "Open the nearest door"
           ],
           "answer": 0,
-          "why": "someone actually entered the volume"
+          "why": "The room check failed."
         },
         {
-          "id": "fps-beginner-pickup-c11b",
-          "kind": "tf",
-          "prompt": "True or false: Overlap is the pickup. StackCount is the number already in the slot. Greater Than asks whether the stack still has room. The true pin calls AddToSlot on the interface, so a rifle and a medkit share the call. A cast to one pickup class excludes the other. The trace that highlights a door is the interact graph. It does not increment StackCount, or looking at a key fills the bag. The cap belongs on the item asset. A grenade and a rifle round do not share a magic number in the graph. Scanning every actor on Tick to find pickups still ends at the same interface, and it does the search while the player is standing still. Health is not a stack. The weapon reads ammo from Reserve, which a stack can fill. Save writes StackCount. It does not write the pickup mesh. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "fpsc-pickup-8",
+          "kind": "mc",
+          "prompt": "Where does the stack size live?",
           "choices": [
-            "True",
-            "False"
+            "On the item data",
+            "As a literal in the use graph",
+            "On the camera",
+            "In the reload clamp"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "The component reads a decision the data already made."
+        },
+        {
+          "id": "fpsc-pickup-9",
+          "kind": "mc",
+          "prompt": "The overlap runs and the stack count is zero. What happens?",
+          "choices": [
+            "Nothing is added",
+            "AddToSlot runs anyway",
+            "The gun refills",
+            "Health clamps to zero"
+          ],
+          "answer": 0,
+          "why": "Empty means no add."
+        },
+        {
+          "id": "fpsc-pickup-10",
+          "kind": "mc",
+          "prompt": "Which graph highlights a door without changing a stack?",
+          "choices": [
+            "The interact trace",
+            "The overlap",
+            "Moving rounds into the gun",
+            "The health notify"
+          ],
+          "answer": 0,
+          "why": "Highlight and pickup are different events."
         }
-      ],
-      "graph": "door"
+      ]
     },
     "authority": {
-      "plainEnglish": "In plain English, One writer for health means: Damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout.",
-      "whyGame": "In a real game, getting one writer for health wrong shows up as subtracting with no clamp so health goes negative and the death branch never sees zero. the damage event on this local pawn is the repair, and the generated line `Health = FMath::Clamp((Health - Damage), 0.f, MaxHealth); // node:tpl_health_set` is that repair in C++.",
+      "plainEnglish": "Damage is an event. The server writes health inside the authority check. Other machines learn the float from OnRep and play the hit. They do not subtract again. The widget reads the float. It is not what you replicate.",
+      "whyGame": "A second subtract on the notify bites twice, and replicating the widget ships fonts and layout.",
       "expansions": [
         {
-          "title": "One writer for health as a door",
-          "detail": "If one writer for health is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The write",
+          "detail": "The generated health function nests the assignment inside the owner authority check."
         },
         {
-          "title": "One writer for health as data",
-          "detail": "Designer numbers for one writer for health live on a row. Health clamped between zero and MaxHealth, then a branch that logs death at zero reads the row instead of a literal."
+          "title": "The flash",
+          "detail": "OnRep plays it. The number is already final."
         },
         {
-          "title": "One writer for health as a listener",
-          "detail": "Later systems listen for Any Damage. They do not subtracting with no clamp so health goes negative and the death branch never sees zero."
+          "title": "The bar",
+          "detail": "Read the float. Do not replicate the widget."
         }
       ],
       "quiz": [
         {
-          "id": "fps-beginner-authority-c1",
+          "id": "fpsc-authority-1",
           "kind": "mc",
-          "prompt": "Damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write. What should own that decision in One writer for health?",
+          "prompt": "A first-person hit should change health. Where does that write sit?",
           "choices": [
-            "the damage event on this local pawn. That keeps the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
-            "The widget that draws one writer for health owns it. That would break the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
-            "Every client owns it, before Any Damage is replicated. That would break the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write."
+            "Inside HasAuthority, from the damage event",
+            "On the owning client, beside the hit flash",
+            "Beside the reaction in the notify",
+            "Inside the widget paint"
           ],
           "answer": 0,
-          "why": "Damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write."
+          "why": "The server owns the number."
         },
         {
-          "id": "fps-beginner-authority-c2",
+          "id": "fpsc-authority-2",
           "kind": "mc",
-          "prompt": "Damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write. The course graph contains `Health = FMath::Clamp((Health - Damage), 0.f, MaxHealth); // node:tpl_health_set`. What is that line doing in gameplay terms?",
+          "prompt": "The health function nests the assignment inside the owner authority check. What does that nesting prevent?",
           "choices": [
-            "Health clamped between zero and MaxHealth, then a branch that logs death at zero. That keeps the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
-            "subtracting with no clamp so health goes negative and the death branch never sees zero. That would break the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write."
+            "A client write that the server will snap back",
+            "The camera trace",
+            "A transfer of rounds",
+            "A pickup overlap"
           ],
           "answer": 0,
-          "why": "Health clamped between zero and MaxHealth, then a branch that logs death at zero"
+          "why": "The check is the gate."
         },
         {
-          "id": "fps-beginner-authority-c3",
+          "id": "fpsc-authority-3",
           "kind": "mc",
-          "prompt": "Damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write. Where should Clamp sit?",
+          "prompt": "The server has written the new health. What should the other machines play?",
           "choices": [
-            "After Damage has been received, started by Any Damage through the damage pin. That keeps the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
-            "It runs before Any Damage, so the player is not required. That would break the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
-            "It sits on Tick beside Any Damage. That would break the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write."
+            "The hit reaction, from the notify",
+            "Another subtract of the same hit",
+            "A transfer of rounds",
+            "A door swing"
           ],
           "answer": 0,
-          "why": "Damage has been received is the gate."
+          "why": "The notify shows the result."
         },
         {
-          "id": "fps-beginner-authority-c4",
+          "id": "fpsc-authority-4",
+          "kind": "mc",
+          "prompt": "OnRep both flashes and subtracts. What does the shot land as?",
+          "choices": [
+            "Two hits",
+            "One hit and a flash",
+            "A refilled magazine",
+            "An opened door"
+          ],
+          "answer": 0,
+          "why": "The server already subtracted."
+        },
+        {
+          "id": "fpsc-authority-5",
+          "kind": "mc",
+          "prompt": "You replicate the health widget so the bar matches. What extra payload moves?",
+          "choices": [
+            "Fonts and layout",
+            "Only the health float",
+            "The damage type name",
+            "The interact binding"
+          ],
+          "answer": 0,
+          "why": "Replicate the float. Let the bar read it."
+        },
+        {
+          "id": "fpsc-authority-6",
           "kind": "tf",
-          "prompt": "True or false: Damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "fps-beginner-authority-c5",
-          "kind": "tf",
-          "prompt": "True or false: Damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write. You keep that promise by subtracting with no clamp so health goes negative and the death branch never sees zero.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "subtracting with no clamp so health goes negative and the death branch never sees zero is the broken schedule."
-        },
-        {
-          "id": "fps-beginner-authority-c6",
-          "kind": "mc",
-          "prompt": "Damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write. Which mistake breaks it?",
-          "choices": [
-            "subtracting with no clamp so health goes negative and the death branch never sees zero. That keeps the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
-            "Leaving the real work on Any Damage. That would break the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
-            "Waiting until Damage has been received. That would break the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
-            "Keeping the damage event on this local pawn as the only writer. That would break the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write."
-          ],
-          "answer": 0,
-          "why": "subtracting with no clamp so health goes negative and the death branch never sees zero"
-        },
-        {
-          "id": "fps-beginner-authority-c7",
-          "kind": "tf",
-          "prompt": "True or false: Damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write. Any Damage through the damage pin remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the damage event on this local pawn"
-        },
-        {
-          "id": "fps-beginner-authority-c8",
-          "kind": "mc",
-          "prompt": "Damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while Any Damage stayed one call. That keeps the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
-            "A data row must be recompiled for this section. That would break the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
-            "Clamp only works for one class, so the cast is the stable choice. That would break the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "fps-beginner-authority-c9",
-          "kind": "mc",
-          "prompt": "Damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write. What does the player lose if Any Damage is removed?",
-          "choices": [
-            "One writer for health never starts, because the damage pin was the only way in. That keeps the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
-            "Nothing, because Tick still does the job. That would break the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
-            "The constructor replaces Any Damage on the next map. That would break the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write."
-          ],
-          "answer": 0,
-          "why": "Any Damage is the start."
-        },
-        {
-          "id": "fps-beginner-authority-c10",
-          "kind": "tf",
-          "prompt": "True or false: Damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write. OnRep should perform the write again so the section does not wait for the damage event on this local pawn.",
+          "prompt": "The hit notify should subtract health again.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "It only plays the reaction."
         },
         {
-          "id": "fps-beginner-authority-c11",
+          "id": "fpsc-authority-7",
           "kind": "mc",
-          "prompt": "Damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write. Which gate sits immediately in front of the write?",
+          "prompt": "A widget reads health. What should it not do?",
           "choices": [
-            "Damage has been received. That keeps the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
-            "A Tick frame, whether or not Any Damage fired. That would break the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
-            "A client prediction that skips the damage event on this local pawn. That would break the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write.",
-            "A cast to every actor this course might spawn. That would break the rule that damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write."
+            "Become the replicated object",
+            "Bind to the float",
+            "Hide when the pawn is dead",
+            "Sit on the owning player's screen"
           ],
           "answer": 0,
-          "why": "Damage has been received"
+          "why": "The float is the fact. The bar is a view."
         },
         {
-          "id": "fps-beginner-authority-c11b",
-          "kind": "tf",
-          "prompt": "True or false: Damage is an event. Has Authority is the gate. The server writes Health. Clients learn the new float from OnRep and play the hit there. They do not subtract again. A widget reads the float. Replicating the widget replicates fonts and layout. The generated replicated-health function nests the assignment inside if (GetOwner() && GetOwner()->HasAuthority()). A sample that leaves Health = 90.f after an empty check is the broken shape: every client would keep a private copy, and the copies snap when the server value arrives. 90 is a stand-in. A real hit clamps against max. The weapon calls Any Damage. It does not assign Health itself. Inventory does not. Save stores the float after the authority has written it. A client press is a request, not the write. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "fpsc-authority-8",
+          "kind": "mc",
+          "prompt": "A client subtracts health so the flash feels instant. What snaps?",
           "choices": [
-            "True",
-            "False"
+            "The number, back to whatever the server still has",
+            "How many rounds the gun holds",
+            "The mapping context",
+            "The pickup mesh"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "The client number was never authority."
+        },
+        {
+          "id": "fpsc-authority-9",
+          "kind": "mc",
+          "prompt": "Which line is the first-person health write?",
+          "choices": [
+            "The assignment nested in the owner authority check",
+            "A subtract inside the hit notify",
+            "A paint of the health bar",
+            "A clamp of reserve into the magazine"
+          ],
+          "answer": 0,
+          "why": "That nest is the repair."
+        },
+        {
+          "id": "fpsc-authority-10",
+          "kind": "mc",
+          "prompt": "Damage, the authority write, and the notify are three steps. Which order matches them?",
+          "choices": [
+            "The hit event, then the server assignment, then the reaction",
+            "The reaction, then a client subtract, then a widget replicate",
+            "A frame subtract, then a flash, then a save",
+            "A highlight, then a transfer of rounds, then a pickup"
+          ],
+          "answer": 0,
+          "why": "Event, write, present."
         }
-      ],
-      "graph": "health"
+      ]
     }
   }
 }
