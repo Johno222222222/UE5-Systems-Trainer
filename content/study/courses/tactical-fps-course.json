@@ -2,672 +2,596 @@
   "id": "tactical-fps-course",
   "modules": {
     "look": {
-      "plainEnglish": "In plain English, Looking at the world means: Trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking.",
-      "whyGame": "In a real game, getting looking at the world wrong shows up as setting Aiming from Tick, or firing the weapon from the camera graph. the aim action is the repair, and the generated line `Aiming = true; // node:tpl_camera_set` is that repair in C++.",
+      "plainEnglish": "The look is a short timer, not a frame loop. The trace starts at the camera, reaches about five meters so a doorway is in range, and ignores the player who is holding the camera.",
+      "whyGame": "A frame loop traces while you stand still, and including the owner sticks the prompt to your own capsule.",
       "expansions": [
         {
-          "title": "Looking at the world as a door",
-          "detail": "If looking at the world is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The timer",
+          "detail": "A tenth of a second is enough. The frame loop is not."
         },
         {
-          "title": "Looking at the world as data",
-          "detail": "Designer numbers for looking at the world live on a row. Aiming set true when the aim trace from the camera hits reads the row instead of a literal."
+          "title": "The distance",
+          "detail": "Five meters reaches a door without scanning the map."
         },
         {
-          "title": "Looking at the world as a listener",
-          "detail": "Later systems listen for IA_Aim. They do not setting Aiming from Tick, or firing the weapon from the camera graph."
+          "title": "The owner",
+          "detail": "Add the owner to the ignore list."
         }
       ],
       "quiz": [
         {
-          "id": "tactical-fps-course-look-c1",
+          "id": "tac-look-1",
           "kind": "mc",
-          "prompt": "Trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking. What should own that decision in Looking at the world?",
+          "prompt": "What schedules the foundation look?",
           "choices": [
-            "the aim action. That keeps the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking.",
-            "The widget that draws looking at the world owns it. That would break the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking.",
-            "Every client owns it, before IA_Aim is replicated. That would break the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking."
+            "A short repeating timer",
+            "A check on every idle frame",
+            "The constructor, once",
+            "The health bar's paint"
           ],
           "answer": 0,
-          "why": "Trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking."
+          "why": "A timer asks. A frame loop never stops."
         },
         {
-          "id": "tactical-fps-course-look-c2",
+          "id": "tac-look-2",
           "kind": "mc",
-          "prompt": "Trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking. The course graph contains `Aiming = true; // node:tpl_camera_set`. What is that line doing in gameplay terms?",
+          "prompt": "The sample starts the look with a timer of 0.1 seconds, looping. What does that line avoid?",
           "choices": [
-            "Aiming set true when the aim trace from the camera hits. That keeps the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking.",
-            "setting Aiming from Tick, or firing the weapon from the camera graph. That would break the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking."
+            "A query on every idle frame",
+            "Ignoring the owner",
+            "Reaching a doorway",
+            "Starting at the camera"
           ],
           "answer": 0,
-          "why": "Aiming set true when the aim trace from the camera hits"
+          "why": "Standing still should not trace."
         },
         {
-          "id": "tactical-fps-course-look-c3",
+          "id": "tac-look-3",
           "kind": "mc",
-          "prompt": "Trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking. Where should Set Aiming sit?",
+          "prompt": "How far is this course's look?",
           "choices": [
-            "After the camera trace hits, started by IA_Aim through Triggered. That keeps the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking.",
-            "It runs before IA_Aim, so the player is not required. That would break the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking.",
-            "It sits on Tick beside IA_Aim. That would break the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking."
+            "500 centimeters, enough for a doorway",
+            "50 centimeters, which stops at the barrel",
+            "The whole level",
+            "Whatever the widget click decides"
           ],
           "answer": 0,
-          "why": "the camera trace hits is the gate."
+          "why": "Five meters reaches a door."
         },
         {
-          "id": "tactical-fps-course-look-c4",
+          "id": "tac-look-4",
+          "kind": "mc",
+          "prompt": "The trace includes the owner. What does the prompt stick to?",
+          "choices": [
+            "Your own capsule",
+            "The doorway ahead",
+            "A worn gun's scuff",
+            "The inventory data"
+          ],
+          "answer": 0,
+          "why": "Ignore the player who is looking."
+        },
+        {
+          "id": "tac-look-5",
+          "kind": "mc",
+          "prompt": "You move the look onto the frame loop so focus never feels late. What keeps being paid for?",
+          "choices": [
+            "A physics query while the player stands still",
+            "A replicated wear float",
+            "A stack cap on the item",
+            "A focus-changed binding"
+          ],
+          "answer": 0,
+          "why": "The timer already asks often enough."
+        },
+        {
+          "id": "tac-look-6",
           "kind": "tf",
-          "prompt": "True or false: Trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "tactical-fps-course-look-c5",
-          "kind": "tf",
-          "prompt": "True or false: Trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking. You keep that promise by setting Aiming from Tick, or firing the weapon from the camera graph.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "setting Aiming from Tick, or firing the weapon from the camera graph is the broken schedule."
-        },
-        {
-          "id": "tactical-fps-course-look-c6",
-          "kind": "mc",
-          "prompt": "Trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking. Which mistake breaks it?",
-          "choices": [
-            "setting Aiming from Tick, or firing the weapon from the camera graph. That keeps the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking.",
-            "Leaving the real work on IA_Aim. That would break the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking.",
-            "Waiting until the camera trace hits. That would break the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking.",
-            "Keeping the aim action as the only writer. That would break the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking."
-          ],
-          "answer": 0,
-          "why": "setting Aiming from Tick, or firing the weapon from the camera graph"
-        },
-        {
-          "id": "tactical-fps-course-look-c7",
-          "kind": "tf",
-          "prompt": "True or false: Trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking. IA_Aim through Triggered remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the aim action"
-        },
-        {
-          "id": "tactical-fps-course-look-c8",
-          "kind": "mc",
-          "prompt": "Trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while IA_Aim stayed one call. That keeps the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking.",
-            "A data row must be recompiled for this section. That would break the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking.",
-            "Set Aiming only works for one class, so the cast is the stable choice. That would break the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "tactical-fps-course-look-c9",
-          "kind": "mc",
-          "prompt": "Trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking. What does the player lose if IA_Aim is removed?",
-          "choices": [
-            "Looking at the world never starts, because Triggered was the only way in. That keeps the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking.",
-            "Nothing, because Tick still does the job. That would break the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking.",
-            "The constructor replaces IA_Aim on the next map. That would break the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking."
-          ],
-          "answer": 0,
-          "why": "IA_Aim is the start."
-        },
-        {
-          "id": "tactical-fps-course-look-c10",
-          "kind": "tf",
-          "prompt": "True or false: Trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking. OnRep should perform the write again so the section does not wait for the aim action.",
+          "prompt": "The look trace should be allowed to hit the player holding the camera.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "The owner is ignored."
         },
         {
-          "id": "tactical-fps-course-look-c11",
+          "id": "tac-look-7",
           "kind": "mc",
-          "prompt": "Trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking. Which gate sits immediately in front of the write?",
+          "prompt": "Where does the look start?",
           "choices": [
-            "the camera trace hits. That keeps the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking.",
-            "A Tick frame, whether or not IA_Aim fired. That would break the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking.",
-            "A client prediction that skips the aim action. That would break the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking.",
-            "A cast to every actor this course might spawn. That would break the rule that trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking."
+            "At the camera",
+            "Down at the feet",
+            "At the inventory widget",
+            "At the worn mesh pointer"
           ],
           "answer": 0,
-          "why": "the camera trace hits"
+          "why": "The player looks through the camera."
         },
         {
-          "id": "tactical-fps-course-look-c11b",
-          "kind": "tf",
-          "prompt": "True or false: Trace from the camera on a timer, far enough to reach a doorway, and skip the player who is looking. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "tac-look-8",
+          "kind": "mc",
+          "prompt": "Which line is the foundation look, not the broken one?",
           "choices": [
-            "True",
-            "False"
+            "A looping timer that ignores the owner",
+            "A frame function that can hit the player",
+            "A constructor that traces once",
+            "A widget click that hardcodes a distance"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "Timer, player ignored."
+        },
+        {
+          "id": "tac-look-9",
+          "kind": "mc",
+          "prompt": "The trace is 50 centimeters. What doorway does the player fail to reach?",
+          "choices": [
+            "One a step ahead, past the barrel",
+            "The owner's own capsule, correctly ignored",
+            "A scuff on the gun",
+            "A slot the widget already drew"
+          ],
+          "answer": 0,
+          "why": "Five meters is the course distance."
+        },
+        {
+          "id": "tac-look-10",
+          "kind": "mc",
+          "prompt": "What do you add so the owner is not a hit?",
+          "choices": [
+            "The owner, on the trace's ignore list",
+            "A second trace from the feet",
+            "A replicated mesh pointer",
+            "A stack cap of 99"
+          ],
+          "answer": 0,
+          "why": "Ignore the player who is looking."
         }
-      ],
-      "graph": "camera"
+      ]
     },
     "carry": {
-      "plainEnglish": "In plain English, What the player carries means: The item data owns the stack size. The widget only draws the slots the component already decided.",
-      "whyGame": "In a real game, getting what the player carries wrong shows up as assigning SlotValue from Tick every frame, including while a value is still changing. Begin Play for the load, and a finished event for the save is the repair, and the generated line `void UKitComponent::Graph_BeginPlay_tpl_saveload_begin() // node:tpl_save-load_begin` is that repair in C++.",
+      "plainEnglish": "The item data owns the stack size. The component decides whether another one fits. The widget only draws the slots that decision already made. The authority is who may add.",
+      "whyGame": "A hardcoded 99 in the click drifts from the next item, and a local add desyncs the other machines.",
       "expansions": [
         {
-          "title": "What the player carries as a door",
-          "detail": "If what the player carries is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "Max stack",
+          "detail": "It lives on the item data, not in the click."
         },
         {
-          "title": "What the player carries as data",
-          "detail": "Designer numbers for what the player carries live on a row. one struct loaded at Begin Play, written earlier by an event rather than by Tick reads the row instead of a literal."
+          "title": "The widget",
+          "detail": "It draws. It does not decide."
         },
         {
-          "title": "What the player carries as a listener",
-          "detail": "Later systems listen for Begin Play. They do not assigning SlotValue from Tick every frame, including while a value is still changing."
+          "title": "The add",
+          "detail": "The authority adds. A client prediction is not the stock."
         }
       ],
       "quiz": [
         {
-          "id": "tactical-fps-course-carry-c1",
+          "id": "tac-carry-1",
           "kind": "mc",
-          "prompt": "The item data owns the stack size. The widget only draws the slots the component already decided. What should own that decision in What the player carries?",
+          "prompt": "Where does the max stack live?",
           "choices": [
-            "Begin Play for the load, and a finished event for the save. That keeps the rule that the item data owns the stack size. The widget only draws the slots the component already decided.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that the item data owns the stack size. The widget only draws the slots the component already decided.",
-            "The widget that draws what the player carries owns it. That would break the rule that the item data owns the stack size. The widget only draws the slots the component already decided.",
-            "Every client owns it, before Begin Play is replicated. That would break the rule that the item data owns the stack size. The widget only draws the slots the component already decided."
+            "On the item data",
+            "In the widget click",
+            "On a subclass per item",
+            "In the wear float"
           ],
           "answer": 0,
-          "why": "The item data owns the stack size. The widget only draws the slots the component already decided."
+          "why": "The data owns the number."
         },
         {
-          "id": "tactical-fps-course-carry-c2",
+          "id": "tac-carry-2",
           "kind": "mc",
-          "prompt": "The item data owns the stack size. The widget only draws the slots the component already decided. The course graph contains `void UKitComponent::Graph_BeginPlay_tpl_saveload_begin() // node:tpl_save-load_begin`. What is that line doing in gameplay terms?",
+          "prompt": "The click checks Count against Item->MaxStack. What does that line read?",
           "choices": [
-            "one struct loaded at Begin Play, written earlier by an event rather than by Tick. That keeps the rule that the item data owns the stack size. The widget only draws the slots the component already decided.",
-            "assigning SlotValue from Tick every frame, including while a value is still changing. That would break the rule that the item data owns the stack size. The widget only draws the slots the component already decided.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that the item data owns the stack size. The widget only draws the slots the component already decided.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that the item data owns the stack size. The widget only draws the slots the component already decided."
+            "The cap the item data already named",
+            "A literal 99 typed in the handler",
+            "The wear value",
+            "The look distance"
           ],
           "answer": 0,
-          "why": "one struct loaded at Begin Play, written earlier by an event rather than by Tick"
+          "why": "The component asks the data."
         },
         {
-          "id": "tactical-fps-course-carry-c3",
+          "id": "tac-carry-3",
           "kind": "mc",
-          "prompt": "The item data owns the stack size. The widget only draws the slots the component already decided. Where should Begin Play sit?",
+          "prompt": "The stack is already at the data's cap. What should the add do?",
           "choices": [
-            "After the slot struct already exists, started by Begin Play through Begin Play. That keeps the rule that the item data owns the stack size. The widget only draws the slots the component already decided.",
-            "It runs before Begin Play, so the player is not required. That would break the rule that the item data owns the stack size. The widget only draws the slots the component already decided.",
-            "It sits on Tick beside Begin Play. That would break the rule that the item data owns the stack size. The widget only draws the slots the component already decided.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that the item data owns the stack size. The widget only draws the slots the component already decided."
+            "Refuse another one",
+            "Grow past the data",
+            "Replicate the mesh pointer",
+            "Trace from the feet"
           ],
           "answer": 0,
-          "why": "the slot struct already exists is the gate."
+          "why": "Full means stop."
         },
         {
-          "id": "tactical-fps-course-carry-c4",
+          "id": "tac-carry-4",
+          "kind": "mc",
+          "prompt": "The widget click hardcodes 99. What drifts when the next item caps at 5?",
+          "choices": [
+            "The click, which still believes 99",
+            "The item data, which updates itself",
+            "The look timer",
+            "The scuff notify"
+          ],
+          "answer": 0,
+          "why": "The number in the click is the bug."
+        },
+        {
+          "id": "tac-carry-5",
+          "kind": "mc",
+          "prompt": "What should the inventory widget do?",
+          "choices": [
+            "Draw the slots the component already decided",
+            "Decide the max stack",
+            "Trace for pickups",
+            "Lowering hit points"
+          ],
+          "answer": 0,
+          "why": "The widget is a view."
+        },
+        {
+          "id": "tac-carry-6",
           "kind": "tf",
-          "prompt": "True or false: The item data owns the stack size. The widget only draws the slots the component already decided.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "tactical-fps-course-carry-c5",
-          "kind": "tf",
-          "prompt": "True or false: The item data owns the stack size. The widget only draws the slots the component already decided. You keep that promise by assigning SlotValue from Tick every frame, including while a value is still changing.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "assigning SlotValue from Tick every frame, including while a value is still changing is the broken schedule."
-        },
-        {
-          "id": "tactical-fps-course-carry-c6",
-          "kind": "mc",
-          "prompt": "The item data owns the stack size. The widget only draws the slots the component already decided. Which mistake breaks it?",
-          "choices": [
-            "assigning SlotValue from Tick every frame, including while a value is still changing. That keeps the rule that the item data owns the stack size. The widget only draws the slots the component already decided.",
-            "Leaving the real work on Begin Play. That would break the rule that the item data owns the stack size. The widget only draws the slots the component already decided.",
-            "Waiting until the slot struct already exists. That would break the rule that the item data owns the stack size. The widget only draws the slots the component already decided.",
-            "Keeping Begin Play for the load, and a finished event for the save as the only writer. That would break the rule that the item data owns the stack size. The widget only draws the slots the component already decided."
-          ],
-          "answer": 0,
-          "why": "assigning SlotValue from Tick every frame, including while a value is still changing"
-        },
-        {
-          "id": "tactical-fps-course-carry-c7",
-          "kind": "tf",
-          "prompt": "True or false: The item data owns the stack size. The widget only draws the slots the component already decided. Begin Play through Begin Play remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "Begin Play for the load, and a finished event for the save"
-        },
-        {
-          "id": "tactical-fps-course-carry-c8",
-          "kind": "mc",
-          "prompt": "The item data owns the stack size. The widget only draws the slots the component already decided. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while Begin Play stayed one call. That keeps the rule that the item data owns the stack size. The widget only draws the slots the component already decided.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that the item data owns the stack size. The widget only draws the slots the component already decided.",
-            "A data row must be recompiled for this section. That would break the rule that the item data owns the stack size. The widget only draws the slots the component already decided.",
-            "Begin Play only works for one class, so the cast is the stable choice. That would break the rule that the item data owns the stack size. The widget only draws the slots the component already decided."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "tactical-fps-course-carry-c9",
-          "kind": "mc",
-          "prompt": "The item data owns the stack size. The widget only draws the slots the component already decided. What does the player lose if Begin Play is removed?",
-          "choices": [
-            "What the player carries never starts, because Begin Play was the only way in. That keeps the rule that the item data owns the stack size. The widget only draws the slots the component already decided.",
-            "Nothing, because Tick still does the job. That would break the rule that the item data owns the stack size. The widget only draws the slots the component already decided.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that the item data owns the stack size. The widget only draws the slots the component already decided.",
-            "The constructor replaces Begin Play on the next map. That would break the rule that the item data owns the stack size. The widget only draws the slots the component already decided."
-          ],
-          "answer": 0,
-          "why": "Begin Play is the start."
-        },
-        {
-          "id": "tactical-fps-course-carry-c10",
-          "kind": "tf",
-          "prompt": "True or false: The item data owns the stack size. The widget only draws the slots the component already decided. OnRep should perform the write again so the section does not wait for Begin Play for the load, and a finished event for the save.",
+          "prompt": "Any client may add an item locally and keep that as the stock.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "The authority adds."
         },
         {
-          "id": "tactical-fps-course-carry-c11",
+          "id": "tac-carry-7",
           "kind": "mc",
-          "prompt": "The item data owns the stack size. The widget only draws the slots the component already decided. Which gate sits immediately in front of the write?",
+          "prompt": "Who may add an item?",
           "choices": [
-            "the slot struct already exists. That keeps the rule that the item data owns the stack size. The widget only draws the slots the component already decided.",
-            "A Tick frame, whether or not Begin Play fired. That would break the rule that the item data owns the stack size. The widget only draws the slots the component already decided.",
-            "A client prediction that skips Begin Play for the load, and a finished event for the save. That would break the rule that the item data owns the stack size. The widget only draws the slots the component already decided.",
-            "A cast to every actor this course might spawn. That would break the rule that the item data owns the stack size. The widget only draws the slots the component already decided."
+            "The authority",
+            "Whoever clicked, keeping that add as the lasting stock",
+            "A check on every idle frame",
+            "The prompt widget"
           ],
           "answer": 0,
-          "why": "the slot struct already exists"
+          "why": "A local add desyncs the others."
         },
         {
-          "id": "tactical-fps-course-carry-c11b",
-          "kind": "tf",
-          "prompt": "True or false: The item data owns the stack size. The widget only draws the slots the component already decided. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "tac-carry-8",
+          "kind": "mc",
+          "prompt": "A client adds a magazine before the server answers. What do the other players still have?",
           "choices": [
-            "True",
-            "False"
+            "The old stack",
+            "The client's new stack",
+            "A worn mesh pointer",
+            "A five-meter trace"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "Their machines never saw an authority add."
+        },
+        {
+          "id": "tac-carry-9",
+          "kind": "mc",
+          "prompt": "Which check is the stack rule in the right place?",
+          "choices": [
+            "Count compared with the item's max stack",
+            "A widget count compared with 99",
+            "A frame loop that scans every item",
+            "A mesh pointer compared with null"
+          ],
+          "answer": 0,
+          "why": "Read the data."
+        },
+        {
+          "id": "tac-carry-10",
+          "kind": "mc",
+          "prompt": "The widget draws a sixth slot the component refused. What did the view invent?",
+          "choices": [
+            "A slot the decision never made",
+            "The correct cap from the data",
+            "A replicated wear value",
+            "A focus binding"
+          ],
+          "answer": 0,
+          "why": "Draw what was decided. Do not decide."
         }
-      ],
-      "graph": "save-load"
+      ]
     },
     "wear": {
-      "plainEnglish": "In plain English, Wear and replication means: Replicate the wear value. OnRep plays the scuff. Leave the mesh where it is.",
-      "whyGame": "In a real game, getting wear and replication wrong shows up as broadcasting OnEffect from Tick, or also subtracting the cost by hand. the timer started at Begin Play is the repair, and the generated line `void UKitComponent::Graph_ApplyEffect_tpl_gaseffect_apply() // node:tpl_gas-effect_apply` is that repair in C++.",
+      "plainEnglish": "Wear is a number. Replicate that number. When it arrives, OnRep plays the scuff. Leave the mesh where it is. The mesh is already on the weapon.",
+      "whyGame": "Replicating the mesh shares a pointer. The thing that changed is the wear value.",
       "expansions": [
         {
-          "title": "Wear and replication as a door",
-          "detail": "If wear and replication is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The property",
+          "detail": "DOREPLIFETIME on Wear, not on the mesh."
         },
         {
-          "title": "Wear and replication as data",
-          "detail": "Designer numbers for wear and replication live on a row. a one second timer that broadcasts OnEffect, which is the fear or cost reaction reads the row instead of a literal."
+          "title": "The scuff",
+          "detail": "OnRep plays it after the value arrives."
         },
         {
-          "title": "Wear and replication as a listener",
-          "detail": "Later systems listen for ApplyEffect. They do not broadcasting OnEffect from Tick, or also subtracting the cost by hand."
+          "title": "The mesh",
+          "detail": "It stays on the weapon. It is not the replicated fact."
         }
       ],
       "quiz": [
         {
-          "id": "tactical-fps-course-wear-c1",
+          "id": "tac-wear-1",
           "kind": "mc",
-          "prompt": "Replicate the wear value. OnRep plays the scuff. Leave the mesh where it is. What should own that decision in Wear and replication?",
+          "prompt": "What should replicate when the gun wears?",
           "choices": [
-            "the timer started at Begin Play. That keeps the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is.",
-            "The widget that draws wear and replication owns it. That would break the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is.",
-            "Every client owns it, before ApplyEffect is replicated. That would break the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is."
+            "The wear value",
+            "The mesh pointer",
+            "The whole weapon actor every frame",
+            "The look timer handle"
           ],
           "answer": 0,
-          "why": "Replicate the wear value. OnRep plays the scuff. Leave the mesh where it is."
+          "why": "Clients need the number."
         },
         {
-          "id": "tactical-fps-course-wear-c2",
+          "id": "tac-wear-2",
           "kind": "mc",
-          "prompt": "Replicate the wear value. OnRep plays the scuff. Leave the mesh where it is. The course graph contains `void UKitComponent::Graph_ApplyEffect_tpl_gaseffect_apply() // node:tpl_gas-effect_apply`. What is that line doing in gameplay terms?",
+          "prompt": "DOREPLIFETIME names Wear. What does that line share?",
           "choices": [
-            "a one second timer that broadcasts OnEffect, which is the fear or cost reaction. That keeps the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is.",
-            "broadcasting OnEffect from Tick, or also subtracting the cost by hand. That would break the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is."
+            "The float that changed",
+            "A pointer to the mesh",
+            "The owner's ignore list",
+            "The stack cap"
           ],
           "answer": 0,
-          "why": "a one second timer that broadcasts OnEffect, which is the fear or cost reaction"
+          "why": "Wear is the property."
         },
         {
-          "id": "tactical-fps-course-wear-c3",
+          "id": "tac-wear-3",
           "kind": "mc",
-          "prompt": "Replicate the wear value. OnRep plays the scuff. Leave the mesh where it is. Where should Apply Effect sit?",
+          "prompt": "The new wear value arrives. What should run?",
           "choices": [
-            "After the effect's timer elapses, started by ApplyEffect through the timer. That keeps the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is.",
-            "It runs before ApplyEffect, so the player is not required. That would break the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is.",
-            "It sits on Tick beside ApplyEffect. That would break the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is."
+            "OnRep, playing the scuff",
+            "Another look trace",
+            "A tick that wears the gun down again",
+            "A widget click that sets the cap"
           ],
           "answer": 0,
-          "why": "the effect's timer elapses is the gate."
+          "why": "The notify is the local reaction."
         },
         {
-          "id": "tactical-fps-course-wear-c4",
+          "id": "tac-wear-4",
+          "kind": "mc",
+          "prompt": "OnRep also subtracts wear again. What does one scuff become?",
+          "choices": [
+            "Two steps of wear",
+            "One scuff from the server number",
+            "A new mesh",
+            "A longer look trace"
+          ],
+          "answer": 0,
+          "why": "The value already arrived. Play it."
+        },
+        {
+          "id": "tac-wear-5",
+          "kind": "mc",
+          "prompt": "You replicate the mesh pointer instead. What did the other machines receive?",
+          "choices": [
+            "A pointer, not the number that changed",
+            "The wear float",
+            "The ignore list",
+            "The item's max stack"
+          ],
+          "answer": 0,
+          "why": "The mesh was already there."
+        },
+        {
+          "id": "tac-wear-6",
           "kind": "tf",
-          "prompt": "True or false: Replicate the wear value. OnRep plays the scuff. Leave the mesh where it is.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "tactical-fps-course-wear-c5",
-          "kind": "tf",
-          "prompt": "True or false: Replicate the wear value. OnRep plays the scuff. Leave the mesh where it is. You keep that promise by broadcasting OnEffect from Tick, or also subtracting the cost by hand.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "broadcasting OnEffect from Tick, or also subtracting the cost by hand is the broken schedule."
-        },
-        {
-          "id": "tactical-fps-course-wear-c6",
-          "kind": "mc",
-          "prompt": "Replicate the wear value. OnRep plays the scuff. Leave the mesh where it is. Which mistake breaks it?",
-          "choices": [
-            "broadcasting OnEffect from Tick, or also subtracting the cost by hand. That keeps the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is.",
-            "Leaving the real work on ApplyEffect. That would break the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is.",
-            "Waiting until the effect's timer elapses. That would break the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is.",
-            "Keeping the timer started at Begin Play as the only writer. That would break the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is."
-          ],
-          "answer": 0,
-          "why": "broadcasting OnEffect from Tick, or also subtracting the cost by hand"
-        },
-        {
-          "id": "tactical-fps-course-wear-c7",
-          "kind": "tf",
-          "prompt": "True or false: Replicate the wear value. OnRep plays the scuff. Leave the mesh where it is. ApplyEffect through the timer remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the timer started at Begin Play"
-        },
-        {
-          "id": "tactical-fps-course-wear-c8",
-          "kind": "mc",
-          "prompt": "Replicate the wear value. OnRep plays the scuff. Leave the mesh where it is. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while ApplyEffect stayed one call. That keeps the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is.",
-            "A data row must be recompiled for this section. That would break the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is.",
-            "Apply Effect only works for one class, so the cast is the stable choice. That would break the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "tactical-fps-course-wear-c9",
-          "kind": "mc",
-          "prompt": "Replicate the wear value. OnRep plays the scuff. Leave the mesh where it is. What does the player lose if ApplyEffect is removed?",
-          "choices": [
-            "Wear and replication never starts, because the timer was the only way in. That keeps the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is.",
-            "Nothing, because Tick still does the job. That would break the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is.",
-            "The constructor replaces ApplyEffect on the next map. That would break the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is."
-          ],
-          "answer": 0,
-          "why": "ApplyEffect is the start."
-        },
-        {
-          "id": "tactical-fps-course-wear-c10",
-          "kind": "tf",
-          "prompt": "True or false: Replicate the wear value. OnRep plays the scuff. Leave the mesh where it is. OnRep should perform the write again so the section does not wait for the timer started at Begin Play.",
+          "prompt": "The wear system should replicate the weapon mesh.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "Leave the mesh where it is."
         },
         {
-          "id": "tactical-fps-course-wear-c11",
+          "id": "tac-wear-7",
           "kind": "mc",
-          "prompt": "Replicate the wear value. OnRep plays the scuff. Leave the mesh where it is. Which gate sits immediately in front of the write?",
+          "prompt": "Which replication line is the right property?",
           "choices": [
-            "the effect's timer elapses. That keeps the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is.",
-            "A Tick frame, whether or not ApplyEffect fired. That would break the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is.",
-            "A client prediction that skips the timer started at Begin Play. That would break the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is.",
-            "A cast to every actor this course might spawn. That would break the rule that replicate the wear value. OnRep plays the scuff. Leave the mesh where it is."
+            "The wear value on the wear component",
+            "The weapon mesh on that component",
+            "The look timer",
+            "The widget's slot count"
           ],
           "answer": 0,
-          "why": "the effect's timer elapses"
+          "why": "Wear changed. The mesh did not."
         },
         {
-          "id": "tactical-fps-course-wear-c11b",
-          "kind": "tf",
-          "prompt": "True or false: Replicate the wear value. OnRep plays the scuff. Leave the mesh where it is. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "tac-wear-8",
+          "kind": "mc",
+          "prompt": "A client sets wear locally so the scuff appears early. What corrects?",
           "choices": [
-            "True",
-            "False"
+            "The scuff, when the server value arrives",
+            "The look distance",
+            "The stack cap",
+            "The focus binding"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "The local number was not the replicated one."
+        },
+        {
+          "id": "tac-wear-9",
+          "kind": "mc",
+          "prompt": "Why leave the mesh where it is?",
+          "choices": [
+            "It is already on the weapon",
+            "Meshes cannot be referenced",
+            "OnRep cannot play a sound",
+            "The look trace owns the mesh"
+          ],
+          "answer": 0,
+          "why": "The mesh did not change. The number did."
+        },
+        {
+          "id": "tac-wear-10",
+          "kind": "mc",
+          "prompt": "Which function is the scuff, not a second subtract?",
+          "choices": [
+            "OnRep of wear, playing the reaction",
+            "A frame loop that reduces wear again",
+            "A client write of the mesh pointer",
+            "The widget deciding a stack"
+          ],
+          "answer": 0,
+          "why": "Present the value. Do not change it again."
         }
-      ],
-      "graph": "gas-effect"
+      ]
     },
     "connect": {
-      "plainEnglish": "In plain English, How the systems connect means: Input asks. Interaction decides. Health and inventory change on the authority. UI listens.",
-      "whyGame": "In a real game, getting how the systems connect wrong shows up as incrementing the stack from the use trace, which would count a look as a pickup. the overlap, not the interact trace is the repair, and the generated line `void UKitComponent::Graph_OnComponentBeginOverlap_tpl_inventoryslot_overlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor)` is that repair in C++.",
+      "plainEnglish": "Input asks. It calls try-interact, and the interaction component decides. Health and inventory change on the authority. The prompt listens for focus changing. It does not poll.",
+      "whyGame": "Input that traces itself hides the interaction component, and a prompt that polls on the frame loop stays awake after focus has already changed.",
       "expansions": [
         {
-          "title": "How the systems connect as a door",
-          "detail": "If how the systems connect is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The key",
+          "detail": "It calls try-interact. It does not apply damage."
         },
         {
-          "title": "How the systems connect as data",
-          "detail": "Designer numbers for how the systems connect live on a row. AddToSlot through the interface when StackCount is positive, then the count is cleared reads the row instead of a literal."
+          "title": "The prompt",
+          "detail": "Bind to focus changed. Do not read focus every frame."
         },
         {
-          "title": "How the systems connect as a listener",
-          "detail": "Later systems listen for Begin Overlap. They do not incrementing the stack from the use trace, which would count a look as a pickup."
+          "title": "The bar",
+          "detail": "It shows health. The authority changes health."
         }
       ],
       "quiz": [
         {
-          "id": "tactical-fps-course-connect-c1",
+          "id": "tac-connect-1",
           "kind": "mc",
-          "prompt": "Input asks. Interaction decides. Health and inventory change on the authority. UI listens. What should own that decision in How the systems connect?",
+          "prompt": "What should the interact key call?",
           "choices": [
-            "the overlap, not the interact trace. That keeps the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens.",
-            "The widget that draws how the systems connect owns it. That would break the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens.",
-            "Every client owns it, before Begin Overlap is replicated. That would break the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens."
+            "Try Interact",
+            "The look trace, directly",
+            "Hurting the target straight from the key",
+            "A stack-cap write in the widget"
           ],
           "answer": 0,
-          "why": "Input asks. Interaction decides. Health and inventory change on the authority. UI listens."
+          "why": "Input is a request."
         },
         {
-          "id": "tactical-fps-course-connect-c2",
+          "id": "tac-connect-2",
           "kind": "mc",
-          "prompt": "Input asks. Interaction decides. Health and inventory change on the authority. UI listens. The course graph contains `void UKitComponent::Graph_OnComponentBeginOverlap_tpl_inventoryslot_overlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor)`. What is that line doing in gameplay terms?",
+          "prompt": "The key calls Try Interact and the interaction component traces. What did input correctly refuse to do?",
           "choices": [
-            "AddToSlot through the interface when StackCount is positive, then the count is cleared. That keeps the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens.",
-            "incrementing the stack from the use trace, which would count a look as a pickup. That would break the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens."
+            "The trace itself",
+            "Making the request",
+            "Be rebound",
+            "Being present at all"
           ],
           "answer": 0,
-          "why": "AddToSlot through the interface when StackCount is positive, then the count is cleared"
+          "why": "Interaction decides."
         },
         {
-          "id": "tactical-fps-course-connect-c3",
+          "id": "tac-connect-3",
           "kind": "mc",
-          "prompt": "Input asks. Interaction decides. Health and inventory change on the authority. UI listens. Where should Begin Overlap sit?",
+          "prompt": "How does the prompt hear that focus changed?",
           "choices": [
-            "After StackCount is greater than zero, started by Begin Overlap through the overlap exec. That keeps the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens.",
-            "It runs before Begin Overlap, so the player is not required. That would break the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens.",
-            "It sits on Tick beside Begin Overlap. That would break the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens."
+            "It binds to the focus-changed event",
+            "It reads focus on the frame loop",
+            "It casts to every door",
+            "It replicates the mesh"
           ],
           "answer": 0,
-          "why": "StackCount is greater than zero is the gate."
+          "why": "The event fires when focus actually changes."
         },
         {
-          "id": "tactical-fps-course-connect-c4",
+          "id": "tac-connect-4",
+          "kind": "mc",
+          "prompt": "The prompt reads focus every frame. What stays awake after focus has moved on?",
+          "choices": [
+            "The widget, still polling",
+            "Only the binding, which already fired",
+            "Only the wear notify",
+            "Only the item data"
+          ],
+          "answer": 0,
+          "why": "Polling hides the moment of the change."
+        },
+        {
+          "id": "tac-connect-5",
+          "kind": "mc",
+          "prompt": "Who is allowed to change health?",
+          "choices": [
+            "The authority",
+            "The health widget",
+            "Every client on the frame loop",
+            "The look timer"
+          ],
+          "answer": 0,
+          "why": "The bar shows the number. It does not subtract it."
+        },
+        {
+          "id": "tac-connect-6",
           "kind": "tf",
-          "prompt": "True or false: Input asks. Interaction decides. Health and inventory change on the authority. UI listens.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "tactical-fps-course-connect-c5",
-          "kind": "tf",
-          "prompt": "True or false: Input asks. Interaction decides. Health and inventory change on the authority. UI listens. You keep that promise by incrementing the stack from the use trace, which would count a look as a pickup.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "incrementing the stack from the use trace, which would count a look as a pickup is the broken schedule."
-        },
-        {
-          "id": "tactical-fps-course-connect-c6",
-          "kind": "mc",
-          "prompt": "Input asks. Interaction decides. Health and inventory change on the authority. UI listens. Which mistake breaks it?",
-          "choices": [
-            "incrementing the stack from the use trace, which would count a look as a pickup. That keeps the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens.",
-            "Leaving the real work on Begin Overlap. That would break the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens.",
-            "Waiting until StackCount is greater than zero. That would break the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens.",
-            "Keeping the overlap, not the interact trace as the only writer. That would break the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens."
-          ],
-          "answer": 0,
-          "why": "incrementing the stack from the use trace, which would count a look as a pickup"
-        },
-        {
-          "id": "tactical-fps-course-connect-c7",
-          "kind": "tf",
-          "prompt": "True or false: Input asks. Interaction decides. Health and inventory change on the authority. UI listens. Begin Overlap through the overlap exec remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the overlap, not the interact trace"
-        },
-        {
-          "id": "tactical-fps-course-connect-c8",
-          "kind": "mc",
-          "prompt": "Input asks. Interaction decides. Health and inventory change on the authority. UI listens. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while Begin Overlap stayed one call. That keeps the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens.",
-            "A data row must be recompiled for this section. That would break the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens.",
-            "Begin Overlap only works for one class, so the cast is the stable choice. That would break the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "tactical-fps-course-connect-c9",
-          "kind": "mc",
-          "prompt": "Input asks. Interaction decides. Health and inventory change on the authority. UI listens. What does the player lose if Begin Overlap is removed?",
-          "choices": [
-            "How the systems connect never starts, because the overlap exec was the only way in. That keeps the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens.",
-            "Nothing, because Tick still does the job. That would break the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens.",
-            "The constructor replaces Begin Overlap on the next map. That would break the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens."
-          ],
-          "answer": 0,
-          "why": "Begin Overlap is the start."
-        },
-        {
-          "id": "tactical-fps-course-connect-c10",
-          "kind": "tf",
-          "prompt": "True or false: Input asks. Interaction decides. Health and inventory change on the authority. UI listens. OnRep should perform the write again so the section does not wait for the overlap, not the interact trace.",
+          "prompt": "The health widget should subtract health.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "UI listens."
         },
         {
-          "id": "tactical-fps-course-connect-c11",
+          "id": "tac-connect-7",
           "kind": "mc",
-          "prompt": "Input asks. Interaction decides. Health and inventory change on the authority. UI listens. Which gate sits immediately in front of the write?",
+          "prompt": "Inventory changes on the same rule as health. Who writes the stack?",
           "choices": [
-            "StackCount is greater than zero. That keeps the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens.",
-            "A Tick frame, whether or not Begin Overlap fired. That would break the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens.",
-            "A client prediction that skips the overlap, not the interact trace. That would break the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens.",
-            "A cast to every actor this course might spawn. That would break the rule that input asks. Interaction decides. Health and inventory change on the authority. UI listens."
+            "The authority",
+            "The slot widget",
+            "The look trace",
+            "OnRep of wear"
           ],
           "answer": 0,
-          "why": "StackCount is greater than zero"
+          "why": "The view draws. The server decides."
         },
         {
-          "id": "tactical-fps-course-connect-c11b",
-          "kind": "tf",
-          "prompt": "True or false: Input asks. Interaction decides. Health and inventory change on the authority. UI listens. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "tac-connect-8",
+          "kind": "mc",
+          "prompt": "Which binding is the prompt, not the poll?",
           "choices": [
-            "True",
-            "False"
+            "On Focus Changed, added once",
+            "A frame function that copies the focused actor",
+            "A cast to every door class",
+            "A replicated mesh pointer"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "Listen. Do not poll."
+        },
+        {
+          "id": "tac-connect-9",
+          "kind": "mc",
+          "prompt": "Input applies damage directly. What component was skipped?",
+          "choices": [
+            "Interaction, which should have decided",
+            "The wear notify, which should have damaged",
+            "The widget, which should have subtracted",
+            "The item data, which should have traced"
+          ],
+          "answer": 0,
+          "why": "The key asks. Something else decides."
+        },
+        {
+          "id": "tac-connect-10",
+          "kind": "mc",
+          "prompt": "Which order matches input, interaction, authority, and UI?",
+          "choices": [
+            "Ask, decide, write the number, then listen",
+            "A poll that subtracts in the widget, traces every frame, and ignores the server",
+            "Replicate the mesh, hardcode 99, hit the owner, then tick",
+            "Damage from the key, focus from the constructor, wear from the widget"
+          ],
+          "answer": 0,
+          "why": "That is how the four systems connect."
         }
-      ],
-      "graph": "inventory-slot"
+      ]
     }
   }
 }
