@@ -7,6 +7,7 @@
       "title": "Systems, beginner",
       "summary": "A short cross-genre course: a look on a timer, one interface, authority on shared numbers, and data rows instead of literals. The same rules show up in a rifle, a third-person use, a horror Sense, and a strategy fog.",
       "level": "beginner",
+      "genre": "general",
       "glossary_tags": [
         "Core",
         "Networking",
@@ -69,8 +70,8 @@
               "id": "look-4",
               "prompt": "True or false: a dropped bottle should have its own perception brain, separate from Sense.",
               "choices": [
-                "False",
-                "True"
+                "True",
+                "False"
               ],
               "answer": 1,
               "why": "Audio calls Sense.",
@@ -161,8 +162,8 @@
               "id": "if-4",
               "prompt": "True or false: the third-person companion should call the player's Interact.",
               "choices": [
-                "False",
-                "True"
+                "True",
+                "False"
               ],
               "answer": 1,
               "why": "It would steal doors.",
@@ -266,8 +267,8 @@
               "id": "au-5",
               "prompt": "True or false: a client may set Visible to preview fog.",
               "choices": [
-                "False",
-                "True"
+                "True",
+                "False"
               ],
               "answer": 1,
               "why": "That is the cheat.",
@@ -358,8 +359,8 @@
               "id": "data-5",
               "prompt": "True or false: a save should store every formation offset.",
               "choices": [
-                "False",
-                "True"
+                "True",
+                "False"
               ],
               "answer": 1,
               "why": "Store the formation id.",
@@ -389,6 +390,7 @@
       "title": "Systems, intermediate",
       "summary": "A short cross-genre course for the Project JOHNO rules: replication and OnRep, area of interest versus fog, an L2 mapping layer, effects versus Tick, and save structs that do not replay derived work.",
       "level": "intermediate",
+      "genre": "general",
       "glossary_tags": [
         "Core",
         "Networking",
@@ -464,8 +466,8 @@
               "id": "or-5",
               "prompt": "True or false: a listen server can skip HasAuthority.",
               "choices": [
-                "False",
-                "True"
+                "True",
+                "False"
               ],
               "answer": 1,
               "why": "The remote client is still another machine.",
@@ -595,8 +597,8 @@
               "id": "in-5",
               "prompt": "True or false: a hidden camp should freeze.",
               "choices": [
-                "False",
-                "True"
+                "True",
+                "False"
               ],
               "answer": 1,
               "why": "The server keeps the route.",
@@ -739,8 +741,8 @@
               "id": "il-6",
               "prompt": "True or false: Throttle should copy Speed 600.",
               "choices": [
-                "False",
-                "True"
+                "True",
+                "False"
               ],
               "answer": 1,
               "why": "A sprint number is not a throttle.",
@@ -857,8 +859,8 @@
               "id": "ef-5",
               "prompt": "True or false: the hinge transform should replicate.",
               "choices": [
-                "False",
-                "True"
+                "True",
+                "False"
               ],
               "answer": 1,
               "why": "IsOpen replicates. The curve is local.",
@@ -988,8 +990,8 @@
               "id": "sv-5",
               "prompt": "True or false: Relevant should be saved so pop-in matches.",
               "choices": [
-                "False",
-                "True"
+                "True",
+                "False"
               ],
               "answer": 1,
               "why": "The timer recomputes it.",

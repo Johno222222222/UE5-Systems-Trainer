@@ -230,9 +230,21 @@ function expansionsOf(system, nodes, props, line) {
   return out.slice(0, 4);
 }
 
+export function logicWindow(source, limit = 18) {
+  const rows = String(source || "").split("\n");
+  let start = rows.findIndex((row) => {
+    const text = row.trim();
+    if (!text) return false;
+    if (text.startsWith("#include") || text.startsWith("#pragma") || text.startsWith("//")) return false;
+    return true;
+  });
+  if (start < 0) start = 0;
+  return rows.slice(start, start + limit).map((text, offset) => ({ line: start + offset + 1, text }));
+}
+
 export function pictureOf(system) {
   const source = String(system?.cpp_source || "");
-  const lines = source.split("\n").slice(0, 18).map((text, index) => ({ line: index + 1, text }));
+  const lines = logicWindow(source);
   const props = propertiesOf(system?.cpp_header);
   const dependencies = [];
   for (const match of `${system?.cpp_header || ""}\n${source}`.matchAll(/#include\s+"([^"]+)"/g)) {

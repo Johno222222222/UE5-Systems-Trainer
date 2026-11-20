@@ -94,8 +94,7 @@ function renderGraph(doc, { broken = false, why = "" } = {}) {
     if (!from || !to) return "";
     const a = at(from);
     const b = at(to);
-    const brokenWire = broken && wire.fromPin === "Exec";
-    return `<path d="M ${a.x + 150} ${a.y + 28} C ${a.x + 190} ${a.y + 28}, ${b.x - 40} ${b.y + 28}, ${b.x} ${b.y + 28}" fill="none" stroke="${brokenWire ? "#e02424" : "#ff7a1a"}" stroke-width="${brokenWire ? 3 : 2}" ${brokenWire ? 'stroke-dasharray="6 4"' : ""}/>`;
+    return `<path d="M ${a.x + 150} ${a.y + 28} C ${a.x + 190} ${a.y + 28}, ${b.x - 40} ${b.y + 28}, ${b.x} ${b.y + 28}" fill="none" stroke="#ff7a1a" stroke-width="2"/>`;
   }).join("");
   const boxes = nodes.map((node) => {
     const p = at(node);
@@ -103,15 +102,18 @@ function renderGraph(doc, { broken = false, why = "" } = {}) {
     return `<rect x="${p.x}" y="${p.y}" width="150" height="52" rx="6" fill="#121826" stroke="#0099ff"/>
       <text x="${p.x + 75}" y="${p.y + 30}" fill="#e8eef8" font-size="11" text-anchor="middle" font-family="sans-serif">${esc(label)}</text>`;
   }).join("");
+  const scenario = String(why || "").replace(/\s+/g, " ").trim();
   let extra = "";
   if (broken) {
     const first = nodes[0];
     const p = at(first);
-    extra += `<rect x="${p.x}" y="${Math.max(8, p.y - 70)}" width="150" height="52" rx="6" fill="#2a1012" stroke="#e02424"/>
-      <text x="${p.x + 75}" y="${Math.max(8, p.y - 70) + 30}" fill="#ffb4b4" font-size="11" text-anchor="middle" font-family="sans-serif">Tick</text>
-      <path d="M ${p.x + 75} ${Math.max(8, p.y - 70) + 52} V ${p.y}" stroke="#e02424" stroke-width="3" stroke-dasharray="6 4"/>`;
+    const label = esc(scenario.slice(0, 22) || "Broken write");
+    extra += `<desc>${esc(scenario || "Broken write")}</desc>
+      <rect x="${p.x}" y="${Math.max(8, p.y - 70)}" width="168" height="52" rx="6" fill="#2a1012" stroke="#e02424"/>
+      <text x="${p.x + 84}" y="${Math.max(8, p.y - 70) + 30}" fill="#ffb4b4" font-size="10" text-anchor="middle" font-family="sans-serif">${label}</text>
+      <path d="M ${p.x + 84} ${Math.max(8, p.y - 70) + 52} V ${p.y}" stroke="#e02424" stroke-width="3" stroke-dasharray="6 4"/>`;
   }
-  const note = why || (broken ? "The dashed Tick wire is the bug. The solid graph is the real preset." : "");
+  const note = scenario || "";
   const foot = note
     ? `<rect x="16" y="${height - 48}" width="${width - 32}" height="34" rx="6" fill="#1a1208" stroke="#ff7a1a"/>
        <text x="28" y="${height - 27}" fill="#ffb06a" font-size="12" font-family="sans-serif">WHY ${esc(note).slice(0, 140)}</text>`

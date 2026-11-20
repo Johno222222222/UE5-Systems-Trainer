@@ -7,13 +7,55 @@ on:
   pull_request:
   workflow_dispatch:
 
-# contents: write lets a version tag publish a Release.
-# actions: write keeps the installer artifact upload working.
+# contents: write lets this workflow create or update a GitHub Release and upload installers to it.
+# actions: write lets the cleanup job delete Actions artifacts. Release assets are a different API and are never listed or deleted.
 permissions:
   contents: write
   actions: write
 
 jobs:
+  prepare-release:
+    name: Prepare release
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Create or reuse the release
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_REF}" == refs/tags/v*.*.* ]]; then
+            tag="${GITHUB_REF_NAME}"
+            kind="release"
+          elif [[ "${GITHUB_EVENT_NAME}" == "pull_request" && -n "${PR_NUMBER}" ]]; then
+            tag="preview-pr-${PR_NUMBER}"
+            kind="preview"
+          else
+            safe="$(printf '%s' "${GITHUB_REF_NAME}" | tr '/ ' '--')"
+            tag="preview-${safe}"
+            kind="preview"
+          fi
+          if [[ "$kind" == "preview" && "$tag" == v*.*.* ]]; then
+            echo "Refusing to create or modify a version release from a preview build."
+            exit 1
+          fi
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+          if gh release view "$tag" --repo "$GH_REPO" >/dev/null 2>&1; then
+            echo "Reusing ${tag}"
+          elif [[ "$kind" == "release" ]]; then
+            gh release create "$tag" --repo "$GH_REPO" --title "$tag" --generate-notes --verify-tag --latest
+          else
+            gh release create "$tag" --repo "$GH_REPO" \
+              --title "Preview ${tag}" \
+              --notes "Installer preview for ${GITHUB_REF}. This is not a version release." \
+              --prerelease --latest=false --target "${GITHUB_SHA}"
+          fi
+
   free-quota:
     name: Free artifact quota
     runs-on: ubuntu-latest
@@ -23,8 +65,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # actions: write on this workflow lets GITHUB_TOKEN delete Actions artifacts.
-          # This calls only the Actions artifacts API. Release assets are a different API and are never listed or deleted.
+          # This calls only the Actions artifacts API. Release assets are never listed or deleted.
           list=$(mktemp)
           page=1
           while true; do
@@ -55,7 +96,7 @@ jobs:
 
   windows:
     name: Windows installer
-    needs: free-quota
+    needs: [prepare-release, free-quota]
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v5
@@ -86,17 +127,39 @@ jobs:
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
-      - name: Upload the installer
-        uses: actions/upload-artifact@v5
-        with:
-          name: ue5-system-architect-windows
-          path: release/*.exe
-          if-no-files-found: error
-          retention-days: 5
+      - name: Upload the installer to the release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ needs.prepare-release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          tag="$RELEASE_TAG"
+          if [[ "$tag" == v*.*.* && "$GITHUB_REF" != refs/tags/$tag ]]; then
+            echo "Refusing to upload onto a version release from this ref."
+            exit 1
+          fi
+          shopt -s nullglob
+          files=(release/*.exe)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No Windows installer was built."
+            exit 1
+          fi
+          attempt=1
+          while [ "$attempt" -le 5 ]; do
+            if gh release upload "$tag" "${files[@]}" --clobber --repo "$GH_REPO"; then
+              exit 0
+            fi
+            echo "Upload failed (attempt ${attempt}). Retrying."
+            sleep $((attempt * 5))
+            attempt=$((attempt + 1))
+          done
+          exit 1
 
   macos:
     name: macOS archive
-    needs: free-quota
+    needs: [prepare-release, free-quota]
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v5
@@ -123,19 +186,38 @@ jobs:
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
-      - name: Upload the macOS archive
-        uses: actions/upload-artifact@v5
-        with:
-          name: ue5-system-architect-macos
-          path: |
-            release/*.dmg
-            release/*.zip
-          if-no-files-found: error
-          retention-days: 5
+      - name: Upload the macOS archive to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ needs.prepare-release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          tag="$RELEASE_TAG"
+          if [[ "$tag" == v*.*.* && "$GITHUB_REF" != refs/tags/$tag ]]; then
+            echo "Refusing to upload onto a version release from this ref."
+            exit 1
+          fi
+          shopt -s nullglob
+          files=(release/*.dmg release/*.zip)
+          if [ ${#files[@]} -lt 2 ]; then
+            echo "Expected a dmg and a zip."
+            exit 1
+          fi
+          attempt=1
+          while [ "$attempt" -le 5 ]; do
+            if gh release upload "$tag" "${files[@]}" --clobber --repo "$GH_REPO"; then
+              exit 0
+            fi
+            echo "Upload failed (attempt ${attempt}). Retrying."
+            sleep $((attempt * 5))
+            attempt=$((attempt + 1))
+          done
+          exit 1
 
   linux:
     name: Linux packages
-    needs: free-quota
+    needs: [prepare-release, free-quota]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -165,15 +247,34 @@ jobs:
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
-      - name: Upload the Linux packages
-        uses: actions/upload-artifact@v5
-        with:
-          name: ue5-system-architect-linux
-          path: |
-            release/*.AppImage
-            release/*.deb
-          if-no-files-found: error
-          retention-days: 5
+      - name: Upload the Linux packages to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ needs.prepare-release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          tag="$RELEASE_TAG"
+          if [[ "$tag" == v*.*.* && "$GITHUB_REF" != refs/tags/$tag ]]; then
+            echo "Refusing to upload onto a version release from this ref."
+            exit 1
+          fi
+          shopt -s nullglob
+          files=(release/*.AppImage release/*.deb)
+          if [ ${#files[@]} -lt 2 ]; then
+            echo "Expected an AppImage and a deb."
+            exit 1
+          fi
+          attempt=1
+          while [ "$attempt" -le 5 ]; do
+            if gh release upload "$tag" "${files[@]}" --clobber --repo "$GH_REPO"; then
+              exit 0
+            fi
+            echo "Upload failed (attempt ${attempt}). Retrying."
+            sleep $((attempt * 5))
+            attempt=$((attempt + 1))
+          done
+          exit 1
 
   plugin-includes:
     name: Plugin include check
@@ -187,35 +288,3 @@ jobs:
 
       - name: Check plugin and generated includes against UE 5.8 headers
         run: node --test desktop/test/plugin-includes.test.js desktop/test/generated-includes.test.js
-
-  # One release step after the builds, so macOS and Linux never race to create the tag.
-  release:
-    name: GitHub Release
-    if: startsWith(github.ref, 'refs/tags/v') && always()
-    needs: [windows, macos, linux]
-    runs-on: ubuntu-latest
-    steps:
-      # generate-notes runs git. The job has no repository until this checkout.
-      - uses: actions/checkout@v5
-        if: needs.windows.result == 'success' || needs.macos.result == 'success' || needs.linux.result == 'success'
-
-      - uses: actions/download-artifact@v5
-        if: needs.windows.result == 'success' || needs.macos.result == 'success' || needs.linux.result == 'success'
-        with:
-          path: artifacts
-          merge-multiple: true
-
-      - name: Publish one release
-        if: needs.windows.result == 'success' || needs.macos.result == 'success' || needs.linux.result == 'success'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-        run: |
-          tag="${GITHUB_REF_NAME}"
-          mkdir -p out
-          find artifacts -type f -exec cp {} out/ \;
-          if gh release view "$tag" --repo "$GH_REPO" >/dev/null 2>&1; then
-            gh release upload "$tag" out/* --clobber --repo "$GH_REPO"
-          elif ! gh release create "$tag" out/* --title "$tag" --generate-notes --verify-tag --repo "$GH_REPO"; then
-            gh release upload "$tag" out/* --clobber --repo "$GH_REPO"
-          fi

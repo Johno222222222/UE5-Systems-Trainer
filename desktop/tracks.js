@@ -109,7 +109,12 @@ function problemsForTracks(tracks = buildTracks()) {
       if (question.kind === "graph-repair" || question.kind === "cpp-repair") {
         repairs += 1;
         if (!question.sample) problems.push(`${track.id} ${question.id} repair has no sample`);
-        if (question.kind === "graph-repair" && (!question.figure || !question.figure.includes("Tick"))) problems.push(`${track.id} ${question.id} repair has no broken graph`);
+        if (question.kind === "graph-repair") {
+          const sample = String(question.sample || "").replace(/\s+/g, " ").trim().slice(0, 20);
+          if (!question.figure || !question.figure.includes("<svg") || !sample || !question.figure.includes(sample)) {
+            problems.push(`${track.id} ${question.id} repair graph does not show its broken sample`);
+          }
+        }
       }
     }
     if (repairs < 4) problems.push(`${track.id} exam needs several repairs`);

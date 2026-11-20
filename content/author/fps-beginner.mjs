@@ -15,7 +15,7 @@ One trace per press is the efficient shape. Tracing on Tick spends a physics que
 
 In UE5 the axis arrives on the Enhanced Input node as a float. Greater Than compares that float with a literal zero. Branch takes the result. The true path writes the literal 600 into Speed. The false path writes 200. Those two literals are the sample speeds. A data asset can replace them later. The point of the graph is the write, not the number.
 
-The figure is the real movement graph. IA_Move is on the left. Its Value pin feeds Greater. A literal zero feeds the other pin. The bool result is the branch condition. Then and Else each reach a Set Speed node, fed by their own literal. Tick is not in the graph. Putting the write on Tick would stomp a speed that an ability or a stance had just set.
+Walk the movement graph that is drawn. IA_Move is on the left. Its Value pin feeds Greater. A literal zero feeds the other pin. The bool result is the branch condition. Then and Else each reach a Set Speed node, fed by their own literal. Tick is not in the graph. Putting the write on Tick would stomp a speed that an ability or a stance had just set.
 
 The generated function is the C++ form of that write. You read the line numbers on the excerpt. The component owns Speed as a float. The header declares the function that the input calls. The source does not include a tick that assigns Speed every frame.
 
@@ -35,7 +35,7 @@ One query per press is enough. Tracing every frame so a prompt can hover is a di
 
 UE5 stores those three floats on the component. Less Than compares Magazine with MagSize. Greater Than compares Reserve with zero. And combines the two bools. Branch refuses the reload when either check fails. Clamp keeps the magazine inside zero and MagSize after the add. The sample numbers live on the variables. A data table can replace them without a new graph.
 
-The figure is the real tactical-ammo graph, not a sketch. IA_Reload is the first node. The comparisons sit under it. The And feeds Branch. The true path does the arithmetic and the Clamp, then writes Magazine and Reserve. There is no Tick. A tick that reloaded by itself would fire while the player was swapping weapons.
+Walk the tactical-ammo graph that is drawn, not a sketch. IA_Reload is the first node. The comparisons sit under it. The And feeds Branch. The true path does the arithmetic and the Clamp, then writes Magazine and Reserve. There is no Tick. A tick that reloaded by itself would fire while the player was swapping weapons.
 
 The C++ excerpt is the generated function for that graph. Read the line numbers. The subtract and the clamp are in that function. The header declares Magazine, Reserve, and MagSize. The source does not subtract on Tick.
 
@@ -55,7 +55,7 @@ The efficient shape replicates one float. The inefficient shape replicates the d
 
 UE5 overlap fires when a primitive component intersects the pawn. The other actor is the pickup. Greater Than asks whether StackCount is still under the cap. The interface call is the write. Because it is an interface, a rifle and a medkit can share the call. A cast to one pickup class would exclude the other.
 
-The figure is the real inventory-slot graph. Overlap is on the left. StackCount is read. Greater Than feeds Branch. The true pin is the interface call. There is no Tick and no line trace. A trace belongs to interaction. An overlap belongs here.
+Walk the inventory-slot graph that is drawn here. Overlap is on the left. StackCount is read. Greater Than feeds Branch. The true pin is the interface call. There is no Tick and no line trace. A trace belongs to interaction. An overlap belongs here.
 
 Generated C++ is the overlap function plus the comparison and the call. The excerpt shows those lines with their numbers. The header declares StackCount. The source does not poll nearby actors on Tick.
 
@@ -65,7 +65,7 @@ One overlap event is enough. Scanning every actor on Tick to find pickups is the
 
 UE5 data assets are the right home for the ten slots. The replicated value is the id, a float in this sample graph, standing in for the name the asset uses. The mapping context can send IA_Equip from a number key. A radial menu can send the same action. The graph does not know which. It only sees the action.
 
-The figure is the real gunsmith graph. IA_Equip triggers Has Authority. Has Authority writes EquippedId from the action value. There is no Tick, no trace, and no per-attachment actor. Spawning ten components on every equip is the expensive version.
+Walk the gunsmith graph that is drawn here. IA_Equip triggers Has Authority. Has Authority writes EquippedId from the action value. There is no Tick, no trace, and no per-attachment actor. Spawning ten components on every equip is the expensive version.
 
 The C++ excerpt is that function. Line numbers match the generated source. The header declares EquippedId. The source includes the header first and writes the id inside the authority gate.
 
@@ -75,7 +75,7 @@ Replicating one id is the efficient shape. Replicating every mesh and every sock
 
 UE5 save games are objects the slot index addresses. This graph is the in-memory form of that write. Begin Play is the right place to load, because the pawn exists and the other systems have their variables. The write happens when a save event runs, not on Tick. A tick that saved would hitch and would also write a half-finished magazine.
 
-The figure is the real save-load graph. Begin Play leads to the load. Make struct and Set SlotValue are the write. LoadSlot and Break struct are the read. The field pins are the values the other systems own: a position, a count, a health. The graph does not recompute them.
+Walk the save-load graph that is drawn here. Begin Play leads to the load. Make struct and Set SlotValue are the write. LoadSlot and Break struct are the read. The field pins are the values the other systems own: a position, a count, a health. The graph does not recompute them.
 
 Generated C++ shows the make, the set, and the break. The line numbers are real. The header declares the slot value. The source does not save from Tick.
 

@@ -5,10 +5,10 @@ import { learnQuestions, pictureOf } from "../lib/learnQuiz.mjs";
 import ChoiceButton from "../components/ChoiceButton";
 import { useShell } from "./ShellContext";
 
-function GraphThumb({ nodes, wires }) {
+function GraphThumb({ nodes, wires, testId }) {
   const list = Array.isArray(nodes) ? nodes : [];
   if (!list.length) {
-    return <p className="text-[13px] text-[var(--text-secondary)]" data-testid="learn-graph-image">This system has no event graph yet.</p>;
+    return <p className="text-[13px] text-[var(--text-secondary)]" data-testid={testId || undefined}>This system has no event graph yet.</p>;
   }
   const placed = list.map((node, index) => ({
     id: node.id || `n${index}`,
@@ -25,7 +25,7 @@ function GraphThumb({ nodes, wires }) {
   const at = (node) => ({ x: node.x - minX + 24, y: node.y - minY + 24 });
   const byId = new Map(placed.map((node) => [node.id, node]));
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} className="w-full" data-testid="learn-graph-image" role="img" aria-label="Event graph">
+    <svg viewBox={`0 0 ${width} ${height}`} className="w-full" data-testid={testId || undefined} role="img" aria-label="Event graph">
       <rect width={width} height={height} fill="#0c1018" />
       {(wires || []).map((wire, index) => {
         const from = byId.get(wire.from);
@@ -113,9 +113,9 @@ export default function Learn() {
         {mode === "picture" && (
           <div className="mt-4" data-testid="learn-picture">
             <div className="panel p-3">
-              {pane === "graph" && <GraphThumb nodes={picture.nodes} wires={picture.wires} />}
+              {pane === "graph" && <GraphThumb nodes={picture.nodes} wires={picture.wires} testId="learn-graph-image" />}
               {pane === "cpp" && (
-                <pre className="text-[12px] font-mono text-[var(--text-secondary)] overflow-auto" data-testid="learn-cpp">
+                <pre className="text-[13px] font-mono text-[var(--text-secondary)] overflow-auto whitespace-pre" data-testid="learn-cpp">
                   {picture.lines.map((row) => `${String(row.line).padStart(3, " ")}  ${row.text}`).join("\n") || "No C++ yet."}
                 </pre>
               )}
@@ -129,7 +129,7 @@ export default function Learn() {
                 <ul data-testid="learn-properties">{(picture.properties.length ? picture.properties : ["No UPROPERTY yet."]).map((item) => <li key={item} className="text-[13px]">{item}</li>)}</ul>
               )}
             </div>
-            <div className="mt-2 flex flex-wrap gap-2">
+            <div className="mt-3 grid grid-cols-2 md:grid-cols-5 gap-2" data-testid="learn-thumbs">
               {[
                 ["graph", "Event graph"],
                 ["cpp", "C++"],
@@ -137,7 +137,30 @@ export default function Learn() {
                 ["expansions", "Expansions"],
                 ["properties", "Properties"],
               ].map(([id, label]) => (
-                <button key={id} type="button" className={`chip ${pane === id ? "active" : ""}`} data-testid={`learn-pane-${id}`} onClick={() => setPane(id)}>{label}</button>
+                <button
+                  key={id}
+                  type="button"
+                  className={`panel p-2 text-left ${pane === id ? "outline outline-1 outline-[var(--unreal-orange)]" : ""}`}
+                  data-testid={`learn-pane-${id}`}
+                  onClick={() => setPane(id)}
+                >
+                  <div className="h-16 overflow-hidden rounded bg-[var(--bg-main)] pointer-events-none">
+                    {id === "graph" && <GraphThumb nodes={picture.nodes} wires={picture.wires} />}
+                    {id === "cpp" && (
+                      <pre className="text-[9px] leading-tight font-mono text-[var(--text-secondary)] p-1 whitespace-pre">
+                        {picture.lines.slice(0, 5).map((row) => `${row.line} ${row.text}`).join("\n") || "No C++ yet."}
+                      </pre>
+                    )}
+                    {id !== "graph" && id !== "cpp" && (
+                      <div className="p-1 text-[9px] leading-tight text-[var(--text-secondary)]">
+                        {(id === "dependencies" ? picture.dependencies : id === "expansions" ? picture.expansions : (picture.properties.length ? picture.properties : ["No UPROPERTY yet."])).slice(0, 3).map((item) => (
+                          <div key={item}>{item}</div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="mt-1 text-[11px] font-mono text-[var(--text-secondary)]">{label}</div>
+                </button>
               ))}
             </div>
           </div>

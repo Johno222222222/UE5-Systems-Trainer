@@ -17,6 +17,8 @@ export default function Courses() {
   const [reviewNotes, setReviewNotes] = useState({});
   const [loadError, setLoadError] = useState("");
   const [packProblems, setPackProblems] = useState([]);
+  const [genre, setGenre] = useState("all");
+  const [level, setLevel] = useState("all");
 
   const loadList = () => api.get("/study").then((r) => {
     setCards(r.data?.courses || []);
@@ -77,8 +79,16 @@ export default function Courses() {
           <div className="eyebrow">Courses</div>
           <h1 className="font-display text-[40px] font-extrabold uppercase tracking-wider leading-none mt-1">Courses</h1>
           <p className="mt-2 text-[13px] text-[var(--text-secondary)] max-w-xl">
-            A course is a scored path. Quizzes, a diff, a short assignment, and a takeaway. Scores stay on this computer. You can retake any module.
+            A course is a shorter scored path than a program. General pulls from every genre. FPS, TPS, Horror, and Strategy each have their own. Quizzes, a diff, a short assignment, and a takeaway stay on every module. Scores stay on this computer. You can retake any module.
           </p>
+          <div className="mt-4 flex flex-wrap gap-2" data-testid="course-filters">
+            {[["all", "All"], ["general", "General"], ["fps", "FPS"], ["tps", "TPS"], ["horror", "Horror"], ["strategy", "Strategy"]].map(([id, label]) => (
+              <button key={id} type="button" className={`chip ${genre === id ? "active" : ""}`} data-testid={`course-genre-${id}`} onClick={() => setGenre(id)}>{label}</button>
+            ))}
+            <button type="button" className={`chip ${level === "all" ? "active" : ""}`} data-testid="course-level-all" onClick={() => setLevel("all")}>Any level</button>
+            <button type="button" className={`chip ${level === "beginner" ? "active" : ""}`} data-testid="course-level-beginner" onClick={() => setLevel("beginner")}>Beginner</button>
+            <button type="button" className={`chip ${level === "intermediate" ? "active" : ""}`} data-testid="course-level-intermediate" onClick={() => setLevel("intermediate")}>Intermediate</button>
+          </div>
           {loadError && <p className="mt-3 text-[12px] font-mono text-[var(--accent-red)]" data-testid="courses-load-error">{loadError}</p>}
           {!cards.length && (
             <div className="panel p-4 mt-5" data-testid="courses-empty">
@@ -128,11 +138,11 @@ export default function Courses() {
             </div>
           )}
           <div className="home-grid mt-6">
-            {cards.map((card) => (
+            {cards.filter((card) => (genre === "all" || (card.genre || "general") === genre) && (level === "all" || card.level === level)).map((card) => (
               <button key={card.id} type="button" className="panel home-card text-left" data-testid={`course-card-${card.id}`} onClick={() => openCourse(card.id)}>
                 <div className="font-sub font-semibold text-[15px]">{card.title}</div>
                 <p className="mt-1 text-[12px] text-[var(--text-secondary)]">{card.summary}</p>
-                <div className="mt-2 text-[11px] font-mono text-[var(--text-muted)]">{card.level ? `${card.level} · ` : ""}{card.modules.length} modules · pass at {card.pass_mark}</div>
+                <div className="mt-2 text-[11px] font-mono text-[var(--text-muted)]">{card.genre ? `${card.genre} · ` : ""}{card.level ? `${card.level} · ` : ""}{card.modules.length} modules · pass at {card.pass_mark}</div>
               </button>
             ))}
           </div>
@@ -146,7 +156,7 @@ export default function Courses() {
     <div className="home-screen" data-testid="course-screen">
       <div className="home-inner">
         <button type="button" className="why-concept !mt-0" onClick={() => { setCourse(null); setResult(null); loadList(); }}>All courses</button>
-        <div className="eyebrow mt-3">Course</div>
+        <div className="eyebrow mt-3">Course{course.genre ? ` · ${course.genre}` : ""}{course.level ? ` · ${course.level}` : ""}</div>
         <h1 className="font-display text-[36px] font-extrabold uppercase tracking-wider leading-none mt-1">{course.title}</h1>
         <p className="mt-2 text-[13px] text-[var(--text-secondary)]">Pass mark {course.pass_mark}. A retake replaces the saved score.</p>
         <div className="mt-4 flex flex-wrap gap-2">

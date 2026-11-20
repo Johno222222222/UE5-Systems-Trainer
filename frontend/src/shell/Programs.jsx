@@ -223,7 +223,7 @@ export default function Programs() {
                 return (
                   <div key={`${section.id}-${index}`} className="mt-3">
                     {heading && <h2 className="text-[14px] font-semibold">{heading}</h2>}
-                    <p className="mt-1 text-[13px] text-[var(--text-secondary)]">{body}</p>
+                    <p className="mt-1 text-[13px] text-[var(--text-secondary)]"><GlossaryText text={body} /></p>
                   </div>
                 );
               })}
@@ -234,7 +234,7 @@ export default function Programs() {
               )}
               <label className="block mt-3">
                 <span className="eyebrow">Assignment</span>
-                <div className="mt-1 text-[13px]">{section.assignment.prompt}</div>
+                <div className="mt-1 text-[13px]"><GlossaryText text={section.assignment.prompt} /></div>
                 <input className="mt-2 w-full bg-[var(--bg-main)] border border-[var(--border)] rounded px-2 py-1" data-testid="track-assignment" value={assignmentText} onChange={(event) => setAssignmentText(event.target.value)} />
               </label>
               {trackResult?.model && <p className="mt-2 text-[13px] text-[var(--text-secondary)]" data-testid="track-model">{trackResult.model}</p>}
@@ -243,7 +243,7 @@ export default function Programs() {
           <div className="panel p-4 mt-4" data-testid="track-questions">
             {(questions || []).map((question) => (
               <div key={question.id} className="mt-3">
-                <div className="text-[13px]" data-testid={`track-q-${question.id}`}>{question.prompt}</div>
+                <div className="text-[13px]" data-testid={`track-q-${question.id}`}><GlossaryText text={question.prompt} /></div>
                 {question.figure && <img className="mt-2 w-full" alt="" src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(question.figure)}`} data-testid={`track-figure-${question.id}`} />}
                 {question.sample && <pre className="mt-2 text-[12px] font-mono text-[var(--text-secondary)] overflow-auto" data-testid={`track-sample-${question.id}`}>{question.sample}</pre>}
                 <div className="mt-2 flex flex-col gap-2">

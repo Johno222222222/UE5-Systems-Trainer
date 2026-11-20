@@ -27,6 +27,8 @@ test("every genre has both levels, ordered sections, and a repair exam", () => {
       const count = reading.split(/\s+/).filter(Boolean).length;
       assert.ok(count >= 300 && count <= 700, `${track.id} ${section.id} ${count}`);
       assert.ok(!/is the step you build at position/i.test(reading), section.id);
+      assert.ok(!/the figure is the real/i.test(reading), `${track.id} ${section.id}`);
+      assert.ok(!/\bkeep\b[^.]*\bdistinct\b/i.test(reading), `${track.id} ${section.id}`);
       assert.ok(section.assignment.prompt && section.assignment.accept.length && section.assignment.model, section.id);
       assert.ok(section.quiz.length >= minQuiz, `${track.id} ${section.id} quiz ${section.quiz.length}`);
       assert.ok(section.image.includes("<svg") && section.image.includes("WHY"), section.id);
@@ -49,7 +51,8 @@ test("every genre has both levels, ordered sections, and a repair exam", () => {
         assert.ok(question.sample, question.id);
       }
       if (question.kind === "graph-repair") {
-        assert.ok(question.figure && question.figure.includes("<svg") && question.figure.includes("Tick"), question.id);
+        const sample = String(question.sample).replace(/\s+/g, " ").trim();
+        assert.ok(question.figure && question.figure.includes("<svg") && question.figure.includes(sample.slice(0, 20)), question.id);
       }
     }
     const kinds = track.exam.questions.map((item) => item.kind);
@@ -128,6 +131,14 @@ test("a track quiz scores and the general courses still load beside the old ones
   assert.ok(!intermediate.some((item) => item.prompt.includes("changes from 0.1 to 0.5") && !item.prompt.includes("Health")));
   const picture = learn.pictureOf(system);
   assert.equal(picture.lines[0].line, 1);
+  const skipped = learn.pictureOf({
+    system_name: "Health",
+    cpp_header: "UPROPERTY(Replicated) float Health;",
+    cpp_source: "#include \"Health.h\"\n#include \"CoreMinimal.h\"\n\nvoid Apply()\n{\n  Health = 90.f;\n}\n",
+  });
+  assert.match(skipped.lines[0].text, /void Apply/);
+  assert.equal(skipped.lines[0].line, 4);
+  assert.ok(!skipped.lines.some((row) => row.text.includes("#include")));
   assert.ok(picture.properties.includes("Health"));
   assert.ok(picture.nodes.some((node) => node.label === "Any Damage"));
   assert.ok(picture.expansions.some((item) => item.includes("Health")));

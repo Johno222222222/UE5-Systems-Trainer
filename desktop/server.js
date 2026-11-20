@@ -1552,6 +1552,7 @@ async function startServer(options = {}) {
       title: course.title,
       summary: course.summary,
       level: course.level || "",
+      genre: course.genre || "general",
       pass_mark: course.pass_mark,
       modules: (course.modules || []).map((mod) => ({
         id: mod.id,
