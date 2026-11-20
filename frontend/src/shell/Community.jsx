@@ -99,8 +99,8 @@ export default function Community() {
         <h1 className="font-display text-[40px] font-extrabold uppercase tracking-wider leading-none mt-1">Community</h1>
         <p className="mt-2 text-[13px] text-[var(--text-secondary)] max-w-xl" data-testid="community-status">
           {enabled
-            ? `Download is on. Packs are listed from ${info?.repo || "the repo in Settings"}/${info?.path || "packs"}.`
-            : "Download from a public repo is off. Johno has not chosen that repo yet. You can still import a .bbpack from this computer."}
+            ? `Download is on. Packs are read from ${info?.repo || "Johno222222222/ue5-systems-training-tool-packs"}/${info?.path || "packs"}/index.json. A bad connection or a bad index leaves this list empty, and a local .bbpack still imports.`
+            : "Download from the public pack repo is off. You can still import a .bbpack from this computer."}
         </p>
 
         <div className="panel p-4 mt-5" data-testid="community-settings">
@@ -114,7 +114,7 @@ export default function Community() {
             <input className="graph-search" aria-label="Repo path" placeholder="packs" value={folder} data-testid="community-path" onChange={(event) => setFolder(event.target.value)} />
             <button type="button" className="ue-btn" data-testid="community-save" onClick={() => saveSettings(enabled)}>Save repo</button>
           </div>
-          <p className="mt-2 text-[11px] font-mono text-[var(--text-muted)]">Nothing is downloaded until this is on and a repo is saved.</p>
+          <p className="mt-2 text-[11px] font-mono text-[var(--text-muted)]">The list is index.json on the repo's main branch. A pack is checked before it imports.</p>
         </div>
 
         {(info?.problems || []).map((item) => (
@@ -132,8 +132,9 @@ export default function Community() {
           {packs.map((pack) => (
             <button key={pack.id} type="button" className="panel home-card text-left" data-testid={`community-pack-${pack.id}`} onClick={() => setSelected(pack)}>
               <div className="font-sub font-semibold text-[15px]">{pack.title}</div>
-              <div className="mt-1 text-[11px] font-mono text-[var(--text-muted)]">{pack.author}</div>
+              <div className="mt-1 text-[11px] font-mono text-[var(--text-muted)]">{pack.author}{pack.version ? ` · ${pack.version}` : ""}</div>
               <p className="mt-2 text-[12px] text-[var(--text-secondary)]">{pack.summary}</p>
+              {(pack.tags || []).length > 0 && <div className="mt-2 text-[11px] font-mono text-[var(--text-muted)]">{pack.tags.join(" · ")}</div>}
             </button>
           ))}
           {!packs.length && <p className="text-[13px] text-[var(--text-secondary)]">No packs to show.</p>}
@@ -144,7 +145,8 @@ export default function Community() {
             <div className="eyebrow">Pack</div>
             <h2 className="font-sub font-semibold text-[18px] mt-1">{selected.title}</h2>
             <p className="mt-1 text-[12px] text-[var(--text-secondary)]">{selected.summary}</p>
-            <p className="mt-1 text-[11px] font-mono text-[var(--text-muted)]">{selected.author} · {selected.file}</p>
+            <p className="mt-1 text-[11px] font-mono text-[var(--text-muted)]">{selected.author}{selected.version ? ` · ${selected.version}` : ""} · {selected.file}</p>
+            {(selected.tags || []).length > 0 && <p className="mt-1 text-[11px] font-mono text-[var(--text-muted)]">{selected.tags.join(" · ")}</p>}
             <div className="mt-3 flex flex-wrap gap-2">
               <button type="button" className="ue-btn ue-btn-primary" data-testid="community-import-listed" onClick={() => importListed(selected.id)}>Import this pack</button>
               <button type="button" className="ue-btn" onClick={() => setSelected(null)}>Close</button>

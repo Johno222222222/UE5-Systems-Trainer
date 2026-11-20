@@ -17,6 +17,8 @@ export const GROUP_ORDER = [
   "Input",
   "Collision",
   "Damage",
+  "AI",
+  "Abilities",
   "Timers",
   "Networking",
   "Custom Event",
@@ -35,6 +37,8 @@ export const CATALOG = [
   { id: "enhanced-input", group: "Input", label: "Enhanced Input Action", visual: "event", pins: [pin("Triggered", "out", "exec"), pin("Value", "out", "float")], data: { action: "IA_Action" } },
   { id: "begin-overlap", group: "Collision", label: "On Component Begin Overlap", visual: "event", pins: [pin("Exec", "out", "exec"), pin("Other Actor", "out", "object")] },
   { id: "line-trace", group: "Collision", label: "Line Trace", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Exec", "out", "exec"), pin("Hit", "out", "bool"), pin("Hit Actor", "out", "object")], data: { hit: true, actor: "HitActor" } },
+  { id: "sphere-trace", group: "Collision", label: "Sphere Trace by Channel", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Radius", "in", "float"), pin("Exec", "out", "exec"), pin("Hit", "out", "bool"), pin("Hit Actor", "out", "object")], data: { radius: 32, hit: true, actor: "HitActor" } },
+  { id: "break-hit", group: "Collision", label: "Break Hit Result", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Hit", "in", "object"), pin("Exec", "out", "exec"), pin("Location", "out", "vector"), pin("Blocking Hit", "out", "bool"), pin("Hit Actor", "out", "object")] },
   { id: "end-overlap", group: "Collision", label: "On Component End Overlap", visual: "event", pins: [pin("Exec", "out", "exec"), pin("Other Actor", "out", "object")] },
   { id: "hit", group: "Collision", label: "On Hit", visual: "event", pins: [pin("Exec", "out", "exec"), pin("Other Actor", "out", "object")] },
   { id: "any-damage", group: "Damage", label: "Any Damage", visual: "event", pins: [pin("Exec", "out", "exec"), pin("Damage", "out", "float")] },
@@ -48,6 +52,7 @@ export const CATALOG = [
   { id: "client-rpc", group: "Networking", label: "Client RPC", visual: "event", pins: [pin("Exec", "out", "exec")] },
   { id: "multicast-rpc", group: "Networking", label: "Multicast RPC", visual: "event", pins: [pin("Exec", "out", "exec")] },
   { id: "has-authority", group: "Networking", label: "Has Authority", visual: "flow", pins: [pin("Exec", "in", "exec"), pin("Exec", "out", "exec"), pin("Authority", "out", "bool")] },
+  { id: "switch-authority", group: "Networking", label: "Switch Has Authority", visual: "flow", pins: [pin("Exec", "in", "exec"), pin("Authority", "out", "exec"), pin("Remote", "out", "exec")] },
   { id: "custom-event", group: "Custom Event", label: "Custom Event", visual: "event", pins: [pin("Exec", "out", "exec")], data: { name: "CustomEvent" } },
   { id: "dispatcher-bind", group: "Event Dispatchers", label: "Bind Event Dispatcher", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Event", "in", "object"), pin("Exec", "out", "exec")], data: { name: "OnChanged" } },
   { id: "dispatcher-call", group: "Event Dispatchers", label: "Call Event Dispatcher", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Exec", "out", "exec")], data: { name: "OnChanged" } },
@@ -61,6 +66,18 @@ export const CATALOG = [
   { id: "get-variable", group: "Actions", label: "Get Variable", visual: "pure", pins: [pin("Value", "out", "float")], data: { variable: "Value", varType: "float" } },
   { id: "call-function", group: "Actions", label: "Call Function", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Exec", "out", "exec")], data: { function: "Function" } },
   { id: "spawn-actor", group: "Actions", label: "Spawn Actor", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Class", "in", "object"), pin("Exec", "out", "exec"), pin("Return Value", "out", "object")], data: { className: "AActor" } },
+  { id: "destroy-actor", group: "Actions", label: "Destroy Actor", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Target", "in", "object"), pin("Exec", "out", "exec")] },
+  { id: "apply-damage", group: "Damage", label: "Apply Damage", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Damaged Actor", "in", "object"), pin("Base Damage", "in", "float"), pin("Exec", "out", "exec")], data: { damage: 25 } },
+  { id: "play-sound", group: "Actions", label: "Play Sound at Location", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Location", "in", "vector"), pin("Exec", "out", "exec")] },
+  { id: "spawn-niagara", group: "Actions", label: "Spawn Niagara at Location", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Location", "in", "vector"), pin("Exec", "out", "exec"), pin("Return Value", "out", "object")] },
+  { id: "get-player-character", group: "Actions", label: "Get Player Character", visual: "pure", pins: [pin("Return Value", "out", "object")] },
+  { id: "get-player-controller", group: "Actions", label: "Get Player Controller", visual: "pure", pins: [pin("Return Value", "out", "object")] },
+  { id: "set-blackboard", group: "AI", label: "Set Blackboard Value", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Key", "in", "name"), pin("Vector", "in", "vector"), pin("Exec", "out", "exec")], data: { key: "Target" } },
+  { id: "move-to", group: "AI", label: "Move To", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Destination", "in", "vector"), pin("Exec", "out", "exec")] },
+  { id: "has-gameplay-tag", group: "Abilities", label: "Has Matching Gameplay Tag", visual: "pure", pins: [pin("Tag", "in", "name"), pin("Return Value", "out", "bool")], data: { tag: "State.Example" } },
+  { id: "activate-ability-tag", group: "Abilities", label: "Try Activate Ability by Tag", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Tag", "in", "name"), pin("Exec", "out", "exec")], data: { tag: "Ability.Example" } },
+  { id: "activate-ability-class", group: "Abilities", label: "Try Activate Ability by Class", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Exec", "out", "exec")] },
+  { id: "apply-effect-self", group: "Abilities", label: "Apply Gameplay Effect to Self", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Exec", "out", "exec")] },
   { id: "cast-to", group: "Actions", label: "Cast To", visual: "function", pins: [pin("Exec", "in", "exec"), pin("Object", "in", "object"), pin("Exec", "out", "exec"), pin("As", "out", "object")], data: { className: "AActor" } },
   { id: "foreach", group: "Flow", label: "ForEach", visual: "flow", pins: [pin("Exec", "in", "exec"), pin("Array", "in", "wildcard"), pin("Loop Body", "out", "exec"), pin("Element", "out", "wildcard"), pin("Completed", "out", "exec")] },
   { id: "forloop", group: "Flow", label: "ForLoop", visual: "flow", pins: [pin("Exec", "in", "exec"), pin("First", "in", "int"), pin("Last", "in", "int"), pin("Loop Body", "out", "exec"), pin("Index", "out", "int"), pin("Completed", "out", "exec")] },
@@ -295,6 +312,8 @@ function labelFor(catalog, data, fallback) {
   if (catalog === "cast-to") return `Cast To ${data.className || "AActor"}`;
   if (catalog === "break-struct" || catalog === "make-struct") return `${catalog === "break-struct" ? "Break" : "Make"} ${data.struct || "Struct"}`;
   if (catalog === "line-trace") return "Line Trace";
+  if (catalog === "sphere-trace") return "Sphere Trace";
+  if (catalog === "has-gameplay-tag") return data.tag || "Has Gameplay Tag";
   if (catalog === "call-function") return data.function || fallback;
   if (catalog === "custom-event") return data.name || "Custom Event";
   if (catalog === "on-rep") return `OnRep ${data.variable || ""}`.trim();
@@ -888,7 +907,18 @@ function exprFor(graph, node, seen = new Set(), outPin = null) {
     case "or": return `(${arg("A", "false")} || ${arg("B", "false")})`;
     case "not": return `(!${arg("A", "false")})`;
     case "select": return `(${arg("Pick", "true")} ? ${arg("A", "0")} : ${arg("B", "0")})`;
-    case "line-trace": return outPin?.name === "Hit Actor" ? `Hit_${ident(node.id, "Trace")}.GetActor()` : `bHit_${ident(node.id, "Trace")}`;
+    case "line-trace":
+    case "sphere-trace": return outPin?.name === "Hit Actor" ? `Hit_${ident(node.id, "Trace")}.GetActor()` : `bHit_${ident(node.id, "Trace")}`;
+    case "break-hit": {
+      const hit = `Hit_${ident(node.id, "Hit")}`;
+      if (outPin?.name === "Location") return `${hit}.Location`;
+      if (outPin?.name === "Blocking Hit") return `${hit}.bBlockingHit`;
+      return `${hit}.GetActor()`;
+    }
+    case "get-player-character":
+    case "get-player-controller":
+    case "has-gameplay-tag":
+      return pureLocalName(node);
     case "cast-to": return `Cast_${ident(node.id, "Cast")}`;
     case "make-struct": return `Made_${ident(node.id, "Make")}`;
     case "break-struct": return breakMemberExpr(node, outPin);
@@ -989,10 +1019,56 @@ function statementFor(node, graph) {
       if (/destroy/i.test(fn)) return "if (AActor* GraphOwner = GetOwner()) { GraphOwner->Destroy(); }";
       return `${fn}();`;
     }
-    case "line-trace": {
+    case "line-trace":
+    case "sphere-trace": {
       const local = ident(node.id, "Trace");
-      return `FHitResult Hit_${local}; bool bHit_${local} = false; if (UWorld* World_${local} = GetWorld()) { const FVector Start_${local} = GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector; bHit_${local} = World_${local}->LineTraceSingleByChannel(Hit_${local}, Start_${local}, Start_${local} + FVector(200.f, 0.f, 0.f), ECC_Visibility); }`;
+      const start = `const FVector Start_${local} = GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector`;
+      const end = `Start_${local} + FVector(200.f, 0.f, 0.f)`;
+      const query = node.catalog === "sphere-trace"
+        ? `World_${local}->SweepSingleByChannel(Hit_${local}, Start_${local}, ${end}, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(${cppFloat(Number(node.data?.radius) || 32)}))`
+        : `World_${local}->LineTraceSingleByChannel(Hit_${local}, Start_${local}, ${end}, ECC_Visibility)`;
+      return `FHitResult Hit_${local}; bool bHit_${local} = false; if (UWorld* World_${local} = GetWorld()) { ${start}; bHit_${local} = ${query}; }`;
     }
+    case "break-hit": {
+      const local = ident(node.id, "Hit");
+      const incoming = incomingValue(graph, node, "Hit");
+      const value = incoming && incoming !== "0" ? incoming : "FHitResult()";
+      return `FHitResult Hit_${local} = ${value};`;
+    }
+    case "apply-damage": {
+      const target = incomingValue(graph, node, "Damaged Actor") || "GetOwner()";
+      const amount = incomingValue(graph, node, "Base Damage") || cppFloat(Number(node.data?.damage) || 25);
+      return `if (AActor* Damaged_${id} = Cast<AActor>(${target})) { UGameplayStatics::ApplyDamage(Damaged_${id}, ${amount}, nullptr, GetOwner(), UDamageType::StaticClass()); }`;
+    }
+    case "destroy-actor": {
+      const target = incomingValue(graph, node, "Target") || "GetOwner()";
+      return `if (AActor* Destroy_${id} = Cast<AActor>(${target})) { Destroy_${id}->Destroy(); }`;
+    }
+    case "play-sound": {
+      const location = incomingValue(graph, node, "Location") || "(GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector)";
+      return `if (UWorld* World_${id} = GetWorld()) { UGameplayStatics::PlaySoundAtLocation(World_${id}, static_cast<USoundBase*>(nullptr), ${location}); }`;
+    }
+    case "spawn-niagara": {
+      const location = incomingValue(graph, node, "Location") || "(GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector)";
+      return `if (UWorld* World_${id} = GetWorld()) { UNiagaraFunctionLibrary::SpawnSystemAtLocation(World_${id}, static_cast<UNiagaraSystem*>(nullptr), ${location}); }`;
+    }
+    case "set-blackboard": {
+      const key = String(node.data?.key || "Target").replace(/["\\]/g, "");
+      const vector = incomingValue(graph, node, "Vector") || "(GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector)";
+      return `if (APawn* Pawn_${id} = Cast<APawn>(GetOwner())) { if (AAIController* AI_${id} = Cast<AAIController>(Pawn_${id}->GetController())) { if (UBlackboardComponent* Board_${id} = AI_${id}->GetBlackboardComponent()) { Board_${id}->SetValueAsVector(FName(TEXT("${key}")), ${vector}); } } }`;
+    }
+    case "move-to": {
+      const dest = incomingValue(graph, node, "Destination") || "(GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector)";
+      return `if (APawn* Pawn_${id} = Cast<APawn>(GetOwner())) { if (AAIController* AI_${id} = Cast<AAIController>(Pawn_${id}->GetController())) { AI_${id}->MoveToLocation(${dest}); } }`;
+    }
+    case "activate-ability-tag": {
+      const tag = String(node.data?.tag || "Ability.Example").replace(/["\\]/g, "");
+      return `if (IAbilitySystemInterface* ASI_${id} = Cast<IAbilitySystemInterface>(GetOwner())) { if (UAbilitySystemComponent* ASC_${id} = ASI_${id}->GetAbilitySystemComponent()) { ASC_${id}->TryActivateAbilitiesByTag(FGameplayTagContainer(FGameplayTag::RequestGameplayTag(FName(TEXT("${tag}")), false))); } }`;
+    }
+    case "activate-ability-class":
+      return `if (IAbilitySystemInterface* ASI_${id} = Cast<IAbilitySystemInterface>(GetOwner())) { if (UAbilitySystemComponent* ASC_${id} = ASI_${id}->GetAbilitySystemComponent()) { ASC_${id}->TryActivateAbilityByClass(UGameplayAbility::StaticClass()); } }`;
+    case "apply-effect-self":
+      return `if (IAbilitySystemInterface* ASI_${id} = Cast<IAbilitySystemInterface>(GetOwner())) { if (UAbilitySystemComponent* ASC_${id} = ASI_${id}->GetAbilitySystemComponent()) { FGameplayEffectContextHandle Ctx_${id} = ASC_${id}->MakeEffectContext(); FGameplayEffectSpecHandle Spec_${id} = ASC_${id}->MakeOutgoingSpec(UGameplayEffect::StaticClass(), 1.f, Ctx_${id}); if (Spec_${id}.IsValid()) { ASC_${id}->ApplyGameplayEffectSpecToSelf(*Spec_${id}.Data.Get()); } } }`;
     case "interface-call": {
       const local = ident(node.id, "Call");
       const target = incomingValue(graph, node, "Target") || "nullptr";
@@ -1077,8 +1153,36 @@ function statementFor(node, graph) {
   }
 }
 
+const STANDALONE_PURE = new Set(["get-player-character", "get-player-controller", "has-gameplay-tag"]);
+
+function pureLocalName(node) {
+  return `Node_${ident(node.id, "Pure")}`;
+}
+
+function pureStatement(node) {
+  const name = pureLocalName(node);
+  if (node.catalog === "get-player-character") return `ACharacter* ${name} = UGameplayStatics::GetPlayerCharacter(this, 0);`;
+  if (node.catalog === "get-player-controller") return `APlayerController* ${name} = UGameplayStatics::GetPlayerController(this, 0);`;
+  const tag = String(node.data?.tag || "State.Example").replace(/["\\]/g, "");
+  return `bool ${name} = Cast<IAbilitySystemInterface>(GetOwner()) && Cast<IAbilitySystemInterface>(GetOwner())->GetAbilitySystemComponent() && Cast<IAbilitySystemInterface>(GetOwner())->GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName(TEXT("${tag}")), false));`;
+}
+
+function emitStandalonePures(graph, node, indent, out) {
+  if (!graph._pure) graph._pure = new Set();
+  for (const pin of node.pins || []) {
+    if (pin.dir !== "in" || pin.type === "exec") continue;
+    const wire = (graph.wires || []).find((item) => item.to?.node === node.id && item.to?.pin === pin.id);
+    if (!wire) continue;
+    const src = (graph.nodes || []).find((item) => item.id === wire.from?.node);
+    if (!src || !STANDALONE_PURE.has(src.catalog) || graph._pure.has(src.id)) continue;
+    graph._pure.add(src.id);
+    out.push(`${indent}${pureStatement(src)} // node:${src.id}`);
+  }
+}
+
 function emitBody(graph, node, indent, seen, out) {
   if (!node || seen.has(node.id)) return;
+  emitStandalonePures(graph, node, indent, out);
   const nextSeen = new Set(seen);
   nextSeen.add(node.id);
   const execOut = node.pins.filter((item) => item.dir === "out" && item.type === "exec");
@@ -1120,6 +1224,20 @@ function emitBody(graph, node, indent, seen, out) {
   if (node.catalog === "timeline") {
     const line = statementFor(node, graph);
     if (line) out.push(`${indent}${line} // node:${node.id}`);
+    return;
+  }
+  if (node.catalog === "switch-authority") {
+    const check = authorityCall(graph);
+    out.push(`${indent}if (${check}) // node:${node.id}`);
+    out.push(`${indent}{`);
+    const authPin = execOut.find((item) => item.name === "Authority");
+    if (authPin) emitBody(graph, outgoing(graph, node, authPin.id), `${indent}\t`, new Set(nextSeen), out);
+    out.push(`${indent}}`);
+    out.push(`${indent}else`);
+    out.push(`${indent}{`);
+    const remotePin = execOut.find((item) => item.name === "Remote");
+    if (remotePin) emitBody(graph, outgoing(graph, node, remotePin.id), `${indent}\t`, new Set(nextSeen), out);
+    out.push(`${indent}}`);
     return;
   }
   if (node.catalog === "has-authority") {
@@ -1301,7 +1419,7 @@ export function syncCpp(system, graph) {
     body.push(`${retType} ${cls}::${name}(${params})${fn.pure ? " const" : ""}`);
     body.push("{");
     const startPin = entry?.pins?.find((item) => item.dir === "out" && item.type === "exec");
-    emitBody({ ...fn, macros: eventGraph.macros }, entry && startPin ? outgoing(fn, entry, startPin.id) : null, "\t", new Set(entry ? [entry.id] : []), body);
+    emitBody({ ...fn, macros: eventGraph.macros, cppHeader: system?.cpp_header, cppClass: cls }, entry && startPin ? outgoing(fn, entry, startPin.id) : null, "\t", new Set(entry ? [entry.id] : []), body);
     if (ret) body.push(`\treturn ${defaultLiteral(ret)};`);
     body.push("}");
     return { name: fn.name, header, source: body.join("\n") };
@@ -1327,13 +1445,30 @@ export function syncCpp(system, graph) {
     header = ensureHeaderInclude(header, "Components/TimelineComponent.h");
   }
   const needs = [
-    [/GetWorld\s*\(/, "Engine/World.h"],
+    [/GetWorld\s*\(|UGameplayStatics::/, "Engine/World.h"],
+    [/UGameplayStatics::/, "Kismet/GameplayStatics.h"],
+    [/UNiagaraFunctionLibrary|UNiagaraSystem/, "NiagaraFunctionLibrary.h"],
+    [/UNiagaraSystem/, "NiagaraSystem.h"],
+    [/PlaySoundAtLocation|USoundBase/, "Sound/SoundBase.h"],
+    [/FCollisionShape|SweepSingleByChannel/, "CollisionShape.h"],
+    [/FGameplayEffectContextHandle|FGameplayEffectSpecHandle/, "GameplayEffectTypes.h"],
+    [/AAIController|UBlackboardComponent/, "AIController.h"],
+    [/UBlackboardComponent/, "BehaviorTree/BlackboardComponent.h"],
+    [/IAbilitySystemInterface/, "AbilitySystemInterface.h"],
+    [/UAbilitySystemComponent|UGameplayAbility|UGameplayEffect|FGameplayTag/, "AbilitySystemComponent.h"],
+    [/FGameplayTag|FGameplayTagContainer/, "GameplayTagContainer.h"],
+    [/UGameplayEffect|FGameplayEffect/, "GameplayEffect.h"],
+    [/UGameplayAbility/, "Abilities/GameplayAbility.h"],
+    [/ACharacter\b|GetPlayerCharacter/, "GameFramework/Character.h"],
+    [/APlayerController\b|GetPlayerController/, "GameFramework/PlayerController.h"],
+    [/APawn\b/, "GameFramework/Pawn.h"],
     [/UTimelineComponent|FOnTimelineFloat|FOnTimelineEvent|PlayFromStart/, "Components/TimelineComponent.h"],
     [/UCurveFloat|FloatCurve/, "Curves/CurveFloat.h"],
     [/FHitResult|LineTraceSingleByChannel|OnComponentBeginOverlap|OnComponentEndOverlap|OnComponentHit/, "Engine/HitResult.h"],
     [/UPrimitiveComponent/, "Components/PrimitiveComponent.h"],
     [/GetOwner\s*\(|->Destroy\s*\(|OnTakeAnyDamage|OnTakePointDamage|GetActorLocation/, "GameFramework/Actor.h"],
     [/UDamageType/, "Engine/DamageEvents.h"],
+    [/UDamageType/, "GameFramework/DamageType.h"],
   ];
   const headerText = String(system?.cpp_header || "");
   for (const [pattern, include] of needs) {

@@ -63,7 +63,7 @@ test("the release workflow still collects five installer assets under the safe n
   const workflow = fs.readFileSync(path.join(__dirname, "..", "..", ".github", "workflows", "desktop-installer.yml"), "utf8");
   assert.equal(pkg.name, "ue5-system-architect");
   assert.equal(pkg.build.appId, "app.ue5.system-architect");
-  assert.equal(pkg.version, "1.17.0");
+  assert.equal(pkg.version, "1.18.0");
   assert.equal(pkg.build.productName.includes("/"), false);
   assert.equal(pkg.build.executableName, "UE5-Systems-Training-Tool-Generator");
   for (const target of ["win", "linux", "mac"]) {

@@ -181,10 +181,19 @@ function evalOutValue(state, graph, node, pin, seen) {
   if (catalog === "or") return truthy(read(state, graph, node, "A", seen)) || truthy(read(state, graph, node, "B", seen));
   if (catalog === "not") return !truthy(read(state, graph, node, "A", seen));
   if (catalog === "select") return truthy(read(state, graph, node, "Pick", seen)) ? read(state, graph, node, "A", seen) : read(state, graph, node, "B", seen);
-  if (catalog === "line-trace") {
-    if (pin.name === "Hit") return node.data?.hit !== false;
+  if (catalog === "sphere-trace" || catalog === "line-trace") {
     if (pin.name === "Hit Actor") return node.data?.actor || "HitActor";
+    if (pin.name === "Hit") return node.data?.hit !== false;
+    return defaultFor(pin.type);
   }
+  if (catalog === "break-hit") {
+    if (pin.name === "Location") return "0,0,0";
+    if (pin.name === "Blocking Hit") return true;
+    if (pin.name === "Hit Actor") return "HitActor";
+  }
+  if (catalog === "get-player-character") return "PlayerCharacter";
+  if (catalog === "get-player-controller") return "PlayerController";
+  if (catalog === "has-gameplay-tag") return true;
   if (catalog === "has-authority" && pin.name === "Authority") return state.authority !== false;
   if (catalog === "tick" && pin.name === "Delta Seconds") return 0.016;
   if ((catalog === "any-damage" || catalog === "point-damage") && pin.name === "Damage") return num(node.data?.sample ?? 25);
@@ -360,11 +369,31 @@ function execute(state, graph, doc, node, job) {
     return finish(state);
   }
 
-  if (catalog === "line-trace") {
+  if (catalog === "line-trace" || catalog === "sphere-trace") {
     const hit = node.data?.hit !== false;
     state.locals = { ...state.locals, [node.id]: { Hit: hit, "Hit Actor": node.data?.actor || "HitActor" } };
-    state.note = hit ? `Line trace hit ${node.data?.actor || "HitActor"}.` : "Line trace missed.";
+    state.note = hit ? `${catalog === "sphere-trace" ? "Sphere" : "Line"} trace hit ${node.data?.actor || "HitActor"}.` : "Trace missed.";
     pushFirstExec(state, graph, node);
+    return finish(state);
+  }
+
+  if (catalog === "break-hit") {
+    state.locals = { ...state.locals, [node.id]: { Location: "0,0,0", "Blocking Hit": true, "Hit Actor": "HitActor" } };
+    state.note = "Break Hit Result.";
+    pushFirstExec(state, graph, node);
+    return finish(state);
+  }
+
+  if (catalog === "apply-damage" || catalog === "destroy-actor" || catalog === "play-sound" || catalog === "spawn-niagara" || catalog === "set-blackboard" || catalog === "move-to" || catalog === "activate-ability-tag" || catalog === "activate-ability-class" || catalog === "apply-effect-self") {
+    state.note = `${node.label || catalog} ran.`;
+    pushFirstExec(state, graph, node);
+    return finish(state);
+  }
+
+  if (catalog === "switch-authority") {
+    const ok = state.authority !== false;
+    state.note = ok ? "Switch Has Authority took the authority pin." : "Switch Has Authority took the remote pin.";
+    pushNamed(state, graph, node, ok ? "Authority" : "Remote");
     return finish(state);
   }
 

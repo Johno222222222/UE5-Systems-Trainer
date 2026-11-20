@@ -17,7 +17,14 @@ const ENGINE_EXACT = new Set([
   "InputMappingContext.h",
   "AbilitySystemComponent.h",
   "NiagaraFunctionLibrary.h",
+  "NiagaraSystem.h",
+  "CollisionShape.h",
+  "GameplayEffectTypes.h",
   "NavigationSystem.h",
+  "AbilitySystemInterface.h",
+  "GameplayTagContainer.h",
+  "GameplayEffect.h",
+  "AIController.h",
 ]);
 
 // These look like engine paths but are not public headers in UE 5.8.
@@ -41,6 +48,9 @@ const ENGINE_PREFIXES = [
   "Templates/",
   "Logging/",
   "Curves/",
+  "BehaviorTree/",
+  "Abilities/",
+  "Sound/",
 ];
 
 const SYMBOL_HEADERS = [
@@ -50,10 +60,26 @@ const SYMBOL_HEADERS = [
   [/\bAPawn\b/, "GameFramework/Pawn.h"],
   [/\bGetWorld\s*\(/, "Engine/World.h"],
   [/\bUDamageType\b/, "Engine/DamageEvents.h"],
+  [/\bUDamageType\b/, "GameFramework/DamageType.h"],
   [/\bUPrimitiveComponent\b/, "Components/PrimitiveComponent.h"],
   [/\bDOREPLIFETIME\b/, "Net/UnrealNetwork.h"],
   [/\bUUserWidget\b/, "Blueprint/UserWidget.h"],
   [/\bUEnhancedInputComponent\b/, "EnhancedInputComponent.h"],
+  [/\bUNiagaraFunctionLibrary\b|\bUNiagaraSystem\b/, "NiagaraFunctionLibrary.h"],
+  [/\bUNiagaraSystem\b/, "NiagaraSystem.h"],
+  [/\bPlaySoundAtLocation\b|\bUSoundBase\b/, "Sound/SoundBase.h"],
+  [/\bFCollisionShape\b|\bSweepSingleByChannel\b/, "CollisionShape.h"],
+  [/\bFGameplayEffectContextHandle\b|\bFGameplayEffectSpecHandle\b/, "GameplayEffectTypes.h"],
+  [/\bUGameplayStatics\b/, "Kismet/GameplayStatics.h"],
+  [/\bAAIController\b/, "AIController.h"],
+  [/\bUBlackboardComponent\b/, "BehaviorTree/BlackboardComponent.h"],
+  [/\bIAbilitySystemInterface\b/, "AbilitySystemInterface.h"],
+  [/\bUAbilitySystemComponent\b|\bFGameplayTag\b/, "AbilitySystemComponent.h"],
+  [/\bFGameplayTag\b/, "GameplayTagContainer.h"],
+  [/\bUGameplayEffect\b|\bFGameplayEffect/, "GameplayEffect.h"],
+  [/\bUGameplayAbility\b/, "Abilities/GameplayAbility.h"],
+  [/\bGetPlayerCharacter\b|\bACharacter\b/, "GameFramework/Character.h"],
+  [/\bGetPlayerController\b|\bAPlayerController\b/, "GameFramework/PlayerController.h"],
 ];
 
 function quotedIncludes(text) {

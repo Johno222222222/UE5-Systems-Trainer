@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.18.0
+
+- Glossary adds the concepts the 1.17.0 tracks teach: GASP, vehicles, ballistics, scoring, fog of war, and the rest of that list. See also links resolve. Search still drops duplicate cards.
+- Event graph adds sphere trace, break hit, apply damage, destroy actor, sound, Niagara, blackboard, move to, gameplay tag and ability calls, player character and controller, and Switch Has Authority. Component authority checks still go through GetOwner().
+- Synthesize System has a More about this note. The Community tab lists the public packs repo. Windows builds stay Azure-signed. Linux and macOS stay unsigned.
+- Version is 1.18.0.
+
 ## 1.17.0
 
 - Learn has Big Picture and Quiz. Big Picture starts on the event graph and swaps in the C++ lines, dependencies, expansions, and properties. Quiz has Beginner and Intermediate.
