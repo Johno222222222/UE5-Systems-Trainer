@@ -2,672 +2,596 @@
   "id": "tps-beginner",
   "modules": {
     "aim": {
-      "plainEnglish": "In plain English, The shoulder button means: The third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions.",
-      "whyGame": "In a real game, getting the shoulder button wrong shows up as setting Aiming from Tick, or firing the weapon from the camera graph. the aim action is the repair, and the generated line `Aiming = true; // node:tpl_camera_set` is that repair in C++.",
+      "plainEnglish": "Third-person aim is the camera, not the use graph. The shoulder button starts a trace from the camera and sets the aiming bool. The spring arm eases in. It does not write speed and it does not call Interact.",
+      "whyGame": "A chest trace grabs the cover the camera can see past, and writing speed here makes a boom tweak change the gait.",
       "expansions": [
         {
-          "title": "The shoulder button as a door",
-          "detail": "If the shoulder button is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The button",
+          "detail": "IA_Aim starts the trace."
         },
         {
-          "title": "The shoulder button as data",
-          "detail": "Designer numbers for the shoulder button live on a row. Aiming set true when the aim trace from the camera hits reads the row instead of a literal."
+          "title": "The boom",
+          "detail": "It reads the bool and eases. It does not trace again."
         },
         {
-          "title": "The shoulder button as a listener",
-          "detail": "Later systems listen for IA_Aim. They do not setting Aiming from Tick, or firing the weapon from the camera graph."
+          "title": "Use",
+          "detail": "Doors wait for IA_Interact, not the shoulder button."
         }
       ],
       "quiz": [
         {
-          "id": "tps-beginner-aim-c1",
+          "id": "tpsc-aim-1",
           "kind": "mc",
-          "prompt": "The third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed. What should own that decision in The shoulder button?",
+          "prompt": "The player presses the shoulder button. What should that press record?",
           "choices": [
-            "the aim action. That keeps the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed.",
-            "The widget that draws the shoulder button owns it. That would break the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed.",
-            "Every client owns it, before IA_Aim is replicated. That would break the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed."
+            "That the camera is pulling in",
+            "That a door should open",
+            "That the magazine should refill",
+            "That the companion should turn around"
           ],
           "answer": 0,
-          "why": "The third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed."
+          "why": "Aim is the camera."
         },
         {
-          "id": "tps-beginner-aim-c2",
+          "id": "tpsc-aim-2",
           "kind": "mc",
-          "prompt": "The third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed. The course graph contains `Aiming = true; // node:tpl_camera_set`. What is that line doing in gameplay terms?",
+          "prompt": "The aim excerpt sets Aiming after a hit from the camera. Which action ran?",
           "choices": [
-            "Aiming set true when the aim trace from the camera hits. That keeps the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed.",
-            "setting Aiming from Tick, or firing the weapon from the camera graph. That would break the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed."
+            "The shoulder button",
+            "The use control",
+            "Topping the weapon up",
+            "Pushing the move control"
           ],
           "answer": 0,
-          "why": "Aiming set true when the aim trace from the camera hits"
+          "why": "IA_Aim is the sights."
         },
         {
-          "id": "tps-beginner-aim-c3",
+          "id": "tpsc-aim-3",
           "kind": "mc",
-          "prompt": "The third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed. Where should Set Aiming sit?",
+          "prompt": "The aiming bool just became true. What should the spring arm do?",
           "choices": [
-            "After the camera trace hits, started by IA_Aim through Triggered. That keeps the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed.",
-            "It runs before IA_Aim, so the player is not required. That would break the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed.",
-            "It sits on Tick beside IA_Aim. That would break the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed."
+            "Ease the boom closer",
+            "Write movement speed",
+            "Call Interact on the crosshair",
+            "Step the companion"
           ],
           "answer": 0,
-          "why": "the camera trace hits is the gate."
+          "why": "The boom reads the bool."
         },
         {
-          "id": "tps-beginner-aim-c4",
+          "id": "tpsc-aim-4",
+          "kind": "mc",
+          "prompt": "The aim graph also writes speed. What else changes when a designer shortens the boom?",
+          "choices": [
+            "The gait, because speed was hiding in the camera",
+            "The stack size on a pickup",
+            "The companion's return path",
+            "The save slot's field list"
+          ],
+          "answer": 0,
+          "why": "Camera tuning must not be movement tuning."
+        },
+        {
+          "id": "tpsc-aim-5",
+          "kind": "mc",
+          "prompt": "The crosshair is past a low wall and the trace starts at the chest. What does the prompt light?",
+          "choices": [
+            "The wall, not the actor the camera can see",
+            "The actor past the wall",
+            "The companion",
+            "Rounds in the gun"
+          ],
+          "answer": 0,
+          "why": "Start at the camera."
+        },
+        {
+          "id": "tpsc-aim-6",
           "kind": "tf",
-          "prompt": "True or false: The third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "tps-beginner-aim-c5",
-          "kind": "tf",
-          "prompt": "True or false: The third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed. You keep that promise by setting Aiming from Tick, or firing the weapon from the camera graph.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "setting Aiming from Tick, or firing the weapon from the camera graph is the broken schedule."
-        },
-        {
-          "id": "tps-beginner-aim-c6",
-          "kind": "mc",
-          "prompt": "The third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed. Which mistake breaks it?",
-          "choices": [
-            "setting Aiming from Tick, or firing the weapon from the camera graph. That keeps the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed.",
-            "Leaving the real work on IA_Aim. That would break the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed.",
-            "Waiting until the camera trace hits. That would break the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed.",
-            "Keeping the aim action as the only writer. That would break the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed."
-          ],
-          "answer": 0,
-          "why": "setting Aiming from Tick, or firing the weapon from the camera graph"
-        },
-        {
-          "id": "tps-beginner-aim-c7",
-          "kind": "tf",
-          "prompt": "True or false: The third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed. IA_Aim through Triggered remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the aim action"
-        },
-        {
-          "id": "tps-beginner-aim-c8",
-          "kind": "mc",
-          "prompt": "The third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while IA_Aim stayed one call. That keeps the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed.",
-            "A data row must be recompiled for this section. That would break the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed.",
-            "Set Aiming only works for one class, so the cast is the stable choice. That would break the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "tps-beginner-aim-c9",
-          "kind": "mc",
-          "prompt": "The third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed. What does the player lose if IA_Aim is removed?",
-          "choices": [
-            "The shoulder button never starts, because Triggered was the only way in. That keeps the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed.",
-            "Nothing, because Tick still does the job. That would break the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed.",
-            "The constructor replaces IA_Aim on the next map. That would break the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed."
-          ],
-          "answer": 0,
-          "why": "IA_Aim is the start."
-        },
-        {
-          "id": "tps-beginner-aim-c10",
-          "kind": "tf",
-          "prompt": "True or false: The third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed. OnRep should perform the write again so the section does not wait for the aim action.",
+          "prompt": "The shoulder button should call Interact.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "Use is a different action."
         },
         {
-          "id": "tps-beginner-aim-c11",
+          "id": "tpsc-aim-7",
           "kind": "mc",
-          "prompt": "The third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed. Which gate sits immediately in front of the write?",
+          "prompt": "Where does the third-person aim trace begin?",
           "choices": [
-            "the camera trace hits. That keeps the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed.",
-            "A Tick frame, whether or not IA_Aim fired. That would break the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed.",
-            "A client prediction that skips the aim action. That would break the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed.",
-            "A cast to every actor this course might spawn. That would break the rule that the third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed."
+            "At the camera",
+            "At the pawn's chest",
+            "At the companion",
+            "At the last saved door"
           ],
           "answer": 0,
-          "why": "the camera trace hits"
+          "why": "The crosshair lives on the camera."
         },
         {
-          "id": "tps-beginner-aim-c11b",
-          "kind": "tf",
-          "prompt": "True or false: The third-person aim graph is the camera, not the interact preset. IA_Aim starts the trace. A hit sets Aiming. The spring arm reads that bool and eases the boom. It does not write Speed, and it does not call Interact. Those are other graphs with other actions. The trace still starts at the camera. A chest trace grabs the cover the crosshair can see past. Tick that sets Aiming holds the aim after the button comes up. The button's release is what clears the bool. The companion does not own IA_Aim. If it did, it would steal the player's shoulder. The companion keeps a patrol timer. Save may store Aiming if the stance should survive a load. It does not store the boom transform. The arm rebuilds the transform from the bool when the pawn is possessed. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "tpsc-aim-8",
+          "kind": "mc",
+          "prompt": "The player taps aim in front of a door. What opens?",
           "choices": [
-            "True",
-            "False"
+            "Nothing. Aim does not ask the door",
+            "The door",
+            "The inventory",
+            "The companion route"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "The door waits for use."
+        },
+        {
+          "id": "tpsc-aim-9",
+          "kind": "mc",
+          "prompt": "Which line is the third-person sights, not a use?",
+          "choices": [
+            "Aiming set inside the shoulder-button action",
+            "Interact called on the hit actor",
+            "Reserve clamped into the gun",
+            "The companion's route step"
+          ],
+          "answer": 0,
+          "why": "The bool is the camera."
+        },
+        {
+          "id": "tpsc-aim-10",
+          "kind": "mc",
+          "prompt": "The spring arm eases and also traces. What duplicate do you remove?",
+          "choices": [
+            "The boom's extra trace",
+            "The shoulder-button trace",
+            "The use action",
+            "The stick read"
+          ],
+          "answer": 0,
+          "why": "The boom reads the bool. It does not look again."
         }
-      ],
-      "graph": "camera"
+      ]
     },
     "gait": {
-      "plainEnglish": "In plain English, Speed from the stick means: IA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick.",
-      "whyGame": "In a real game, getting speed from the stick wrong shows up as setting Aiming from Tick, or firing the weapon from the camera graph. the aim action is the repair, and the generated line `Aiming = true; // node:tpl_camera_set` is that repair in C++.",
+      "plainEnglish": "The stick writes speed. Pushed is 600. Not pushed is 200. The character movement component reads that number. The graph does not add a world offset every frame, and the spring arm does not choose walk versus sprint.",
+      "whyGame": "An offset every frame ignores the movement component, and a camera that picks the gait retunes walk whenever the boom changes.",
       "expansions": [
         {
-          "title": "Speed from the stick as a door",
-          "detail": "If speed from the stick is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "Sprint",
+          "detail": "The true path of the stick check writes 600."
         },
         {
-          "title": "Speed from the stick as data",
-          "detail": "Designer numbers for speed from the stick live on a row. Aiming set true when the aim trace from the camera hits reads the row instead of a literal."
+          "title": "The slower gait",
+          "detail": "The false path writes 200."
         },
         {
-          "title": "Speed from the stick as a listener",
-          "detail": "Later systems listen for IA_Aim. They do not setting Aiming from Tick, or firing the weapon from the camera graph."
+          "title": "Data",
+          "detail": "Those two literals can later become a row. The shape of the check stays."
         }
       ],
       "quiz": [
         {
-          "id": "tps-beginner-gait-c1",
+          "id": "tpsc-gait-1",
           "kind": "mc",
-          "prompt": "IA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set. What should own that decision in Speed from the stick?",
+          "prompt": "The stick is pushed. What speed does the excerpt write?",
           "choices": [
-            "the aim action. That keeps the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set.",
-            "The widget that draws speed from the stick owns it. That would break the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set.",
-            "Every client owns it, before IA_Aim is replicated. That would break the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set."
+            "600",
+            "The slower gait number",
+            "Whatever the boom length implies",
+            "A world offset every frame"
           ],
           "answer": 0,
-          "why": "IA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set."
+          "why": "The true path is the sprint literal."
         },
         {
-          "id": "tps-beginner-gait-c2",
+          "id": "tpsc-gait-2",
           "kind": "mc",
-          "prompt": "IA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set. The course graph contains `Aiming = true; // node:tpl_camera_set`. What is that line doing in gameplay terms?",
+          "prompt": "Speed = 600 sits on the true path of the stick compared with zero. When does it run?",
           "choices": [
-            "Aiming set true when the aim trace from the camera hits. That keeps the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set.",
-            "setting Aiming from Tick, or firing the weapon from the camera graph. That would break the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set."
+            "While the stick is pushed",
+            "During menus as well as play",
+            "While the shoulder button is down",
+            "While a pickup overlaps"
           ],
           "answer": 0,
-          "why": "Aiming set true when the aim trace from the camera hits"
+          "why": "The comparison is the gate."
         },
         {
-          "id": "tps-beginner-gait-c3",
+          "id": "tpsc-gait-3",
           "kind": "mc",
-          "prompt": "IA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set. Where should Set Aiming sit?",
+          "prompt": "The stick returns to center. Which number should the next write use?",
           "choices": [
-            "After the camera trace hits, started by IA_Aim through Triggered. That keeps the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set.",
-            "It runs before IA_Aim, so the player is not required. That would break the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set.",
-            "It sits on Tick beside IA_Aim. That would break the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set."
+            "200",
+            "The sprint number",
+            "The boom length",
+            "The companion step time"
           ],
           "answer": 0,
-          "why": "the camera trace hits is the gate."
+          "why": "The false path is the slower gait."
         },
         {
-          "id": "tps-beginner-gait-c4",
+          "id": "tpsc-gait-4",
+          "kind": "mc",
+          "prompt": "The graph adds a world offset every frame instead of writing speed. What does the movement component never hear?",
+          "choices": [
+            "The gait it was built to consume",
+            "The camera location",
+            "The use press",
+            "How many items are carried"
+          ],
+          "answer": 0,
+          "why": "Write speed. Let the component move the pawn."
+        },
+        {
+          "id": "tpsc-gait-5",
+          "kind": "mc",
+          "prompt": "The spring arm chooses walk versus sprint. What retunes when the boom changes?",
+          "choices": [
+            "How fast the pawn moves",
+            "Only where the camera sits",
+            "Only the aim pull-in",
+            "Only the companion mesh"
+          ],
+          "answer": 0,
+          "why": "The boom reads the pawn. It does not drive it."
+        },
+        {
+          "id": "tpsc-gait-6",
           "kind": "tf",
-          "prompt": "True or false: IA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "tps-beginner-gait-c5",
-          "kind": "tf",
-          "prompt": "True or false: IA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set. You keep that promise by setting Aiming from Tick, or firing the weapon from the camera graph.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "setting Aiming from Tick, or firing the weapon from the camera graph is the broken schedule."
-        },
-        {
-          "id": "tps-beginner-gait-c6",
-          "kind": "mc",
-          "prompt": "IA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set. Which mistake breaks it?",
-          "choices": [
-            "setting Aiming from Tick, or firing the weapon from the camera graph. That keeps the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set.",
-            "Leaving the real work on IA_Aim. That would break the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set.",
-            "Waiting until the camera trace hits. That would break the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set.",
-            "Keeping the aim action as the only writer. That would break the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set."
-          ],
-          "answer": 0,
-          "why": "setting Aiming from Tick, or firing the weapon from the camera graph"
-        },
-        {
-          "id": "tps-beginner-gait-c7",
-          "kind": "tf",
-          "prompt": "True or false: IA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set. IA_Aim through Triggered remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the aim action"
-        },
-        {
-          "id": "tps-beginner-gait-c8",
-          "kind": "mc",
-          "prompt": "IA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while IA_Aim stayed one call. That keeps the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set.",
-            "A data row must be recompiled for this section. That would break the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set.",
-            "Set Aiming only works for one class, so the cast is the stable choice. That would break the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "tps-beginner-gait-c9",
-          "kind": "mc",
-          "prompt": "IA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set. What does the player lose if IA_Aim is removed?",
-          "choices": [
-            "Speed from the stick never starts, because Triggered was the only way in. That keeps the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set.",
-            "Nothing, because Tick still does the job. That would break the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set.",
-            "The constructor replaces IA_Aim on the next map. That would break the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set."
-          ],
-          "answer": 0,
-          "why": "IA_Aim is the start."
-        },
-        {
-          "id": "tps-beginner-gait-c10",
-          "kind": "tf",
-          "prompt": "True or false: IA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set. OnRep should perform the write again so the section does not wait for the aim action.",
+          "prompt": "The spring arm should choose walk versus sprint.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "It reads the pawn the stick already moved."
         },
         {
-          "id": "tps-beginner-gait-c11",
+          "id": "tpsc-gait-7",
           "kind": "mc",
-          "prompt": "IA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set. Which gate sits immediately in front of the write?",
+          "prompt": "Who consumes the speed number?",
           "choices": [
-            "the camera trace hits. That keeps the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set.",
-            "A Tick frame, whether or not IA_Aim fired. That would break the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set.",
-            "A client prediction that skips the aim action. That would break the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set.",
-            "A cast to every actor this course might spawn. That would break the rule that iA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set."
+            "The character movement component",
+            "The spring arm",
+            "The companion timer",
+            "Touching a ground item"
           ],
           "answer": 0,
-          "why": "the camera trace hits"
+          "why": "Movement reads speed."
         },
         {
-          "id": "tps-beginner-gait-c11b",
-          "kind": "tf",
-          "prompt": "True or false: IA_Move writes Speed. Greater Than compares the axis with zero. The true path writes 600. The false path writes 200. Those literals can become a data row. The character movement component reads Speed. The graph does not add a world offset on Tick. The spring arm does not choose walk versus sprint. It reads the pawn the movement graph already drove. GASP, when the project adds it, reads the same number. A trace inside the anim blueprint rediscovers a gait the axis already wrote. The camera sets Aiming. It does not assign Speed, or aiming would also be a sprint. The companion does not write the player's Speed. A Tick that assigns 600 stomps a stance an ability had just set. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "tpsc-gait-8",
+          "kind": "mc",
+          "prompt": "A designer wants 500 and 180 instead of 600 and 200. What can those literals become without changing the check?",
           "choices": [
-            "True",
-            "False"
+            "A data row the graph reads",
+            "Two key codes",
+            "Two widget fonts",
+            "The companion's path points"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "The shape of the check stays."
+        },
+        {
+          "id": "tpsc-gait-9",
+          "kind": "mc",
+          "prompt": "The stick is centered and the pawn keeps sprinting. Where was 600 written?",
+          "choices": [
+            "Past the stick check, on the frame loop",
+            "Inside the stick check, which would have written 200",
+            "By the sights trace",
+            "By the pickup overlap"
+          ],
+          "answer": 0,
+          "why": "The false path is the stop-sprint."
+        },
+        {
+          "id": "tpsc-gait-10",
+          "kind": "mc",
+          "prompt": "Which line is the third-person sprint?",
+          "choices": [
+            "600 on the true path of the stick check",
+            "200 on the false path",
+            "The boom easing in",
+            "The companion flipping direction"
+          ],
+          "answer": 0,
+          "why": "Pushed is 600."
         }
-      ],
-      "graph": "camera"
+      ]
     },
     "companion": {
-      "plainEnglish": "In plain English, The companion does not loot means: The companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors.",
-      "whyGame": "In a real game, getting the companion does not loot wrong shows up as tracing from Tick, or giving a loud sound its own second brain. the Sense timer started at Begin Play is the repair, and the generated line `void UKitComponent::Graph_Sense_tpl_perception_sense() // node:tpl_perception_sense` is that repair in C++.",
+      "plainEnglish": "The companion is a patrol. Begin Play starts one timer. The step walks the route and a flip swaps direction. The return path has to exist. The player's use key is not the companion's event, and the companion does not fill the player's inventory.",
+      "whyGame": "If the companion runs the player's interact graph, it steals doors. If its overlap fills the player's stack, standing near it loots the room.",
       "expansions": [
         {
-          "title": "The companion does not loot as a door",
-          "detail": "If the companion does not loot is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The way back",
+          "detail": "Without the B path the companion never walks home."
         },
         {
-          "title": "The companion does not loot as data",
-          "detail": "Designer numbers for the companion does not loot live on a row. a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit reads the row instead of a literal."
+          "title": "Doors",
+          "detail": "IA_Interact stays on the player."
         },
         {
-          "title": "The companion does not loot as a listener",
-          "detail": "Later systems listen for Sense. They do not tracing from Tick, or giving a loud sound its own second brain."
+          "title": "Loot",
+          "detail": "The player's overlap fills the stack. The companion does not."
         }
       ],
       "quiz": [
         {
-          "id": "tps-beginner-companion-c1",
+          "id": "tpsc-companion-1",
           "kind": "mc",
-          "prompt": "The companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction. What should own that decision in The companion does not loot?",
+          "prompt": "Who starts the companion's route?",
           "choices": [
-            "the Sense timer started at Begin Play. That keeps the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction.",
-            "The widget that draws the companion does not loot owns it. That would break the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction.",
-            "Every client owns it, before Sense is replicated. That would break the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction."
+            "Begin Play, with one timer",
+            "The player's stick",
+            "The button that pulls the camera in",
+            "Touching an item on the ground"
           ],
           "answer": 0,
-          "why": "The companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction."
+          "why": "The companion is a patrol, not an order."
         },
         {
-          "id": "tps-beginner-companion-c2",
+          "id": "tpsc-companion-2",
           "kind": "mc",
-          "prompt": "The companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction. The course graph contains `void UKitComponent::Graph_Sense_tpl_perception_sense() // node:tpl_perception_sense`. What is that line doing in gameplay terms?",
+          "prompt": "The route step flips direction. What did that decide?",
           "choices": [
-            "a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. That keeps the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction.",
-            "tracing from Tick, or giving a loud sound its own second brain. That would break the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction."
+            "Which way the companion walks next",
+            "That the player is aiming",
+            "That the gun is full",
+            "That a door should open"
           ],
           "answer": 0,
-          "why": "a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit"
+          "why": "The flip is the patrol, not the player."
         },
         {
-          "id": "tps-beginner-companion-c3",
+          "id": "tpsc-companion-3",
           "kind": "mc",
-          "prompt": "The companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction. Where should Sense sit?",
+          "prompt": "The return path has no points. What does the companion fail to do?",
           "choices": [
-            "After the 0.2 second timer fires, started by Sense through the timer. That keeps the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction.",
-            "It runs before Sense, so the player is not required. That would break the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction.",
-            "It sits on Tick beside Sense. That would break the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction."
+            "Walk back",
+            "Aim the player's camera",
+            "Reload the player's gun",
+            "Changing the player's hit points"
           ],
           "answer": 0,
-          "why": "the 0.2 second timer fires is the gate."
+          "why": "The B path is the way home."
         },
         {
-          "id": "tps-beginner-companion-c4",
+          "id": "tpsc-companion-4",
+          "kind": "mc",
+          "prompt": "The companion runs the player's interact graph. What does it steal?",
+          "choices": [
+            "Doors the player meant to use",
+            "Only its own route points",
+            "Only the camera boom",
+            "No door at all, if interact ignored every pawn"
+          ],
+          "answer": 0,
+          "why": "Use stays on the player."
+        },
+        {
+          "id": "tpsc-companion-5",
+          "kind": "mc",
+          "prompt": "The companion's overlap fills the player's stack. What loots the room?",
+          "choices": [
+            "Standing near the companion",
+            "Pressing use on a rifle",
+            "Overlapping the rifle with the player capsule",
+            "Filling the gun from the body"
+          ],
+          "answer": 0,
+          "why": "The player's overlap is the pickup."
+        },
+        {
+          "id": "tpsc-companion-6",
           "kind": "tf",
-          "prompt": "True or false: The companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "tps-beginner-companion-c5",
-          "kind": "tf",
-          "prompt": "True or false: The companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction. You keep that promise by tracing from Tick, or giving a loud sound its own second brain.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "tracing from Tick, or giving a loud sound its own second brain is the broken schedule."
-        },
-        {
-          "id": "tps-beginner-companion-c6",
-          "kind": "mc",
-          "prompt": "The companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction. Which mistake breaks it?",
-          "choices": [
-            "tracing from Tick, or giving a loud sound its own second brain. That keeps the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction.",
-            "Leaving the real work on Sense. That would break the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction.",
-            "Waiting until the 0.2 second timer fires. That would break the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction.",
-            "Keeping the Sense timer started at Begin Play as the only writer. That would break the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction."
-          ],
-          "answer": 0,
-          "why": "tracing from Tick, or giving a loud sound its own second brain"
-        },
-        {
-          "id": "tps-beginner-companion-c7",
-          "kind": "tf",
-          "prompt": "True or false: The companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction. Sense through the timer remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the Sense timer started at Begin Play"
-        },
-        {
-          "id": "tps-beginner-companion-c8",
-          "kind": "mc",
-          "prompt": "The companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while Sense stayed one call. That keeps the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction.",
-            "A data row must be recompiled for this section. That would break the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction.",
-            "Sense only works for one class, so the cast is the stable choice. That would break the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "tps-beginner-companion-c9",
-          "kind": "mc",
-          "prompt": "The companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction. What does the player lose if Sense is removed?",
-          "choices": [
-            "The companion does not loot never starts, because the timer was the only way in. That keeps the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction.",
-            "Nothing, because Tick still does the job. That would break the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction.",
-            "The constructor replaces Sense on the next map. That would break the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction."
-          ],
-          "answer": 0,
-          "why": "Sense is the start."
-        },
-        {
-          "id": "tps-beginner-companion-c10",
-          "kind": "tf",
-          "prompt": "True or false: The companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction. OnRep should perform the write again so the section does not wait for the Sense timer started at Begin Play.",
+          "prompt": "The companion should run the player's interact action.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "That steals doors."
         },
         {
-          "id": "tps-beginner-companion-c11",
+          "id": "tpsc-companion-7",
           "kind": "mc",
-          "prompt": "The companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction. Which gate sits immediately in front of the write?",
+          "prompt": "Which schedule does Begin Play set for the companion?",
           "choices": [
-            "the 0.2 second timer fires. That keeps the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction.",
-            "A Tick frame, whether or not Sense fired. That would break the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction.",
-            "A client prediction that skips the Sense timer started at Begin Play. That would break the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction.",
-            "A cast to every actor this course might spawn. That would break the rule that the companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction."
+            "One timer that steps the route",
+            "A step on every rendered frame",
+            "A step only while the player aims",
+            "A step when the gun reloads"
           ],
           "answer": 0,
-          "why": "the 0.2 second timer fires"
+          "why": "One timer. Not the player's buttons."
         },
         {
-          "id": "tps-beginner-companion-c11b",
-          "kind": "tf",
-          "prompt": "True or false: The companion is a patrol. Begin Play starts one timer. AdvancePatrol steps the route. FlipFlop swaps direction. The B path has to exist, or the companion never walks back. The player's IA_Interact is not the companion's event. If the companion runs it, the companion steals doors. Overlap that fills the player's stack is also the player's. A squadmate that runs that overlap loots the ground. The companion reads Alert or a simple target later. It does not write StackCount, Magazine, or Health. Stacking a new timer inside AdvancePatrol speeds the route. Begin Play already started one. Tick that flips GoingRight steps the companion while the game is paused. Save can store the direction. It does not store the mesh transform. The route rebuilds the mesh from the direction. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "tpsc-companion-8",
+          "kind": "mc",
+          "prompt": "The game pauses and the companion keeps sliding. Which step is running?",
           "choices": [
-            "True",
-            "False"
+            "A per-frame move that was never paused",
+            "The one timer, which can be paused",
+            "The reload clamp",
+            "The aim trace"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "The timer can stop. A frame slide often does not."
+        },
+        {
+          "id": "tpsc-companion-9",
+          "kind": "mc",
+          "prompt": "Which line is the companion, not the player?",
+          "choices": [
+            "The route step started from Begin Play",
+            "The move control compared with rest",
+            "Aiming from the shoulder button",
+            "Transferring ammo from the body"
+          ],
+          "answer": 0,
+          "why": "The patrol is not the stick."
+        },
+        {
+          "id": "tpsc-companion-10",
+          "kind": "mc",
+          "prompt": "You save mid-route. What about the companion has to be remembered?",
+          "choices": [
+            "The next route point",
+            "The companion mesh",
+            "Which controls are bound",
+            "The boom transform"
+          ],
+          "answer": 0,
+          "why": "The point is progress. The mesh rebuilds."
         }
-      ],
-      "graph": "perception"
+      ]
     },
     "slot": {
-      "plainEnglish": "In plain English, Save the counts means: Begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild.",
-      "whyGame": "In a real game, getting save the counts wrong shows up as setting Aiming from Tick, or firing the weapon from the camera graph. the aim action is the repair, and the generated line `Aiming = true; // node:tpl_camera_set` is that repair in C++.",
+      "plainEnglish": "Begin Play loads, because the components exist. The struct holds health, the magazine, the reserve, the stack count, and aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context.",
+      "whyGame": "A frame snapshot stores a half-finished reload and a companion mid-corner. An event after the reload stores a finished gun.",
       "expansions": [
         {
-          "title": "Save the counts as a door",
-          "detail": "If save the counts is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The gun",
+          "detail": "Magazine and reserve travel together."
         },
         {
-          "title": "Save the counts as data",
-          "detail": "Designer numbers for save the counts live on a row. Aiming set true when the aim trace from the camera hits reads the row instead of a literal."
+          "title": "The stance",
+          "detail": "Save aiming only if the tight camera must return."
         },
         {
-          "title": "Save the counts as a listener",
-          "detail": "Later systems listen for IA_Aim. They do not setting Aiming from Tick, or firing the weapon from the camera graph."
+          "title": "When",
+          "detail": "Write after the reload finishes. Load at Begin Play."
         }
       ],
       "quiz": [
         {
-          "id": "tps-beginner-slot-c1",
+          "id": "tpsc-slot-1",
           "kind": "mc",
-          "prompt": "Begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame. What should own that decision in Save the counts?",
+          "prompt": "Which set belongs in the third-person slot?",
           "choices": [
-            "the aim action. That keeps the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame.",
-            "The widget that draws save the counts owns it. That would break the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame.",
-            "Every client owns it, before IA_Aim is replicated. That would break the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame."
+            "Health, magazine, reserve, stack count, and aiming if the stance matters",
+            "The boom transform and the companion mesh",
+            "The bound device map",
+            "The raw stick sample from the last frame"
           ],
           "answer": 0,
-          "why": "Begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame."
+          "why": "Save counts. Rebuild the machinery."
         },
         {
-          "id": "tps-beginner-slot-c2",
+          "id": "tpsc-slot-2",
           "kind": "mc",
-          "prompt": "Begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame. The course graph contains `Aiming = true; // node:tpl_camera_set`. What is that line doing in gameplay terms?",
+          "prompt": "The sample assigns a stand-in value at Begin Play. What replaces it?",
           "choices": [
-            "Aiming set true when the aim trace from the camera hits. That keeps the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame.",
-            "setting Aiming from Tick, or firing the weapon from the camera graph. That would break the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame."
+            "The struct of those counts",
+            "The current boom transform",
+            "The companion skeletal mesh",
+            "The bound key codes"
           ],
           "answer": 0,
-          "why": "Aiming set true when the aim trace from the camera hits"
+          "why": "The stand-in is the shape, not the data."
         },
         {
-          "id": "tps-beginner-slot-c3",
+          "id": "tpsc-slot-3",
           "kind": "mc",
-          "prompt": "Begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame. Where should Set Aiming sit?",
+          "prompt": "A finished struct is on disk. When does it load?",
           "choices": [
-            "After the camera trace hits, started by IA_Aim through Triggered. That keeps the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame.",
-            "It runs before IA_Aim, so the player is not required. That would break the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame.",
-            "It sits on Tick beside IA_Aim. That would break the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame."
+            "At Begin Play",
+            "On the first frame after a sprint",
+            "Inside the sights trace",
+            "When the companion flips direction"
           ],
           "answer": 0,
-          "why": "the camera trace hits is the gate."
+          "why": "The components exist then."
         },
         {
-          "id": "tps-beginner-slot-c4",
+          "id": "tpsc-slot-4",
+          "kind": "mc",
+          "prompt": "The frame loop writes the slot during a reload. What can the next load restore?",
+          "choices": [
+            "A transfer that never finished",
+            "A reload the player completed",
+            "The rebuilt boom, correctly",
+            "A fresh mapping context"
+          ],
+          "answer": 0,
+          "why": "Write after the reload finishes."
+        },
+        {
+          "id": "tpsc-slot-5",
+          "kind": "mc",
+          "prompt": "You pack the boom transform so the camera matches. What are you storing?",
+          "choices": [
+            "A transform the spring arm rebuilds",
+            "The only copy of the magazine",
+            "How many items the slot holds",
+            "The next route point"
+          ],
+          "answer": 0,
+          "why": "The boom is rebuilt from the aim bool."
+        },
+        {
+          "id": "tpsc-slot-6",
           "kind": "tf",
-          "prompt": "True or false: Begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "tps-beginner-slot-c5",
-          "kind": "tf",
-          "prompt": "True or false: Begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame. You keep that promise by setting Aiming from Tick, or firing the weapon from the camera graph.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "setting Aiming from Tick, or firing the weapon from the camera graph is the broken schedule."
-        },
-        {
-          "id": "tps-beginner-slot-c6",
-          "kind": "mc",
-          "prompt": "Begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame. Which mistake breaks it?",
-          "choices": [
-            "setting Aiming from Tick, or firing the weapon from the camera graph. That keeps the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame.",
-            "Leaving the real work on IA_Aim. That would break the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame.",
-            "Waiting until the camera trace hits. That would break the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame.",
-            "Keeping the aim action as the only writer. That would break the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame."
-          ],
-          "answer": 0,
-          "why": "setting Aiming from Tick, or firing the weapon from the camera graph"
-        },
-        {
-          "id": "tps-beginner-slot-c7",
-          "kind": "tf",
-          "prompt": "True or false: Begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame. IA_Aim through Triggered remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the aim action"
-        },
-        {
-          "id": "tps-beginner-slot-c8",
-          "kind": "mc",
-          "prompt": "Begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while IA_Aim stayed one call. That keeps the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame.",
-            "A data row must be recompiled for this section. That would break the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame.",
-            "Set Aiming only works for one class, so the cast is the stable choice. That would break the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "tps-beginner-slot-c9",
-          "kind": "mc",
-          "prompt": "Begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame. What does the player lose if IA_Aim is removed?",
-          "choices": [
-            "Save the counts never starts, because Triggered was the only way in. That keeps the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame.",
-            "Nothing, because Tick still does the job. That would break the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame.",
-            "The constructor replaces IA_Aim on the next map. That would break the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame."
-          ],
-          "answer": 0,
-          "why": "IA_Aim is the start."
-        },
-        {
-          "id": "tps-beginner-slot-c10",
-          "kind": "tf",
-          "prompt": "True or false: Begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame. OnRep should perform the write again so the section does not wait for the aim action.",
+          "prompt": "The mapping context belongs in the third-person slot.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "Bindings are not match progress."
         },
         {
-          "id": "tps-beginner-slot-c11",
+          "id": "tpsc-slot-7",
           "kind": "mc",
-          "prompt": "Begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame. Which gate sits immediately in front of the write?",
+          "prompt": "The mode needs the sights tight after load. Which extra bool do you store?",
           "choices": [
-            "the camera trace hits. That keeps the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame.",
-            "A Tick frame, whether or not IA_Aim fired. That would break the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame.",
-            "A client prediction that skips the aim action. That would break the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame.",
-            "A cast to every actor this course might spawn. That would break the rule that begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame."
+            "Aiming",
+            "The stick deflection",
+            "Whether the frame loop is running",
+            "The companion's mesh visibility"
           ],
           "answer": 0,
-          "why": "the camera trace hits"
+          "why": "Only if the stance matters."
         },
         {
-          "id": "tps-beginner-slot-c11b",
-          "kind": "tf",
-          "prompt": "True or false: Begin Play loads, because the components exist. The struct holds Health, Magazine, Reserve, StackCount, and Aiming if the stance matters. It does not hold the boom transform, the companion mesh, or the mapping context. Those rebuild. Tick stores a half-finished reload and a companion mid-corner. An event after the reload finishes is the pack. Load reads the struct. It does not call IA_Reload or IA_Aim again, or the gun clicks and the camera punches on every continue. Two slot indexes, autosave and manual, share the struct. They do not share a Tick. The camera pose, if a mode needs it, is a vector. The spring arm is not the vector. The arm rebuilds that pose when the pawn is possessed, and a packed boom would fight the rebuild on the next frame. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "tpsc-slot-8",
+          "kind": "mc",
+          "prompt": "Magazine loaded and reserve did not. What does the next reload lie about?",
           "choices": [
-            "True",
-            "False"
+            "How many rounds remain on the body",
+            "Where the camera sits",
+            "Which way the companion faces",
+            "Which button is bound to use"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "Both gun numbers travel together."
+        },
+        {
+          "id": "tpsc-slot-9",
+          "kind": "mc",
+          "prompt": "The companion was mid-corner and only its mesh was saved. What is missing?",
+          "choices": [
+            "The next route point",
+            "A mesh the level already spawns",
+            "The health float, which cannot be saved",
+            "The aim button binding"
+          ],
+          "answer": 0,
+          "why": "The point is the progress. The mesh is not."
+        },
+        {
+          "id": "tpsc-slot-10",
+          "kind": "mc",
+          "prompt": "Why is Begin Play the load, rather than the middle of a reload?",
+          "choices": [
+            "The components exist, and a reload in progress is not finished",
+            "Begin Play cannot read a struct",
+            "Reloads are the only legal save point",
+            "The boom must be stored first"
+          ],
+          "answer": 0,
+          "why": "Load finished counts into actors that are there."
         }
-      ],
-      "graph": "camera"
+      ]
     }
   }
 }
