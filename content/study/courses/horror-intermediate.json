@@ -2,672 +2,596 @@
   "id": "horror-intermediate",
   "modules": {
     "one-sense": {
-      "plainEnglish": "In plain English, One pair of eyes means: Co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine.",
-      "whyGame": "In a real game, getting one pair of eyes wrong shows up as tracing from Tick, or giving a loud sound its own second brain. the Sense timer started at Begin Play is the repair, and the generated line `void UKitComponent::Graph_Sense_tpl_perception_sense() // node:tpl_perception_sense` is that repair in C++.",
+      "plainEnglish": "Co-op still has one look. The authority traces, and the alert flag replicates. A loud sound calls that same event on the authority. Each client that traces on its own makes the hunters disagree about a wall. The player's use trace still must not write the flag.",
+      "whyGame": "Two machines looking through different corners produce two hunters, and a local use that sets the flag alerts the house from empty air.",
       "expansions": [
         {
-          "title": "One pair of eyes as a door",
-          "detail": "If one pair of eyes is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "One owner",
+          "detail": "The machine that owns the hunter traces."
         },
         {
-          "title": "One pair of eyes as data",
-          "detail": "Designer numbers for one pair of eyes live on a row. a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit reads the row instead of a literal."
+          "title": "The bottle",
+          "detail": "It calls Sense on the authority, not a new component on every client."
         },
         {
-          "title": "One pair of eyes as a listener",
-          "detail": "Later systems listen for Sense. They do not tracing from Tick, or giving a loud sound its own second brain."
+          "title": "Use",
+          "detail": "The press stays local and does not write Alert."
         }
       ],
       "quiz": [
         {
-          "id": "horror-intermediate-one-sense-c1",
+          "id": "hoci-sense-1",
           "kind": "mc",
-          "prompt": "Co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked. What should own that decision in One pair of eyes?",
+          "prompt": "Each co-op client runs the hunter look and the hunters disagree about a wall. Who should trace?",
           "choices": [
-            "the Sense timer started at Begin Play. That keeps the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked.",
-            "The widget that draws one pair of eyes owns it. That would break the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked.",
-            "Every client owns it, before Sense is replicated. That would break the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked."
+            "The machine that owns the hunter",
+            "All machines, with the bools averaged",
+            "Only the player who threw the bottle",
+            "The client with the lowest ping"
           ],
           "answer": 0,
-          "why": "Co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked."
+          "why": "One owner. Clients do not vote."
         },
         {
-          "id": "horror-intermediate-one-sense-c2",
+          "id": "hoci-sense-2",
           "kind": "mc",
-          "prompt": "Co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked. The course graph contains `void UKitComponent::Graph_Sense_tpl_perception_sense() // node:tpl_perception_sense`. What is that line doing in gameplay terms?",
+          "prompt": "The alert flag replicates after the authority trace. What do the other machines receive?",
           "choices": [
-            "a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. That keeps the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked.",
-            "tracing from Tick, or giving a loud sound its own second brain. That would break the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked."
+            "The flag, not a second trace of their own",
+            "A private audio component",
+            "The player's use result",
+            "The door hinge transform"
           ],
           "answer": 0,
-          "why": "a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit"
+          "why": "The result replicates. The look does not."
         },
         {
-          "id": "horror-intermediate-one-sense-c3",
+          "id": "hoci-sense-3",
           "kind": "mc",
-          "prompt": "Co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked. Where should Sense sit?",
+          "prompt": "A bottle is thrown. Where should that call run?",
           "choices": [
-            "After the 0.2 second timer fires, started by Sense through the timer. That keeps the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked.",
-            "It runs before Sense, so the player is not required. That would break the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked.",
-            "It sits on Tick beside Sense. That would break the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked."
+            "On the authority, through the same look",
+            "On every client, in a new component",
+            "Inside the player's use miss",
+            "Inside the fear pulse"
           ],
           "answer": 0,
-          "why": "the 0.2 second timer fires is the gate."
+          "why": "Sound is still the shared look."
         },
         {
-          "id": "horror-intermediate-one-sense-c4",
+          "id": "hoci-sense-4",
+          "kind": "mc",
+          "prompt": "The player's use trace writes the alert flag on the pressing client. What alerts the house?",
+          "choices": [
+            "Empty air, on that one machine",
+            "A real glimpse from the owner",
+            "A bottle on the authority",
+            "A finished door, quietly"
+          ],
+          "answer": 0,
+          "why": "Use must not write the flag."
+        },
+        {
+          "id": "hoci-sense-5",
+          "kind": "mc",
+          "prompt": "Two clients report different hits and you average them. What can the average claim?",
+          "choices": [
+            "A wall neither machine actually agreed on",
+            "The owner's single trace",
+            "The replicated flag as written",
+            "A miss that decays cleanly"
+          ],
+          "answer": 0,
+          "why": "Do not vote. Trace once."
+        },
+        {
+          "id": "hoci-sense-6",
           "kind": "tf",
-          "prompt": "True or false: Co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "horror-intermediate-one-sense-c5",
-          "kind": "tf",
-          "prompt": "True or false: Co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked. You keep that promise by tracing from Tick, or giving a loud sound its own second brain.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "tracing from Tick, or giving a loud sound its own second brain is the broken schedule."
-        },
-        {
-          "id": "horror-intermediate-one-sense-c6",
-          "kind": "mc",
-          "prompt": "Co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked. Which mistake breaks it?",
-          "choices": [
-            "tracing from Tick, or giving a loud sound its own second brain. That keeps the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked.",
-            "Leaving the real work on Sense. That would break the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked.",
-            "Waiting until the 0.2 second timer fires. That would break the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked.",
-            "Keeping the Sense timer started at Begin Play as the only writer. That would break the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked."
-          ],
-          "answer": 0,
-          "why": "tracing from Tick, or giving a loud sound its own second brain"
-        },
-        {
-          "id": "horror-intermediate-one-sense-c7",
-          "kind": "tf",
-          "prompt": "True or false: Co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked. Sense through the timer remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the Sense timer started at Begin Play"
-        },
-        {
-          "id": "horror-intermediate-one-sense-c8",
-          "kind": "mc",
-          "prompt": "Co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while Sense stayed one call. That keeps the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked.",
-            "A data row must be recompiled for this section. That would break the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked.",
-            "Sense only works for one class, so the cast is the stable choice. That would break the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "horror-intermediate-one-sense-c9",
-          "kind": "mc",
-          "prompt": "Co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked. What does the player lose if Sense is removed?",
-          "choices": [
-            "One pair of eyes never starts, because the timer was the only way in. That keeps the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked.",
-            "Nothing, because Tick still does the job. That would break the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked.",
-            "The constructor replaces Sense on the next map. That would break the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked."
-          ],
-          "answer": 0,
-          "why": "Sense is the start."
-        },
-        {
-          "id": "horror-intermediate-one-sense-c10",
-          "kind": "tf",
-          "prompt": "True or false: Co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked. OnRep should perform the write again so the section does not wait for the Sense timer started at Begin Play.",
+          "prompt": "Every co-op client should run its own hunter trace.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "The authority traces."
         },
         {
-          "id": "horror-intermediate-one-sense-c11",
+          "id": "hoci-sense-7",
           "kind": "mc",
-          "prompt": "Co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked. Which gate sits immediately in front of the write?",
+          "prompt": "Which write is the co-op look?",
           "choices": [
-            "the 0.2 second timer fires. That keeps the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked.",
-            "A Tick frame, whether or not Sense fired. That would break the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked.",
-            "A client prediction that skips the Sense timer started at Begin Play. That would break the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked.",
-            "A cast to every actor this course might spawn. That would break the rule that co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked."
+            "The alert flag, on the owning machine",
+            "A client-side flag that never replicates",
+            "The player's use miss",
+            "The panic dispatcher"
           ],
           "answer": 0,
-          "why": "the 0.2 second timer fires"
+          "why": "One writer, then replicate."
         },
         {
-          "id": "horror-intermediate-one-sense-c11b",
-          "kind": "tf",
-          "prompt": "True or false: Co-op still has one Sense. The authority traces. Alert replicates. Each client that runs its own trace makes the hunters disagree about a wall. A loud sound still calls that same event on the authority, not a second component on every machine. The player's use trace stays local to the press and still must not write Alert. The period stays 0.2 seconds. Speeding it up because a client felt late is how the listen server falls over. OnRep of Alert can play a sting. It does not trace again and it does not subtract Health. A missed trace still owes a decay, on the authority, so a forgiven glimpse falls on every machine together. A listen server is not an excuse to trace on every pawn. The remote client is another machine, and the host already looked. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "hoci-sense-8",
+          "kind": "mc",
+          "prompt": "A loud sound grows a second component on every machine. What does the stalk fail to read?",
           "choices": [
-            "True",
-            "False"
+            "The flag it was already taught",
+            "The door's open pose",
+            "The player's hit points",
+            "The hide lever's mesh"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "The stalk knows one flag."
+        },
+        {
+          "id": "hoci-sense-9",
+          "kind": "mc",
+          "prompt": "The owner is tracing and a client also traces through a different doorway. Which result should win?",
+          "choices": [
+            "The owner's",
+            "The client's, because it is closer to the player",
+            "Whichever finished last",
+            "The fear timer's"
+          ],
+          "answer": 0,
+          "why": "One pair of eyes."
+        },
+        {
+          "id": "hoci-sense-10",
+          "kind": "mc",
+          "prompt": "What still stays local to the press, even in co-op?",
+          "choices": [
+            "The use trace",
+            "The hunter's hit test",
+            "The hunter's suspicion",
+            "The authority check around the look"
+          ],
+          "answer": 0,
+          "why": "The press is the player's. The look is the hunter's."
         }
-      ],
-      "graph": "perception"
+      ]
     },
     "hide": {
-      "plainEnglish": "In plain English, Hide is a prop means: A hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers.",
-      "whyGame": "In a real game, getting hide is a prop wrong shows up as tracing from Tick, or giving a loud sound its own second brain. the Sense timer started at Begin Play is the repair, and the generated line `void UKitComponent::Graph_Sense_tpl_perception_sense() // node:tpl_perception_sense` is that repair in C++.",
+      "plainEnglish": "A hide lever implements Interact. It does not get its own graph and it does not get a frame loop. The player's trace starts at the camera. The hunter does not run this call, and the hunter's overlap is not how you hide.",
+      "whyGame": "A trace from the actor location grabs the frame beside the lever, and a Tick on the lever traces the player forever.",
       "expansions": [
         {
-          "title": "Hide is a prop as a door",
-          "detail": "If hide is a prop is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The lever",
+          "detail": "It answers Interact. The trace does not name the lever class."
         },
         {
-          "title": "Hide is a prop as data",
-          "detail": "Designer numbers for hide is a prop live on a row. a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit reads the row instead of a literal."
+          "title": "The camera",
+          "detail": "Start where the crosshair is."
         },
         {
-          "title": "Hide is a prop as a listener",
-          "detail": "Later systems listen for Sense. They do not tracing from Tick, or giving a loud sound its own second brain."
+          "title": "The hunter",
+          "detail": "Its overlap is not a hide button."
         }
       ],
       "quiz": [
         {
-          "id": "horror-intermediate-hide-c1",
+          "id": "hoci-hide-1",
           "kind": "mc",
-          "prompt": "A hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert. What should own that decision in Hide is a prop?",
+          "prompt": "What does a hide lever implement?",
           "choices": [
-            "the Sense timer started at Begin Play. That keeps the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert.",
-            "The widget that draws hide is a prop owns it. That would break the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert.",
-            "Every client owns it, before Sense is replicated. That would break the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert."
+            "Interact",
+            "Its own frame loop",
+            "The timed glimpse",
+            "A panic pulse"
           ],
           "answer": 0,
-          "why": "A hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert."
+          "why": "It is a prop."
         },
         {
-          "id": "horror-intermediate-hide-c2",
+          "id": "hoci-hide-2",
           "kind": "mc",
-          "prompt": "A hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert. The course graph contains `void UKitComponent::Graph_Sense_tpl_perception_sense() // node:tpl_perception_sense`. What is that line doing in gameplay terms?",
+          "prompt": "The use trace hits the lever and calls the interface. What does that line accomplish?",
           "choices": [
-            "a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. That keeps the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert.",
-            "tracing from Tick, or giving a loud sound its own second brain. That would break the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert."
+            "It runs the lever's own use function",
+            "It alerts every hunter",
+            "It starts a fear pulse",
+            "It writes the night save"
           ],
           "answer": 0,
-          "why": "a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit"
+          "why": "The lever answers."
         },
         {
-          "id": "horror-intermediate-hide-c3",
+          "id": "hoci-hide-3",
           "kind": "mc",
-          "prompt": "A hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert. Where should Sense sit?",
+          "prompt": "The crosshair is on the lever and the trace starts at the actor location. What gets grabbed?",
           "choices": [
-            "After the 0.2 second timer fires, started by Sense through the timer. That keeps the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert.",
-            "It runs before Sense, so the player is not required. That would break the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert.",
-            "It sits on Tick beside Sense. That would break the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert."
+            "The frame beside the lever, not the lever",
+            "The lever, because actor location is the crosshair",
+            "The hunter",
+            "A stored snapshot"
           ],
           "answer": 0,
-          "why": "the 0.2 second timer fires is the gate."
+          "why": "Start at the camera."
         },
         {
-          "id": "horror-intermediate-hide-c4",
+          "id": "hoci-hide-4",
+          "kind": "mc",
+          "prompt": "The lever is given a frame loop so the prompt feels instant. What traces forever?",
+          "choices": [
+            "The lever, toward the player",
+            "Only the player's press",
+            "Only the authority look",
+            "No trace at all, if a prop were unable to tick"
+          ],
+          "answer": 0,
+          "why": "The lever waits for the press."
+        },
+        {
+          "id": "hoci-hide-5",
+          "kind": "mc",
+          "prompt": "The hunter's overlap is wired as the hide button. What hides the player?",
+          "choices": [
+            "Being touched by the hunter",
+            "Using the lever",
+            "A finished door",
+            "A decayed alert flag"
+          ],
+          "answer": 0,
+          "why": "Hide is a prop the player uses."
+        },
+        {
+          "id": "hoci-hide-6",
           "kind": "tf",
-          "prompt": "True or false: A hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "horror-intermediate-hide-c5",
-          "kind": "tf",
-          "prompt": "True or false: A hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert. You keep that promise by tracing from Tick, or giving a loud sound its own second brain.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "tracing from Tick, or giving a loud sound its own second brain is the broken schedule."
-        },
-        {
-          "id": "horror-intermediate-hide-c6",
-          "kind": "mc",
-          "prompt": "A hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert. Which mistake breaks it?",
-          "choices": [
-            "tracing from Tick, or giving a loud sound its own second brain. That keeps the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert.",
-            "Leaving the real work on Sense. That would break the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert.",
-            "Waiting until the 0.2 second timer fires. That would break the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert.",
-            "Keeping the Sense timer started at Begin Play as the only writer. That would break the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert."
-          ],
-          "answer": 0,
-          "why": "tracing from Tick, or giving a loud sound its own second brain"
-        },
-        {
-          "id": "horror-intermediate-hide-c7",
-          "kind": "tf",
-          "prompt": "True or false: A hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert. Sense through the timer remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the Sense timer started at Begin Play"
-        },
-        {
-          "id": "horror-intermediate-hide-c8",
-          "kind": "mc",
-          "prompt": "A hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while Sense stayed one call. That keeps the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert.",
-            "A data row must be recompiled for this section. That would break the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert.",
-            "Sense only works for one class, so the cast is the stable choice. That would break the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "horror-intermediate-hide-c9",
-          "kind": "mc",
-          "prompt": "A hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert. What does the player lose if Sense is removed?",
-          "choices": [
-            "Hide is a prop never starts, because the timer was the only way in. That keeps the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert.",
-            "Nothing, because Tick still does the job. That would break the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert.",
-            "The constructor replaces Sense on the next map. That would break the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert."
-          ],
-          "answer": 0,
-          "why": "Sense is the start."
-        },
-        {
-          "id": "horror-intermediate-hide-c10",
-          "kind": "tf",
-          "prompt": "True or false: A hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert. OnRep should perform the write again so the section does not wait for the Sense timer started at Begin Play.",
+          "prompt": "A hide lever needs its own event graph.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "It implements Interact."
         },
         {
-          "id": "horror-intermediate-hide-c11",
+          "id": "hoci-hide-7",
           "kind": "mc",
-          "prompt": "A hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert. Which gate sits immediately in front of the write?",
+          "prompt": "The hunter runs the hide call. What does the hunter start operating?",
           "choices": [
-            "the 0.2 second timer fires. That keeps the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert.",
-            "A Tick frame, whether or not Sense fired. That would break the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert.",
-            "A client prediction that skips the Sense timer started at Begin Play. That would break the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert.",
-            "A cast to every actor this course might spawn. That would break the rule that a hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert."
+            "Levers",
+            "Only its route",
+            "Only the replicated flag",
+            "Only the fear timer"
           ],
           "answer": 0,
-          "why": "the 0.2 second timer fires"
+          "why": "The hunter does not use props."
         },
         {
-          "id": "horror-intermediate-hide-c11b",
-          "kind": "tf",
-          "prompt": "True or false: A hide lever implements Interact. It does not get its own event graph, and it does not get a Tick. The player's trace starts at the camera. A trace from the actor location grabs the frame beside the lever. ProcessEvent looks up Interact. The lever answers. The hunter does not run this call. The hunter's overlap is not the player's pickup overlap. A hunter that loots the fuel is the companion bug in a darker room. Fear does not live on the lever. The lever asks the spot to accept the player. Sense still owns Alert. A cast to the lever class excludes the fuse box that should have answered the same name. The miss still logs and stops. A hover prompt may read the last hit, and it still must not write Alert. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "hoci-hide-8",
+          "kind": "mc",
+          "prompt": "Where does the hide trace start?",
           "choices": [
-            "True",
-            "False"
+            "At the camera",
+            "At the lever's pivot",
+            "At the hunter's eyes",
+            "At the last saved hinge"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "Match the crosshair."
+        },
+        {
+          "id": "hoci-hide-9",
+          "kind": "mc",
+          "prompt": "Which call is the lever, not the hunter?",
+          "choices": [
+            "Interact on the prop the player hit",
+            "The authority look",
+            "The panic dispatcher",
+            "The night-save write"
+          ],
+          "answer": 0,
+          "why": "The prop answers use."
+        },
+        {
+          "id": "hoci-hide-10",
+          "kind": "mc",
+          "prompt": "Art adds a second hide spot. What does the use graph change?",
+          "choices": [
+            "Nothing, if the new spot implements Interact",
+            "A new cast to the new mesh",
+            "A new frame loop",
+            "A new alert float"
+          ],
+          "answer": 0,
+          "why": "The trace never lists classes."
         }
-      ],
-      "graph": "perception"
+      ]
     },
     "fear": {
-      "plainEnglish": "In plain English, Fear is slower than sight means: Fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player.",
-      "whyGame": "In a real game, getting fear is slower than sight wrong shows up as tracing from Tick, or giving a loud sound its own second brain. the Sense timer started at Begin Play is the repair, and the generated line `void UKitComponent::Graph_Sense_tpl_perception_sense() // node:tpl_perception_sense` is that repair in C++.",
+      "plainEnglish": "Fear binds a dispatcher and broadcasts it from ApplyEffect once a second. Begin Play starts that timer once. The look only writes the alert flag. A creak calls the look. It does not broadcast fear, or every cupboard terrifies the player.",
+      "whyGame": "Broadcasting inside the glimpse shakes the camera on looks the design meant to forgive.",
       "expansions": [
         {
-          "title": "Fear is slower than sight as a door",
-          "detail": "If fear is slower than sight is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The pulse",
+          "detail": "One second, started once."
         },
         {
-          "title": "Fear is slower than sight as data",
-          "detail": "Designer numbers for fear is slower than sight live on a row. a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit reads the row instead of a literal."
+          "title": "The glimpse",
+          "detail": "It writes the flag. It does not shake the camera."
         },
         {
-          "title": "Fear is slower than sight as a listener",
-          "detail": "Later systems listen for Sense. They do not tracing from Tick, or giving a loud sound its own second brain."
+          "title": "The cupboard",
+          "detail": "The creak calls the look, not the dispatcher."
         }
       ],
       "quiz": [
         {
-          "id": "horror-intermediate-fear-c1",
+          "id": "hoci-fear-1",
           "kind": "mc",
-          "prompt": "Fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls. What should own that decision in Fear is slower than sight?",
+          "prompt": "What does Begin Play start for fear?",
           "choices": [
-            "the Sense timer started at Begin Play. That keeps the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls.",
-            "The widget that draws fear is slower than sight owns it. That would break the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls.",
-            "Every client owns it, before Sense is replicated. That would break the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls."
+            "One timer that calls ApplyEffect each second",
+            "A broadcast on every glimpse",
+            "A hinge yaw",
+            "The player's use trace"
           ],
           "answer": 0,
-          "why": "Fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls."
+          "why": "Fear is slower than sight."
         },
         {
-          "id": "horror-intermediate-fear-c2",
+          "id": "hoci-fear-2",
           "kind": "mc",
-          "prompt": "Fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls. The course graph contains `void UKitComponent::Graph_Sense_tpl_perception_sense() // node:tpl_perception_sense`. What is that line doing in gameplay terms?",
+          "prompt": "ApplyEffect broadcasts the dispatcher. What does that line accomplish?",
           "choices": [
-            "a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. That keeps the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls.",
-            "tracing from Tick, or giving a loud sound its own second brain. That would break the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls."
+            "It tells listeners that fear just pulsed",
+            "It sets the alert flag",
+            "It opens a door",
+            "It hides the player"
           ],
           "answer": 0,
-          "why": "a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit"
+          "why": "The broadcast is the pulse."
         },
         {
-          "id": "horror-intermediate-fear-c3",
+          "id": "hoci-fear-3",
           "kind": "mc",
-          "prompt": "Fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls. Where should Sense sit?",
+          "prompt": "Who should bind to that dispatcher?",
           "choices": [
-            "After the 0.2 second timer fires, started by Sense through the timer. That keeps the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls.",
-            "It runs before Sense, so the player is not required. That would break the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls.",
-            "It sits on Tick beside Sense. That would break the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls."
+            "The camera shake and the fear UI",
+            "The hunter's line trace",
+            "The hide lever",
+            "The save snapshot"
           ],
           "answer": 0,
-          "why": "the 0.2 second timer fires is the gate."
+          "why": "Listeners bind. They do not poll."
         },
         {
-          "id": "horror-intermediate-fear-c4",
+          "id": "hoci-fear-4",
+          "kind": "mc",
+          "prompt": "Fear is broadcast inside the glimpse, five times a second. What shakes too often?",
+          "choices": [
+            "The camera, including glimpses meant to be forgiven",
+            "Only a finished one-second pulse",
+            "Only a cupboard that called the look",
+            "No shake at all, if a glimpse were unable to broadcast"
+          ],
+          "answer": 0,
+          "why": "Sight and fear have different periods."
+        },
+        {
+          "id": "hoci-fear-5",
+          "kind": "mc",
+          "prompt": "A cupboard creak panics the player. Which call was wired to the sound?",
+          "choices": [
+            "The fear dispatcher, where the look belonged",
+            "The timed glimpse, which is what a creak should call",
+            "The hide interface",
+            "The night save"
+          ],
+          "answer": 0,
+          "why": "The creak is not the pulse."
+        },
+        {
+          "id": "hoci-fear-6",
           "kind": "tf",
-          "prompt": "True or false: Fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "horror-intermediate-fear-c5",
-          "kind": "tf",
-          "prompt": "True or false: Fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls. You keep that promise by tracing from Tick, or giving a loud sound its own second brain.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "tracing from Tick, or giving a loud sound its own second brain is the broken schedule."
-        },
-        {
-          "id": "horror-intermediate-fear-c6",
-          "kind": "mc",
-          "prompt": "Fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls. Which mistake breaks it?",
-          "choices": [
-            "tracing from Tick, or giving a loud sound its own second brain. That keeps the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls.",
-            "Leaving the real work on Sense. That would break the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls.",
-            "Waiting until the 0.2 second timer fires. That would break the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls.",
-            "Keeping the Sense timer started at Begin Play as the only writer. That would break the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls."
-          ],
-          "answer": 0,
-          "why": "tracing from Tick, or giving a loud sound its own second brain"
-        },
-        {
-          "id": "horror-intermediate-fear-c7",
-          "kind": "tf",
-          "prompt": "True or false: Fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls. Sense through the timer remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the Sense timer started at Begin Play"
-        },
-        {
-          "id": "horror-intermediate-fear-c8",
-          "kind": "mc",
-          "prompt": "Fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while Sense stayed one call. That keeps the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls.",
-            "A data row must be recompiled for this section. That would break the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls.",
-            "Sense only works for one class, so the cast is the stable choice. That would break the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "horror-intermediate-fear-c9",
-          "kind": "mc",
-          "prompt": "Fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls. What does the player lose if Sense is removed?",
-          "choices": [
-            "Fear is slower than sight never starts, because the timer was the only way in. That keeps the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls.",
-            "Nothing, because Tick still does the job. That would break the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls.",
-            "The constructor replaces Sense on the next map. That would break the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls."
-          ],
-          "answer": 0,
-          "why": "Sense is the start."
-        },
-        {
-          "id": "horror-intermediate-fear-c10",
-          "kind": "tf",
-          "prompt": "True or false: Fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls. OnRep should perform the write again so the section does not wait for the Sense timer started at Begin Play.",
+          "prompt": "A door creak should broadcast fear.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "The creak calls the look."
         },
         {
-          "id": "horror-intermediate-fear-c11",
+          "id": "hoci-fear-7",
           "kind": "mc",
-          "prompt": "Fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls. Which gate sits immediately in front of the write?",
+          "prompt": "The look writes the alert flag and also shakes the camera. What did sight steal?",
           "choices": [
-            "the 0.2 second timer fires. That keeps the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls.",
-            "A Tick frame, whether or not Sense fired. That would break the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls.",
-            "A client prediction that skips the Sense timer started at Begin Play. That would break the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls.",
-            "A cast to every actor this course might spawn. That would break the rule that fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls."
+            "The fear pulse",
+            "The hide lever",
+            "The save snapshot",
+            "The press that calls a prop"
           ],
           "answer": 0,
-          "why": "the 0.2 second timer fires"
+          "why": "The flag is sight. The shake is fear."
         },
         {
-          "id": "horror-intermediate-fear-c11b",
-          "kind": "tf",
-          "prompt": "True or false: Fear binds OnEffect and broadcasts it from ApplyEffect on a one second timer. Begin Play starts that timer once. Sense only writes Alert. Broadcasting inside Sense shakes the camera on every 0.2 second glimpse the design wanted to forgive. A door creak calls Sense. It does not broadcast OnEffect, or every cupboard terrifies the player. A medkit clears fear by stopping the ApplyEffect timer. It does not Broadcast from an overlap. Stacking a new timer inside ApplyEffect speeds the pulse. AdvancePatrol has the same rule: Begin Play started one timer, and the event must not start another. The B path of a patrol flip still has to exist in a horror stalk. An empty return means the hunter never walks back to the route after the fear falls. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "hoci-fear-8",
+          "kind": "mc",
+          "prompt": "Begin Play starts a new fear timer every time the pawn spawns a second copy of the component. What piles up?",
           "choices": [
-            "True",
-            "False"
+            "Pulses",
+            "Hide levers",
+            "Door curves",
+            "Use traces"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "Start the timer once."
+        },
+        {
+          "id": "hoci-fear-9",
+          "kind": "mc",
+          "prompt": "Which period is fear, not the glimpse?",
+          "choices": [
+            "One second",
+            "A fifth of a second",
+            "Once on each drawn frame",
+            "Only while the trigger is held"
+          ],
+          "answer": 0,
+          "why": "ApplyEffect is the slow timer."
+        },
+        {
+          "id": "hoci-fear-10",
+          "kind": "mc",
+          "prompt": "Which line is the pulse, not the look?",
+          "choices": [
+            "ApplyEffect broadcasting to its listeners",
+            "The alert flag written on a hit",
+            "Interact on a hide lever",
+            "A curve played from the start"
+          ],
+          "answer": 0,
+          "why": "The broadcast is fear."
         }
-      ],
-      "graph": "perception"
+      ]
     },
     "quiet-save": {
-      "plainEnglish": "In plain English, Do not replay the house means: A horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied.",
-      "whyGame": "In a real game, getting do not replay the house wrong shows up as tracing from Tick, or giving a loud sound its own second brain. the Sense timer started at Begin Play is the repair, and the generated line `void UKitComponent::Graph_Sense_tpl_perception_sense() // node:tpl_perception_sense` is that repair in C++.",
+      "plainEnglish": "A horror save packs the alert flag, whether the door is open, the patrol direction, and health. It does not pack the hinge transform, the fear bindings, or the timer handle. Begin Play binds listeners again and starts timers after the bools are applied. Playing a door from the start on load creaks the hunter awake.",
+      "whyGame": "A replayed creak calls the look and wakes a house you loaded as calm.",
       "expansions": [
         {
-          "title": "Do not replay the house as a door",
-          "detail": "If do not replay the house is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The bool",
+          "detail": "Set the curve to the end that matches IsOpen."
         },
         {
-          "title": "Do not replay the house as data",
-          "detail": "Designer numbers for do not replay the house live on a row. a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit reads the row instead of a literal."
+          "title": "The bindings",
+          "detail": "Rebuild them. Do not save them."
         },
         {
-          "title": "Do not replay the house as a listener",
-          "detail": "Later systems listen for Sense. They do not tracing from Tick, or giving a loud sound its own second brain."
+          "title": "Order",
+          "detail": "Apply the door, then start the look."
         }
       ],
       "quiz": [
         {
-          "id": "horror-intermediate-quiet-save-c1",
+          "id": "hoci-save-1",
           "kind": "mc",
-          "prompt": "A horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down. What should own that decision in Do not replay the house?",
+          "prompt": "Which set belongs in the co-op horror slot?",
           "choices": [
-            "the Sense timer started at Begin Play. That keeps the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down.",
-            "The widget that draws do not replay the house owns it. That would break the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down.",
-            "Every client owns it, before Sense is replicated. That would break the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down."
+            "The alert flag, the open bool, the patrol direction, and health",
+            "The hinge transform and the fear delegate bindings",
+            "The timer handle",
+            "The hunter mesh"
           ],
           "answer": 0,
-          "why": "A horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down."
+          "why": "Save results. Rebuild the machinery."
         },
         {
-          "id": "horror-intermediate-quiet-save-c2",
+          "id": "hoci-save-2",
           "kind": "mc",
-          "prompt": "A horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down. The course graph contains `void UKitComponent::Graph_Sense_tpl_perception_sense() // node:tpl_perception_sense`. What is that line doing in gameplay terms?",
+          "prompt": "A finished struct is on disk. What happens before the look timer starts?",
           "choices": [
-            "a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. That keeps the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down.",
-            "tracing from Tick, or giving a loud sound its own second brain. That would break the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down."
+            "The loaded bools are applied",
+            "The creak plays from the start",
+            "Fear broadcasts once for free",
+            "The hide lever ticks"
           ],
           "answer": 0,
-          "why": "a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit"
+          "why": "Apply, then look."
         },
         {
-          "id": "horror-intermediate-quiet-save-c3",
+          "id": "hoci-save-3",
           "kind": "mc",
-          "prompt": "A horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down. Where should Sense sit?",
+          "prompt": "Loading an open door calls PlayFromStart. What wakes?",
           "choices": [
-            "After the 0.2 second timer fires, started by Sense through the timer. That keeps the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down.",
-            "It runs before Sense, so the player is not required. That would break the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down.",
-            "It sits on Tick beside Sense. That would break the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down."
+            "The creak, and then the hunter",
+            "Only the mesh, in silence",
+            "The player's inventory",
+            "The fear bindings, correctly"
           ],
           "answer": 0,
-          "why": "the 0.2 second timer fires is the gate."
+          "why": "Set the curve to the end."
         },
         {
-          "id": "horror-intermediate-quiet-save-c4",
+          "id": "hoci-save-4",
+          "kind": "mc",
+          "prompt": "You pack the hinge transform so the door matches. What are you storing?",
+          "choices": [
+            "A pose the open bool already describes",
+            "The only copy of the alert flag",
+            "The life total",
+            "The patrol direction"
+          ],
+          "answer": 0,
+          "why": "The bool is enough."
+        },
+        {
+          "id": "hoci-save-5",
+          "kind": "mc",
+          "prompt": "The look starts before the loaded door is applied. What does the hunter gain?",
+          "choices": [
+            "A glimpse through a doorway that should already be closed",
+            "A calm house",
+            "A rebuilt fear binding",
+            "A silent curve at the open end"
+          ],
+          "answer": 0,
+          "why": "Doors first, then eyes."
+        },
+        {
+          "id": "hoci-save-6",
           "kind": "tf",
-          "prompt": "True or false: A horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "horror-intermediate-quiet-save-c5",
-          "kind": "tf",
-          "prompt": "True or false: A horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down. You keep that promise by tracing from Tick, or giving a loud sound its own second brain.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "tracing from Tick, or giving a loud sound its own second brain is the broken schedule."
-        },
-        {
-          "id": "horror-intermediate-quiet-save-c6",
-          "kind": "mc",
-          "prompt": "A horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down. Which mistake breaks it?",
-          "choices": [
-            "tracing from Tick, or giving a loud sound its own second brain. That keeps the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down.",
-            "Leaving the real work on Sense. That would break the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down.",
-            "Waiting until the 0.2 second timer fires. That would break the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down.",
-            "Keeping the Sense timer started at Begin Play as the only writer. That would break the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down."
-          ],
-          "answer": 0,
-          "why": "tracing from Tick, or giving a loud sound its own second brain"
-        },
-        {
-          "id": "horror-intermediate-quiet-save-c7",
-          "kind": "tf",
-          "prompt": "True or false: A horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down. Sense through the timer remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the Sense timer started at Begin Play"
-        },
-        {
-          "id": "horror-intermediate-quiet-save-c8",
-          "kind": "mc",
-          "prompt": "A horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while Sense stayed one call. That keeps the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down.",
-            "A data row must be recompiled for this section. That would break the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down.",
-            "Sense only works for one class, so the cast is the stable choice. That would break the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "horror-intermediate-quiet-save-c9",
-          "kind": "mc",
-          "prompt": "A horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down. What does the player lose if Sense is removed?",
-          "choices": [
-            "Do not replay the house never starts, because the timer was the only way in. That keeps the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down.",
-            "Nothing, because Tick still does the job. That would break the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down.",
-            "The constructor replaces Sense on the next map. That would break the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down."
-          ],
-          "answer": 0,
-          "why": "Sense is the start."
-        },
-        {
-          "id": "horror-intermediate-quiet-save-c10",
-          "kind": "tf",
-          "prompt": "True or false: A horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down. OnRep should perform the write again so the section does not wait for the Sense timer started at Begin Play.",
+          "prompt": "Fear delegate bindings belong in the horror save.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "Begin Play binds them again."
         },
         {
-          "id": "horror-intermediate-quiet-save-c11",
+          "id": "hoci-save-7",
           "kind": "mc",
-          "prompt": "A horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down. Which gate sits immediately in front of the write?",
+          "prompt": "The patrol direction loaded and the alert flag did not. What chase is wrong?",
           "choices": [
-            "the 0.2 second timer fires. That keeps the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down.",
-            "A Tick frame, whether or not Sense fired. That would break the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down.",
-            "A client prediction that skips the Sense timer started at Begin Play. That would break the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down.",
-            "A cast to every actor this course might spawn. That would break the rule that a horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down."
+            "One that continues while the loaded flag says the route",
+            "A door that opens because the hunter faces one way",
+            "A hide lever that works because of direction",
+            "A fear pulse that uses the route as its timer"
           ],
           "answer": 0,
-          "why": "the 0.2 second timer fires"
+          "why": "The flag decides chase versus route."
         },
         {
-          "id": "horror-intermediate-quiet-save-c11b",
-          "kind": "tf",
-          "prompt": "True or false: A horror save packs Alert, IsOpen, GoingRight, and Health. It does not pack the hinge transform, the fear delegate bindings, or the Sense timer handle. Begin Play binds the delegates again and starts the timers after the bools are applied. PlayFromStart on load replays the creak into Sense, and the hunter wakes in an empty room. Set the curve to the end. Apply doors and Alert before Sense starts, or the hunter learns a lie about a door that the slot says is closed. Tick packs a door mid-curve and an Alert that is still decaying. An event when the timeline finishes, or when the player uses a save point, is the pack. Two clients in co-op load the server struct. A client file that spent health locally is a desync written down. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "hoci-save-8",
+          "kind": "mc",
+          "prompt": "When should the night struct be written?",
           "choices": [
-            "True",
-            "False"
+            "On a finished event",
+            "Every rendered frame while the flag decays",
+            "Inside the creak, every swing",
+            "When the crosshair moves"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "Finished moments, then load at Begin Play."
+        },
+        {
+          "id": "hoci-save-9",
+          "kind": "mc",
+          "prompt": "Begin Play after load should do which pair?",
+          "choices": [
+            "Bind listeners again, then start timers",
+            "Replay every creak, then bind",
+            "Skip the bools and start the look immediately",
+            "Write the hinge and skip the flag"
+          ],
+          "answer": 0,
+          "why": "Rebuild machinery after the values are in place."
+        },
+        {
+          "id": "hoci-save-10",
+          "kind": "mc",
+          "prompt": "Which object is a handle you must not pack?",
+          "choices": [
+            "The sense timer",
+            "The hunter's suspicion",
+            "The open bool",
+            "The life total"
+          ],
+          "answer": 0,
+          "why": "The timer is started again. It is not a value."
         }
-      ],
-      "graph": "perception"
+      ]
     }
   }
 }
