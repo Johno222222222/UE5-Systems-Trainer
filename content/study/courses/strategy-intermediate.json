@@ -174,7 +174,7 @@
           "choices": [
             "A shell",
             "The team's build money, always",
-            "A vision bit",
+            "Whether a cell is revealed",
             "A formation id"
           ],
           "answer": 0,
@@ -200,7 +200,7 @@
           "choices": [
             "The spotter's eyes",
             "The formation shape",
-            "The selection flag",
+            "Who was selected",
             "The wheel simulation"
           ],
           "answer": 0,
@@ -288,7 +288,7 @@
           "prompt": "Which event spends a shell without lifting fog?",
           "choices": [
             "FireMission",
-            "Reveal",
+            "The spotter's vision pass",
             "A drain on each drawn frame",
             "Refreshing the points display"
           ],
@@ -547,7 +547,7 @@
             "The order id",
             "A wheel bone",
             "The vision bool",
-            "The medal row"
+            "A points definition"
           ],
           "answer": 0,
           "why": "The order is the intent."
@@ -559,7 +559,7 @@
           "choices": [
             "The fuel budget",
             "Setting the on-foot gait to 200",
-            "Erasing what the team can see",
+            "Wiping the cells the team has revealed",
             "Unequipping a formation"
           ],
           "answer": 0,

@@ -174,7 +174,7 @@
           "choices": [
             "Interact",
             "Its own frame loop",
-            "The timed glimpse",
+            "The hunter's short look",
             "A panic pulse"
           ],
           "answer": 0,
@@ -373,7 +373,7 @@
           "prompt": "A cupboard creak panics the player. Which call was wired to the sound?",
           "choices": [
             "The fear dispatcher, where the look belonged",
-            "The timed glimpse, which is what a creak should call",
+            "The hunter's short look, which is what a creak should call",
             "The hide interface",
             "The night save"
           ],

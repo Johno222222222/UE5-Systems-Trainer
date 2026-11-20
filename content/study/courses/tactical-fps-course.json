@@ -585,7 +585,7 @@
           "choices": [
             "Ask, decide, write the number, then listen",
             "A poll that subtracts in the widget, traces every frame, and ignores the server",
-            "Replicate the mesh, hardcode 99, hit the owner, then tick",
+            "Sharing the weapon mesh, hardcoding 99, hitting the owner, then ticking",
             "Damage from the key, focus from the constructor, wear from the widget"
           ],
           "answer": 0,

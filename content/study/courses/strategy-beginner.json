@@ -334,7 +334,7 @@
           "prompt": "Reveal assigns Visible on a clear trace. How often does that timer run?",
           "choices": [
             "Four times a second",
-            "Once on each drawn frame",
+            "On every picture the game draws",
             "Only when the player clicks",
             "Twice a second, with interest"
           ],
