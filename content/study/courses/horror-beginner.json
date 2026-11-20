@@ -2,672 +2,596 @@
   "id": "horror-beginner",
   "modules": {
     "sense": {
-      "plainEnglish": "In plain English, A glimpse, not a frame means: Begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain.",
-      "whyGame": "In a real game, getting a glimpse, not a frame wrong shows up as tracing from Tick, or giving a loud sound its own second brain. the Sense timer started at Begin Play is the repair, and the generated line `void UKitComponent::Graph_Sense_tpl_perception_sense() // node:tpl_perception_sense` is that repair in C++.",
+      "plainEnglish": "Begin Play starts one timer. The hunter looks every fifth of a second. A closed door blocks the look. A hit sets the alert flag. A miss should decay it. A dropped bottle calls that same look instead of growing a second brain.",
+      "whyGame": "Tracing every frame sees through pauses, and a private audio brain writes a flag the stalk never reads.",
       "expansions": [
         {
-          "title": "A glimpse, not a frame as a door",
-          "detail": "If a glimpse, not a frame is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The glimpse",
+          "detail": "The timer is the quiet look."
         },
         {
-          "title": "A glimpse, not a frame as data",
-          "detail": "Designer numbers for a glimpse, not a frame live on a row. a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit reads the row instead of a literal."
+          "title": "The bottle",
+          "detail": "It calls Sense immediately."
         },
         {
-          "title": "A glimpse, not a frame as a listener",
-          "detail": "Later systems listen for Sense. They do not tracing from Tick, or giving a loud sound its own second brain."
+          "title": "A miss",
+          "detail": "Without a decay the hunter stays sure forever."
         }
       ],
       "quiz": [
         {
-          "id": "horror-beginner-sense-c1",
+          "id": "horc-sense-1",
           "kind": "mc",
-          "prompt": "Begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure. What should own that decision in A glimpse, not a frame?",
+          "prompt": "How often does the beginner hunter look, when nothing sudden has happened?",
           "choices": [
-            "the Sense timer started at Begin Play. That keeps the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure.",
-            "The widget that draws a glimpse, not a frame owns it. That would break the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure.",
-            "Every client owns it, before Sense is replicated. That would break the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure."
+            "Every 0.2 seconds, from the timer Begin Play started",
+            "On every rendered frame",
+            "Only when the player presses use",
+            "Only when health changes"
           ],
           "answer": 0,
-          "why": "Begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure."
+          "why": "The timer is the glimpse."
         },
         {
-          "id": "horror-beginner-sense-c2",
+          "id": "horc-sense-2",
           "kind": "mc",
-          "prompt": "Begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure. The course graph contains `void UKitComponent::Graph_Sense_tpl_perception_sense() // node:tpl_perception_sense`. What is that line doing in gameplay terms?",
+          "prompt": "The sense excerpt assigns Alert = 1 on a hit. When does that line run?",
           "choices": [
-            "a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. That keeps the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure.",
-            "tracing from Tick, or giving a loud sound its own second brain. That would break the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure."
+            "Only after the trace reports a hit",
+            "Every time the timer fires, hit or miss",
+            "When the door yaw starts",
+            "When the player saves"
           ],
           "answer": 0,
-          "why": "a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit"
+          "why": "The assignment is gated on the hit."
         },
         {
-          "id": "horror-beginner-sense-c3",
+          "id": "horc-sense-3",
           "kind": "mc",
-          "prompt": "Begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure. Where should Sense sit?",
+          "prompt": "A closed door stands between the hunter and the player. What does the visibility trace do?",
           "choices": [
-            "After the 0.2 second timer fires, started by Sense through the timer. That keeps the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure.",
-            "It runs before Sense, so the player is not required. That would break the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure.",
-            "It sits on Tick beside Sense. That would break the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure."
+            "It stops on the door, so the hit write does not run",
+            "It continues through the door",
+            "It sets the alert flag anyway",
+            "It swings the door"
           ],
           "answer": 0,
-          "why": "the 0.2 second timer fires is the gate."
+          "why": "The channel stops on the door."
         },
         {
-          "id": "horror-beginner-sense-c4",
+          "id": "horc-sense-4",
+          "kind": "mc",
+          "prompt": "A miss never decays the alert flag. What does the hunter stay?",
+          "choices": [
+            "Sure, forever, after one glimpse",
+            "Calm, if a miss cleared suspicion",
+            "Frozen on the route",
+            "Unable to hear a bottle"
+          ],
+          "answer": 0,
+          "why": "The miss owes a decay."
+        },
+        {
+          "id": "horc-sense-5",
+          "kind": "mc",
+          "prompt": "A bottle hits the floor. What should it call?",
+          "choices": [
+            "The same Sense event the timer uses",
+            "A private audio brain",
+            "The player's use function",
+            "A loss of hit points"
+          ],
+          "answer": 0,
+          "why": "One look, one flag."
+        },
+        {
+          "id": "horc-sense-6",
           "kind": "tf",
-          "prompt": "True or false: Begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "horror-beginner-sense-c5",
-          "kind": "tf",
-          "prompt": "True or false: Begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure. You keep that promise by tracing from Tick, or giving a loud sound its own second brain.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "tracing from Tick, or giving a loud sound its own second brain is the broken schedule."
-        },
-        {
-          "id": "horror-beginner-sense-c6",
-          "kind": "mc",
-          "prompt": "Begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure. Which mistake breaks it?",
-          "choices": [
-            "tracing from Tick, or giving a loud sound its own second brain. That keeps the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure.",
-            "Leaving the real work on Sense. That would break the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure.",
-            "Waiting until the 0.2 second timer fires. That would break the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure.",
-            "Keeping the Sense timer started at Begin Play as the only writer. That would break the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure."
-          ],
-          "answer": 0,
-          "why": "tracing from Tick, or giving a loud sound its own second brain"
-        },
-        {
-          "id": "horror-beginner-sense-c7",
-          "kind": "tf",
-          "prompt": "True or false: Begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure. Sense through the timer remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the Sense timer started at Begin Play"
-        },
-        {
-          "id": "horror-beginner-sense-c8",
-          "kind": "mc",
-          "prompt": "Begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while Sense stayed one call. That keeps the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure.",
-            "A data row must be recompiled for this section. That would break the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure.",
-            "Sense only works for one class, so the cast is the stable choice. That would break the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "horror-beginner-sense-c9",
-          "kind": "mc",
-          "prompt": "Begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure. What does the player lose if Sense is removed?",
-          "choices": [
-            "A glimpse, not a frame never starts, because the timer was the only way in. That keeps the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure.",
-            "Nothing, because Tick still does the job. That would break the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure.",
-            "The constructor replaces Sense on the next map. That would break the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure."
-          ],
-          "answer": 0,
-          "why": "Sense is the start."
-        },
-        {
-          "id": "horror-beginner-sense-c10",
-          "kind": "tf",
-          "prompt": "True or false: Begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure. OnRep should perform the write again so the section does not wait for the Sense timer started at Begin Play.",
+          "prompt": "A missed horror trace should leave the alert flag unchanged forever.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "A miss should decay, or the hunter never forgives."
         },
         {
-          "id": "horror-beginner-sense-c11",
+          "id": "horc-sense-7",
           "kind": "mc",
-          "prompt": "Begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure. Which gate sits immediately in front of the write?",
+          "prompt": "You move the look onto the frame loop so glimpses feel fresh. What keeps running in a pause?",
           "choices": [
-            "the 0.2 second timer fires. That keeps the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure.",
-            "A Tick frame, whether or not Sense fired. That would break the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure.",
-            "A client prediction that skips the Sense timer started at Begin Play. That would break the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure.",
-            "A cast to every actor this course might spawn. That would break the rule that begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure."
+            "The trace, for a hunter that should be still",
+            "Only the door curve",
+            "Only the save write",
+            "No trace at all, if the frame loop always paused"
           ],
           "answer": 0,
-          "why": "the 0.2 second timer fires"
+          "why": "The timer can stop. A frame trace is easy to leave on."
         },
         {
-          "id": "horror-beginner-sense-c11b",
-          "kind": "tf",
-          "prompt": "True or false: Begin Play starts one timer. Sense runs every 0.2 seconds. The trace uses the visibility channel, so a closed door blocks it. A hit assigns Alert = 1 in the sample. A miss owes a decay, or the hunter stays sure forever. A dropped bottle calls the same Sense event. It does not grow a second brain. Tick that traces sees flicks the design wanted to forgive, and it spends a query on every hunter every frame. The player's IA_Interact is a different trace, from the camera, and it must not write Alert. Looking at a fuse is a use, not an announcement. Audio is instant because the sound calls Sense, not because the timer got faster. Health does not sense. Save stores Alert so a load does not forget that the hunter was already sure. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "horc-sense-8",
+          "kind": "mc",
+          "prompt": "Which line is the glimpse assignment?",
           "choices": [
-            "True",
-            "False"
+            "Alert set to 1 when the trace hits",
+            "IsOpen flipped by the door",
+            "Health subtracted on a bite",
+            "The use interface call"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "That is the hit write."
+        },
+        {
+          "id": "horc-sense-9",
+          "kind": "mc",
+          "prompt": "Where does a decay belong if you add one?",
+          "choices": [
+            "On the miss path inside Sense",
+            "At the top of every frame, before the trace",
+            "Inside the save, every frame",
+            "On the door's finished pin"
+          ],
+          "answer": 0,
+          "why": "Decay is the miss of the same event."
+        },
+        {
+          "id": "horc-sense-10",
+          "kind": "mc",
+          "prompt": "Who starts the glimpse timer?",
+          "choices": [
+            "Begin Play, once",
+            "Every call of Sense",
+            "The player's use key",
+            "The door overlap"
+          ],
+          "answer": 0,
+          "why": "One timer. Sense does not start another."
         }
-      ],
-      "graph": "perception"
+      ]
     },
     "use": {
-      "plainEnglish": "In plain English, Use is not the hunter means: IA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert.",
-      "whyGame": "In a real game, getting use is not the hunter wrong shows up as tracing from Tick, or giving a loud sound its own second brain. the Sense timer started at Begin Play is the repair, and the generated line `void UKitComponent::Graph_Sense_tpl_perception_sense() // node:tpl_perception_sense` is that repair in C++.",
+      "plainEnglish": "Use traces from the camera and calls Interact on a hit. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. A miss logs and stops. It does not raise the alert flag and it does not yaw a door.",
+      "whyGame": "If the hunter runs use, it turns valves. If use writes the alert flag, waving the crosshair at empty air alerts the house.",
       "expansions": [
         {
-          "title": "Use is not the hunter as a door",
-          "detail": "If use is not the hunter is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "A fuse",
+          "detail": "It implements Interact. The trace does not name the fuse."
         },
         {
-          "title": "Use is not the hunter as data",
-          "detail": "Designer numbers for use is not the hunter live on a row. a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit reads the row instead of a literal."
+          "title": "A miss",
+          "detail": "Log and return. Do not set Alert."
         },
         {
-          "title": "Use is not the hunter as a listener",
-          "detail": "Later systems listen for Sense. They do not tracing from Tick, or giving a loud sound its own second brain."
+          "title": "The hunter",
+          "detail": "Sense is the hunter. Use is the player."
         }
       ],
       "quiz": [
         {
-          "id": "horror-beginner-use-c1",
+          "id": "horc-use-1",
           "kind": "mc",
-          "prompt": "IA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call. What should own that decision in Use is not the hunter?",
+          "prompt": "A fuse, a hide lever, and a door handle all need the player's press. What do they implement?",
           "choices": [
-            "the Sense timer started at Begin Play. That keeps the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call.",
-            "The widget that draws use is not the hunter owns it. That would break the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call.",
-            "Every client owns it, before Sense is replicated. That would break the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call."
+            "Interact",
+            "A private frame graph each",
+            "The timed glimpse",
+            "Keeping hit points from going negative"
           ],
           "answer": 0,
-          "why": "IA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call."
+          "why": "One call."
         },
         {
-          "id": "horror-beginner-use-c2",
+          "id": "horc-use-2",
           "kind": "mc",
-          "prompt": "IA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call. The course graph contains `void UKitComponent::Graph_Sense_tpl_perception_sense() // node:tpl_perception_sense`. What is that line doing in gameplay terms?",
+          "prompt": "The use excerpt calls ProcessEvent on Interact after a hit. What does the call accomplish?",
           "choices": [
-            "a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. That keeps the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call.",
-            "tracing from Tick, or giving a loud sound its own second brain. That would break the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call."
+            "It runs the hit actor's own use function",
+            "It sets the hunter's alert flag",
+            "It swings the hinge by frame time",
+            "It subtracts health"
           ],
           "answer": 0,
-          "why": "a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit"
+          "why": "The interface is the press."
         },
         {
-          "id": "horror-beginner-use-c3",
+          "id": "horc-use-3",
           "kind": "mc",
-          "prompt": "IA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call. Where should Sense sit?",
+          "prompt": "The trace hits a hide lever. What runs next?",
           "choices": [
-            "After the 0.2 second timer fires, started by Sense through the timer. That keeps the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call.",
-            "It runs before Sense, so the player is not required. That would break the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call.",
-            "It sits on Tick beside Sense. That would break the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call."
+            "Interact on that lever",
+            "A cast that names the lever class",
+            "The timed glimpse",
+            "Turning the hinge by hand"
           ],
           "answer": 0,
-          "why": "the 0.2 second timer fires is the gate."
+          "why": "The lever answers the same function."
         },
         {
-          "id": "horror-beginner-use-c4",
+          "id": "horc-use-4",
+          "kind": "mc",
+          "prompt": "The hunter runs the player's use graph. What does the hunter start turning?",
+          "choices": [
+            "Valves and door handles",
+            "Only its own patrol",
+            "Only suspicion, which would be the right job",
+            "No valves at all, if use ignored every AI"
+          ],
+          "answer": 0,
+          "why": "Use is the player's press."
+        },
+        {
+          "id": "horc-use-5",
+          "kind": "mc",
+          "prompt": "The miss branch sets the alert flag. What alerts the hunter?",
+          "choices": [
+            "Waving the crosshair at empty air",
+            "A real glimpse",
+            "A bottle calling Sense",
+            "A finished door creak"
+          ],
+          "answer": 0,
+          "why": "A miss only logs."
+        },
+        {
+          "id": "horc-use-6",
           "kind": "tf",
-          "prompt": "True or false: IA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "horror-beginner-use-c5",
-          "kind": "tf",
-          "prompt": "True or false: IA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call. You keep that promise by tracing from Tick, or giving a loud sound its own second brain.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "tracing from Tick, or giving a loud sound its own second brain is the broken schedule."
-        },
-        {
-          "id": "horror-beginner-use-c6",
-          "kind": "mc",
-          "prompt": "IA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call. Which mistake breaks it?",
-          "choices": [
-            "tracing from Tick, or giving a loud sound its own second brain. That keeps the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call.",
-            "Leaving the real work on Sense. That would break the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call.",
-            "Waiting until the 0.2 second timer fires. That would break the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call.",
-            "Keeping the Sense timer started at Begin Play as the only writer. That would break the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call."
-          ],
-          "answer": 0,
-          "why": "tracing from Tick, or giving a loud sound its own second brain"
-        },
-        {
-          "id": "horror-beginner-use-c7",
-          "kind": "tf",
-          "prompt": "True or false: IA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call. Sense through the timer remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the Sense timer started at Begin Play"
-        },
-        {
-          "id": "horror-beginner-use-c8",
-          "kind": "mc",
-          "prompt": "IA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while Sense stayed one call. That keeps the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call.",
-            "A data row must be recompiled for this section. That would break the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call.",
-            "Sense only works for one class, so the cast is the stable choice. That would break the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "horror-beginner-use-c9",
-          "kind": "mc",
-          "prompt": "IA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call. What does the player lose if Sense is removed?",
-          "choices": [
-            "Use is not the hunter never starts, because the timer was the only way in. That keeps the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call.",
-            "Nothing, because Tick still does the job. That would break the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call.",
-            "The constructor replaces Sense on the next map. That would break the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call."
-          ],
-          "answer": 0,
-          "why": "Sense is the start."
-        },
-        {
-          "id": "horror-beginner-use-c10",
-          "kind": "tf",
-          "prompt": "True or false: IA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call. OnRep should perform the write again so the section does not wait for the Sense timer started at Begin Play.",
+          "prompt": "A missed use trace should raise the hunter's alert flag.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "The miss logs and stops."
         },
         {
-          "id": "horror-beginner-use-c11",
+          "id": "horc-use-7",
           "kind": "mc",
-          "prompt": "IA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call. Which gate sits immediately in front of the write?",
+          "prompt": "Where should the horror use trace start?",
           "choices": [
-            "the 0.2 second timer fires. That keeps the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call.",
-            "A Tick frame, whether or not Sense fired. That would break the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call.",
-            "A client prediction that skips the Sense timer started at Begin Play. That would break the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call.",
-            "A cast to every actor this course might spawn. That would break the rule that iA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call."
+            "At the camera, along the crosshair",
+            "At the hunter's eyes",
+            "Down at the feet",
+            "At the door hinge"
           ],
           "answer": 0,
-          "why": "the 0.2 second timer fires"
+          "why": "The player aims with the camera."
         },
         {
-          "id": "horror-beginner-use-c11b",
-          "kind": "tf",
-          "prompt": "True or false: IA_Interact traces from the camera. A hit calls Interact through ProcessEvent. A fuse, a hide lever, and a door handle share that name. The hunter does not run this graph. If it does, the hunter turns valves and the player's look writes Alert. The miss logs and stops. It does not raise Alert and it does not yaw a door. The door graph plays the curve after Interact tells it to. This graph does not own a timeline, or every usable actor would need a hinge. A cast list grows with every new prop. The interface does not. One trace per press is enough. A hover prompt can read the last hit. It still must not write Alert. The door timeline starts after the interface returns. This graph's job ended at the call. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "horc-use-8",
+          "kind": "mc",
+          "prompt": "The miss path yaws the nearest door. What moves that the player did not use?",
           "choices": [
-            "True",
-            "False"
+            "The hinge",
+            "Only suspicion, from the hunter look",
+            "Only the health clamp",
+            "Only a stored snapshot"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "A miss does not swing a door."
+        },
+        {
+          "id": "horc-use-9",
+          "kind": "mc",
+          "prompt": "Which function is the player's press, not the hunter look?",
+          "choices": [
+            "Interact after the use trace hits",
+            "Sense on its timer",
+            "The alert assignment inside Sense",
+            "A clamped bite"
+          ],
+          "answer": 0,
+          "why": "Use and Sense are different events."
+        },
+        {
+          "id": "horc-use-10",
+          "kind": "mc",
+          "prompt": "Art adds a new wall switch. What must it implement so the existing trace works?",
+          "choices": [
+            "Interact",
+            "A new cast in the use graph",
+            "Its own alert float",
+            "A timeline on Tick"
+          ],
+          "answer": 0,
+          "why": "The trace never lists classes."
         }
-      ],
-      "graph": "perception"
+      ]
     },
     "door": {
-      "plainEnglish": "In plain English, A curve has an end means: A door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue.",
-      "whyGame": "In a real game, getting a curve has an end wrong shows up as tracing from Tick, or giving a loud sound its own second brain. the Sense timer started at Begin Play is the repair, and the generated line `void UKitComponent::Graph_Sense_tpl_perception_sense() // node:tpl_perception_sense` is that repair in C++.",
+      "plainEnglish": "A door builds a timeline, keys a curve from closed to open, and plays it from the start. A flip writes whether it is open. The first use opens. The next closes. The creak calls Sense. Yawing the hinge every frame never finishes, so the creak has no end.",
+      "whyGame": "Without a finished event the hunter never gets a clean audio cue, and a creak that subtracts health damages the player for opening a cupboard.",
       "expansions": [
         {
-          "title": "A curve has an end as a door",
-          "detail": "If a curve has an end is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "The curve",
+          "detail": "PlayFromStart, keys at the two ends."
         },
         {
-          "title": "A curve has an end as data",
-          "detail": "Designer numbers for a curve has an end live on a row. a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit reads the row instead of a literal."
+          "title": "The flip",
+          "detail": "IsOpen alternates open and closed."
         },
         {
-          "title": "A curve has an end as a listener",
-          "detail": "Later systems listen for Sense. They do not tracing from Tick, or giving a loud sound its own second brain."
+          "title": "The creak",
+          "detail": "It calls Sense. It does not touch health."
         }
       ],
       "quiz": [
         {
-          "id": "horror-beginner-door-c1",
+          "id": "horc-door-1",
           "kind": "mc",
-          "prompt": "A door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house. What should own that decision in A curve has an end?",
+          "prompt": "The player uses a door. What starts the swing?",
           "choices": [
-            "the Sense timer started at Begin Play. That keeps the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house.",
-            "The widget that draws a curve has an end owns it. That would break the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house.",
-            "Every client owns it, before Sense is replicated. That would break the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house."
+            "PlayFromStart on the timeline",
+            "Adding frame time to the hinge yaw",
+            "A loss of hit points",
+            "The hunter's miss path"
           ],
           "answer": 0,
-          "why": "A door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house."
+          "why": "The curve has a start."
         },
         {
-          "id": "horror-beginner-door-c2",
+          "id": "horc-door-2",
           "kind": "mc",
-          "prompt": "A door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house. The course graph contains `void UKitComponent::Graph_Sense_tpl_perception_sense() // node:tpl_perception_sense`. What is that line doing in gameplay terms?",
+          "prompt": "FlipFlop writes IsOpen. What does the line record?",
           "choices": [
-            "a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. That keeps the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house.",
-            "tracing from Tick, or giving a loud sound its own second brain. That would break the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house."
+            "Whether this swing opened or closed",
+            "Whether the hunter can see the player",
+            "How much health to remove",
+            "Which way the patrol faces"
           ],
           "answer": 0,
-          "why": "a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit"
+          "why": "The bool is the door."
         },
         {
-          "id": "horror-beginner-door-c3",
+          "id": "horc-door-3",
           "kind": "mc",
-          "prompt": "A door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house. Where should Sense sit?",
+          "prompt": "The first use opened the door. What should the next use do?",
           "choices": [
-            "After the 0.2 second timer fires, started by Sense through the timer. That keeps the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house.",
-            "It runs before Sense, so the player is not required. That would break the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house.",
-            "It sits on Tick beside Sense. That would break the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house."
+            "Close it, because the flip alternates",
+            "Open it again from the start",
+            "Set the alert flag directly",
+            "Removing hit points"
           ],
           "answer": 0,
-          "why": "the 0.2 second timer fires is the gate."
+          "why": "The flip is the direction."
         },
         {
-          "id": "horror-beginner-door-c4",
+          "id": "horc-door-4",
+          "kind": "mc",
+          "prompt": "Tick yaws the hinge. What never arrives for the creak?",
+          "choices": [
+            "A finished event, so the sound has no clean end",
+            "Any rotation",
+            "The overlap that started the idea of a door",
+            "The open bool on the actor"
+          ],
+          "answer": 0,
+          "why": "A yaw has no finished pin."
+        },
+        {
+          "id": "horc-door-5",
+          "kind": "mc",
+          "prompt": "The creak plays. What should it call?",
+          "choices": [
+            "Sense, so the hunter hears the door",
+            "A loss of hit points, so a cupboard hurts",
+            "The player's use function",
+            "The save write"
+          ],
+          "answer": 0,
+          "why": "The creak is a sound, not damage."
+        },
+        {
+          "id": "horc-door-6",
           "kind": "tf",
-          "prompt": "True or false: A door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "horror-beginner-door-c5",
-          "kind": "tf",
-          "prompt": "True or false: A door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house. You keep that promise by tracing from Tick, or giving a loud sound its own second brain.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "tracing from Tick, or giving a loud sound its own second brain is the broken schedule."
-        },
-        {
-          "id": "horror-beginner-door-c6",
-          "kind": "mc",
-          "prompt": "A door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house. Which mistake breaks it?",
-          "choices": [
-            "tracing from Tick, or giving a loud sound its own second brain. That keeps the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house.",
-            "Leaving the real work on Sense. That would break the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house.",
-            "Waiting until the 0.2 second timer fires. That would break the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house.",
-            "Keeping the Sense timer started at Begin Play as the only writer. That would break the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house."
-          ],
-          "answer": 0,
-          "why": "tracing from Tick, or giving a loud sound its own second brain"
-        },
-        {
-          "id": "horror-beginner-door-c7",
-          "kind": "tf",
-          "prompt": "True or false: A door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house. Sense through the timer remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the Sense timer started at Begin Play"
-        },
-        {
-          "id": "horror-beginner-door-c8",
-          "kind": "mc",
-          "prompt": "A door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while Sense stayed one call. That keeps the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house.",
-            "A data row must be recompiled for this section. That would break the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house.",
-            "Sense only works for one class, so the cast is the stable choice. That would break the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "horror-beginner-door-c9",
-          "kind": "mc",
-          "prompt": "A door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house. What does the player lose if Sense is removed?",
-          "choices": [
-            "A curve has an end never starts, because the timer was the only way in. That keeps the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house.",
-            "Nothing, because Tick still does the job. That would break the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house.",
-            "The constructor replaces Sense on the next map. That would break the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house."
-          ],
-          "answer": 0,
-          "why": "Sense is the start."
-        },
-        {
-          "id": "horror-beginner-door-c10",
-          "kind": "tf",
-          "prompt": "True or false: A door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house. OnRep should perform the write again so the section does not wait for the Sense timer started at Begin Play.",
+          "prompt": "A door creak should subtract health.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "Damage is a different event."
         },
         {
-          "id": "horror-beginner-door-c11",
+          "id": "horc-door-7",
           "kind": "mc",
-          "prompt": "A door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house. Which gate sits immediately in front of the write?",
+          "prompt": "Which pin is the end of the swing?",
           "choices": [
-            "the 0.2 second timer fires. That keeps the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house.",
-            "A Tick frame, whether or not Sense fired. That would break the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house.",
-            "A client prediction that skips the Sense timer started at Begin Play. That would break the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house.",
-            "A cast to every actor this course might spawn. That would break the rule that a door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house."
+            "The timeline finished delegate",
+            "The next rendered frame",
+            "The hunter's miss path",
+            "The bite's lower bound"
           ],
           "answer": 0,
-          "why": "the 0.2 second timer fires"
+          "why": "Finished is the end."
         },
         {
-          "id": "horror-beginner-door-c11b",
-          "kind": "tf",
-          "prompt": "True or false: A door builds a timeline, keys a curve from 0 to 1, and calls PlayFromStart. FlipFlop writes IsOpen. The first use opens. The next closes. Tick that yaws the hinge never fires Finished, so the creak has no end and the hunter never gets a clean audio cue. The creak calls Sense. It does not subtract Health. A trap on the threshold calls Any Damage on the health graph. The door graph moves the mesh. It does not own the float. IsOpen is the state. The hinge transform is local. In co-op later, the bool replicates and the curve plays on each machine. Load sets the curve to the end. It does not call PlayFromStart, or the creak wakes the hunter in a saved house. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "horc-door-8",
+          "kind": "mc",
+          "prompt": "A trap on the door should hurt the player. Which event is that, instead of the creak?",
           "choices": [
-            "True",
-            "False"
+            "Damage, with its own clamp",
+            "The hunter's timed look",
+            "The flip of the open bool",
+            "The quiet look timer"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "Hurt is not the sound."
+        },
+        {
+          "id": "horc-door-9",
+          "kind": "mc",
+          "prompt": "Loading an open door by playing the curve from the start does what extra?",
+          "choices": [
+            "It creaks, and the hunter hears a door you already opened",
+            "It shows the open pose in silence",
+            "It refills health",
+            "It starts the player's use trace"
+          ],
+          "answer": 0,
+          "why": "Set the curve to the end."
+        },
+        {
+          "id": "horc-door-10",
+          "kind": "mc",
+          "prompt": "Which call is the swing, not the hunter look?",
+          "choices": [
+            "PlayFromStart on the door timeline",
+            "Sense on its timer",
+            "Alert set on a hit",
+            "A clamped bite"
+          ],
+          "answer": 0,
+          "why": "The curve swings. Sense looks."
         }
-      ],
-      "graph": "perception"
+      ]
     },
     "sight": {
-      "plainEnglish": "In plain English, Sight is not a bite means: A confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable.",
-      "whyGame": "In a real game, getting sight is not a bite wrong shows up as tracing from Tick, or giving a loud sound its own second brain. the Sense timer started at Begin Play is the repair, and the generated line `void UKitComponent::Graph_Sense_tpl_perception_sense() // node:tpl_perception_sense` is that repair in C++.",
+      "plainEnglish": "Seeing the player sets the alert flag. It does not subtract health. An attack calls damage, and that graph clamps. This lesson is single player, so a replication notify can be absent until a second machine exists.",
+      "whyGame": "Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero a reachable down instead of a stuck negative.",
       "expansions": [
         {
-          "title": "Sight is not a bite as a door",
-          "detail": "If sight is not a bite is a use, the hit calls one interface. A door, a switch, and a pickup can share it without a new cast."
+          "title": "A glimpse",
+          "detail": "It writes the alert flag only."
         },
         {
-          "title": "Sight is not a bite as data",
-          "detail": "Designer numbers for sight is not a bite live on a row. a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit reads the row instead of a literal."
+          "title": "A bite",
+          "detail": "Any Damage clamps. Sight does not."
         },
         {
-          "title": "Sight is not a bite as a listener",
-          "detail": "Later systems listen for Sense. They do not tracing from Tick, or giving a loud sound its own second brain."
+          "title": "A second machine",
+          "detail": "The moment co-op arrives, the write needs an authority gate and a notify that only presents."
         }
       ],
       "quiz": [
         {
-          "id": "horror-beginner-sight-c1",
+          "id": "horc-sight-1",
           "kind": "mc",
-          "prompt": "A confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float. What should own that decision in Sight is not a bite?",
+          "prompt": "The hunter confirms a sight. What should change?",
           "choices": [
-            "the Sense timer started at Begin Play. That keeps the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float.",
-            "Tick owns it, so the section never misses a frame. That would break the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float.",
-            "The widget that draws sight is not a bite owns it. That would break the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float.",
-            "Every client owns it, before Sense is replicated. That would break the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float."
+            "The alert flag",
+            "How many hit points the player has",
+            "Turning the hinge",
+            "The save slot"
           ],
           "answer": 0,
-          "why": "A confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float."
+          "why": "Sight is not a bite."
         },
         {
-          "id": "horror-beginner-sight-c2",
+          "id": "horc-sight-2",
           "kind": "mc",
-          "prompt": "A confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float. The course graph contains `void UKitComponent::Graph_Sense_tpl_perception_sense() // node:tpl_perception_sense`. What is that line doing in gameplay terms?",
+          "prompt": "Sense subtracts health on every glimpse. What kills the player?",
           "choices": [
-            "a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit. That keeps the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float.",
-            "tracing from Tick, or giving a loud sound its own second brain. That would break the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float.",
-            "The constructor loads a save slot and applies it before play. That would break the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float.",
-            "The line replicates a mesh pointer instead of the value. That would break the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float."
+            "Being seen, with no attack",
+            "A real damage event",
+            "A door creak that only calls Sense",
+            "A miss that decays the flag"
           ],
           "answer": 0,
-          "why": "a trace on a 0.2 second timer that sets Alert to 1 only on a clear hit"
+          "why": "The look must not bite."
         },
         {
-          "id": "horror-beginner-sight-c3",
+          "id": "horc-sight-3",
           "kind": "mc",
-          "prompt": "A confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float. Where should Sense sit?",
+          "prompt": "An attack should hurt. Which event starts that write?",
           "choices": [
-            "After the 0.2 second timer fires, started by Sense through the timer. That keeps the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float.",
-            "It runs before Sense, so the player is not required. That would break the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float.",
-            "It sits on Tick beside Sense. That would break the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float.",
-            "It sits in OnRep and applies the rule a second time. That would break the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float."
+            "Any Damage",
+            "The hunter's timed look",
+            "The door flip",
+            "The use miss"
           ],
           "answer": 0,
-          "why": "the 0.2 second timer fires is the gate."
+          "why": "Damage is the bite."
         },
         {
-          "id": "horror-beginner-sight-c4",
+          "id": "horc-sight-4",
+          "kind": "mc",
+          "prompt": "The bite skips the clamp. What number becomes reachable that a down should pass through cleanly?",
+          "choices": [
+            "A negative health that never quite hits zero",
+            "Exactly zero, as a deliberate down",
+            "The alert flag at 1",
+            "The open bool"
+          ],
+          "answer": 0,
+          "why": "The clamp makes zero reachable."
+        },
+        {
+          "id": "horc-sight-5",
+          "kind": "mc",
+          "prompt": "This lesson is single player. What can be absent until a second machine exists?",
+          "choices": [
+            "A replication notify",
+            "The hunter's suspicion",
+            "The damage clamp",
+            "The fifth-of-a-second look"
+          ],
+          "answer": 0,
+          "why": "One machine does not need a notify yet."
+        },
+        {
+          "id": "horc-sight-6",
           "kind": "tf",
-          "prompt": "True or false: A confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "The takeaway states that directly."
-        },
-        {
-          "id": "horror-beginner-sight-c5",
-          "kind": "tf",
-          "prompt": "True or false: A confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float. You keep that promise by tracing from Tick, or giving a loud sound its own second brain.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 1,
-          "why": "tracing from Tick, or giving a loud sound its own second brain is the broken schedule."
-        },
-        {
-          "id": "horror-beginner-sight-c6",
-          "kind": "mc",
-          "prompt": "A confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float. Which mistake breaks it?",
-          "choices": [
-            "tracing from Tick, or giving a loud sound its own second brain. That keeps the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float.",
-            "Leaving the real work on Sense. That would break the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float.",
-            "Waiting until the 0.2 second timer fires. That would break the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float.",
-            "Keeping the Sense timer started at Begin Play as the only writer. That would break the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float."
-          ],
-          "answer": 0,
-          "why": "tracing from Tick, or giving a loud sound its own second brain"
-        },
-        {
-          "id": "horror-beginner-sight-c7",
-          "kind": "tf",
-          "prompt": "True or false: A confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float. Sense through the timer remains the start.",
-          "choices": [
-            "True",
-            "False"
-          ],
-          "answer": 0,
-          "why": "the Sense timer started at Begin Play"
-        },
-        {
-          "id": "horror-beginner-sight-c8",
-          "kind": "mc",
-          "prompt": "A confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float. A teammate casts to every Blueprint instead. What scales worse as content is added?",
-          "choices": [
-            "The cast list grows with every new actor, while Sense stayed one call. That keeps the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float.",
-            "The single interface call is what grows, because each Blueprint needs a new function. That would break the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float.",
-            "A data row must be recompiled for this section. That would break the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float.",
-            "Sense only works for one class, so the cast is the stable choice. That would break the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float."
-          ],
-          "answer": 0,
-          "why": "One event stays stable."
-        },
-        {
-          "id": "horror-beginner-sight-c9",
-          "kind": "mc",
-          "prompt": "A confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float. What does the player lose if Sense is removed?",
-          "choices": [
-            "Sight is not a bite never starts, because the timer was the only way in. That keeps the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float.",
-            "Nothing, because Tick still does the job. That would break the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float.",
-            "Only the widget. Gameplay for this section continues. That would break the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float.",
-            "The constructor replaces Sense on the next map. That would break the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float."
-          ],
-          "answer": 0,
-          "why": "Sense is the start."
-        },
-        {
-          "id": "horror-beginner-sight-c10",
-          "kind": "tf",
-          "prompt": "True or false: A confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float. OnRep should perform the write again so the section does not wait for the Sense timer started at Begin Play.",
+          "prompt": "A confirmed sight should subtract health.",
           "choices": [
             "True",
             "False"
           ],
           "answer": 1,
-          "why": "OnRep shows the result."
+          "why": "Sight sets the flag. Damage hurts."
         },
         {
-          "id": "horror-beginner-sight-c11",
+          "id": "horc-sight-7",
           "kind": "mc",
-          "prompt": "A confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float. Which gate sits immediately in front of the write?",
+          "prompt": "A second machine joins and the client applies the bite locally. What will disagree?",
           "choices": [
-            "the 0.2 second timer fires. That keeps the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float.",
-            "A Tick frame, whether or not Sense fired. That would break the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float.",
-            "A client prediction that skips the Sense timer started at Begin Play. That would break the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float.",
-            "A cast to every actor this course might spawn. That would break the rule that a confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float."
+            "Which body fell",
+            "Whether the door curve exists",
+            "Whether Sense is a function",
+            "The camera's existence"
           ],
           "answer": 0,
-          "why": "the 0.2 second timer fires"
+          "why": "That is when the authority gate arrives."
         },
         {
-          "id": "horror-beginner-sight-c11b",
-          "kind": "tf",
-          "prompt": "True or false: A confirmed sight sets Alert. It does not subtract Health. An attack calls Any Damage, and that graph clamps. Sense that subtracts on every glimpse kills the player for being seen, and it skips the clamp that makes zero reachable. This beginner lesson is single player, so OnRep can be absent. The moment a second machine exists, the health write grows a gate. The door, the patrol, and the save do not subtract. A missed trace owes a decay. Leaving Alert at 1 forever means one glimpse is a permanent chase. The decay is a subtract on the miss inside Sense, not a Tick that drains health. Save stores Alert and IsOpen. It does not store the hinge. Death is a branch on zero after the clamp, still on the machine that owns the float. Sharing the write with the save graph and applying it from Tick between events is safe.",
+          "id": "horc-sight-8",
+          "kind": "mc",
+          "prompt": "Which line is the bite, not the glimpse?",
           "choices": [
-            "True",
-            "False"
+            "A clamped health subtract inside damage",
+            "Alert set to 1 on a clear trace",
+            "IsOpen flipped by the door",
+            "Interact called from the use trace"
           ],
-          "answer": 1,
-          "why": "Saves load at Begin Play. They do not poll."
+          "answer": 0,
+          "why": "Damage owns the number."
+        },
+        {
+          "id": "horc-sight-9",
+          "kind": "mc",
+          "prompt": "The creak calls Sense and Sense subtracts health. What hurts the player for opening a cupboard?",
+          "choices": [
+            "The sound path, which should only alert",
+            "A separate damage volume on the door",
+            "The clamp, working as designed",
+            "A miss that decays the flag"
+          ],
+          "answer": 0,
+          "why": "The creak is a look. The bite is damage."
+        },
+        {
+          "id": "horc-sight-10",
+          "kind": "mc",
+          "prompt": "You want zero to mean down, not a stuck negative. Where does that rule live?",
+          "choices": [
+            "In the damage clamp",
+            "In the glimpse assignment",
+            "In the door flip",
+            "In the use miss log"
+          ],
+          "answer": 0,
+          "why": "The clamp is what makes zero reachable."
         }
-      ],
-      "graph": "perception"
+      ]
     }
   }
 }
