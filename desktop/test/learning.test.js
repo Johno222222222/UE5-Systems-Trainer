@@ -9,7 +9,7 @@ const { pathToFileURL } = require("url");
 const { startServer } = require("../server");
 const { TEMPLATES, normalizeSystem, buildUserText } = require("../logic");
 const { attachStarters } = require("../templateLearning");
-const { learningGaps, fillLearning } = require("../learning");
+const { learningGaps, fillLearning, LEARNING_PROMPT } = require("../learning");
 
 const SYSTEM = {
   system_name: "Health And Damage",
@@ -87,6 +87,15 @@ test("learning data must cover challenges and every parameter, then fills the ga
   assert.deepEqual(filled.parameter_effects.map((item) => item.key).sort(), ["max_health", "regen"]);
   const whole = fillLearning(goodLearning(), SYSTEM);
   assert.equal(learningGaps(whole, SYSTEM).length, 0);
+});
+
+test("the learning prompt keeps the anchors and does not ship sample answers", () => {
+  assert.match(LEARNING_PROMPT, /At least 2 challenges/);
+  assert.match(LEARNING_PROMPT, /anchor\.kind is "node"/);
+  assert.match(LEARNING_PROMPT, /anchor\.kind is "cpp"/);
+  assert.match(LEARNING_PROMPT, /parameter key you are given/);
+  assert.equal(LEARNING_PROMPT.includes("the crashy version"), false);
+  assert.equal(LEARNING_PROMPT.includes("Max Health"), false);
 });
 
 test("a project saved before learning still opens and can be sent back to the model", () => {

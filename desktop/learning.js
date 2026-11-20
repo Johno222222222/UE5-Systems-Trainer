@@ -5,35 +5,16 @@
 
 const { ensurePractice } = require("./practice");
 
-const LEARNING_PROMPT = `You are teaching a game developer who just received a finished Unreal system. The code is already written. Do not rewrite it.
-Respond with ONLY a raw JSON object, no markdown, matching this shape:
-{
-  "challenges": [{"title":"short","detail":"one or two sentences","prompt":"What happens?","choices":["the careful version","the crashy version"],"answer":0,"why_people_pick":"why the wrong one is tempting","reveal":{"node_ids":["n1"],"lines":[{"file":".cpp","line":2}],"why_id":"n1"},"related":{"kind":"parameter","key":"max_health","label":"Max Health"}}],
-  "why_notes": [{
-    "anchor": {"kind":"node","node_id":"n1"},
-    "one_line":"one sentence a designer can read at a glance",
-    "tradeoff":"what you give up by doing it this way",
-    "common_mistake":"the mistake people make here",
-    "concept_id":"kebab-case-id",
-    "concept_title":"Short Concept Name"
-  }],
-  "parameter_effects": [{"key":"max_health","effect":"what changing this value changes in the system"}],
-  "prerequisites": ["short topic"],
-  "complexity": "beginner",
-  "related_concepts": [{"id":"kebab-case-id","title":"Short Concept Name"}],
-  "traps": [{"title":"Common trap name","detail":"why this pattern hurts in Unreal"}],
-  "module_notes": [{"name":"ModuleName","note":"what adding or removing this module changes architecturally"}],
-  "what_ifs": [{"title":"Tick vs timer","variants":[{"id":"timer","label":"Timer","code":"void Run() { /* timer */ }"},{"id":"tick","label":"Tick","code":"void Tick() { /* every frame */ }"}]}],
-  "parameter_impacts": [{"key":"max_health","lines":[{"file":".h","line":4}]}]
-}
-Rules:
-- At least 2 challenges.
+const LEARNING_PROMPT = `You teach a game developer who has just received a finished Unreal system. The code is already written. You do not rewrite it.
+The reply is one compact JSON object and nothing else. Placeholder words mark the shape. Replace every one of them.
+{"challenges":[{"title":"string","detail":"string","prompt":"string","choices":["string","string"],"answer":0,"why_people_pick":"string","reveal":{"node_ids":["n1"],"lines":[{"file":".cpp","line":1}],"why_id":"n1"},"related":{"kind":"parameter","key":"key","label":"string"}}],"why_notes":[{"anchor":{"kind":"node","node_id":"n1"},"one_line":"string","tradeoff":"string","common_mistake":"string","concept_id":"kebab-case","concept_title":"string"}],"parameter_effects":[{"key":"key","effect":"string"}],"prerequisites":["string"],"complexity":"beginner","related_concepts":[{"id":"kebab-case","title":"string"}],"traps":[{"title":"string","detail":"string"}],"module_notes":[{"name":"Name","note":"string"}],"what_ifs":[{"title":"string","variants":[{"id":"id","label":"string","code":"string"}]}],"parameter_impacts":[{"key":"key","lines":[{"file":".h","line":1}]}]}
+Counts and anchors:
+- At least 2 challenges. answer is the index of the careful choice.
+- why_notes: at least 3 whose anchor.kind is "node" and at least 2 whose anchor.kind is "cpp". A node anchor uses a node id from the list you are given. A cpp anchor is {"kind":"cpp","file":".h" or ".cpp","line":N} and N is a line that exists in that file.
 - One parameter_effects entry for every parameter key you are given, using that exact key.
-- why_notes: at least 3 whose anchor.kind is "node" and at least 2 whose anchor.kind is "cpp".
-- A node anchor uses a node id from the list you are given. A cpp anchor is {"kind":"cpp","file":".h" or ".cpp","line":N} and N is a line number that exists in that file.
 - complexity is "beginner", "intermediate", or "advanced".
-- traps should name real Unreal mistakes when they apply, such as Tick overuse, Cast instead of Interface, or Get All Actors every frame.
-- one_line is a single sentence. tradeoff and common_mistake are one or two sentences.`;
+- one_line is one sentence. tradeoff and common_mistake are one or two sentences.
+- traps name a real Unreal mistake when it applies, such as Tick overuse, Cast instead of an interface, or Get All Actors every frame.`;
 
 function asList(value) {
   return Array.isArray(value) ? value.filter((item) => item && typeof item === "object") : [];

@@ -443,7 +443,7 @@ async function startServer(options = {}) {
       const tail = raw.slice(-2500);
       prompt = mode === "append"
         ? `The previous JSON reply was cut off at the output limit. Continue EXACTLY from the last character of the tail. Do not repeat the tail. Do not add commentary or code fences.\n\nTAIL:\n${tail}`
-        : `The JSON below was cut off inside the C++ or is missing a section. Reply with ONE complete JSON object for the same system. Write full cpp_header and cpp_source, plus blueprint_pseudocode, setup_guide, and node_graph_nodes. Do not stop mid-function.\n\nINCOMPLETE:\n${raw.slice(0, 12000)}`;
+        : `The JSON below was cut off inside the C++ or is missing a section. Reply with ONE complete compact JSON object for the same system. Write full cpp_header and cpp_source, plus blueprint_pseudocode, setup_guide, and node_graph_nodes. Do not stop mid-function.\n\nINCOMPLETE:\n${raw.slice(0, 12000)}`;
     }
     return { raw, truncated, accepted: false };
   }
@@ -1254,7 +1254,7 @@ async function startServer(options = {}) {
     const known = (Array.isArray(body.known_issues) ? body.known_issues : []).map((k) => `- ${String(k).slice(0, 200)}`).join("\n") || "(none)";
     const fileBase = String(body.file_base || "System").slice(0, 120);
     const version = normalizeUnrealVersion(body.unreal_version) || DEFAULT_UNREAL_VERSION;
-    const text = `Target Unreal version: UE ${version}\n\nKNOWN ISSUES:\n${known}\n\n=== ${fileBase}.h ===\n${header.slice(0, 40000)}\n\n=== ${fileBase}.cpp ===\n${source.slice(0, 60000)}`;
+    const text = `KNOWN ISSUES:\n${known}\n\n=== ${fileBase}.h ===\n${header.slice(0, 40000)}\n\n=== ${fileBase}.cpp ===\n${source.slice(0, 60000)}`;
     const raw = await ask(llm, { system: promptsFor(version).review, user: text, maxTokens: 8000, timeoutMs: 50000, kind: "review" });
     let issues;
     try {
@@ -1288,7 +1288,7 @@ async function startServer(options = {}) {
     const version = normalizeUnrealVersion(body.unreal_version) || DEFAULT_UNREAL_VERSION;
     const issues = issueList.map((t, i) => `${i + 1}. ${t.slice(0, 500)}`).join("\n");
     const buildLog = String(body.build_log || "").slice(-4000);
-    const text = `Target Unreal version: UE ${version}\n\nISSUES:\n${issues}${buildLog ? `\n\nUNREAL BUILD LOG (tail):\n${buildLog}` : ""}\n\n=== ${fileBase}.h ===\n${header.slice(0, 40000)}\n\n=== ${fileBase}.cpp ===\n${source.slice(0, 60000)}`;
+    const text = `ISSUES:\n${issues}${buildLog ? `\n\nUNREAL BUILD LOG (tail):\n${buildLog}` : ""}\n\n=== ${fileBase}.h ===\n${header.slice(0, 40000)}\n\n=== ${fileBase}.cpp ===\n${source.slice(0, 60000)}`;
     const raw = await ask(llm, { system: promptsFor(version).fix, user: text, maxTokens: 12000, timeoutMs: 55000, kind: "fix" });
     const files = { ".h": header, ".cpp": source };
     let applied;
@@ -1317,7 +1317,7 @@ async function startServer(options = {}) {
     }
     const fileBase = String(body.file_base || "System").slice(0, 120);
     const version = normalizeUnrealVersion(body.unreal_version) || DEFAULT_UNREAL_VERSION;
-    const text = `Target Unreal version: UE ${version}\n\nHeader file name: ${fileBase}.h\n\n=== ${fileBase}.h ===\n${header.slice(0, 40000)}\n\n=== ${fileBase}.cpp ===\n${source.slice(0, 60000)}`;
+    const text = `Header file name: ${fileBase}.h\n\n=== ${fileBase}.h ===\n${header.slice(0, 40000)}\n\n=== ${fileBase}.cpp ===\n${source.slice(0, 60000)}`;
     const raw = await ask(llm, { system: promptsFor(version).tests, user: text, maxTokens: 12000, timeoutMs: 55000, kind: "tests" });
     let data;
     try {

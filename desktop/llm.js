@@ -18,7 +18,12 @@ const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 const OLLAMA_URL = "http://127.0.0.1:11434/api/chat";
 
-function requestFor({ provider, model, apiKey, system, user, images, maxTokens, stream }) {
+// Stable routing key for OpenAI prompt caching on gpt-4.1 and gpt-5-mini.
+// It does not add tokens. The cached prefix is the system message, which
+// stays byte-stable for a given Unreal version.
+const PROMPT_CACHE_KEY = "ue5-architect";
+
+function requestFor({ provider, model, apiKey, system, user, images, maxTokens, stream, cacheSystem = true }) {
   const imageParts = images || [];
   if (provider === "gemini") {
     const parts = [{ text: user }];
@@ -62,6 +67,7 @@ function requestFor({ provider, model, apiKey, system, user, images, maxTokens, 
     };
     // GPT-5 chat models reject a custom temperature.
     if (!String(model).startsWith("gpt-5")) body.temperature = 0.7;
+    if (cacheSystem) body.prompt_cache_key = PROMPT_CACHE_KEY;
     return {
       url: OPENAI_URL,
       headers: {
@@ -92,7 +98,11 @@ function requestFor({ provider, model, apiKey, system, user, images, maxTokens, 
         model,
         max_tokens: maxTokens,
         temperature: 0.7,
-        system,
+        // Breakpoint on the system text only. A top-level cache_control would
+        // also cache the user message, which changes every request.
+        system: cacheSystem
+          ? [{ type: "text", text: system, cache_control: { type: "ephemeral" } }]
+          : system,
         messages: [{ role: "user", content }],
       },
     };
@@ -307,39 +317,57 @@ function consumeSseLine(provider, line, state, onChars) {
  * onChars(n) is called with the number of characters received so far.
  * fetchImpl is injectable for tests.
  */
-async function complete({ provider, model, apiKey, system, user, images, maxTokens, onChars, timeoutMs, fetchImpl, signal }) {
+function cacheRejected(exc) {
+  const msg = String(exc?.message || "").toLowerCase();
+  return (exc?.status_code === 400 || exc?.statusCode === 400)
+    && /cache_control|prompt_cache_key/.test(msg);
+}
+
+async function complete({ provider, model, apiKey, system, user, images, maxTokens, onChars, timeoutMs, fetchImpl, signal, cacheSystem = true }) {
   const stream = typeof onChars === "function";
-  const req = requestFor({ provider, model, apiKey, system, user, images, maxTokens, stream });
   const fetchFn = fetchImpl || globalThis.fetch;
-  const ac = new AbortController();
-  const timer = setTimeout(() => ac.abort(), timeoutMs || 120000);
-  if (signal) {
-    if (signal.aborted) ac.abort();
-    else signal.addEventListener("abort", () => ac.abort(), { once: true });
+  async function once(useCache) {
+    const req = requestFor({
+      provider, model, apiKey, system, user, images, maxTokens, stream, cacheSystem: useCache,
+    });
+    const ac = new AbortController();
+    const timer = setTimeout(() => ac.abort(), timeoutMs || 120000);
+    if (signal) {
+      if (signal.aborted) ac.abort();
+      else signal.addEventListener("abort", () => ac.abort(), { once: true });
+    }
+    try {
+      const res = await fetchFn(req.url, {
+        method: "POST",
+        headers: req.headers,
+        body: JSON.stringify(req.body),
+        signal: ac.signal,
+      });
+      const read = await readResponse(res, provider, onChars);
+      return {
+        text: read.text,
+        finishReason: read.finishReason,
+        truncated: isTruncatedFinish(read.finishReason),
+      };
+    } catch (exc) {
+      if (exc?.name === "AbortError" || ac.signal.aborted) {
+        const err = new Error("timeout");
+        err.name = "AbortError";
+        err.status_code = 504;
+        throw err;
+      }
+      throw exc;
+    } finally {
+      clearTimeout(timer);
+    }
   }
   try {
-    const res = await fetchFn(req.url, {
-      method: "POST",
-      headers: req.headers,
-      body: JSON.stringify(req.body),
-      signal: ac.signal,
-    });
-    const read = await readResponse(res, provider, onChars);
-    return {
-      text: read.text,
-      finishReason: read.finishReason,
-      truncated: isTruncatedFinish(read.finishReason),
-    };
+    return await once(cacheSystem !== false);
   } catch (exc) {
-    if (exc?.name === "AbortError" || ac.signal.aborted) {
-      const err = new Error("timeout");
-      err.name = "AbortError";
-      err.status_code = 504;
-      throw err;
-    }
+    // A provider that does not know the cache field would fail the whole
+    // request. Drop the field and send the same prompt once more.
+    if (cacheSystem !== false && cacheRejected(exc)) return once(false);
     throw exc;
-  } finally {
-    clearTimeout(timer);
   }
 }
 
@@ -373,6 +401,7 @@ function stubFetch() {
 module.exports = {
   complete,
   requestFor,
+  PROMPT_CACHE_KEY,
   textFromJson,
   finishReasonFrom,
   isTruncatedFinish,
