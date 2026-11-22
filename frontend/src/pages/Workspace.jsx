@@ -187,6 +187,7 @@ export default function Workspace() {
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState(0);
   const [tab, setTab] = useState(() => readDraft("tab", "graph"));
+  const [stackOpen, setStackOpen] = useState(true);
   const [previousResult, setPreviousResult] = useState(() => readDraft("previousResult", null));
   const [notes, setNotes] = useState(() => readDraft("notes", ""));
   const [projectContext, setProjectContext] = useState(() => readDraft("projectContext", readStoredContext));
@@ -1767,10 +1768,10 @@ export default function Workspace() {
             )}
             {tab === "graph" && (
               <div className="flex flex-col h-full min-h-0">
-                <div className="relative flex-1 min-h-0 overflow-hidden">
                 {(result?.stacked_from?.length > 0 || result?.stack_map?.shared?.length || result?.stack_map?.conflicts?.length) && (
-                  <div className="absolute left-3 top-[9.5rem] z-10 max-w-xs max-h-[calc(100%-14rem)] overflow-auto panel p-3" data-testid="stack-map">
-                    <div className="eyebrow mb-1">Stack map</div>
+                  <div className="stack-map panel p-3 shrink-0" data-testid="stack-map">
+                    <button type="button" className="eyebrow mb-1" data-testid="stack-map-toggle" onClick={() => setStackOpen((open) => !open)}>{stackOpen ? "Hide stack map" : "Stack map"}</button>
+                    {stackOpen && (<>
                     {(result.stack_map?.shared || []).map((item) => (
                       <div key={`${item.kind}-${item.name}`} className="text-[12px] text-[var(--text-secondary)]" data-testid={`stack-shared-${item.name}`}>
                         Shared {item.kind}: {item.name}{(item.systems || []).length ? ` · ${item.systems.join(", ")}` : ""}
@@ -1782,8 +1783,10 @@ export default function Workspace() {
                     {!result.stack_map?.shared?.length && !result.stack_map?.conflicts?.length && (
                       <div className="text-[12px] text-[var(--text-secondary)]">No shared interface or class clash was found in the stacked sources.</div>
                     )}
+                    </>)}
                   </div>
                 )}
+                <div className="relative flex-1 min-h-0 overflow-hidden">
                 {result?.confidence === "low" && (
                   <div className="absolute right-4 top-16 z-20 max-w-sm panel p-3 border-[var(--unreal-orange)]" data-testid="low-confidence">
                     <div className="eyebrow mb-1">Low confidence</div>

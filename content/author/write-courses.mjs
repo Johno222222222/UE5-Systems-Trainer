@@ -103,7 +103,7 @@ Formation offsets are data too. Saving every offset bloats the slot. Saving the 
 const intermediate = {
   id: "general-intermediate",
   title: "Systems, intermediate",
-  summary: "A short cross-genre course for the Project JOHNO rules: replication and OnRep, area of interest versus fog, an L2 mapping layer, effects versus Tick, and save structs that do not replay derived work.",
+  summary: "A short cross-genre course for the project rules: replication and OnRep, area of interest versus fog, an L2 mapping layer, effects versus Tick, and save structs that do not replay derived work.",
   level: "intermediate",
   genre: "general",
   glossary_tags: ["Core", "Networking", "Data"],

@@ -3,7 +3,7 @@
 
 import { systemChip } from "./workspaceSession.mjs";
 
-export const APP_VERSION = "1.19.0";
+export const APP_VERSION = "1.19.1";
 
 export const SECTION_REGISTRY = [
   { id: "home", label: "Home", exists: true, screen: "home", acceptsSystem: false },

@@ -78,8 +78,8 @@ export default function Programs() {
   const [packProblems, setPackProblems] = useState([]);
   const [courses, setCourses] = useState([]);
   const [tracks, setTracks] = useState([]);
-  const [genre, setGenre] = useState("fps");
-  const [trackLevel, setTrackLevel] = useState("beginner");
+  const [genre, setGenre] = useState("all");
+  const [trackLevel, setTrackLevel] = useState("all");
   const [track, setTrack] = useState(null);
   const [sectionIndex, setSectionIndex] = useState(0);
   const [trackAnswers, setTrackAnswers] = useState({});
@@ -304,12 +304,13 @@ export default function Programs() {
             </div>
           )}
           <div className="mt-4 flex flex-wrap gap-2" data-testid="track-filters">
-            {["fps", "tps", "horror", "strategy"].map((id) => (
-              <button key={id} type="button" className={`chip ${genre === id ? "active" : ""}`} data-testid={`track-genre-${id}`} onClick={() => setGenre(id)}>{id.toUpperCase()}</button>
+            {[["all", "All"], ["fps", "FPS"], ["tps", "TPS"], ["horror", "Horror"], ["strategy", "Strategy"]].map(([id, label]) => (
+              <button key={id} type="button" className={`chip ${genre === id ? "active" : ""}`} data-testid={`track-genre-${id}`} onClick={() => setGenre(id)}>{label}</button>
             ))}
           </div>
           <div className="track-divider" data-testid="track-group-divider" />
           <div className="mt-3 flex flex-wrap items-center gap-2" data-testid="track-level-row">
+            <button type="button" className={`chip ${trackLevel === "all" ? "active" : ""}`} data-testid="track-level-all" onClick={() => setTrackLevel("all")}>All levels</button>
             <button type="button" className={`chip ${trackLevel === "beginner" ? "active" : ""}`} data-testid="track-level-beginner" onClick={() => setTrackLevel("beginner")}>Beginner</button>
             <button type="button" className={`chip ${trackLevel === "intermediate" ? "active" : ""}`} data-testid="track-level-intermediate" onClick={() => setTrackLevel("intermediate")}>Intermediate</button>
             <span className="track-divider-inline" data-testid="track-load-divider" />
@@ -338,7 +339,7 @@ export default function Programs() {
             Editable C++ and node graph assignments with automatic grading are coming in a future update. The assignments in a lesson are self-scored, with a reveal toggle.
           </p>
           <div className="home-grid mt-3">
-            {tracks.filter((item) => item.genre === genre && item.level === trackLevel).map((item) => (
+            {tracks.filter((item) => (genre === "all" || item.genre === genre) && (trackLevel === "all" || item.level === trackLevel)).map((item) => (
               <button key={item.id} type="button" className="panel home-card text-left" data-testid={`track-card-${item.id}`} onClick={() => openTrack(item.id)}>
                 <div className="font-sub font-semibold text-[15px]">{item.title}</div>
                 <p className="mt-1 text-[12px] text-[var(--text-secondary)]">{item.summary}</p>
